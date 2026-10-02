@@ -23,7 +23,7 @@ public:
     RemasterCoreBridge();
 
     void reset();
-    void step(const StringName &action);
+    int64_t step(const StringName &action);
     Dictionary snapshot() const;
     PackedByteArray save_state() const;
     bool load_state(const PackedByteArray &data);
