@@ -20,6 +20,7 @@ class ConvertWorldTests(unittest.TestCase):
             (root / "data/layouts/TestTown").mkdir(parents=True)
             (root / "data/maps/TestTown").mkdir(parents=True)
             (root / "src/data/tilesets").mkdir(parents=True)
+            (root / "include/constants").mkdir(parents=True)
             (root / "data/tilesets/primary/test_primary").mkdir(parents=True)
             (root / "data/tilesets/secondary/test_secondary").mkdir(parents=True)
 
@@ -30,6 +31,19 @@ class ConvertWorldTests(unittest.TestCase):
                         "gMapGroup_Test": ["TestTown"],
                     }
                 ),
+                encoding="utf-8",
+            )
+
+            (root / "include/constants/flags.h").write_text(
+                "#define FLAG_TEST 0x0123\n",
+                encoding="utf-8",
+            )
+            (root / "include/constants/vars.h").write_text(
+                "#define VARS_START 0x4000\n#define VAR_TEST (VARS_START + 7)\n",
+                encoding="utf-8",
+            )
+            (root / "include/constants/opponents.h").write_text(
+                "#define TRAINER_TEST 42\n",
                 encoding="utf-8",
             )
 
@@ -112,8 +126,26 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                                 "flag": "FLAG_TEST",
                             }
                         ],
-                        "warp_events": [],
-                        "coord_events": [],
+                        "warp_events": [
+                            {
+                                "x": 0,
+                                "y": 1,
+                                "elevation": 0,
+                                "dest_map": "MAP_TEST_TOWN",
+                                "dest_warp_id": "2",
+                            }
+                        ],
+                        "coord_events": [
+                            {
+                                "type": "trigger",
+                                "x": 1,
+                                "y": 0,
+                                "elevation": 0,
+                                "var": "VAR_TEST",
+                                "var_value": "3",
+                                "script": "Test_CoordScript",
+                            }
+                        ],
                         "bg_events": [],
                     }
                 ),
@@ -164,6 +196,13 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                 [0, 1, 15, 2],
             )
             self.assertEqual(converted["map"]["object_events"][0]["flag"], "FLAG_TEST")
+            self.assertEqual(converted["map"]["object_events"][0]["flag_id"], 0x123)
+            self.assertEqual(converted["map"]["object_events"][0]["local_id"], 1)
+            self.assertEqual(converted["map"]["warp_events"][0]["dest_group_num"], 0)
+            self.assertEqual(converted["map"]["warp_events"][0]["dest_map_num"], 0)
+            self.assertEqual(converted["map"]["warp_events"][0]["dest_warp_id_u16"], 2)
+            self.assertEqual(converted["map"]["coord_events"][0]["var_id"], 0x4007)
+            self.assertEqual(converted["map"]["coord_events"][0]["var_value_u16"], 3)
             self.assertEqual(converted["map"]["connections"][0]["direction"], "up")
 
 
