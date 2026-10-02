@@ -10,8 +10,13 @@ on:
       - "CMakeLists.txt"
       - ".github/workflows/r0-sdl3.yml"
 
+concurrency:
+  group: r0-sdl3-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   windows-build:
+    timeout-minutes: 10
     runs-on: windows-latest
 
     steps:
