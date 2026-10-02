@@ -3,6 +3,7 @@
 #include "Engine/GameInstance.h"
 #include "RemasterFeedbackSubsystem.h"
 
+#include "HAL/FileManager.h"
 #include "HAL/PlatformTime.h"
 #include "Misc/DateTime.h"
 #include "Misc/FileHelper.h"
