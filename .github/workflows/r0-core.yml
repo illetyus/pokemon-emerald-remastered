@@ -1,0 +1,39 @@
+name: R0 Core
+
+on:
+  push:
+    branches:
+      - main
+      - remaster/**
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  portable-core:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure
+
+  scenario-schema:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON fixtures
+        run: python -m json.tool shared/scenarios/r0_walk_event_encounter.json > /dev/null
