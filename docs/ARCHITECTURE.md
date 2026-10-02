@@ -72,3 +72,20 @@ All three candidates must consume the same R0 scenario and report comparable res
 ## Directional preference
 
 The current hypothesis is candidate 2: portable C gameplay core with a Godot presentation layer. This is not an architectural decision until R0 evidence is complete.
+
+
+## Presentation event channel
+
+State snapshots answer **what is true now**. Modern presentation also needs to know **what just happened** without re-deriving gameplay rules.
+
+The gameplay core therefore emits a one-way event bitmask for each accepted action. R0 currently defines:
+
+- `MOVED`
+- `INTERACTED`
+- `FLAG_SET`
+- `ENCOUNTER`
+- `BLOCKED`
+
+The presentation layer may use these events for animation, camera response, particles, haptics and audio. Presentation events are descriptive outputs only: handling an event must never mutate authoritative gameplay state directly.
+
+This event channel is the model for later battle events, quest updates, item feedback and world interactions.
