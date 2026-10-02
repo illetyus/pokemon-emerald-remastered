@@ -1,7 +1,5 @@
 #include "remaster/core.h"
 
-#include <stddef.h>
-
 enum {
     MAP_WIDTH = 8,
     MAP_HEIGHT = 8
@@ -33,7 +31,7 @@ static int is_walkable(int32_t x, int32_t y)
 
 void remaster_core_init(RemasterState *state)
 {
-    if (state == NULL)
+    if (state == 0)
         return;
 
     state->tile_x = 1;
@@ -49,7 +47,7 @@ void remaster_core_step(RemasterState *state, RemasterInput input)
     int32_t next_x;
     int32_t next_y;
 
-    if (state == NULL)
+    if (state == 0)
         return;
 
     next_x = state->tile_x;
@@ -95,20 +93,36 @@ void remaster_core_step(RemasterState *state, RemasterInput input)
         state->encounter_pending = 1;
 }
 
+static uint64_t fnv1a_u32(uint64_t hash, uint32_t value)
+{
+    unsigned int i;
+
+    for (i = 0; i < 4; ++i) {
+        hash ^= (uint8_t)((value >> (i * 8u)) & 0xffu);
+        hash *= UINT64_C(1099511628211);
+    }
+
+    return hash;
+}
+
 uint64_t remaster_core_state_hash(const RemasterState *state)
 {
     uint64_t hash = UINT64_C(1469598103934665603);
-    const uint8_t *bytes;
-    size_t i;
 
-    if (state == NULL)
+    if (state == 0)
         return 0;
 
-    bytes = (const uint8_t *)state;
-    for (i = 0; i < sizeof(*state); ++i) {
-        hash ^= bytes[i];
-        hash *= UINT64_C(1099511628211);
-    }
+    /*
+     * Hash fields explicitly in a defined byte order. Never hash raw struct
+     * memory: compiler padding would make cross-platform comparisons unsafe.
+     */
+    hash = fnv1a_u32(hash, (uint32_t)state->tile_x);
+    hash = fnv1a_u32(hash, (uint32_t)state->tile_y);
+    hash = fnv1a_u32(hash, state->step_count);
+    hash = fnv1a_u32(hash, state->interaction_count);
+    hash = fnv1a_u32(hash, state->event_flags);
+    hash ^= state->encounter_pending;
+    hash *= UINT64_C(1099511628211);
 
     return hash;
 }
