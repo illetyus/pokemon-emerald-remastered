@@ -134,6 +134,8 @@ jobs:
           test -f "$APK"
           unzip -l "$APK" | grep 'lib/arm64-v8a/'
           unzip -l "$APK" | grep 'libremaster_core_bridge.so'
+          unzip -l "$APK" | grep 'assets/main.gd'
+          unzip -p "$APK" assets/main.gd | grep 'RUNTIME SCRIPT STARTED'
 
       - name: Publish Godot bridge Android APK
         uses: actions/upload-artifact@v4
