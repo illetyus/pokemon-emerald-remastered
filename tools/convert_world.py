@@ -259,6 +259,23 @@ def normalize_event(
     return result
 
 
+
+def normalize_object_events(
+    events: list[dict[str, Any]],
+    constants: dict[str, int],
+) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+
+    for index, event in enumerate(events):
+        item = normalize_event(event, constants)
+        # Vanilla mapjson generates object_event/clone_event local IDs from
+        # the array index, starting at 1. Preserve that exact identity.
+        item["local_id"] = index + 1
+        result.append(item)
+
+    return result
+
+
 def add_numeric_map_targets(
     events: list[dict[str, Any]],
     map_id_locations: dict[str, tuple[int, int]],
@@ -396,9 +413,10 @@ def convert_map(
                 ],
                 map_id_locations,
             ),
-            "object_events": [
-                normalize_event(x, constants) for x in source.get("object_events", [])
-            ],
+            "object_events": normalize_object_events(
+                source.get("object_events", []),
+                constants,
+            ),
             "warp_events": add_numeric_map_targets(
                 [
                     normalize_event(x, constants)
