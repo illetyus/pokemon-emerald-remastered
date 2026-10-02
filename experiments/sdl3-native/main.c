@@ -26,6 +26,202 @@ static const unsigned char kCollision[MAP_HEIGHT][MAP_WIDTH] = {
     {1,1,1,1,1,1,1,1}
 };
 
+enum {
+    R0_SAVE_MAGIC_SIZE = 4,
+    R0_SAVE_HASH_SIZE = 8,
+    R0_SAVE_FILE_SIZE = R0_SAVE_MAGIC_SIZE + REMASTER_CORE_STATE_BYTES + R0_SAVE_HASH_SIZE
+};
+
+typedef struct R0LifecycleContext {
+    RemasterState *state;
+    char save_path[1024];
+} R0LifecycleContext;
+
+static const uint8_t kSaveMagic[R0_SAVE_MAGIC_SIZE] = { 'R', '0', 'S', '1' };
+
+static void write_u64_le(uint8_t *dst, uint64_t value)
+{
+    unsigned int i;
+
+    for (i = 0; i < 8; ++i)
+        dst[i] = (uint8_t)((value >> (i * 8u)) & UINT64_C(0xff));
+}
+
+static uint64_t read_u64_le(const uint8_t *src)
+{
+    uint64_t value = 0;
+    unsigned int i;
+
+    for (i = 0; i < 8; ++i)
+        value |= ((uint64_t)src[i]) << (i * 8u);
+
+    return value;
+}
+
+static bool save_state_to_disk(const RemasterState *state, const char *path)
+{
+    FILE *fp;
+    uint8_t file_data[R0_SAVE_FILE_SIZE];
+    uint64_t hash;
+
+    if (state == NULL || path == NULL || path[0] == '\0')
+        return false;
+
+    memcpy(file_data, kSaveMagic, R0_SAVE_MAGIC_SIZE);
+
+    if (!remaster_core_save(
+            state,
+            file_data + R0_SAVE_MAGIC_SIZE,
+            REMASTER_CORE_STATE_BYTES))
+        return false;
+
+    hash = remaster_core_state_hash(state);
+    write_u64_le(
+        file_data + R0_SAVE_MAGIC_SIZE + REMASTER_CORE_STATE_BYTES,
+        hash
+    );
+
+    fp = fopen(path, "wb");
+    if (fp == NULL)
+        return false;
+
+    if (fwrite(file_data, 1, sizeof(file_data), fp) != sizeof(file_data)) {
+        fclose(fp);
+        return false;
+    }
+
+    if (fflush(fp) != 0) {
+        fclose(fp);
+        return false;
+    }
+
+    if (fclose(fp) != 0)
+        return false;
+
+    SDL_Log(
+        "R0 persistent save complete: hash=%llu path=%s",
+        (unsigned long long)hash,
+        path
+    );
+    return true;
+}
+
+static bool load_state_from_disk(RemasterState *state, const char *path)
+{
+    FILE *fp;
+    uint8_t file_data[R0_SAVE_FILE_SIZE];
+    uint64_t expected_hash;
+    uint64_t actual_hash;
+
+    if (state == NULL || path == NULL || path[0] == '\0')
+        return false;
+
+    fp = fopen(path, "rb");
+    if (fp == NULL)
+        return false;
+
+    if (fread(file_data, 1, sizeof(file_data), fp) != sizeof(file_data)) {
+        fclose(fp);
+        return false;
+    }
+
+    if (fgetc(fp) != EOF) {
+        fclose(fp);
+        return false;
+    }
+
+    fclose(fp);
+
+    if (memcmp(file_data, kSaveMagic, R0_SAVE_MAGIC_SIZE) != 0)
+        return false;
+
+    if (!remaster_core_load(
+            state,
+            file_data + R0_SAVE_MAGIC_SIZE,
+            REMASTER_CORE_STATE_BYTES))
+        return false;
+
+    expected_hash = read_u64_le(
+        file_data + R0_SAVE_MAGIC_SIZE + REMASTER_CORE_STATE_BYTES
+    );
+    actual_hash = remaster_core_state_hash(state);
+
+    if (expected_hash != actual_hash) {
+        SDL_Log(
+            "R0 persistent save rejected: expected_hash=%llu actual_hash=%llu",
+            (unsigned long long)expected_hash,
+            (unsigned long long)actual_hash
+        );
+        remaster_core_init(state);
+        return false;
+    }
+
+    SDL_Log(
+        "R0 persistent load complete: hash=%llu path=%s",
+        (unsigned long long)actual_hash,
+        path
+    );
+    return true;
+}
+
+static bool SDLCALL lifecycle_event_watch(void *userdata, SDL_Event *event)
+{
+    R0LifecycleContext *context = (R0LifecycleContext *)userdata;
+
+    if (context == NULL || context->state == NULL || event == NULL)
+        return true;
+
+    switch (event->type) {
+    case SDL_EVENT_WILL_ENTER_BACKGROUND:
+        SDL_Log("R0 lifecycle: WILL_ENTER_BACKGROUND");
+        (void)save_state_to_disk(context->state, context->save_path);
+        break;
+    case SDL_EVENT_DID_ENTER_BACKGROUND:
+        SDL_Log("R0 lifecycle: DID_ENTER_BACKGROUND");
+        break;
+    case SDL_EVENT_WILL_ENTER_FOREGROUND:
+        SDL_Log("R0 lifecycle: WILL_ENTER_FOREGROUND");
+        break;
+    case SDL_EVENT_DID_ENTER_FOREGROUND:
+        SDL_Log(
+            "R0 lifecycle: DID_ENTER_FOREGROUND hash=%llu",
+            (unsigned long long)remaster_core_state_hash(context->state)
+        );
+        break;
+    case SDL_EVENT_TERMINATING:
+        SDL_Log("R0 lifecycle: TERMINATING");
+        (void)save_state_to_disk(context->state, context->save_path);
+        break;
+    default:
+        break;
+    }
+
+    return true;
+}
+
+static bool initialize_persistent_path(R0LifecycleContext *context)
+{
+    char *pref_path;
+    int written;
+
+    if (context == NULL)
+        return false;
+
+    pref_path = SDL_GetPrefPath("illetyus", "pokemon-emerald-remastered-r0");
+    if (pref_path == NULL)
+        return false;
+
+    written = snprintf(
+        context->save_path,
+        sizeof(context->save_path),
+        "%sr0_state.bin",
+        pref_path
+    );
+    SDL_free(pref_path);
+
+    return written > 0 && (size_t)written < sizeof(context->save_path);
+}
+
 static void apply_input(RemasterState *state, RemasterInput input)
 {
     remaster_core_step(state, input);
@@ -252,6 +448,7 @@ int main(int argc, char **argv)
     SDL_Window *window;
     SDL_Renderer *renderer;
     RemasterState state;
+    R0LifecycleContext lifecycle_context;
     uint8_t save_data[REMASTER_CORE_STATE_BYTES];
     bool has_save = false;
     bool running = true;
@@ -288,6 +485,17 @@ int main(int argc, char **argv)
     (void)SDL_SetRenderVSync(renderer, 1);
     remaster_core_init(&state);
 
+    lifecycle_context.state = &state;
+    lifecycle_context.save_path[0] = '\0';
+
+    if (initialize_persistent_path(&lifecycle_context)) {
+        (void)load_state_from_disk(&state, lifecycle_context.save_path);
+        if (!SDL_AddEventWatch(lifecycle_event_watch, &lifecycle_context))
+            SDL_Log("R0 lifecycle watcher could not be registered: %s", SDL_GetError());
+    } else {
+        SDL_Log("R0 persistent path unavailable: %s", SDL_GetError());
+    }
+
     SDL_Log("R0 controls: arrows/WASD move, Space/Enter interact, F5 save, F9 load, R reset, Esc quit.");
 
     while (running) {
@@ -311,12 +519,17 @@ int main(int argc, char **argv)
 
                 if (event.key.key == SDLK_F5) {
                     has_save = remaster_core_save(&state, save_data, sizeof(save_data)) != 0;
+                    if (lifecycle_context.save_path[0] != '\0')
+                        (void)save_state_to_disk(&state, lifecycle_context.save_path);
                     continue;
                 }
 
                 if (event.key.key == SDLK_F9) {
-                    if (has_save)
+                    if (has_save) {
                         (void)remaster_core_load(&state, save_data, sizeof(save_data));
+                    } else if (lifecycle_context.save_path[0] != '\0') {
+                        (void)load_state_from_disk(&state, lifecycle_context.save_path);
+                    }
                     continue;
                 }
 
@@ -336,6 +549,11 @@ int main(int argc, char **argv)
 
         update_title(window, &state);
         render_scene(renderer, &state);
+    }
+
+    if (lifecycle_context.save_path[0] != '\0') {
+        (void)save_state_to_disk(&state, lifecycle_context.save_path);
+        SDL_RemoveEventWatch(lifecycle_event_watch, &lifecycle_context);
     }
 
     SDL_DestroyRenderer(renderer);
