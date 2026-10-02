@@ -7,8 +7,8 @@ set(GODOTCPP_BUILD_PROFILE "${CMAKE_CURRENT_SOURCE_DIR}/build_profile.json" CACH
 FetchContent_Declare(
     godot-cpp
     GIT_REPOSITORY https://github.com/godotengine/godot-cpp.git
-    GIT_TAG 507ed9d840c01a3c5b2a39af8bb4000bfac30bf5
-    GIT_SHALLOW FALSE
+    GIT_TAG 10.0.0-stable
+    GIT_SHALLOW TRUE
 )
 
 FetchContent_MakeAvailable(godot-cpp)
