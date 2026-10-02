@@ -76,6 +76,7 @@ struct FRemasterMapIR
     int32 GroupNum = -1;
     int32 MapNum = -1;
     FString LayoutId;
+    int32 LayoutNum = -1;
     FString Music;
     FString RegionMapSection;
     FString Weather;
