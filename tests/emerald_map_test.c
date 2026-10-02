@@ -125,6 +125,82 @@ int main(void)
         return 1;
 
     if (!check(
+            remaster_emerald_behavior_blocks_north(0x32)
+            && remaster_emerald_behavior_blocks_north(0x34)
+            && remaster_emerald_behavior_blocks_north(0x35)
+            && remaster_emerald_behavior_blocks_north(0xC0)
+            && !remaster_emerald_behavior_blocks_north(0x33),
+            "north blocked behavior mismatch"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_behavior_blocks_south(0x33)
+            && remaster_emerald_behavior_blocks_south(0x36)
+            && remaster_emerald_behavior_blocks_south(0x37)
+            && remaster_emerald_behavior_blocks_south(0xC0)
+            && !remaster_emerald_behavior_blocks_south(0x32),
+            "south blocked behavior mismatch"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_behavior_blocks_east(0x30)
+            && remaster_emerald_behavior_blocks_east(0x34)
+            && remaster_emerald_behavior_blocks_east(0x36)
+            && remaster_emerald_behavior_blocks_east(0xC1)
+            && remaster_emerald_behavior_blocks_east(0xBE),
+            "east blocked behavior mismatch"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_behavior_blocks_west(0x31)
+            && remaster_emerald_behavior_blocks_west(0x35)
+            && remaster_emerald_behavior_blocks_west(0x37)
+            && remaster_emerald_behavior_blocks_west(0xC1)
+            && remaster_emerald_behavior_blocks_west(0xBE),
+            "west blocked behavior mismatch"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_directionally_blocked(
+                0x33,
+                0x00,
+                REMASTER_EMERALD_DIR_SOUTH),
+            "south edge on current tile should block"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_directionally_blocked(
+                0x00,
+                0x32,
+                REMASTER_EMERALD_DIR_SOUTH),
+            "north edge on target tile should block southward entry"))
+        return 1;
+
+    if (!check(
+            !remaster_emerald_directionally_blocked(
+                0x00,
+                0x00,
+                REMASTER_EMERALD_DIR_EAST),
+            "unblocked eastward transition rejected"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_ledge_jump_direction(
+                0x3B,
+                REMASTER_EMERALD_DIR_SOUTH)
+                == REMASTER_EMERALD_DIR_SOUTH
+            && remaster_emerald_ledge_jump_direction(
+                0x38,
+                REMASTER_EMERALD_DIR_EAST)
+                == REMASTER_EMERALD_DIR_EAST
+            && remaster_emerald_ledge_jump_direction(
+                0x3A,
+                REMASTER_EMERALD_DIR_SOUTH)
+                == REMASTER_EMERALD_DIR_NONE,
+            "ledge direction mismatch"))
+        return 1;
+
+    if (!check(
             remaster_emerald_elevations_compatible(0, 7)
             && remaster_emerald_elevations_compatible(4, 4)
             && !remaster_emerald_elevations_compatible(4, 5),
