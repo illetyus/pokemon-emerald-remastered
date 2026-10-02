@@ -46,9 +46,10 @@ func is_walkable(x: int, y: int) -> bool:
     return COLLISION[y][x] == 0
 
 
-func apply_action(action: StringName) -> void:
+func apply_action(action: StringName) -> int:
     var next_x := tile_x
     var next_y := tile_y
+    var events := 0
     encounter_pending = false
 
     match action:
@@ -62,22 +63,28 @@ func apply_action(action: StringName) -> void:
             next_x += 1
         &"INTERACT":
             interaction_count += 1
-            if tile_x == 3 and tile_y == 1:
+            events |= 2
+            if tile_x == 3 and tile_y == 1 and (event_flags & 1) == 0:
                 event_flags |= 1
+                events |= 4
             queue_redraw()
-            return
+            return events
         _:
-            return
+            return events
 
     if not is_walkable(next_x, next_y):
         queue_redraw()
-        return
+        return events | 16
 
     tile_x = next_x
     tile_y = next_y
     step_count += 1
+    events |= 1
     encounter_pending = (step_count % 5) == 0
+    if encounter_pending:
+        events |= 8
     queue_redraw()
+    return events
 
 
 func snapshot() -> Dictionary:
