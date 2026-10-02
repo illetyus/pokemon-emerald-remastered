@@ -1,0 +1,33 @@
+name: R0 SDL3
+
+on:
+  push:
+    branches:
+      - remaster/**
+    paths:
+      - "core/**"
+      - "experiments/sdl3-native/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/r0-sdl3.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "core/**"
+      - "experiments/sdl3-native/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/r0-sdl3.yml"
+
+jobs:
+  windows-build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -DREMASTER_BUILD_SDL3=ON -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build SDL3 prototype
+        run: cmake --build build --config Release --target r0_sdl3
