@@ -357,6 +357,8 @@ bool FRemasterWorldData::LoadMapJson(
             Item.VarValueNum =
                 IntFieldDefault(Object, TEXT("var_value_u16"), -1);
             Item.Weather = StringField(Object, TEXT("weather"));
+            Item.WeatherId =
+                IntFieldDefault(Object, TEXT("weather_id"), -1);
             Item.Script = StringField(Object, TEXT("script"));
             OutMap.CoordEvents.Add(MoveTemp(Item));
         }
