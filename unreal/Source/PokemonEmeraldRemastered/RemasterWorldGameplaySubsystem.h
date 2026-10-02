@@ -115,6 +115,9 @@ public:
         int32 Elevation,
         FRemasterResolvedCoordEvent& OutEvent) const;
 
+    UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
+    bool ApplyResolvedWarp(const FRemasterResolvedWarp& Warp);
+
     const FRemasterMapIR* GetCurrentMapForPresentation() const
     {
         return bMapReady ? &CurrentMap : nullptr;
