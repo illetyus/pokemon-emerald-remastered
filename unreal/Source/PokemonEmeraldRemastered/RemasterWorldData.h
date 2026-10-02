@@ -76,6 +76,9 @@ struct FRemasterMapIR
     FString SecondaryTileset;
     int32 SourceWordCount = 0;
     int32 ActiveWordCount = 0;
+    int32 BorderSourceWordCount = 0;
+    TArray<uint16> BorderActiveWords;
+    TArray<uint16> BorderTrailingWords;
     TArray<uint16> RawBlocks;
     TArray<uint16> TrailingWords;
     TArray<uint16> MetatileIds;
@@ -96,6 +99,9 @@ struct FRemasterMapIR
             && ActiveWordCount == Width * Height
             && RawBlocks.Num() == ActiveWordCount
             && SourceWordCount == RawBlocks.Num() + TrailingWords.Num()
+            && BorderActiveWords.Num() == 4
+            && BorderSourceWordCount
+                == BorderActiveWords.Num() + BorderTrailingWords.Num()
             && MetatileIds.Num() == RawBlocks.Num()
             && Collision.Num() == RawBlocks.Num()
             && Elevation.Num() == RawBlocks.Num()
