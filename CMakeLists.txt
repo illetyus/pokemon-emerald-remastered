@@ -136,3 +136,18 @@ else()
 endif()
 
 add_test(NAME emerald_rtc_compatibility COMMAND emerald_rtc_test)
+
+
+add_executable(emerald_save_platform_test
+    tests/emerald_save_platform_test.c
+)
+
+target_link_libraries(emerald_save_platform_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_save_platform_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_save_platform_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME emerald_save_platform_io COMMAND emerald_save_platform_test)
