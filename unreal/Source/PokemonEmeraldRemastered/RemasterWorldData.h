@@ -1,0 +1,102 @@
+#pragma once
+
+#include "CoreMinimal.h"
+
+struct FRemasterConnectionIR
+{
+    FString Map;
+    FString Direction;
+    int32 Offset = 0;
+};
+
+struct FRemasterObjectEventIR
+{
+    FString GraphicsId;
+    int32 X = 0;
+    int32 Y = 0;
+    int32 Elevation = 0;
+    FString MovementType;
+    FString TrainerType;
+    FString Script;
+    FString Flag;
+};
+
+struct FRemasterWarpEventIR
+{
+    int32 X = 0;
+    int32 Y = 0;
+    int32 Elevation = 0;
+    FString DestMap;
+    FString DestWarpId;
+};
+
+struct FRemasterCoordEventIR
+{
+    FString Type;
+    int32 X = 0;
+    int32 Y = 0;
+    int32 Elevation = 0;
+    FString Var;
+    FString VarValue;
+    FString Script;
+};
+
+struct FRemasterBackgroundEventIR
+{
+    FString Type;
+    int32 X = 0;
+    int32 Y = 0;
+    int32 Elevation = 0;
+    FString Facing;
+    FString Script;
+};
+
+struct FRemasterMapIR
+{
+    int32 SchemaVersion = 0;
+
+    FString Id;
+    FString Name;
+    FString LayoutId;
+    FString Music;
+    FString RegionMapSection;
+    FString Weather;
+    FString MapType;
+    FString BattleScene;
+
+    bool bRequiresFlash = false;
+    bool bAllowCycling = false;
+    bool bAllowEscaping = false;
+    bool bAllowRunning = false;
+    bool bShowMapName = false;
+
+    int32 Width = 0;
+    int32 Height = 0;
+    FString PrimaryTileset;
+    FString SecondaryTileset;
+    TArray<uint16> RawBlocks;
+
+    TArray<FRemasterConnectionIR> Connections;
+    TArray<FRemasterObjectEventIR> ObjectEvents;
+    TArray<FRemasterWarpEventIR> WarpEvents;
+    TArray<FRemasterCoordEventIR> CoordEvents;
+    TArray<FRemasterBackgroundEventIR> BackgroundEvents;
+
+    bool IsValid() const
+    {
+        return SchemaVersion == 1
+            && Width > 0
+            && Height > 0
+            && RawBlocks.Num() == Width * Height
+            && !Id.IsEmpty();
+    }
+};
+
+class FRemasterWorldData
+{
+public:
+    static bool LoadMapJson(
+        const FString& AbsolutePath,
+        FRemasterMapIR& OutMap,
+        FString& OutError);
+};
