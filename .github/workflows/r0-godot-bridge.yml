@@ -37,6 +37,14 @@ jobs:
           unzip -q godot.zip
           chmod +x Godot_v4.7.2-stable_linux.x86_64
 
+      - name: Initialize Godot project and discover extension
+        run: |
+          ./Godot_v4.7.2-stable_linux.x86_64 \
+            --headless \
+            --editor \
+            --quit-after 2 \
+            --path experiments/godot-bridge
+
       - name: Run Godot+C bridge equivalence test
         run: |
           ./Godot_v4.7.2-stable_linux.x86_64             --headless \
