@@ -40,7 +40,7 @@ class ConvertWorldTests(unittest.TestCase):
             )
 
             (root / "data/layouts/TestTown/map.bin").write_bytes(
-                struct.pack("<4H", 1, 2, 0x1234, 0xFFFF)
+                struct.pack("<6H", 1, 2, 0x1234, 0xFFFF, 0x1111, 0x2222)
             )
 
             (root / "data/maps/TestTown/map.json").write_text(
@@ -77,7 +77,10 @@ class ConvertWorldTests(unittest.TestCase):
 
             self.assertEqual(manifest["map_count"], 1)
             converted = json.loads((out / "maps/TestTown.json").read_text())
+            self.assertEqual(converted["layout"]["source_word_count"], 6)
+            self.assertEqual(converted["layout"]["active_word_count"], 4)
             self.assertEqual(converted["layout"]["raw_blocks_u16"], [1, 2, 0x1234, 0xFFFF])
+            self.assertEqual(converted["layout"]["trailing_words_u16"], [0x1111, 0x2222])
             self.assertEqual(converted["layout"]["metatile_ids_u16"], [1, 2, 0x234, 0x3FF])
             self.assertEqual(converted["layout"]["collision_u8"], [0, 0, 0, 3])
             self.assertEqual(converted["layout"]["elevation_u8"], [0, 0, 1, 15])
