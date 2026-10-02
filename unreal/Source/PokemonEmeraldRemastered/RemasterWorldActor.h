@@ -51,7 +51,7 @@ protected:
 
 private:
     void BuildPreviewInstances();
-    UHierarchicalInstancedStaticMeshComponent* ComponentForBlock(uint16 RawBlock);
+    UHierarchicalInstancedStaticMeshComponent* ComponentForMetatile(uint16 MetatileId);
 
     FRemasterMapIR LoadedMap;
     TMap<int32, TObjectPtr<UHierarchicalInstancedStaticMeshComponent>> VisualComponents;
