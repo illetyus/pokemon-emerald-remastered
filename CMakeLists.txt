@@ -7,6 +7,7 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 add_library(remaster_core STATIC
     core/src/core.c
+    core/src/platform.c
 )
 
 set_target_properties(remaster_core PROPERTIES
