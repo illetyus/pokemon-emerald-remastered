@@ -10,3 +10,6 @@ linux.debug.x86_64 = "res://bin/libremaster_core_bridge.so"
 linux.release.x86_64 = "res://bin/libremaster_core_bridge.so"
 windows.debug.x86_64 = "res://bin/remaster_core_bridge.dll"
 windows.release.x86_64 = "res://bin/remaster_core_bridge.dll"
+
+android.debug.arm64 = "res://bin/android/arm64-v8a/libremaster_core_bridge.so"
+android.release.arm64 = "res://bin/android/arm64-v8a/libremaster_core_bridge.so"
