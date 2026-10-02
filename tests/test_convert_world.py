@@ -172,6 +172,7 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(converted["map"]["group_name"], "gMapGroup_Test")
             self.assertEqual(converted["map"]["group_num"], 0)
             self.assertEqual(converted["map"]["map_num"], 0)
+            self.assertEqual(converted["map"]["layout_num"], 1)
             self.assertEqual(converted["layout"]["source_word_count"], 6)
             self.assertEqual(converted["layout"]["active_word_count"], 4)
             self.assertEqual(converted["layout"]["border_source_word_count"], 6)
