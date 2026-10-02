@@ -55,3 +55,6 @@ jobs:
 
       - name: Test generated content audit
         run: python -m unittest tests/test_content_audit.py
+
+      - name: Test platform coupling inventory
+        run: python -m unittest tests/test_platform_coupling.py
