@@ -9,6 +9,14 @@ extern "C" {
 #endif
 
 enum {
+    REMASTER_EMERALD_DIR_NONE = 0,
+    REMASTER_EMERALD_DIR_SOUTH = 1,
+    REMASTER_EMERALD_DIR_NORTH = 2,
+    REMASTER_EMERALD_DIR_WEST = 3,
+    REMASTER_EMERALD_DIR_EAST = 4
+};
+
+enum {
     REMASTER_EMERALD_MAPGRID_METATILE_MASK = 0x03FF,
     REMASTER_EMERALD_MAPGRID_COLLISION_MASK = 0x0C00,
     REMASTER_EMERALD_MAPGRID_ELEVATION_MASK = 0xF000,
@@ -87,10 +95,33 @@ int remaster_emerald_map_elevation_mismatch(
     uint8_t current_elevation,
     uint8_t target_elevation);
 
+int remaster_emerald_behavior_blocks_north(uint8_t behavior);
+int remaster_emerald_behavior_blocks_south(uint8_t behavior);
+int remaster_emerald_behavior_blocks_west(uint8_t behavior);
+int remaster_emerald_behavior_blocks_east(uint8_t behavior);
+
+int remaster_emerald_directionally_blocked(
+    uint8_t current_behavior,
+    uint8_t target_behavior,
+    uint8_t direction);
+
+uint8_t remaster_emerald_ledge_jump_direction(
+    uint8_t target_behavior,
+    uint8_t direction);
+
 int remaster_emerald_map_base_can_enter(
     const RemasterEmeraldMapView *map,
     int32_t x,
     int32_t y,
+    uint8_t current_elevation);
+
+int remaster_emerald_map_can_enter_direction(
+    const RemasterEmeraldMapView *map,
+    int32_t from_x,
+    int32_t from_y,
+    int32_t target_x,
+    int32_t target_y,
+    uint8_t direction,
     uint8_t current_elevation);
 
 #ifdef __cplusplus
