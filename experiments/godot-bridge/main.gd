@@ -16,12 +16,15 @@ const COLLISION := [
     [1,1,1,1,1,1,1,1],
 ]
 
-var core: RemasterCoreBridge
+var core
 var saved_state := PackedByteArray()
 
 
 func _ready() -> void:
-    core = RemasterCoreBridge.new()
+    core = ClassDB.instantiate("RemasterCoreBridge")
+    if core == null:
+        push_error("RemasterCoreBridge GDExtension is not loaded")
+        return
     queue_redraw()
 
 
