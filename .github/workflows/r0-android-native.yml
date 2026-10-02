@@ -1,0 +1,86 @@
+name: R0 Android Native
+
+on:
+  push:
+    branches:
+      - remaster/**
+    paths:
+      - "core/**"
+      - "experiments/sdl3-native/**"
+      - "experiments/godot-bridge/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/r0-android-native.yml"
+
+concurrency:
+  group: r0-android-native-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  arm64-native:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        finalist: [sdl3, godot-bridge]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve Android NDK
+        shell: bash
+        run: |
+          NDK_ROOT="${ANDROID_NDK_LATEST_HOME:-${ANDROID_NDK_HOME:-}}"
+          if [ -z "$NDK_ROOT" ]; then
+            echo "Android NDK environment not found"
+            exit 1
+          fi
+          echo "NDK_ROOT=$NDK_ROOT" >> "$GITHUB_ENV"
+          echo "Using Android NDK at $NDK_ROOT"
+
+      - name: Configure SDL3 ARM64
+        if: matrix.finalist == 'sdl3'
+        shell: bash
+        run: |
+          cmake -S . -B build-android-sdl3 \
+            -DCMAKE_TOOLCHAIN_FILE="$NDK_ROOT/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=android-24 \
+            -DANDROID_STL=c++_static \
+            -DREMASTER_BUILD_SDL3=ON \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build SDL3 ARM64
+        if: matrix.finalist == 'sdl3'
+        run: cmake --build build-android-sdl3 --target main -j 2
+
+      - name: Verify SDL3 ARM64 output
+        if: matrix.finalist == 'sdl3'
+        shell: bash
+        run: |
+          test -f build-android-sdl3/experiments/sdl3-native/libmain.so
+          file build-android-sdl3/experiments/sdl3-native/libmain.so
+
+      - name: Configure Godot bridge ARM64
+        if: matrix.finalist == 'godot-bridge'
+        shell: bash
+        run: |
+          cmake -S . -B build-android-godot \
+            -DCMAKE_TOOLCHAIN_FILE="$NDK_ROOT/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=android-24 \
+            -DANDROID_STL=c++_static \
+            -DREMASTER_BUILD_GODOT_BRIDGE=ON \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Godot bridge ARM64
+        if: matrix.finalist == 'godot-bridge'
+        run: cmake --build build-android-godot --target remaster_core_bridge -j 2
+
+      - name: Verify Godot bridge ARM64 output
+        if: matrix.finalist == 'godot-bridge'
+        shell: bash
+        run: |
+          test -f build-android-godot/experiments/godot-bridge/libremaster_core_bridge.so
+          file build-android-godot/experiments/godot-bridge/libremaster_core_bridge.so
