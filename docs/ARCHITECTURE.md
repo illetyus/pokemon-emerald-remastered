@@ -63,7 +63,7 @@ The production migration of Vanilla+ gameplay is intentionally deferred until th
 
 ## Candidate architectures
 
-1. Portable C gameplay core + SDL2/OpenGL front end.
+1. Portable C gameplay core + SDL3/OpenGL front end.
 2. Portable C gameplay core + Godot presentation bridge.
 3. Godot reimplementation of gameplay and presentation.
 
