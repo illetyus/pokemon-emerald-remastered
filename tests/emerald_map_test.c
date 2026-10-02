@@ -27,6 +27,17 @@ int main(void)
         0x0012,
         0x0013
     };
+    const uint16_t primary_attributes[4] = {
+        0x0001,
+        0x1002,
+        0xF003,
+        0x2004
+    };
+    const uint16_t secondary_attributes[3] = {
+        0x0005,
+        0x3006,
+        0xF007
+    };
     RemasterEmeraldMapView map;
 
     map.width = 3;
@@ -35,6 +46,10 @@ int main(void)
     map.block_count = 6;
     map.border = border;
     map.border_count = 4;
+    map.primary_attributes = primary_attributes;
+    map.primary_attribute_count = 4;
+    map.secondary_attributes = secondary_attributes;
+    map.secondary_attribute_count = 3;
 
     if (!check(remaster_emerald_map_is_valid(&map), "map should be valid"))
         return 1;
@@ -72,6 +87,41 @@ int main(void)
     if (!check(
             remaster_emerald_map_base_can_enter(&map, 1, 1, 7),
             "elevation 15 must behave as wildcard"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_metatile_attributes(&map, 1) == 0x1002,
+            "primary metatile attribute mismatch"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_metatile_behavior(&map, 2) == 3,
+            "primary metatile behavior mismatch"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_metatile_layer(&map, 2) == 15,
+            "primary metatile layer mismatch"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_metatile_attributes(&map, 512) == 0x0005,
+            "secondary metatile attribute mismatch"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_metatile_behavior(&map, 513) == 6,
+            "secondary behavior mismatch"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_metatile_layer(&map, 514) == 15,
+            "secondary layer mismatch"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_metatile_behavior(&map, 900) == 0xFF,
+            "missing attribute must return MB_INVALID"))
         return 1;
 
     if (!check(
