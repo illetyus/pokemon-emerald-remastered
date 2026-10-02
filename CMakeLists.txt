@@ -48,3 +48,27 @@ if(REMASTER_BUILD_GODOT_BRIDGE)
     enable_language(CXX)
     add_subdirectory(experiments/godot-bridge)
 endif()
+
+
+# Unreal integration preflight: compile the portable C implementation inside
+# a C++ translation unit exactly as the Unreal runtime module embeds it.
+enable_language(CXX)
+
+add_executable(unreal_cpp_embed_smoke
+    tests/unreal_cpp_embed_smoke.cpp
+)
+
+target_include_directories(unreal_cpp_embed_smoke
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/include
+)
+
+target_compile_features(unreal_cpp_embed_smoke PRIVATE cxx_std_17)
+
+if(MSVC)
+    target_compile_options(unreal_cpp_embed_smoke PRIVATE /W4)
+else()
+    target_compile_options(unreal_cpp_embed_smoke PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME unreal_cpp_embed COMMAND unreal_cpp_embed_smoke)
