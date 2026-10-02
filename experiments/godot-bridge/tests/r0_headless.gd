@@ -5,7 +5,8 @@ func _init() -> void:
     var core := RemasterCoreBridge.new()
 
     core.reset()
-    core.step(&"MOVE_UP")
+    var events: int = core.step(&"MOVE_UP")
+    assert(events == 16)
 
     var state: Dictionary = core.snapshot()
     assert(int(state.tile_x) == 1)
@@ -14,10 +15,12 @@ func _init() -> void:
 
     core.step(&"MOVE_RIGHT")
     core.step(&"MOVE_RIGHT")
-    core.step(&"INTERACT")
+    events = core.step(&"INTERACT")
+    assert(events == 6)
     core.step(&"MOVE_DOWN")
     core.step(&"MOVE_DOWN")
-    core.step(&"MOVE_DOWN")
+    events = core.step(&"MOVE_DOWN")
+    assert(events == 9)
 
     state = core.snapshot()
     assert(int(state.tile_x) == 3)
