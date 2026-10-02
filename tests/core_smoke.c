@@ -37,6 +37,7 @@ int main(void)
     assert(state.encounter_pending == 1);
 
     first_hash = remaster_core_state_hash(&state);
+    assert(first_hash == UINT64_C(7218695048241891488));
 
     assert(remaster_core_state_size() == REMASTER_CORE_STATE_BYTES);
     assert(remaster_core_save(&state, save_data, sizeof(save_data)) == 1);
