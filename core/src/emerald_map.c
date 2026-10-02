@@ -120,6 +120,69 @@ uint8_t remaster_emerald_map_elevation_at(
         >> REMASTER_EMERALD_MAPGRID_ELEVATION_SHIFT);
 }
 
+uint16_t remaster_emerald_metatile_attributes(
+    const RemasterEmeraldMapView *map,
+    uint16_t metatile_id)
+{
+    if (map == 0 || metatile_id >= 1024u)
+        return UINT16_C(0x00FF);
+
+    if (metatile_id < 512u) {
+        if (map->primary_attributes == 0
+            || metatile_id >= map->primary_attribute_count)
+            return UINT16_C(0x00FF);
+
+        return map->primary_attributes[metatile_id];
+    }
+
+    metatile_id = (uint16_t)(metatile_id - 512u);
+
+    if (map->secondary_attributes == 0
+        || metatile_id >= map->secondary_attribute_count)
+        return UINT16_C(0x00FF);
+
+    return map->secondary_attributes[metatile_id];
+}
+
+uint8_t remaster_emerald_metatile_behavior(
+    const RemasterEmeraldMapView *map,
+    uint16_t metatile_id)
+{
+    return (uint8_t)(
+        remaster_emerald_metatile_attributes(map, metatile_id)
+        & UINT16_C(0x00FF));
+}
+
+uint8_t remaster_emerald_metatile_layer(
+    const RemasterEmeraldMapView *map,
+    uint16_t metatile_id)
+{
+    return (uint8_t)(
+        (remaster_emerald_metatile_attributes(map, metatile_id)
+            & UINT16_C(0xF000))
+        >> 12u);
+}
+
+uint8_t remaster_emerald_map_behavior_at(
+    const RemasterEmeraldMapView *map,
+    int32_t x,
+    int32_t y)
+{
+    return remaster_emerald_metatile_behavior(
+        map,
+        remaster_emerald_map_metatile_at(map, x, y));
+}
+
+uint8_t remaster_emerald_map_layer_at(
+    const RemasterEmeraldMapView *map,
+    int32_t x,
+    int32_t y)
+{
+    return remaster_emerald_metatile_layer(
+        map,
+        remaster_emerald_map_metatile_at(map, x, y));
+}
+
 int remaster_emerald_elevations_compatible(
     uint8_t a,
     uint8_t b)
