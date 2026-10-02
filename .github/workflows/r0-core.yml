@@ -58,3 +58,6 @@ jobs:
 
       - name: Test platform coupling inventory
         run: python -m unittest tests/test_platform_coupling.py
+
+      - name: Validate Unreal source architecture
+        run: python tools/validate_unreal_source.py
