@@ -9,6 +9,10 @@ add_library(remaster_core STATIC
     core/src/core.c
 )
 
+set_target_properties(remaster_core PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+)
+
 target_include_directories(remaster_core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/core/include
@@ -35,4 +39,12 @@ option(REMASTER_BUILD_SDL3 "Build the SDL3 native R0 presentation prototype" OFF
 
 if(REMASTER_BUILD_SDL3)
     add_subdirectory(experiments/sdl3-native)
+endif()
+
+
+option(REMASTER_BUILD_GODOT_BRIDGE "Build the Godot GDExtension R0 bridge" OFF)
+
+if(REMASTER_BUILD_GODOT_BRIDGE)
+    enable_language(CXX)
+    add_subdirectory(experiments/godot-bridge)
 endif()
