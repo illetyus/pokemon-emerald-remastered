@@ -1,12 +1,16 @@
 #include "RemasterPerformanceSubsystem.h"
 
 #include "Containers/Ticker.h"
+#include "HAL/IConsoleManager.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "RemasterPerformanceSettings.h"
 
 void URemasterPerformanceSubsystem::Initialize(
     FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
     ResetWindow();
+    ApplyQualityPreset(ERemasterQualityPreset::Balanced);
 
     TickerHandle = FTSTicker::GetCoreTicker().AddTicker(
         FTickerDelegate::CreateUObject(
@@ -63,4 +67,62 @@ bool URemasterPerformanceSubsystem::Tick(float DeltaSeconds)
     }
 
     return true;
+}
+
+
+void URemasterPerformanceSubsystem::ApplyQualityPreset(
+    ERemasterQualityPreset Preset)
+{
+    CurrentPreset = Preset;
+
+    const URemasterPerformanceSettings* Settings =
+        GetDefault<URemasterPerformanceSettings>();
+
+    int32 TargetFps = Settings ? Settings->DefaultFrameRate : 60;
+    float ResolutionScale = 100.0f;
+    int32 ShadowQuality = 1;
+    int32 EffectsQuality = 2;
+
+    switch (Preset)
+    {
+    case ERemasterQualityPreset::Battery:
+        TargetFps = 60;
+        ResolutionScale = 80.0f;
+        ShadowQuality = 0;
+        EffectsQuality = 1;
+        break;
+
+    case ERemasterQualityPreset::High:
+        TargetFps = Settings ? Settings->HighRefreshFrameRate : 120;
+        ResolutionScale = 100.0f;
+        ShadowQuality = 2;
+        EffectsQuality = 3;
+        break;
+
+    case ERemasterQualityPreset::Balanced:
+    default:
+        break;
+    }
+
+    if (IConsoleVariable* MaxFps = IConsoleManager::Get().FindConsoleVariable(TEXT("t.MaxFPS")))
+        MaxFps->Set(static_cast<float>(TargetFps), ECVF_SetByGameSetting);
+
+    if (IConsoleVariable* ScreenPercentage = IConsoleManager::Get().FindConsoleVariable(TEXT("r.ScreenPercentage")))
+        ScreenPercentage->Set(ResolutionScale, ECVF_SetByGameSetting);
+
+    if (IConsoleVariable* Shadows = IConsoleManager::Get().FindConsoleVariable(TEXT("sg.ShadowQuality")))
+        Shadows->Set(ShadowQuality, ECVF_SetByGameSetting);
+
+    if (IConsoleVariable* Effects = IConsoleManager::Get().FindConsoleVariable(TEXT("sg.EffectsQuality")))
+        Effects->Set(EffectsQuality, ECVF_SetByGameSetting);
+
+    UE_LOG(
+        LogTemp,
+        Display,
+        TEXT("Remaster quality preset=%d target_fps=%d resolution=%.0f shadow=%d effects=%d"),
+        static_cast<int32>(Preset),
+        TargetFps,
+        ResolutionScale,
+        ShadowQuality,
+        EffectsQuality);
 }
