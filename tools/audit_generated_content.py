@@ -204,6 +204,19 @@ def audit(root: Path) -> list[str]:
 
         for warp in map_doc.get("warp_events", []):
             target = warp.get("dest_map")
+            is_dynamic = bool(warp.get("dynamic_target", False))
+
+            if is_dynamic:
+                if target != "MAP_DYNAMIC":
+                    errors.append(
+                        f"{rel}: dynamic warp must target MAP_DYNAMIC"
+                    )
+                if not isinstance(warp.get("dest_warp_id_u16"), int):
+                    errors.append(
+                        f"{rel}: dynamic warp is missing numeric dest_warp_id"
+                    )
+                continue
+
             if target and target not in known_ids:
                 errors.append(
                     f"{rel}: warp references unknown map {target}"
