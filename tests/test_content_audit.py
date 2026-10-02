@@ -72,6 +72,67 @@ class ContentAuditTests(unittest.TestCase):
 
             self.assertEqual(audit(root), [])
 
+    def test_dynamic_warp_is_not_treated_as_catalog_map(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "maps").mkdir()
+
+            manifest = {
+                "schema_version": 1,
+                "map_count": 1,
+                "maps": [
+                    {
+                        "id": "MAP_A",
+                        "file": "maps/A.json",
+                        "group_num": 0,
+                        "map_num": 0,
+                    }
+                ],
+            }
+            (root / "manifest.json").write_text(json.dumps(manifest))
+
+            doc = {
+                "schema_version": 1,
+                "map": {
+                    "id": "MAP_A",
+                    "group_num": 0,
+                    "map_num": 0,
+                    "connections": [],
+                    "object_events": [],
+                    "warp_events": [
+                        {
+                            "dest_map": "MAP_DYNAMIC",
+                            "dest_warp_id_u16": 0x7F,
+                            "dynamic_target": True,
+                        }
+                    ],
+                    "coord_events": [],
+                },
+                "layout": {
+                    "width": 1,
+                    "height": 1,
+                    "source_word_count": 1,
+                    "active_word_count": 1,
+                    "raw_blocks_u16": [0],
+                    "trailing_words_u16": [],
+                    "border_source_word_count": 4,
+                    "border_active_words_u16": [1, 2, 3, 4],
+                    "border_trailing_words_u16": [],
+                    "metatile_ids_u16": [0],
+                    "collision_u8": [0],
+                    "elevation_u8": [0],
+                    "primary_metatile_attributes_u16": [0],
+                    "secondary_metatile_attributes_u16": [0],
+                    "primary_metatile_behavior_u8": [0],
+                    "secondary_metatile_behavior_u8": [0],
+                    "primary_metatile_layer_u8": [0],
+                    "secondary_metatile_layer_u8": [0],
+                },
+            }
+            (root / "maps/A.json").write_text(json.dumps(doc))
+
+            self.assertEqual(audit(root), [])
+
     def test_unknown_connection_fails(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
