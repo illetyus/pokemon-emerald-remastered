@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 
 #include <stdio.h>
+#include <string.h>
 
 enum {
     WINDOW_WIDTH = 960,
@@ -172,6 +173,62 @@ static void update_title(SDL_Window *window, const RemasterState *state)
     SDL_SetWindowTitle(window, title);
 }
 
+static int run_self_test(void)
+{
+    RemasterState state;
+    RemasterState restored;
+    uint8_t save_data[REMASTER_CORE_STATE_BYTES];
+    uint64_t hash_before;
+
+    remaster_core_init(&state);
+
+    remaster_core_step(&state, REMASTER_INPUT_MOVE_UP);
+    remaster_core_step(&state, REMASTER_INPUT_MOVE_RIGHT);
+    remaster_core_step(&state, REMASTER_INPUT_MOVE_RIGHT);
+    remaster_core_step(&state, REMASTER_INPUT_INTERACT);
+    remaster_core_step(&state, REMASTER_INPUT_MOVE_DOWN);
+    remaster_core_step(&state, REMASTER_INPUT_MOVE_DOWN);
+    remaster_core_step(&state, REMASTER_INPUT_MOVE_DOWN);
+
+    if (state.tile_x != 3 || state.tile_y != 4 ||
+        state.step_count != 5 || state.interaction_count != 1 ||
+        state.event_flags != 1u || state.encounter_pending != 1u) {
+        fprintf(stderr, "SDL3 R0 self-test: scenario mismatch\n");
+        return 1;
+    }
+
+    hash_before = remaster_core_state_hash(&state);
+
+    if (!remaster_core_save(&state, save_data, sizeof(save_data))) {
+        fprintf(stderr, "SDL3 R0 self-test: save failed\n");
+        return 1;
+    }
+
+    remaster_core_init(&restored);
+
+    if (!remaster_core_load(&restored, save_data, sizeof(save_data))) {
+        fprintf(stderr, "SDL3 R0 self-test: load failed\n");
+        return 1;
+    }
+
+    if (remaster_core_state_hash(&restored) != hash_before) {
+        fprintf(stderr, "SDL3 R0 self-test: save/load hash mismatch\n");
+        return 1;
+    }
+
+    remaster_core_step(&state, REMASTER_INPUT_MOVE_RIGHT);
+    remaster_core_step(&restored, REMASTER_INPUT_MOVE_RIGHT);
+
+    if (remaster_core_state_hash(&state) != remaster_core_state_hash(&restored)) {
+        fprintf(stderr, "SDL3 R0 self-test: continuation diverged\n");
+        return 1;
+    }
+
+    printf("R0 SDL3 self-test passed. state_hash=%llu\n",
+           (unsigned long long)remaster_core_state_hash(&state));
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     SDL_Window *window;
@@ -181,8 +238,8 @@ int main(int argc, char **argv)
     bool has_save = false;
     bool running = true;
 
-    (void)argc;
-    (void)argv;
+    if (argc > 1 && strcmp(argv[1], "--self-test") == 0)
+        return run_self_test();
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
         SDL_Log("SDL_Init failed: %s", SDL_GetError());
