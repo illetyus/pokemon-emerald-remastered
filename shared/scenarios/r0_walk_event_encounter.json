@@ -1,0 +1,28 @@
+{
+  "id": "r0_walk_event_encounter",
+  "initial_state": {
+    "tile_x": 1,
+    "tile_y": 1,
+    "step_count": 0,
+    "interaction_count": 0,
+    "event_flags": 0,
+    "encounter_pending": false
+  },
+  "inputs": [
+    "MOVE_UP",
+    "MOVE_RIGHT",
+    "MOVE_RIGHT",
+    "INTERACT",
+    "MOVE_DOWN",
+    "MOVE_DOWN",
+    "MOVE_DOWN"
+  ],
+  "expected_final_state": {
+    "tile_x": 3,
+    "tile_y": 4,
+    "step_count": 5,
+    "interaction_count": 1,
+    "event_flags": 1,
+    "encounter_pending": true
+  }
+}
