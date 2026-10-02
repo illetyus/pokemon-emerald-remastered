@@ -32,7 +32,7 @@ jobs:
         shell: bash
         run: |
           yes | "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
-          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"             "platform-tools"             "platforms;android-35"             "build-tools;35.0.1"             "ndk;28.1.13356709"
+          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"             "platform-tools"             "platforms;android-35"             "build-tools;35.0.1"             "ndk;28.2.13676358"
 
       - name: Download pinned SDL3 source
         shell: bash
@@ -44,7 +44,7 @@ jobs:
       - name: Generate SDL3 Android project
         shell: bash
         env:
-          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/28.1.13356709
+          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/28.2.13676358
         run: |
           SDL_ROOT="$(find . -maxdepth 1 -type d -name 'SDL3-*' | head -n 1)"
           test -n "$SDL_ROOT"
@@ -53,12 +53,11 @@ jobs:
           PROJECT="$GITHUB_WORKSPACE/build-android-sdl/com.illetyus.emeraldremaster.r0sdl"
           cp "$GITHUB_WORKSPACE/core/include/remaster/core.h" "$PROJECT/app/jni/src/core.h"
           sed -i 's#"remaster/core.h"#"core.h"#g' "$PROJECT/app/jni/src/main.c" "$PROJECT/app/jni/src/core.c"
-          sed -i 's/ndkVersion = "28.2.13676358"/ndkVersion = "28.1.13356709"/' "$PROJECT/app/build.gradle"
-
+          
       - name: Build ARM64 debug APK
         shell: bash
         env:
-          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/28.1.13356709
+          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/28.2.13676358
         run: |
           PROJECT="$GITHUB_WORKSPACE/build-android-sdl/com.illetyus.emeraldremaster.r0sdl"
           cd "$PROJECT"
