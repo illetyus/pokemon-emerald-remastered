@@ -57,6 +57,11 @@ typedef int (*RemasterEmeraldCameraMoveFn)(
     void *userdata,
     uint8_t direction);
 
+typedef int (*RemasterEmeraldObjectCollisionExemptFn)(
+    void *userdata,
+    size_t obstacle_index,
+    size_t collider_index);
+
 typedef struct RemasterEmeraldMovementContext {
     const RemasterEmeraldMapView *map;
 
@@ -66,6 +71,7 @@ typedef struct RemasterEmeraldMovementContext {
     void *userdata;
     RemasterEmeraldConnectionValidFn connection_valid;
     RemasterEmeraldCameraMoveFn camera_can_move;
+    RemasterEmeraldObjectCollisionExemptFn object_collision_exempt;
 } RemasterEmeraldMovementContext;
 
 void remaster_emerald_move_coords(
