@@ -37,6 +37,14 @@ typedef struct R0LifecycleContext {
     char save_path[1024];
 } R0LifecycleContext;
 
+typedef struct R0PerfWindow {
+    Uint64 window_start_ns;
+    Uint64 previous_frame_ns;
+    double total_frame_ms;
+    double worst_frame_ms;
+    uint32_t frame_count;
+} R0PerfWindow;
+
 static const uint8_t kSaveMagic[R0_SAVE_MAGIC_SIZE] = { 'R', '0', 'S', '1' };
 
 static void write_u64_le(uint8_t *dst, uint64_t value)
@@ -220,6 +228,68 @@ static bool initialize_persistent_path(R0LifecycleContext *context)
     SDL_free(pref_path);
 
     return written > 0 && (size_t)written < sizeof(context->save_path);
+}
+
+
+static void perf_window_init(R0PerfWindow *perf)
+{
+    Uint64 now;
+
+    if (perf == NULL)
+        return;
+
+    now = SDL_GetTicksNS();
+    perf->window_start_ns = now;
+    perf->previous_frame_ns = now;
+    perf->total_frame_ms = 0.0;
+    perf->worst_frame_ms = 0.0;
+    perf->frame_count = 0;
+}
+
+static void perf_window_tick(R0PerfWindow *perf)
+{
+    const Uint64 report_interval_ns = UINT64_C(5000000000);
+    Uint64 now;
+    Uint64 frame_ns;
+    Uint64 elapsed_ns;
+    double frame_ms;
+    double elapsed_seconds;
+    double fps;
+    double average_ms;
+
+    if (perf == NULL)
+        return;
+
+    now = SDL_GetTicksNS();
+    frame_ns = now - perf->previous_frame_ns;
+    perf->previous_frame_ns = now;
+
+    frame_ms = (double)frame_ns / 1000000.0;
+    perf->total_frame_ms += frame_ms;
+    if (frame_ms > perf->worst_frame_ms)
+        perf->worst_frame_ms = frame_ms;
+    perf->frame_count++;
+
+    elapsed_ns = now - perf->window_start_ns;
+    if (elapsed_ns < report_interval_ns || perf->frame_count == 0)
+        return;
+
+    elapsed_seconds = (double)elapsed_ns / 1000000000.0;
+    fps = (double)perf->frame_count / elapsed_seconds;
+    average_ms = perf->total_frame_ms / (double)perf->frame_count;
+
+    SDL_Log(
+        "R0 PERF renderer=SDL3 fps=%.2f avg_frame_ms=%.3f worst_frame_ms=%.3f frames=%u",
+        fps,
+        average_ms,
+        perf->worst_frame_ms,
+        (unsigned int)perf->frame_count
+    );
+
+    perf->window_start_ns = now;
+    perf->total_frame_ms = 0.0;
+    perf->worst_frame_ms = 0.0;
+    perf->frame_count = 0;
 }
 
 static void apply_input(RemasterState *state, RemasterInput input)
@@ -449,6 +519,7 @@ int main(int argc, char **argv)
     SDL_Renderer *renderer;
     RemasterState state;
     R0LifecycleContext lifecycle_context;
+    R0PerfWindow perf_window;
     uint8_t save_data[REMASTER_CORE_STATE_BYTES];
     bool has_save = false;
     bool running = true;
@@ -484,6 +555,7 @@ int main(int argc, char **argv)
 
     (void)SDL_SetRenderVSync(renderer, 1);
     remaster_core_init(&state);
+    perf_window_init(&perf_window);
 
     lifecycle_context.state = &state;
     lifecycle_context.save_path[0] = '\0';
@@ -549,6 +621,7 @@ int main(int argc, char **argv)
 
         update_title(window, &state);
         render_scene(renderer, &state);
+        perf_window_tick(&perf_window);
     }
 
     if (lifecycle_context.save_path[0] != '\0') {
