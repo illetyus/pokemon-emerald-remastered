@@ -20,6 +20,11 @@ def audit(root: Path) -> list[str]:
         errors.append("manifest map_count does not match maps array")
 
     known_ids = {entry.get("id") for entry in maps}
+    manifest_by_id = {
+        entry.get("id"): entry
+        for entry in maps
+        if entry.get("id")
+    }
     known_files = set()
     known_numeric_maps: set[tuple[int, int]] = set()
 
@@ -169,18 +174,65 @@ def audit(root: Path) -> list[str]:
         if map_doc.get("map_num") != map_num:
             errors.append(f"{rel}: manifest/map map_num mismatch")
 
+        for object_index, obj in enumerate(map_doc.get("object_events", []), start=1):
+            if obj.get("local_id") != object_index:
+                errors.append(
+                    f"{rel}: object local_id {obj.get('local_id')!r} "
+                    f"!= Vanilla array index {object_index}"
+                )
+            if "flag" in obj and not isinstance(obj.get("flag_id"), int):
+                errors.append(
+                    f"{rel}: object {object_index} is missing numeric flag_id"
+                )
+
         for connection in map_doc.get("connections", []):
             target = connection.get("map")
             if target and target not in known_ids:
                 errors.append(
                     f"{rel}: connection references unknown map {target}"
                 )
+            elif target:
+                expected = manifest_by_id[target]
+                if connection.get("dest_group_num") != expected.get("group_num"):
+                    errors.append(
+                        f"{rel}: connection {target} group target mismatch"
+                    )
+                if connection.get("dest_map_num") != expected.get("map_num"):
+                    errors.append(
+                        f"{rel}: connection {target} map target mismatch"
+                    )
 
         for warp in map_doc.get("warp_events", []):
             target = warp.get("dest_map")
             if target and target not in known_ids:
                 errors.append(
                     f"{rel}: warp references unknown map {target}"
+                )
+            elif target:
+                expected = manifest_by_id[target]
+                if warp.get("dest_group_num") != expected.get("group_num"):
+                    errors.append(
+                        f"{rel}: warp {target} group target mismatch"
+                    )
+                if warp.get("dest_map_num") != expected.get("map_num"):
+                    errors.append(
+                        f"{rel}: warp {target} map target mismatch"
+                    )
+                if not isinstance(warp.get("dest_warp_id_u16"), int):
+                    errors.append(
+                        f"{rel}: warp {target} is missing numeric dest_warp_id"
+                    )
+
+        for coord_index, coord in enumerate(map_doc.get("coord_events", [])):
+            if coord.get("type") != "trigger":
+                continue
+            if not isinstance(coord.get("var_id"), int):
+                errors.append(
+                    f"{rel}: coord event {coord_index} is missing numeric var_id"
+                )
+            if not isinstance(coord.get("var_value_u16"), int):
+                errors.append(
+                    f"{rel}: coord event {coord_index} is missing numeric var_value"
                 )
 
     return errors
