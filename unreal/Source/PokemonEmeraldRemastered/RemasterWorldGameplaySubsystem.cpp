@@ -8,6 +8,7 @@ extern "C"
 #include "remaster/emerald_events.h"
 #include "remaster/emerald_save.h"
 #include "remaster/emerald_state.h"
+#include "remaster/emerald_transition.h"
 }
 
 namespace
@@ -365,6 +366,151 @@ bool URemasterWorldGameplaySubsystem::ResolveCoordEventAt(
         OutEvent.Kind = ERemasterResolvedCoordKind::Weather;
     else
         OutEvent.Kind = ERemasterResolvedCoordKind::Script;
+
+    return true;
+}
+
+
+bool URemasterWorldGameplaySubsystem::ApplyResolvedWarp(
+    const FRemasterResolvedWarp& Warp)
+{
+    if (!bMapReady || !GetGameInstance())
+        return false;
+
+    URemasterVanillaPlusSaveSubsystem* SaveSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
+    URemasterWorldCatalogSubsystem* CatalogSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterWorldCatalogSubsystem>();
+
+    if (!SaveSubsystem
+        || !CatalogSubsystem
+        || !SaveSubsystem->HasUsableSave())
+    {
+        return false;
+    }
+
+    RemasterEmeraldSave* Save =
+        static_cast<RemasterEmeraldSave*>(
+            SaveSubsystem->GetMutableNativeSaveHandle());
+
+    if (!Save)
+        return false;
+
+    RemasterEmeraldWarpState Destination{};
+
+    if (Warp.bDynamicTarget)
+    {
+        if (!remaster_emerald_dynamic_warp_get(
+                Save,
+                &Destination))
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if (Warp.DestGroupNum < MIN_int8
+            || Warp.DestGroupNum > MAX_int8
+            || Warp.DestMapNum < MIN_int8
+            || Warp.DestMapNum > MAX_int8
+            || Warp.DestWarpId < MIN_int8
+            || Warp.DestWarpId > MAX_int8)
+        {
+            return false;
+        }
+
+        Destination.map_group =
+            static_cast<int8>(Warp.DestGroupNum);
+        Destination.map_num =
+            static_cast<int8>(Warp.DestMapNum);
+        Destination.warp_id =
+            static_cast<int8>(Warp.DestWarpId);
+        Destination.x = -1;
+        Destination.y = -1;
+    }
+
+    FRemasterMapIR TargetMap;
+    FString Error;
+
+    if (!CatalogSubsystem->LoadMap(
+            static_cast<int32>(Destination.map_group),
+            static_cast<int32>(Destination.map_num),
+            TargetMap,
+            Error))
+    {
+        UE_LOG(
+            LogTemp,
+            Error,
+            TEXT("Warp target map load failed for %d,%d: %s"),
+            static_cast<int32>(Destination.map_group),
+            static_cast<int32>(Destination.map_num),
+            *Error);
+        return false;
+    }
+
+    if (TargetMap.LayoutNum <= 0
+        || TargetMap.LayoutNum > MAX_uint16
+        || TargetMap.Width <= 0
+        || TargetMap.Width > MAX_int16
+        || TargetMap.Height <= 0
+        || TargetMap.Height > MAX_int16)
+    {
+        UE_LOG(
+            LogTemp,
+            Error,
+            TEXT("Warp target map has invalid layout/dimensions: %s"),
+            *TargetMap.Id);
+        return false;
+    }
+
+    TArray<RemasterEmeraldWarpEventDef> TargetWarps;
+    TargetWarps.Reserve(TargetMap.WarpEvents.Num());
+
+    for (const FRemasterWarpEventIR& Event : TargetMap.WarpEvents)
+    {
+        if (!FitsInt16(Event.X)
+            || !FitsInt16(Event.Y)
+            || !FitsUInt8(Event.Elevation))
+        {
+            UE_LOG(
+                LogTemp,
+                Error,
+                TEXT("Warp target map contains invalid warp coordinates: %s"),
+                *TargetMap.Id);
+            return false;
+        }
+
+        RemasterEmeraldWarpEventDef Native{};
+        Native.x = static_cast<int16>(Event.X);
+        Native.y = static_cast<int16>(Event.Y);
+        Native.elevation = static_cast<uint8>(Event.Elevation);
+        TargetWarps.Add(Native);
+    }
+
+    if (!remaster_emerald_apply_warp(
+            Save,
+            Destination,
+            static_cast<uint16>(TargetMap.LayoutNum),
+            static_cast<int16>(TargetMap.Width),
+            static_cast<int16>(TargetMap.Height),
+            TargetWarps.IsEmpty() ? nullptr : TargetWarps.GetData(),
+            static_cast<size_t>(TargetWarps.Num())))
+    {
+        return false;
+    }
+
+    CurrentMap = MoveTemp(TargetMap);
+    bMapReady = true;
+
+    UE_LOG(
+        LogTemp,
+        Display,
+        TEXT("Vanilla+ warp applied: map=%s (%d,%d) warp=%d dynamic=%d"),
+        *CurrentMap.Id,
+        CurrentMap.GroupNum,
+        CurrentMap.MapNum,
+        static_cast<int32>(Destination.warp_id),
+        Warp.bDynamicTarget ? 1 : 0);
 
     return true;
 }
