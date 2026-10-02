@@ -72,6 +72,20 @@ jobs:
           unzip -l "$APK" | grep 'lib/arm64-v8a/libmain.so'
           unzip -l "$APK" | grep 'lib/arm64-v8a/libSDL3.so'
 
+      - name: Verify SDL_main export
+        shell: bash
+        run: |
+          APK="$GITHUB_WORKSPACE/build-android-sdl/com.illetyus.emeraldremaster.r0sdl/app/build/outputs/apk/debug/app-debug.apk"
+          rm -rf "$GITHUB_WORKSPACE/apk-check"
+          mkdir -p "$GITHUB_WORKSPACE/apk-check"
+          unzip -q "$APK" 'lib/arm64-v8a/libmain.so' -d "$GITHUB_WORKSPACE/apk-check"
+          readelf -Ws "$GITHUB_WORKSPACE/apk-check/lib/arm64-v8a/libmain.so" | grep -E '[[:space:]]SDL_main        uses: actions/upload-artifact@v4
+        with:
+          name: r0-sdl3-android-arm64
+          path: build-android-sdl/com.illetyus.emeraldremaster.r0sdl/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+
       - name: Publish SDL3 R0 APK
         uses: actions/upload-artifact@v4
         with:
