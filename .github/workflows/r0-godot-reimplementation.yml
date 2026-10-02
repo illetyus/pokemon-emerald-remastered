@@ -8,8 +8,13 @@ on:
       - "experiments/godot-reimplementation/**"
       - ".github/workflows/r0-godot-reimplementation.yml"
 
+concurrency:
+  group: r0-godot-reimplementation-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   headless-test:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
 
     steps:
@@ -26,4 +31,6 @@ jobs:
 
       - name: Run pure Godot R0 equivalence test
         run: |
-          ./Godot_v4.7.2-stable_linux.x86_64             --headless             --path experiments/godot-reimplementation             --script res://tests/r0_headless.gd
+          ./Godot_v4.7.2-stable_linux.x86_64             --headless \
+            --quit-after 1 \
+            --path experiments/godot-reimplementation             --script res://tests/r0_headless.gd
