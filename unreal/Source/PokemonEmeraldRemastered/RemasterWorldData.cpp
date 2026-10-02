@@ -79,6 +79,9 @@ bool FRemasterWorldData::LoadMapJson(
 
     OutMap.Id = StringField(Map, TEXT("id"));
     OutMap.Name = StringField(Map, TEXT("name"));
+    OutMap.GroupName = StringField(Map, TEXT("group_name"));
+    OutMap.GroupNum = IntField(Map, TEXT("group_num"));
+    OutMap.MapNum = IntField(Map, TEXT("map_num"));
     OutMap.LayoutId = StringField(Map, TEXT("layout"));
     OutMap.Music = StringField(Map, TEXT("music"));
     OutMap.RegionMapSection = StringField(Map, TEXT("region_map_section"));
