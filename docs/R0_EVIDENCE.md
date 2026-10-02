@@ -205,3 +205,20 @@ Expected next-device states are now unambiguous:
 - static BOOT screen only: runtime script did not start;
 - runtime UI + red bridge status: script works, GDExtension failed;
 - green grid + blue player + C CORE LOADED: bridge and presentation path work.
+
+
+### SDL3 second device result
+
+Observed on physical Android hardware after the landscape/fullscreen/logical-presentation fixes:
+
+- app launches successfully;
+- landscape orientation is correct;
+- immersive/fullscreen presentation is correct;
+- the 8x8 synthetic test board is centered;
+- logical rendering scale is correct instead of drawing at raw 960x640 coordinates in the top-left;
+- the blue player tile, walkable green tiles, blocked gray tiles and orange event tile render correctly.
+
+Conclusion:
+
+- SDL3 Android window/bootstrap/render presentation now passes the visual field gate.
+- Remaining SDL3 device gates are interaction, lifecycle persistence and measured frame-pacing telemetry.
