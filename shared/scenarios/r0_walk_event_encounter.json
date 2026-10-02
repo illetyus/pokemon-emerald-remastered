@@ -24,5 +24,6 @@
     "interaction_count": 1,
     "event_flags": 1,
     "encounter_pending": true
-  }
+  },
+  "expected_final_hash": 7218695048241891000
 }
