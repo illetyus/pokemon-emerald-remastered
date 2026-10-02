@@ -57,6 +57,9 @@ struct FRemasterMapIR
 
     FString Id;
     FString Name;
+    FString GroupName;
+    int32 GroupNum = -1;
+    int32 MapNum = -1;
     FString LayoutId;
     FString Music;
     FString RegionMapSection;
@@ -122,6 +125,8 @@ struct FRemasterMapIR
                 == PrimaryMetatileAttributes.Num()
             && SecondaryMetatileLayer.Num()
                 == SecondaryMetatileAttributes.Num()
+            && GroupNum >= 0
+            && MapNum >= 0
             && !Id.IsEmpty();
     }
 };
