@@ -126,3 +126,54 @@ uint64_t remaster_core_state_hash(const RemasterState *state)
 
     return hash;
 }
+
+static void write_u32_le(uint8_t *dst, uint32_t value)
+{
+    dst[0] = (uint8_t)(value & 0xffu);
+    dst[1] = (uint8_t)((value >> 8u) & 0xffu);
+    dst[2] = (uint8_t)((value >> 16u) & 0xffu);
+    dst[3] = (uint8_t)((value >> 24u) & 0xffu);
+}
+
+static uint32_t read_u32_le(const uint8_t *src)
+{
+    return ((uint32_t)src[0])
+         | ((uint32_t)src[1] << 8u)
+         | ((uint32_t)src[2] << 16u)
+         | ((uint32_t)src[3] << 24u);
+}
+
+size_t remaster_core_state_size(void)
+{
+    return REMASTER_CORE_STATE_BYTES;
+}
+
+int remaster_core_save(const RemasterState *state, uint8_t *buffer, size_t buffer_size)
+{
+    if (state == 0 || buffer == 0 || buffer_size < REMASTER_CORE_STATE_BYTES)
+        return 0;
+
+    write_u32_le(buffer + 0, (uint32_t)state->tile_x);
+    write_u32_le(buffer + 4, (uint32_t)state->tile_y);
+    write_u32_le(buffer + 8, state->step_count);
+    write_u32_le(buffer + 12, state->interaction_count);
+    write_u32_le(buffer + 16, state->event_flags);
+    buffer[20] = state->encounter_pending ? 1u : 0u;
+
+    return 1;
+}
+
+int remaster_core_load(RemasterState *state, const uint8_t *buffer, size_t buffer_size)
+{
+    if (state == 0 || buffer == 0 || buffer_size < REMASTER_CORE_STATE_BYTES)
+        return 0;
+
+    state->tile_x = (int32_t)read_u32_le(buffer + 0);
+    state->tile_y = (int32_t)read_u32_le(buffer + 4);
+    state->step_count = read_u32_le(buffer + 8);
+    state->interaction_count = read_u32_le(buffer + 12);
+    state->event_flags = read_u32_le(buffer + 16);
+    state->encounter_pending = buffer[20] ? 1u : 0u;
+
+    return 1;
+}
