@@ -55,6 +55,18 @@ int remaster_emerald_save_encode_next(
     size_t image_size,
     RemasterEmeraldSave *save);
 
+RemasterEmeraldSaveStatus remaster_emerald_save_load_platform(
+    const char *slot_name,
+    uint8_t *scratch_image,
+    size_t scratch_size,
+    RemasterEmeraldSave *out_save);
+
+int remaster_emerald_save_store_platform(
+    const char *slot_name,
+    uint8_t *scratch_image,
+    size_t scratch_size,
+    RemasterEmeraldSave *save);
+
 RemasterEmeraldTime remaster_emerald_save_get_local_time_offset(
     const RemasterEmeraldSave *save);
 
