@@ -1,14 +1,7 @@
 name: R0 SDL3
 
 on:
-  push:
-    branches:
-      - remaster/**
-    paths:
-      - "core/**"
-      - "experiments/sdl3-native/**"
-      - "CMakeLists.txt"
-      - ".github/workflows/r0-sdl3.yml"
+  workflow_dispatch:
 
 concurrency:
   group: r0-sdl3-${{ github.ref }}
