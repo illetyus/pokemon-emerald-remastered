@@ -25,5 +25,5 @@
     "event_flags": 1,
     "encounter_pending": true
   },
-  "expected_final_hash": 7218695048241891000
+  "expected_final_hash_hex": "0x642df4e66c5448a0"
 }
