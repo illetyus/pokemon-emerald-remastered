@@ -222,3 +222,24 @@ Conclusion:
 
 - SDL3 Android window/bootstrap/render presentation now passes the visual field gate.
 - Remaining SDL3 device gates are interaction, lifecycle persistence and measured frame-pacing telemetry.
+
+
+### Godot BOOT diagnostic result
+
+Physical Android observation:
+
+- static BOOT scene renders correctly;
+- message shown: `BOOT UI LOADED — RUNTIME SCRIPT NOT STARTED`;
+- therefore the exported scene is loading while the attached runtime GDScript does not start on-device.
+
+APK inspection of the failing build showed:
+
+- `main.gd` was exported as binary `assets/main.gdc`.
+
+R0 corrective action:
+
+- set `script_export_mode=0` for the Android diagnostic preset;
+- require CI to verify `assets/main.gd` exists in the final APK;
+- require CI to inspect that file for the runtime-start marker.
+
+The resulting text-script Android APK passes CI packaging verification and now requires physical-device validation.
