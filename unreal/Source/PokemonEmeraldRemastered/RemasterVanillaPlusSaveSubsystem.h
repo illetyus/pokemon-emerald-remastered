@@ -132,6 +132,17 @@ public:
     UFUNCTION(BlueprintPure, Category="Remaster|VanillaPlus")
     FString GetLegacySavePath() const;
 
+    // Internal C++ bridge. Presentation code should use typed public APIs.
+    const void* GetNativeSaveHandle() const
+    {
+        return NativeSave;
+    }
+
+    void* GetMutableNativeSaveHandle()
+    {
+        return NativeSave;
+    }
+
 private:
     void* NativeSave = nullptr;
     TArray<uint8> ScratchImage;
