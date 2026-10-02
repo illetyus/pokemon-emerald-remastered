@@ -2,6 +2,7 @@ include(FetchContent)
 
 set(GODOTCPP_API_VERSION "4.7" CACHE STRING "" FORCE)
 set(GODOTCPP_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+set(GODOTCPP_BUILD_PROFILE "${CMAKE_CURRENT_SOURCE_DIR}/build_profile.json" CACHE PATH "" FORCE)
 
 FetchContent_Declare(
     godot-cpp
