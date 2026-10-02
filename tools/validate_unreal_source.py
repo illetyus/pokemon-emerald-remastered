@@ -33,6 +33,7 @@ def main() -> int:
         "RemasterMechanicsEmbed.cpp": "../../../core/src/mechanics.c",
         "RemasterEmeraldSaveEmbed.cpp": "../../../core/src/emerald_save.c",
         "RemasterEmeraldRtcEmbed.cpp": "../../../core/src/emerald_rtc.c",
+        "RemasterEmeraldStateEmbed.cpp": "../../../core/src/emerald_state.c",
     }
 
     for filename, include in expected_embeds.items():
