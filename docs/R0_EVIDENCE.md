@@ -132,3 +132,47 @@ The remaining R0 architecture gate is real-device testing with the same ADB prot
 - frame-pacing observations.
 
 See `docs/R0_ANDROID_DEVICE_TEST.md`.
+
+
+## First physical-device findings
+
+The first manual Android device pass exposed two presentation/runtime issues that CI did not originally catch.
+
+### SDL3 first device result
+
+Observed:
+
+- APK installed but did not visibly start.
+
+Root cause found:
+
+- `libmain.so` exported `main` but not the Android SDL entry point `SDL_main`.
+- The SDL3 source was missing `#include <SDL3/SDL_main.h>`.
+
+Fix:
+
+- Include SDL3's main shim header.
+- Android CI now extracts `libmain.so` from the built APK and requires an exported `SDL_main` symbol before publishing the artifact.
+
+### Godot+C first device result
+
+Observed:
+
+- Android activity opened.
+- Only a uniform gray screen was visible.
+- Presentation was not convincingly fullscreen.
+
+Diagnostic weakness found:
+
+- The old `Node2D._draw()` path returned immediately when `RemasterCoreBridge` was unavailable, leaving only the default clear color. A runtime bridge-load problem was therefore indistinguishable from an empty renderer.
+
+Fixes:
+
+- Replace the synthetic presentation with a full-screen `Control` UI.
+- Success state shows a green grid, blue player tile and `C CORE: LOADED`.
+- Bridge failure shows a red diagnostic screen instead of silently displaying gray.
+- Force landscape in project settings and at mobile runtime.
+- Force fullscreen at mobile runtime.
+- Android CI requires the `remaster_library_init` symbol before APK export.
+
+The corrected APKs still require a second physical-device pass before R0 can select a production architecture.
