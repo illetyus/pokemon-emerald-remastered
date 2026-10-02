@@ -24,7 +24,7 @@ void RemasterCoreBridge::reset()
     remaster_core_init(&state);
 }
 
-void RemasterCoreBridge::step(const StringName &action)
+int64_t RemasterCoreBridge::step(const StringName &action)
 {
     RemasterInput input = REMASTER_INPUT_NONE;
 
@@ -39,8 +39,10 @@ void RemasterCoreBridge::step(const StringName &action)
     else if (action == StringName("INTERACT"))
         input = REMASTER_INPUT_INTERACT;
 
-    if (input != REMASTER_INPUT_NONE)
-        remaster_core_step(&state, input);
+    if (input == REMASTER_INPUT_NONE)
+        return REMASTER_EVENT_NONE;
+
+    return static_cast<int64_t>(remaster_core_step(&state, input));
 }
 
 Dictionary RemasterCoreBridge::snapshot() const
