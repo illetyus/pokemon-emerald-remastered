@@ -19,6 +19,15 @@ typedef enum RemasterInput {
     REMASTER_INPUT_INTERACT
 } RemasterInput;
 
+typedef enum RemasterEventFlags {
+    REMASTER_EVENT_NONE = 0,
+    REMASTER_EVENT_MOVED = 1u << 0,
+    REMASTER_EVENT_INTERACTED = 1u << 1,
+    REMASTER_EVENT_FLAG_SET = 1u << 2,
+    REMASTER_EVENT_ENCOUNTER = 1u << 3,
+    REMASTER_EVENT_BLOCKED = 1u << 4
+} RemasterEventFlags;
+
 typedef struct RemasterState {
     int32_t tile_x;
     int32_t tile_y;
@@ -29,7 +38,7 @@ typedef struct RemasterState {
 } RemasterState;
 
 void remaster_core_init(RemasterState *state);
-void remaster_core_step(RemasterState *state, RemasterInput input);
+uint32_t remaster_core_step(RemasterState *state, RemasterInput input);
 
 uint64_t remaster_core_state_hash(const RemasterState *state);
 
