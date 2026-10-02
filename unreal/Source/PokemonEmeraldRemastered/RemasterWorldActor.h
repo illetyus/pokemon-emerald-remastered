@@ -6,6 +6,7 @@
 #include "RemasterWorldActor.generated.h"
 
 class UHierarchicalInstancedStaticMeshComponent;
+class URemasterVisualStyle;
 class USceneComponent;
 
 UCLASS()
@@ -37,6 +38,9 @@ protected:
     TObjectPtr<UHierarchicalInstancedStaticMeshComponent> BlockInstances;
 
     UPROPERTY(EditAnywhere, Category="Remaster|World")
+    TObjectPtr<URemasterVisualStyle> VisualStyle;
+
+    UPROPERTY(EditAnywhere, Category="Remaster|World")
     float TileWorldSize = 100.0f;
 
     UPROPERTY(EditAnywhere, Category="Remaster|World")
@@ -47,6 +51,8 @@ protected:
 
 private:
     void BuildPreviewInstances();
+    UHierarchicalInstancedStaticMeshComponent* ComponentForBlock(uint16 RawBlock);
 
     FRemasterMapIR LoadedMap;
+    TMap<int32, TObjectPtr<UHierarchicalInstancedStaticMeshComponent>> VisualComponents;
 };
