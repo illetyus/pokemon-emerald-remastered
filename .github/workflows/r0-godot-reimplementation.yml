@@ -1,0 +1,35 @@
+name: R0 Godot Reimplementation
+
+on:
+  push:
+    branches:
+      - remaster/**
+    paths:
+      - "experiments/godot-reimplementation/**"
+      - ".github/workflows/r0-godot-reimplementation.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "experiments/godot-reimplementation/**"
+      - ".github/workflows/r0-godot-reimplementation.yml"
+
+jobs:
+  headless-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Godot 4.7.2
+        shell: bash
+        run: |
+          curl -L --fail --retry 3             -o godot.zip             https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          echo "cadd3204e728a35d3f13adb7fd0d7902636b79f6b95c40c265eb73b6c35329e4  godot.zip" | sha256sum -c -
+          unzip -q godot.zip
+          chmod +x Godot_v4.7.2-stable_linux.x86_64
+
+      - name: Run pure Godot R0 equivalence test
+        run: |
+          ./Godot_v4.7.2-stable_linux.x86_64             --headless             --path experiments/godot-reimplementation             --script res://tests/r0_headless.gd
