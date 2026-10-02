@@ -16,6 +16,7 @@ add_library(remaster_core STATIC
     core/src/emerald_movement.c
     core/src/emerald_events.c
     core/src/emerald_transition.c
+    core/src/emerald_script.c
 )
 
 set_target_properties(remaster_core PROPERTIES
@@ -241,3 +242,18 @@ else()
 endif()
 
 add_test(NAME emerald_warp_transition COMMAND emerald_transition_test)
+
+
+add_executable(emerald_script_test
+    tests/emerald_script_test.c
+)
+
+target_link_libraries(emerald_script_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_script_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_script_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME emerald_script_vm COMMAND emerald_script_test)
