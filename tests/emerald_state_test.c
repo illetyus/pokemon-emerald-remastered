@@ -111,6 +111,25 @@ int main(void)
             "pre-VARS_START id should be rejected"))
         return 1;
 
+    if (!check(remaster_emerald_flag_set(&save, 0x001F, 1), "temp flag set failed"))
+        return 1;
+    if (!check(remaster_emerald_flag_set(&save, 0x0020, 1), "persistent flag set failed"))
+        return 1;
+    if (!check(remaster_emerald_var_set(&save, 0x4000, 0xAAAA), "temp var set failed"))
+        return 1;
+    if (!check(remaster_emerald_var_set(&save, 0x4010, 0xBBBB), "persistent var set failed"))
+        return 1;
+
+    remaster_emerald_clear_temp_field_event_data(&save);
+
+    if (!check(
+            remaster_emerald_flag_get(&save, 0x001F, &flag) && flag == 0
+            && remaster_emerald_flag_get(&save, 0x0020, &flag) && flag == 1
+            && remaster_emerald_var_get(&save, 0x4000, &value) && value == 0
+            && remaster_emerald_var_get(&save, 0x4010, &value) && value == 0xBBBB,
+            "temporary event data reset mismatch"))
+        return 1;
+
     puts("Emerald overworld state compatibility test passed.");
     return 0;
 }
