@@ -1,5 +1,11 @@
 #include "RemasterCoreSubsystem.h"
 #include "RemasterPlatformUnreal.h"
+#include "RemasterMechanicsProfile.h"
+
+extern "C"
+{
+#include "remaster/mechanics.h"
+}
 
 #include "HAL/PlatformFileManager.h"
 #include "Misc/CoreDelegates.h"
@@ -39,7 +45,7 @@ void URemasterCoreSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
 
-    FRemasterPlatformUnreal::Install();
+    FRemasterPlatformUnreal::Install(GetGameInstance());
     Core.Reset();
     LoadPersistentState();
 
@@ -208,4 +214,46 @@ void URemasterCoreSubsystem::HandleEnteredForeground()
         Display,
         TEXT("R0 Unreal lifecycle: ENTERED_FOREGROUND hash=%llu"),
         static_cast<unsigned long long>(Core.StateHash()));
+}
+
+
+void URemasterCoreSubsystem::ApplyMechanicsProfile(
+    URemasterMechanicsProfile* Profile)
+{
+    if (!Profile)
+    {
+        remaster_mechanics_reset();
+        return;
+    }
+
+    RemasterMechanicsConfig Config{};
+
+    switch (Profile->Generation)
+    {
+    case ERemasterMechanicsGeneration::SelectiveModern:
+        Config.generation = REMASTER_MECHANICS_SELECTIVE_MODERN;
+        break;
+    case ERemasterMechanicsGeneration::Modern:
+        Config.generation = REMASTER_MECHANICS_MODERN;
+        break;
+    case ERemasterMechanicsGeneration::EmeraldAuthentic:
+    default:
+        Config.generation = REMASTER_MECHANICS_EMERALD_AUTHENTIC;
+        break;
+    }
+
+    Config.physical_special_split =
+        Profile->bPhysicalSpecialSplit ? 1u : 0u;
+    Config.modern_type_chart =
+        Profile->bModernTypeChart ? 1u : 0u;
+    Config.modern_abilities =
+        Profile->bModernAbilities ? 1u : 0u;
+    Config.alternative_trade_evolutions =
+        Profile->bAlternativeTradeEvolutions ? 1u : 0u;
+    Config.show_move_effectiveness =
+        Profile->bShowMoveEffectiveness ? 1u : 0u;
+    Config.fast_battle_animations_option =
+        Profile->bFastBattleAnimationsOption ? 1u : 0u;
+
+    remaster_mechanics_set(&Config);
 }
