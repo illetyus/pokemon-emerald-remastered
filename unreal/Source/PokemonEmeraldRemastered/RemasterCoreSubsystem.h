@@ -5,6 +5,8 @@
 #include "RemasterCoreAdapter.h"
 #include "RemasterCoreSubsystem.generated.h"
 
+class URemasterMechanicsProfile;
+
 UCLASS()
 class POKEMONEMERALDREMASTERED_API URemasterCoreSubsystem : public UGameInstanceSubsystem
 {
@@ -21,6 +23,9 @@ public:
 
     bool SavePersistentState();
     bool LoadPersistentState();
+
+    UFUNCTION(BlueprintCallable, Category="Remaster|Mechanics")
+    void ApplyMechanicsProfile(URemasterMechanicsProfile* Profile);
 
 private:
     void HandleWillEnterBackground();
