@@ -1,4 +1,5 @@
 #include "remaster/emerald_save.h"
+#include "remaster/platform.h"
 
 #include <string.h>
 
@@ -391,4 +392,88 @@ void remaster_emerald_save_set_last_berry_update(
     RemasterEmeraldTime value)
 {
     write_time(save, 0xA0u, value);
+}
+
+
+RemasterEmeraldSaveStatus remaster_emerald_save_load_platform(
+    const char *slot_name,
+    uint8_t *scratch_image,
+    size_t scratch_size,
+    RemasterEmeraldSave *out_save)
+{
+    const RemasterPlatformVTable *platform = remaster_platform_get();
+    size_t size = 0;
+
+    if (out_save == 0 || scratch_image == 0
+        || scratch_size < REMASTER_EMERALD_SAVE_IMAGE_BYTES
+        || platform == 0 || platform->save_read == 0) {
+        if (out_save != 0) {
+            memset(out_save, 0, sizeof(*out_save));
+            out_save->status = REMASTER_EMERALD_SAVE_CORRUPT;
+        }
+        return REMASTER_EMERALD_SAVE_CORRUPT;
+    }
+
+    if (!platform->save_read(
+            platform->userdata,
+            slot_name != 0 ? slot_name : "emerald",
+            scratch_image,
+            REMASTER_EMERALD_SAVE_IMAGE_BYTES,
+            &size)) {
+        memset(out_save, 0, sizeof(*out_save));
+        out_save->status = REMASTER_EMERALD_SAVE_EMPTY;
+        return out_save->status;
+    }
+
+    if (size != REMASTER_EMERALD_SAVE_IMAGE_BYTES) {
+        memset(out_save, 0, sizeof(*out_save));
+        out_save->status = REMASTER_EMERALD_SAVE_CORRUPT;
+        return out_save->status;
+    }
+
+    return remaster_emerald_save_decode(
+        scratch_image,
+        size,
+        out_save);
+}
+
+int remaster_emerald_save_store_platform(
+    const char *slot_name,
+    uint8_t *scratch_image,
+    size_t scratch_size,
+    RemasterEmeraldSave *save)
+{
+    const RemasterPlatformVTable *platform = remaster_platform_get();
+    size_t size = 0;
+
+    if (save == 0 || scratch_image == 0
+        || scratch_size < REMASTER_EMERALD_SAVE_IMAGE_BYTES
+        || platform == 0 || platform->save_write == 0)
+        return 0;
+
+    if (platform->save_read == 0
+        || !platform->save_read(
+            platform->userdata,
+            slot_name != 0 ? slot_name : "emerald",
+            scratch_image,
+            REMASTER_EMERALD_SAVE_IMAGE_BYTES,
+            &size)
+        || size != REMASTER_EMERALD_SAVE_IMAGE_BYTES) {
+        memset(
+            scratch_image,
+            0xff,
+            REMASTER_EMERALD_SAVE_IMAGE_BYTES);
+    }
+
+    if (!remaster_emerald_save_encode_next(
+            scratch_image,
+            REMASTER_EMERALD_SAVE_IMAGE_BYTES,
+            save))
+        return 0;
+
+    return platform->save_write(
+        platform->userdata,
+        slot_name != 0 ? slot_name : "emerald",
+        scratch_image,
+        REMASTER_EMERALD_SAVE_IMAGE_BYTES);
 }
