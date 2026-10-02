@@ -7,18 +7,26 @@ struct FRemasterConnectionIR
     FString Map;
     FString Direction;
     int32 Offset = 0;
+    int32 DestGroupNum = -1;
+    int32 DestMapNum = -1;
 };
 
 struct FRemasterObjectEventIR
 {
+    int32 LocalId = 0;
     FString GraphicsId;
     int32 X = 0;
     int32 Y = 0;
     int32 Elevation = 0;
     FString MovementType;
+    int32 MovementRangeX = 0;
+    int32 MovementRangeY = 0;
     FString TrainerType;
+    FString TrainerSightOrBerryTreeId;
+    int32 TrainerSightOrBerryTreeIdNum = -1;
     FString Script;
     FString Flag;
+    int32 FlagId = 0;
 };
 
 struct FRemasterWarpEventIR
@@ -28,6 +36,9 @@ struct FRemasterWarpEventIR
     int32 Elevation = 0;
     FString DestMap;
     FString DestWarpId;
+    int32 DestWarpIdNum = -1;
+    int32 DestGroupNum = -1;
+    int32 DestMapNum = -1;
 };
 
 struct FRemasterCoordEventIR
@@ -37,7 +48,10 @@ struct FRemasterCoordEventIR
     int32 Y = 0;
     int32 Elevation = 0;
     FString Var;
+    int32 VarId = -1;
     FString VarValue;
+    int32 VarValueNum = -1;
+    FString Weather;
     FString Script;
 };
 
