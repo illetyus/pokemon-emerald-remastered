@@ -50,13 +50,21 @@ func _init() -> void:
     assert(int(state.tile_y) == 4)
     assert(int(state.step_count) == 6)
 
-    # Validate the actual presentation script's persistent file wrapper.
-    var main_script = load("res://main.gd")
-    assert(main_script != null)
+    # Validate the actual presentation scene, static BOOT layer, runtime
+    # script and persistent file wrapper together.
+    var packed_scene: PackedScene = load("res://main.tscn")
+    assert(packed_scene != null)
 
-    var main_node = main_script.new()
-    root.add_child(main_node)
+    var presentation = packed_scene.instantiate()
+    root.add_child(presentation)
+
+    var boot_stage = presentation.get_node("BootCenter/BootBox/BootStage")
+    var main_node = presentation.get_node("Runtime")
+
+    assert(boot_stage != null)
+    assert(main_node != null)
     assert(main_node.core != null)
+    assert(boot_stage.text != "BOOT UI LOADED — RUNTIME SCRIPT NOT STARTED")
 
     main_node.core.reset()
     main_node.core.step(&"MOVE_RIGHT")
