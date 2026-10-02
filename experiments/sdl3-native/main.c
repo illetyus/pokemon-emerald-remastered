@@ -179,16 +179,29 @@ static int run_self_test(void)
     RemasterState restored;
     uint8_t save_data[REMASTER_CORE_STATE_BYTES];
     uint64_t hash_before;
+    uint32_t events;
 
     remaster_core_init(&state);
 
-    remaster_core_step(&state, REMASTER_INPUT_MOVE_UP);
+    events = remaster_core_step(&state, REMASTER_INPUT_MOVE_UP);
+    if (events != REMASTER_EVENT_BLOCKED) {
+        fprintf(stderr, "SDL3 R0 self-test: blocked-event mismatch\n");
+        return 1;
+    }
     remaster_core_step(&state, REMASTER_INPUT_MOVE_RIGHT);
     remaster_core_step(&state, REMASTER_INPUT_MOVE_RIGHT);
-    remaster_core_step(&state, REMASTER_INPUT_INTERACT);
+    events = remaster_core_step(&state, REMASTER_INPUT_INTERACT);
+    if (events != (REMASTER_EVENT_INTERACTED | REMASTER_EVENT_FLAG_SET)) {
+        fprintf(stderr, "SDL3 R0 self-test: interaction-event mismatch\n");
+        return 1;
+    }
     remaster_core_step(&state, REMASTER_INPUT_MOVE_DOWN);
     remaster_core_step(&state, REMASTER_INPUT_MOVE_DOWN);
-    remaster_core_step(&state, REMASTER_INPUT_MOVE_DOWN);
+    events = remaster_core_step(&state, REMASTER_INPUT_MOVE_DOWN);
+    if (events != (REMASTER_EVENT_MOVED | REMASTER_EVENT_ENCOUNTER)) {
+        fprintf(stderr, "SDL3 R0 self-test: encounter-event mismatch\n");
+        return 1;
+    }
 
     if (state.tile_x != 3 || state.tile_y != 4 ||
         state.step_count != 5 || state.interaction_count != 1 ||
