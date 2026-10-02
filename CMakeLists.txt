@@ -11,6 +11,7 @@ add_library(remaster_core STATIC
     core/src/mechanics.c
     core/src/emerald_save.c
     core/src/emerald_rtc.c
+    core/src/emerald_state.c
 )
 
 set_target_properties(remaster_core PROPERTIES
@@ -151,3 +152,18 @@ else()
 endif()
 
 add_test(NAME emerald_save_platform_io COMMAND emerald_save_platform_test)
+
+
+add_executable(emerald_state_test
+    tests/emerald_state_test.c
+)
+
+target_link_libraries(emerald_state_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_state_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_state_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME emerald_overworld_state COMMAND emerald_state_test)
