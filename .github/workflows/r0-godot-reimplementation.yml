@@ -1,12 +1,7 @@
 name: R0 Godot Reimplementation
 
 on:
-  push:
-    branches:
-      - remaster/**
-    paths:
-      - "experiments/godot-reimplementation/**"
-      - ".github/workflows/r0-godot-reimplementation.yml"
+  workflow_dispatch:
 
 concurrency:
   group: r0-godot-reimplementation-${{ github.ref }}
