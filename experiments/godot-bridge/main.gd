@@ -20,6 +20,10 @@ const COLLISION := [
 
 var core
 var saved_state := PackedByteArray()
+var perf_elapsed_seconds := 0.0
+var perf_total_frame_ms := 0.0
+var perf_worst_frame_ms := 0.0
+var perf_frame_count := 0
 
 
 func _ready() -> void:
@@ -113,6 +117,31 @@ func _notification(what: int) -> void:
 func _exit_tree() -> void:
     if core != null:
         persist_state_to_disk()
+
+
+func _process(delta: float) -> void:
+    var frame_ms := delta * 1000.0
+
+    perf_elapsed_seconds += delta
+    perf_total_frame_ms += frame_ms
+    perf_worst_frame_ms = max(perf_worst_frame_ms, frame_ms)
+    perf_frame_count += 1
+
+    if perf_elapsed_seconds >= 5.0 and perf_frame_count > 0:
+        var fps := float(perf_frame_count) / perf_elapsed_seconds
+        var average_ms := perf_total_frame_ms / float(perf_frame_count)
+
+        print("R0 PERF renderer=Godot fps=%.2f avg_frame_ms=%.3f worst_frame_ms=%.3f frames=%d" % [
+            fps,
+            average_ms,
+            perf_worst_frame_ms,
+            perf_frame_count,
+        ])
+
+        perf_elapsed_seconds = 0.0
+        perf_total_frame_ms = 0.0
+        perf_worst_frame_ms = 0.0
+        perf_frame_count = 0
 
 
 func apply_action(action: StringName) -> void:
