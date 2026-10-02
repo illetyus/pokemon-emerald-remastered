@@ -1,11 +1,14 @@
 #ifndef REMASTER_CORE_H
 #define REMASTER_CORE_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define REMASTER_CORE_STATE_BYTES 21u
 
 typedef enum RemasterInput {
     REMASTER_INPUT_NONE = 0,
@@ -25,17 +28,18 @@ typedef struct RemasterState {
     uint8_t encounter_pending;
 } RemasterState;
 
-/* Initializes the deterministic R0 reference state. */
 void remaster_core_init(RemasterState *state);
-
-/*
- * Advances gameplay truth by one discrete input.
- * Presentation code must never directly mutate RemasterState.
- */
 void remaster_core_step(RemasterState *state, RemasterInput input);
 
-/* Stable test hash for comparing adapters/renderers against the same core state. */
 uint64_t remaster_core_state_hash(const RemasterState *state);
+
+/*
+ * R0 portable state format. This is a prototype transport format, not the
+ * final Emerald/Vanilla+ save-file specification.
+ */
+size_t remaster_core_state_size(void);
+int remaster_core_save(const RemasterState *state, uint8_t *buffer, size_t buffer_size);
+int remaster_core_load(RemasterState *state, const uint8_t *buffer, size_t buffer_size);
 
 #ifdef __cplusplus
 }
