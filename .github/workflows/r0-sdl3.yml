@@ -9,14 +9,6 @@ on:
       - "experiments/sdl3-native/**"
       - "CMakeLists.txt"
       - ".github/workflows/r0-sdl3.yml"
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "core/**"
-      - "experiments/sdl3-native/**"
-      - "CMakeLists.txt"
-      - ".github/workflows/r0-sdl3.yml"
 
 jobs:
   windows-build:
