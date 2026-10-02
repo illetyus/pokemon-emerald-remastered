@@ -35,11 +35,20 @@ set_target_properties(remaster_core_bridge PROPERTIES
     CXX_EXTENSIONS OFF
 )
 
+if(ANDROID)
+    if(NOT CMAKE_ANDROID_ARCH_ABI)
+        set(CMAKE_ANDROID_ARCH_ABI "arm64-v8a")
+    endif()
+    set(REMASTER_BRIDGE_RUNTIME_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin/android/${CMAKE_ANDROID_ARCH_ABI}")
+else()
+    set(REMASTER_BRIDGE_RUNTIME_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin")
+endif()
+
 add_custom_command(
     TARGET remaster_core_bridge
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/bin"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${REMASTER_BRIDGE_RUNTIME_DIR}"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "$<TARGET_FILE:remaster_core_bridge>"
-        "${CMAKE_CURRENT_SOURCE_DIR}/bin/$<TARGET_FILE_NAME:remaster_core_bridge>"
+        "${REMASTER_BRIDGE_RUNTIME_DIR}/$<TARGET_FILE_NAME:remaster_core_bridge>"
 )
