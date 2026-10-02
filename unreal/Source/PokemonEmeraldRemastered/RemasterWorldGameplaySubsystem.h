@@ -24,6 +24,9 @@ struct FRemasterResolvedWarp
 
     UPROPERTY(BlueprintReadOnly)
     FString DestMap;
+
+    UPROPERTY(BlueprintReadOnly)
+    bool bDynamicTarget = false;
 };
 
 UENUM(BlueprintType)
