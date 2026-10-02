@@ -15,16 +15,11 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(SDL3)
 
 if(ANDROID)
-    # SDLActivity expects the application native entry target to be a shared
-    # library named "main" on Android.
-    add_library(main SHARED
-        main.c
-    )
+    # SDL's Android Java shim loads a native library named "main".
+    add_library(main SHARED main.c)
     set(R0_SDL3_TARGET main)
 else()
-    add_executable(r0_sdl3
-        main.c
-    )
+    add_executable(r0_sdl3 main.c)
     set(R0_SDL3_TARGET r0_sdl3)
 endif()
 
