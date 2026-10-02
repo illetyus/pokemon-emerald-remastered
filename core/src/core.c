@@ -1,4 +1,5 @@
 #include "remaster/core.h"
+#include "remaster/platform.h"
 
 enum {
     MAP_WIDTH = 8,
@@ -29,6 +30,36 @@ static int is_walkable(int32_t x, int32_t y)
     return kCollision[y][x] == 0;
 }
 
+static uint32_t finish_step(
+    const RemasterState *state,
+    uint32_t events)
+{
+    const RemasterPlatformVTable *platform;
+    uint32_t bit;
+
+    if (events == REMASTER_EVENT_NONE)
+        return events;
+
+    platform = remaster_platform_get();
+    if (platform == 0 || platform->emit_presentation_event == 0)
+        return events;
+
+    for (bit = 1u; bit != 0u; bit <<= 1u) {
+        if ((events & bit) != 0u) {
+            platform->emit_presentation_event(
+                platform->userdata,
+                bit,
+                state != 0 ? state->tile_x : 0,
+                state != 0 ? state->tile_y : 0);
+        }
+
+        if (bit == (1u << 31))
+            break;
+    }
+
+    return events;
+}
+
 void remaster_core_init(RemasterState *state)
 {
     if (state == 0)
@@ -49,7 +80,7 @@ uint32_t remaster_core_step(RemasterState *state, RemasterInput input)
     uint32_t events = REMASTER_EVENT_NONE;
 
     if (state == 0)
-        return events;
+        return finish_step(state, events);
 
     next_x = state->tile_x;
     next_y = state->tile_y;
@@ -79,14 +110,14 @@ uint32_t remaster_core_step(RemasterState *state, RemasterInput input)
             events |= REMASTER_EVENT_FLAG_SET;
         }
 
-        return events;
+        return finish_step(state, events);
     case REMASTER_INPUT_NONE:
     default:
-        return events;
+        return finish_step(state, events);
     }
 
     if (!is_walkable(next_x, next_y))
-        return events | REMASTER_EVENT_BLOCKED;
+        return finish_step(state, events | REMASTER_EVENT_BLOCKED);
 
     state->tile_x = next_x;
     state->tile_y = next_y;
@@ -102,7 +133,7 @@ uint32_t remaster_core_step(RemasterState *state, RemasterInput input)
         events |= REMASTER_EVENT_ENCOUNTER;
     }
 
-    return events;
+    return finish_step(state, events);
 }
 
 static uint64_t fnv1a_u32(uint64_t hash, uint32_t value)
