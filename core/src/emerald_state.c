@@ -1,5 +1,7 @@
 #include "remaster/emerald_state.h"
 
+#include <string.h>
+
 enum {
     SB1_POS_X = 0x0000,
     SB1_POS_Y = 0x0002,
@@ -219,4 +221,21 @@ int remaster_emerald_var_set(
         save->save_block1 + SB1_VARS + (size_t)index * 2u,
         value);
     return 1;
+}
+
+
+void remaster_emerald_clear_temp_field_event_data(
+    RemasterEmeraldSave *save)
+{
+    if (save == 0)
+        return;
+
+    /*
+     * Vanilla:
+     * - flags 0x00..0x1F are temporary (4 bytes)
+     * - vars 0x4000..0x400F are temporary (16 u16 values / 32 bytes)
+     * Both are cleared every time a map is loaded.
+     */
+    memset(save->save_block1 + SB1_FLAGS, 0, 4u);
+    memset(save->save_block1 + SB1_VARS, 0, 16u * 2u);
 }
