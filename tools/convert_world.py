@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import struct
 from pathlib import Path
 from typing import Any
@@ -30,6 +31,52 @@ def read_u16_le(path: Path) -> list[int]:
     return list(struct.unpack(f"<{len(data) // 2}H", data))
 
 
+def build_tileset_attribute_index(source_root: Path) -> dict[str, Path]:
+    headers_path = source_root / "src/data/tilesets/headers.h"
+    metatiles_path = source_root / "src/data/tilesets/metatiles.h"
+
+    headers_text = headers_path.read_text(encoding="utf-8")
+    metatiles_text = metatiles_path.read_text(encoding="utf-8")
+
+    symbol_paths: dict[str, Path] = {}
+    for match in re.finditer(
+        r'const\s+u16\s+(gMetatileAttributes_[A-Za-z0-9_]+)\[\]\s*=\s*'
+        r'INCBIN_U16\("([^"]+)"\);',
+        metatiles_text,
+    ):
+        symbol_paths[match.group(1)] = Path(match.group(2))
+
+    result: dict[str, Path] = {}
+    tileset_pattern = re.compile(
+        r'const\s+struct\s+Tileset\s+(gTileset_[A-Za-z0-9_]+)\s*=\s*'
+        r'\{(.*?)\};',
+        re.DOTALL,
+    )
+    attribute_pattern = re.compile(
+        r'\.metatileAttributes\s*=\s*'
+        r'(gMetatileAttributes_[A-Za-z0-9_]+)'
+    )
+
+    for match in tileset_pattern.finditer(headers_text):
+        tileset_name = match.group(1)
+        attr_match = attribute_pattern.search(match.group(2))
+        if not attr_match:
+            raise ValueError(
+                f"{headers_path}: {tileset_name} has no metatileAttributes"
+            )
+
+        symbol = attr_match.group(1)
+        if symbol not in symbol_paths:
+            raise ValueError(
+                f"{metatiles_path}: no INCBIN path for {symbol} "
+                f"used by {tileset_name}"
+            )
+
+        result[tileset_name] = source_root / symbol_paths[symbol]
+
+    return result
+
+
 def normalize_event(event: dict[str, Any]) -> dict[str, Any]:
     # Keep source names/flags/scripts as symbolic identifiers. They are part of
     # the gameplay contract and should not be baked into renderer logic.
@@ -40,6 +87,7 @@ def convert_map(
     source_root: Path,
     map_path: Path,
     layouts: dict[str, dict[str, Any]],
+    tileset_attributes: dict[str, Path],
 ) -> dict[str, Any]:
     source = load_json(map_path)
     layout_id = source["layout"]
@@ -50,6 +98,32 @@ def convert_map(
     layout = layouts[layout_id]
     width = int(layout["width"])
     height = int(layout["height"])
+
+    primary_tileset = layout["primary_tileset"]
+    secondary_tileset = layout["secondary_tileset"]
+
+    if primary_tileset not in tileset_attributes:
+        raise KeyError(
+            f"{map_path}: unknown primary tileset {primary_tileset}"
+        )
+    if secondary_tileset not in tileset_attributes:
+        raise KeyError(
+            f"{map_path}: unknown secondary tileset {secondary_tileset}"
+        )
+
+    primary_attributes_path = tileset_attributes[primary_tileset]
+    secondary_attributes_path = tileset_attributes[secondary_tileset]
+    primary_attributes = read_u16_le(primary_attributes_path)
+    secondary_attributes = read_u16_le(secondary_attributes_path)
+
+    if len(primary_attributes) > 512:
+        raise ValueError(
+            f"{primary_attributes_path}: primary attributes exceed 512 entries"
+        )
+    if len(secondary_attributes) > 512:
+        raise ValueError(
+            f"{secondary_attributes_path}: secondary attributes exceed 512 entries"
+        )
 
     block_path = source_root / layout["blockdata_filepath"]
     source_words = read_u16_le(block_path)
@@ -84,6 +158,12 @@ def convert_map(
             "map_json": str(map_path.relative_to(source_root)).replace("\\", "/"),
             "blockdata": str(block_path.relative_to(source_root)).replace("\\", "/"),
             "border": str(border_path.relative_to(source_root)).replace("\\", "/"),
+            "primary_metatile_attributes": str(
+                primary_attributes_path.relative_to(source_root)
+            ).replace("\\", "/"),
+            "secondary_metatile_attributes": str(
+                secondary_attributes_path.relative_to(source_root)
+            ).replace("\\", "/"),
         },
         "map": {
             "id": source["id"],
@@ -120,8 +200,22 @@ def convert_map(
             "name": layout.get("name"),
             "width": width,
             "height": height,
-            "primary_tileset": layout.get("primary_tileset"),
-            "secondary_tileset": layout.get("secondary_tileset"),
+            "primary_tileset": primary_tileset,
+            "secondary_tileset": secondary_tileset,
+            "primary_metatile_attributes_u16": primary_attributes,
+            "secondary_metatile_attributes_u16": secondary_attributes,
+            "primary_metatile_behavior_u8": [
+                value & 0x00FF for value in primary_attributes
+            ],
+            "secondary_metatile_behavior_u8": [
+                value & 0x00FF for value in secondary_attributes
+            ],
+            "primary_metatile_layer_u8": [
+                (value & 0xF000) >> 12 for value in primary_attributes
+            ],
+            "secondary_metatile_layer_u8": [
+                (value & 0xF000) >> 12 for value in secondary_attributes
+            ],
             "source_word_count": len(source_words),
             "active_word_count": active_word_count,
             "border_source_word_count": len(border_source_words),
@@ -139,6 +233,7 @@ def convert_map(
 def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
     layouts_doc = load_json(source_root / "data/layouts/layouts.json")
     layouts = {entry["id"]: entry for entry in layouts_doc["layouts"]}
+    tileset_attributes = build_tileset_attribute_index(source_root)
 
     map_files = sorted((source_root / "data/maps").glob("*/map.json"))
     output_maps = output_root / "maps"
@@ -147,7 +242,12 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
     manifest_maps: list[dict[str, Any]] = []
 
     for map_path in map_files:
-        converted = convert_map(source_root, map_path, layouts)
+        converted = convert_map(
+            source_root,
+            map_path,
+            layouts,
+            tileset_attributes,
+        )
         map_name = converted["map"]["name"]
         out_path = output_maps / f"{map_name}.json"
         out_path.write_text(
