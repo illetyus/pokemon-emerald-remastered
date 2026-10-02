@@ -55,6 +55,33 @@ func _unhandled_input(event: InputEvent) -> void:
             KEY_SPACE, KEY_ENTER:
                 apply_action(&"INTERACT")
 
+    if event is InputEventJoypadButton and event.pressed:
+        match event.button_index:
+            JOY_BUTTON_DPAD_UP:
+                apply_action(&"MOVE_UP")
+            JOY_BUTTON_DPAD_DOWN:
+                apply_action(&"MOVE_DOWN")
+            JOY_BUTTON_DPAD_LEFT:
+                apply_action(&"MOVE_LEFT")
+            JOY_BUTTON_DPAD_RIGHT:
+                apply_action(&"MOVE_RIGHT")
+            JOY_BUTTON_A:
+                apply_action(&"INTERACT")
+
+    if event is InputEventScreenTouch and event.pressed:
+        var normalized := event.position / get_viewport_rect().size
+        if normalized.x > 0.70:
+            apply_action(&"INTERACT")
+        elif normalized.x < 0.35:
+            if normalized.y < 0.35:
+                apply_action(&"MOVE_UP")
+            elif normalized.y > 0.65:
+                apply_action(&"MOVE_DOWN")
+            else:
+                apply_action(&"MOVE_LEFT")
+        elif normalized.x < 0.70:
+            apply_action(&"MOVE_RIGHT")
+
 
 func _draw() -> void:
     if core == null:
