@@ -12,8 +12,8 @@ enum {
     MAP_WIDTH = 8,
     MAP_HEIGHT = 8,
     TILE_SIZE = 64,
-    MAP_ORIGIN_X = 64,
-    MAP_ORIGIN_Y = 64
+    MAP_ORIGIN_X = (WINDOW_WIDTH - (MAP_WIDTH * TILE_SIZE)) / 2,
+    MAP_ORIGIN_Y = (WINDOW_HEIGHT - (MAP_HEIGHT * TILE_SIZE)) / 2
 };
 
 static const unsigned char kCollision[MAP_HEIGHT][MAP_WIDTH] = {
@@ -528,6 +528,15 @@ int main(int argc, char **argv)
     if (argc > 1 && strcmp(argv[1], "--self-test") == 0)
         return run_self_test();
 
+    /*
+     * Android must enter landscape before the SDL window is created.
+     * SDL documents this hint as pre-initialization state.
+     */
+    (void)SDL_SetHint(
+        SDL_HINT_ORIENTATIONS,
+        "LandscapeLeft LandscapeRight"
+    );
+
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
         SDL_Log("SDL_Init failed: %s", SDL_GetError());
         return 1;
@@ -537,7 +546,7 @@ int main(int argc, char **argv)
         "Pokemon Emerald Remastered — R0 SDL3",
         WINDOW_WIDTH,
         WINDOW_HEIGHT,
-        SDL_WINDOW_RESIZABLE
+        SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN
     );
 
     if (window == NULL) {
@@ -546,12 +555,27 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    /*
+     * Re-request fullscreen after window creation as well. On Android this
+     * routes through SDLActivity and enables sticky immersive system bars.
+     */
+    if (!SDL_SetWindowFullscreen(window, true))
+        SDL_Log("SDL_SetWindowFullscreen failed: %s", SDL_GetError());
+
     renderer = SDL_CreateRenderer(window, NULL);
     if (renderer == NULL) {
         SDL_Log("SDL_CreateRenderer failed: %s", SDL_GetError());
         SDL_DestroyWindow(window);
         SDL_Quit();
         return 1;
+    }
+
+    if (!SDL_SetRenderLogicalPresentation(
+            renderer,
+            WINDOW_WIDTH,
+            WINDOW_HEIGHT,
+            SDL_LOGICAL_PRESENTATION_LETTERBOX)) {
+        SDL_Log("SDL_SetRenderLogicalPresentation failed: %s", SDL_GetError());
     }
 
     (void)SDL_SetRenderVSync(renderer, 1);
