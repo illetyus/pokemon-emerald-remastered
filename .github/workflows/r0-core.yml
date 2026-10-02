@@ -52,3 +52,6 @@ jobs:
 
       - name: Test world conversion pipeline
         run: python -m unittest tests/test_convert_world.py
+
+      - name: Test generated content audit
+        run: python -m unittest tests/test_content_audit.py
