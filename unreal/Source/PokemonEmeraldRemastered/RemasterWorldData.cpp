@@ -96,8 +96,34 @@ bool FRemasterWorldData::LoadMapJson(
     OutMap.Height = IntField(Layout, TEXT("height"));
     OutMap.SourceWordCount = IntField(Layout, TEXT("source_word_count"));
     OutMap.ActiveWordCount = IntField(Layout, TEXT("active_word_count"));
+    OutMap.BorderSourceWordCount =
+        IntField(Layout, TEXT("border_source_word_count"));
     OutMap.PrimaryTileset = StringField(Layout, TEXT("primary_tileset"));
     OutMap.SecondaryTileset = StringField(Layout, TEXT("secondary_tileset"));
+
+    const TArray<TSharedPtr<FJsonValue>>* BorderActive = nullptr;
+    const TArray<TSharedPtr<FJsonValue>>* BorderTrailing = nullptr;
+
+    if (!Layout->TryGetArrayField(
+            TEXT("border_active_words_u16"),
+            BorderActive)
+        || !Layout->TryGetArrayField(
+            TEXT("border_trailing_words_u16"),
+            BorderTrailing)
+        || BorderActive == nullptr
+        || BorderTrailing == nullptr)
+    {
+        OutError = TEXT("Map IR is missing Emerald border data.");
+        return false;
+    }
+
+    for (const TSharedPtr<FJsonValue>& Value : *BorderActive)
+        OutMap.BorderActiveWords.Add(
+            static_cast<uint16>(Value->AsNumber()));
+
+    for (const TSharedPtr<FJsonValue>& Value : *BorderTrailing)
+        OutMap.BorderTrailingWords.Add(
+            static_cast<uint16>(Value->AsNumber()));
 
     const TArray<TSharedPtr<FJsonValue>>* RawBlocks = nullptr;
     if (!Layout->TryGetArrayField(TEXT("raw_blocks_u16"), RawBlocks) ||
