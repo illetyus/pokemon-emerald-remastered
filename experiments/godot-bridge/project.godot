@@ -11,7 +11,8 @@ window/size/window_width_override=960
 window/size/window_height_override=640
 window/size/mode=3
 window/stretch/mode="canvas_items"
-window/handheld/orientation=1
+window/stretch/aspect="expand"
+window/handheld/orientation=0
 
 [rendering]
 
