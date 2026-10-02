@@ -52,6 +52,7 @@ struct FRemasterCoordEventIR
     FString VarValue;
     int32 VarValueNum = -1;
     FString Weather;
+    int32 WeatherId = -1;
     FString Script;
 };
 
