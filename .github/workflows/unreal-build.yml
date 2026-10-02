@@ -1,4 +1,4 @@
-name: Unreal 5.8 Build
+name: Unreal 5.8 Linux Build
 
 on:
   workflow_dispatch:
@@ -10,58 +10,88 @@ on:
         type: boolean
 
 concurrency:
-  group: unreal-58-${{ github.ref }}
+  group: unreal-58-linux-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
-    runs-on: [self-hosted, windows, unreal-5.8]
-    timeout-minutes: 120
+    runs-on: [self-hosted, linux, unreal-5.8]
+    timeout-minutes: 180
 
     env:
-      UE_ROOT: C:\\Program Files\\Epic Games\\UE_5.8
-      PROJECT: ${{ github.workspace }}\\unreal\\PokemonEmeraldRemastered.uproject
+      PROJECT: ${{ github.workspace }}/unreal/PokemonEmeraldRemastered.uproject
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify Unreal Engine
-        shell: pwsh
+      - name: Resolve Unreal Engine
+        shell: bash
         run: |
-          $build = Join-Path $env:UE_ROOT 'Engine\\Build\\BatchFiles\\Build.bat'
-          $uat = Join-Path $env:UE_ROOT 'Engine\\Build\\BatchFiles\\RunUAT.bat'
-          if (-not (Test-Path $build)) { throw "Unreal Build.bat not found: $build" }
-          if (-not (Test-Path $uat)) { throw "Unreal RunUAT.bat not found: $uat" }
+          set -euo pipefail
 
-      - name: Build Win64 Development
-        shell: pwsh
+          candidates=(
+            "${UE_ROOT:-}"
+            "/opt/UnrealEngine-5.8"
+            "/opt/UnrealEngine"
+            "$HOME/UnrealEngine-5.8"
+            "$HOME/UnrealEngine"
+          )
+
+          for candidate in "${candidates[@]}"; do
+            if [[ -n "$candidate" && -x "$candidate/Engine/Build/BatchFiles/Linux/Build.sh" ]]; then
+              echo "UE_ROOT=$candidate" >> "$GITHUB_ENV"
+              echo "Using Unreal Engine: $candidate"
+              exit 0
+            fi
+          done
+
+          echo "Unreal Engine 5.8 installation not found." >&2
+          echo "Set UE_ROOT on the runner or install UE under /opt/UnrealEngine-5.8." >&2
+          exit 1
+
+      - name: Linux Unreal preflight
+        shell: bash
         run: |
-          & "$env:UE_ROOT\\Engine\\Build\\BatchFiles\\Build.bat" PokemonEmeraldRemastered Win64 Development "-Project=$env:PROJECT" -WaitMutex -NoHotReloadFromIDE
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          set -euo pipefail
+          bash tools/unreal_linux_preflight.sh "$UE_ROOT"
+
+      - name: Build Linux Development
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh"             PokemonEmeraldRemastered             Linux             Development             "-Project=$PROJECT"             -WaitMutex             -NoHotReloadFromIDE
 
       - name: Package Android ARM64 Development
         if: ${{ inputs.package_android }}
-        shell: pwsh
+        shell: bash
         run: |
-          $archive = Join-Path $env:GITHUB_WORKSPACE 'artifacts\\android'
-          New-Item -ItemType Directory -Force -Path $archive | Out-Null
-          & "$env:UE_ROOT\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun "-project=$env:PROJECT" -noP4 -platform=Android -clientconfig=Development -build -cook -stage -pak -package -archive "-archivedirectory=$archive"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          set -euo pipefail
+
+          archive="$GITHUB_WORKSPACE/artifacts/android"
+          mkdir -p "$archive"
+
+          "$UE_ROOT/Engine/Build/BatchFiles/RunUAT.sh" BuildCookRun             "-project=$PROJECT"             -noP4             -platform=Android             -clientconfig=Development             -build             -cook             -stage             -pak             -package             -archive             "-archivedirectory=$archive"
 
       - name: Verify Android package
         if: ${{ inputs.package_android }}
-        shell: pwsh
+        shell: bash
         run: |
-          $apk = Get-ChildItem "$env:GITHUB_WORKSPACE\\artifacts\\android" -Recurse -Filter *.apk | Select-Object -First 1
-          if (-not $apk) { throw 'No Android APK was produced.' }
-          Write-Host "APK=$($apk.FullName)"
-          Get-FileHash $apk.FullName -Algorithm SHA256
+          set -euo pipefail
+
+          apk="$(find "$GITHUB_WORKSPACE/artifacts/android" -type f -name '*.apk' -print -quit)"
+          if [[ -z "$apk" ]]; then
+            echo "No Android APK was produced." >&2
+            exit 1
+          fi
+
+          echo "APK=$apk"
+          sha256sum "$apk"
 
       - name: Upload Android artifact
         if: ${{ inputs.package_android }}
         uses: actions/upload-artifact@v4
         with:
-          name: pokemon-emerald-remastered-unreal-android
+          name: pokemon-emerald-remastered-unreal-linux-android
           path: artifacts/android/**/*.apk
           if-no-files-found: error
