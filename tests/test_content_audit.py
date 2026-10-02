@@ -26,9 +26,9 @@ class ContentAuditTests(unittest.TestCase):
             }
             (root / "manifest.json").write_text(json.dumps(manifest))
 
-            for name, map_id, target in [
-                ("A", "MAP_A", "MAP_B"),
-                ("B", "MAP_B", "MAP_A"),
+            for name, map_id, target, target_num in [
+                ("A", "MAP_A", "MAP_B", 1),
+                ("B", "MAP_B", "MAP_A", 0),
             ]:
                 doc = {
                     "schema_version": 1,
@@ -36,8 +36,16 @@ class ContentAuditTests(unittest.TestCase):
                         "id": map_id,
                         "group_num": 0,
                         "map_num": 0 if map_id == "MAP_A" else 1,
-                        "connections": [{"map": target}],
+                        "connections": [
+                            {
+                                "map": target,
+                                "dest_group_num": 0,
+                                "dest_map_num": target_num,
+                            }
+                        ],
+                        "object_events": [],
                         "warp_events": [],
+                        "coord_events": [],
                     },
                     "layout": {
                         "width": 1,
