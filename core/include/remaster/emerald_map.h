@@ -26,6 +26,12 @@ typedef struct RemasterEmeraldMapView {
 
     const uint16_t *border;
     size_t border_count;
+
+    const uint16_t *primary_attributes;
+    size_t primary_attribute_count;
+
+    const uint16_t *secondary_attributes;
+    size_t secondary_attribute_count;
 } RemasterEmeraldMapView;
 
 int remaster_emerald_map_is_valid(
@@ -47,6 +53,28 @@ uint8_t remaster_emerald_map_collision_at(
     int32_t y);
 
 uint8_t remaster_emerald_map_elevation_at(
+    const RemasterEmeraldMapView *map,
+    int32_t x,
+    int32_t y);
+
+uint16_t remaster_emerald_metatile_attributes(
+    const RemasterEmeraldMapView *map,
+    uint16_t metatile_id);
+
+uint8_t remaster_emerald_metatile_behavior(
+    const RemasterEmeraldMapView *map,
+    uint16_t metatile_id);
+
+uint8_t remaster_emerald_metatile_layer(
+    const RemasterEmeraldMapView *map,
+    uint16_t metatile_id);
+
+uint8_t remaster_emerald_map_behavior_at(
+    const RemasterEmeraldMapView *map,
+    int32_t x,
+    int32_t y);
+
+uint8_t remaster_emerald_map_layer_at(
     const RemasterEmeraldMapView *map,
     int32_t x,
     int32_t y);
