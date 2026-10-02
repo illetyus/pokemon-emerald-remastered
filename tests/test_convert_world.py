@@ -46,6 +46,10 @@ class ConvertWorldTests(unittest.TestCase):
                 "#define TRAINER_TEST 42\n",
                 encoding="utf-8",
             )
+            (root / "include/constants/weather.h").write_text(
+                "#define WEATHER_TEST 9\n",
+                encoding="utf-8",
+            )
 
             (root / "data/layouts/layouts.json").write_text(
                 json.dumps(
@@ -144,7 +148,14 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                                 "var": "VAR_TEST",
                                 "var_value": "3",
                                 "script": "Test_CoordScript",
-                            }
+                            },
+                            {
+                                "type": "weather",
+                                "x": 0,
+                                "y": 0,
+                                "elevation": 0,
+                                "weather": "WEATHER_TEST",
+                            },
                         ],
                         "bg_events": [],
                     }
@@ -203,6 +214,7 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(converted["map"]["warp_events"][0]["dest_warp_id_u16"], 2)
             self.assertEqual(converted["map"]["coord_events"][0]["var_id"], 0x4007)
             self.assertEqual(converted["map"]["coord_events"][0]["var_value_u16"], 3)
+            self.assertEqual(converted["map"]["coord_events"][1]["weather_id"], 9)
             self.assertEqual(converted["map"]["connections"][0]["direction"], "up")
 
 
