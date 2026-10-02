@@ -336,7 +336,7 @@ func _unhandled_input(event: InputEvent) -> void:
                 apply_action(&"INTERACT")
 
     if event is InputEventScreenTouch and event.pressed:
-        var normalized := event.position / get_viewport_rect().size
+        var normalized := event.position / root_ui.get_viewport_rect().size
         if normalized.x > 0.70:
             apply_action(&"INTERACT")
         elif normalized.x < 0.35:
