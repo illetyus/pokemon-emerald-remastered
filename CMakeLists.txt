@@ -65,6 +65,16 @@ enable_language(CXX)
 
 add_executable(unreal_cpp_embed_smoke
     tests/unreal_cpp_embed_smoke.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterCoreEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterPlatformEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterMechanicsEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldSaveEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldRtcEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldStateEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMapEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMovementEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldEventsEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldTransitionEmbed.cpp
 )
 
 target_include_directories(unreal_cpp_embed_smoke
