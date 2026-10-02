@@ -8,17 +8,20 @@ func _init() -> void:
 
     node.reset_state()
 
-    node.apply_action(&"MOVE_UP")
+    var events: int = node.apply_action(&"MOVE_UP")
+    assert(events == 16)
     assert(node.tile_x == 1)
     assert(node.tile_y == 1)
     assert(node.step_count == 0)
 
     node.apply_action(&"MOVE_RIGHT")
     node.apply_action(&"MOVE_RIGHT")
-    node.apply_action(&"INTERACT")
+    events = node.apply_action(&"INTERACT")
+    assert(events == 6)
     node.apply_action(&"MOVE_DOWN")
     node.apply_action(&"MOVE_DOWN")
-    node.apply_action(&"MOVE_DOWN")
+    events = node.apply_action(&"MOVE_DOWN")
+    assert(events == 9)
 
     assert(node.tile_x == 3)
     assert(node.tile_y == 4)
