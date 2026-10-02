@@ -59,6 +59,10 @@ def convert_map(
     block_path = source_root / layout["blockdata_filepath"]
     blocks = read_u16_le(block_path, expected_words=width * height)
 
+    metatile_ids = [word & 0x03FF for word in blocks]
+    collision = [(word & 0x0C00) >> 10 for word in blocks]
+    elevation = [(word & 0xF000) >> 12 for word in blocks]
+
     return {
         "schema_version": SCHEMA_VERSION,
         "source": {
@@ -103,6 +107,9 @@ def convert_map(
             "primary_tileset": layout.get("primary_tileset"),
             "secondary_tileset": layout.get("secondary_tileset"),
             "raw_blocks_u16": blocks,
+            "metatile_ids_u16": metatile_ids,
+            "collision_u8": collision,
+            "elevation_u8": elevation,
         },
     }
 
