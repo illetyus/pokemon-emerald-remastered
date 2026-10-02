@@ -179,6 +179,66 @@ bool FRemasterWorldData::LoadMapJson(
     for (const TSharedPtr<FJsonValue>& Value : *Elevation)
         OutMap.Elevation.Add(static_cast<uint8>(Value->AsNumber()));
 
+    const TArray<TSharedPtr<FJsonValue>>* PrimaryAttributes = nullptr;
+    const TArray<TSharedPtr<FJsonValue>>* SecondaryAttributes = nullptr;
+    const TArray<TSharedPtr<FJsonValue>>* PrimaryBehavior = nullptr;
+    const TArray<TSharedPtr<FJsonValue>>* SecondaryBehavior = nullptr;
+    const TArray<TSharedPtr<FJsonValue>>* PrimaryLayer = nullptr;
+    const TArray<TSharedPtr<FJsonValue>>* SecondaryLayer = nullptr;
+
+    if (!Layout->TryGetArrayField(
+            TEXT("primary_metatile_attributes_u16"),
+            PrimaryAttributes)
+        || !Layout->TryGetArrayField(
+            TEXT("secondary_metatile_attributes_u16"),
+            SecondaryAttributes)
+        || !Layout->TryGetArrayField(
+            TEXT("primary_metatile_behavior_u8"),
+            PrimaryBehavior)
+        || !Layout->TryGetArrayField(
+            TEXT("secondary_metatile_behavior_u8"),
+            SecondaryBehavior)
+        || !Layout->TryGetArrayField(
+            TEXT("primary_metatile_layer_u8"),
+            PrimaryLayer)
+        || !Layout->TryGetArrayField(
+            TEXT("secondary_metatile_layer_u8"),
+            SecondaryLayer)
+        || PrimaryAttributes == nullptr
+        || SecondaryAttributes == nullptr
+        || PrimaryBehavior == nullptr
+        || SecondaryBehavior == nullptr
+        || PrimaryLayer == nullptr
+        || SecondaryLayer == nullptr)
+    {
+        OutError = TEXT("Map IR is missing metatile attribute tables.");
+        return false;
+    }
+
+    for (const TSharedPtr<FJsonValue>& Value : *PrimaryAttributes)
+        OutMap.PrimaryMetatileAttributes.Add(
+            static_cast<uint16>(Value->AsNumber()));
+
+    for (const TSharedPtr<FJsonValue>& Value : *SecondaryAttributes)
+        OutMap.SecondaryMetatileAttributes.Add(
+            static_cast<uint16>(Value->AsNumber()));
+
+    for (const TSharedPtr<FJsonValue>& Value : *PrimaryBehavior)
+        OutMap.PrimaryMetatileBehavior.Add(
+            static_cast<uint8>(Value->AsNumber()));
+
+    for (const TSharedPtr<FJsonValue>& Value : *SecondaryBehavior)
+        OutMap.SecondaryMetatileBehavior.Add(
+            static_cast<uint8>(Value->AsNumber()));
+
+    for (const TSharedPtr<FJsonValue>& Value : *PrimaryLayer)
+        OutMap.PrimaryMetatileLayer.Add(
+            static_cast<uint8>(Value->AsNumber()));
+
+    for (const TSharedPtr<FJsonValue>& Value : *SecondaryLayer)
+        OutMap.SecondaryMetatileLayer.Add(
+            static_cast<uint8>(Value->AsNumber()));
+
     const TArray<TSharedPtr<FJsonValue>>* Connections = nullptr;
     if (Map->TryGetArrayField(TEXT("connections"), Connections) &&
         Connections != nullptr)
