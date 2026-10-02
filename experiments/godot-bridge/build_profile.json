@@ -1,0 +1,5 @@
+{
+  "_": "R0 bridge only needs the RefCounted class hierarchy; built-in Variant types remain available.",
+  "type": "feature_profile",
+  "enabled_classes": ["RefCounted"]
+}
