@@ -12,14 +12,20 @@ public class PokemonEmeraldRemastered : ModuleRules
             "Core",
             "CoreUObject",
             "Engine",
-            "InputCore"
+            "InputCore",
+            "Json",
+            "JsonUtilities",
+            "UMG",
+            "EnhancedInput",
+            "Niagara"
         });
 
         PrivateDependencyModuleNames.AddRange(new string[]
         {
             "ApplicationCore",
             "Slate",
-            "SlateCore"
+            "SlateCore",
+            "Projects"
         });
 
         string RepoRoot = Path.GetFullPath(Path.Combine(ModuleDirectory, "..", "..", ".."));
