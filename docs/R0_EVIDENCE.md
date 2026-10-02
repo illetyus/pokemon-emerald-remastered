@@ -89,3 +89,46 @@ Desktop R0 evidence now passes for all three candidates.
 Candidate A and Candidate B advance to Android finalist testing because both preserve one authoritative gameplay core. Candidate C remains the control/comparison implementation: it proves Godot-only development is viable, but duplicates gameplay truth and would require reimplementing the existing Vanilla+ codebase.
 
 No production architecture is selected until Android build/device evidence is complete.
+
+
+## Android CI evidence
+
+Both authoritative-core finalists now produce ARM64 Android artifacts.
+
+### SDL3 + C core
+
+- Android debug APK build passes.
+- Package: `com.illetyus.emeraldremaster.r0sdl`
+- APK size from the verified R0 artifact: 1,224,182 bytes.
+- APK SHA-256: `0ad92c204086133e162cae42705f5f5aafe06927254e09a6916168b4cfb021e9`
+- Lifecycle persistence uses `SDL_AddEventWatch()` for Android background events.
+- Persistent state is written under `SDL_GetPrefPath()` with a magic header and state hash.
+- Five-second frame-pacing telemetry is emitted as `R0 PERF renderer=SDL3 ...`.
+
+### Godot + C core
+
+- Android ARM64 GDExtension build passes.
+- Android debug APK export passes.
+- Package: `com.illetyus.emeraldremaster.r0godot`
+- APK size from the verified R0 artifact: 37,876,706 bytes.
+- APK SHA-256: `4a5482fbcf6d0226103cb6eb2f5d600f100c9a1b2229f468620147f14397ab59`
+- APK inspection verifies the ARM64 GDExtension is packaged.
+- Lifecycle persistence uses `NOTIFICATION_APPLICATION_PAUSED` and `user://`.
+- Persistent save/load is hash-validated and covered by headless CI.
+- Five-second frame-pacing telemetry is emitted as `R0 PERF renderer=Godot ...`.
+
+The APK size comparison is not a production-size verdict: the Godot R0 package currently uses a debugging-oriented engine template while the SDL3 prototype is minimal synthetic code. Production size optimization is outside R0.
+
+### Remaining evidence
+
+The remaining R0 architecture gate is real-device testing with the same ADB protocol:
+
+- install;
+- canonical input sequence;
+- pause/resume;
+- force-stop/relaunch;
+- persistent hash validation;
+- touch/gamepad behavior;
+- frame-pacing observations.
+
+See `docs/R0_ANDROID_DEVICE_TEST.md`.
