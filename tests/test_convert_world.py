@@ -50,6 +50,10 @@ class ConvertWorldTests(unittest.TestCase):
                 "#define WEATHER_TEST 9\n",
                 encoding="utf-8",
             )
+            (root / "include/constants/maps.h").write_text(
+                "#define WARP_ID_DYNAMIC 0x7F\n",
+                encoding="utf-8",
+            )
 
             (root / "data/layouts/layouts.json").write_text(
                 json.dumps(
@@ -137,7 +141,14 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                                 "elevation": 0,
                                 "dest_map": "MAP_TEST_TOWN",
                                 "dest_warp_id": "2",
-                            }
+                            },
+                            {
+                                "x": 1,
+                                "y": 1,
+                                "elevation": 0,
+                                "dest_map": "MAP_DYNAMIC",
+                                "dest_warp_id": "WARP_ID_DYNAMIC",
+                            },
                         ],
                         "coord_events": [
                             {
@@ -213,6 +224,11 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(converted["map"]["warp_events"][0]["dest_group_num"], 0)
             self.assertEqual(converted["map"]["warp_events"][0]["dest_map_num"], 0)
             self.assertEqual(converted["map"]["warp_events"][0]["dest_warp_id_u16"], 2)
+            self.assertFalse(converted["map"]["warp_events"][0]["dynamic_target"])
+            self.assertTrue(converted["map"]["warp_events"][1]["dynamic_target"])
+            self.assertEqual(converted["map"]["warp_events"][1]["dest_warp_id_u16"], 0x7F)
+            self.assertNotIn("dest_group_num", converted["map"]["warp_events"][1])
+            self.assertNotIn("dest_map_num", converted["map"]["warp_events"][1])
             self.assertEqual(converted["map"]["coord_events"][0]["var_id"], 0x4007)
             self.assertEqual(converted["map"]["coord_events"][0]["var_value_u16"], 3)
             self.assertEqual(converted["map"]["coord_events"][1]["weather_id"], 9)
