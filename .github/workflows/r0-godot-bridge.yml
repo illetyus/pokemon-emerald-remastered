@@ -10,8 +10,13 @@ on:
       - "CMakeLists.txt"
       - ".github/workflows/r0-godot-bridge.yml"
 
+concurrency:
+  group: r0-godot-bridge-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   linux-bridge-test:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
 
     steps:
@@ -34,4 +39,6 @@ jobs:
 
       - name: Run Godot+C bridge equivalence test
         run: |
-          ./Godot_v4.7.2-stable_linux.x86_64             --headless             --path experiments/godot-bridge             --script res://tests/r0_headless.gd
+          ./Godot_v4.7.2-stable_linux.x86_64             --headless \
+            --quit-after 1 \
+            --path experiments/godot-bridge             --script res://tests/r0_headless.gd
