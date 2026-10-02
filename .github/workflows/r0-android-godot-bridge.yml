@@ -35,6 +35,12 @@ jobs:
           yes | "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
           "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"             "platforms;android-35"             "build-tools;35.0.1"             "ndk;28.1.13356709"
 
+      - name: Configure Linux host bridge for export scan
+        run: cmake -S . -B build-host-godot -DREMASTER_BUILD_GODOT_BRIDGE=ON -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Linux host GDExtension for export scan
+        run: cmake --build build-host-godot --target remaster_core_bridge -j 2
+
       - name: Configure Android ARM64 bridge
         shell: bash
         run: |
