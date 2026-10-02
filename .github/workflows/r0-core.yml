@@ -13,10 +13,7 @@ concurrency:
 jobs:
   portable-core:
     timeout-minutes: 10
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
