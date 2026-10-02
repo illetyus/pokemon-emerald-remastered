@@ -25,3 +25,12 @@ export_presets.cfg
 
 # Generated native extension binaries
 experiments/**/bin/
+
+# Unreal Engine
+unreal/Binaries/
+unreal/Build/
+unreal/DerivedDataCache/
+unreal/Intermediate/
+unreal/Saved/
+unreal/.vs/
+unreal/*.sln
