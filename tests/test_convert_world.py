@@ -23,6 +23,16 @@ class ConvertWorldTests(unittest.TestCase):
             (root / "data/tilesets/primary/test_primary").mkdir(parents=True)
             (root / "data/tilesets/secondary/test_secondary").mkdir(parents=True)
 
+            (root / "data/maps/map_groups.json").write_text(
+                json.dumps(
+                    {
+                        "group_order": ["gMapGroup_Test"],
+                        "gMapGroup_Test": ["TestTown"],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
             (root / "data/layouts/layouts.json").write_text(
                 json.dumps(
                     {
@@ -113,7 +123,12 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             manifest = convert_world(root, out)
 
             self.assertEqual(manifest["map_count"], 1)
+            self.assertEqual(manifest["maps"][0]["group_num"], 0)
+            self.assertEqual(manifest["maps"][0]["map_num"], 0)
             converted = json.loads((out / "maps/TestTown.json").read_text())
+            self.assertEqual(converted["map"]["group_name"], "gMapGroup_Test")
+            self.assertEqual(converted["map"]["group_num"], 0)
+            self.assertEqual(converted["map"]["map_num"], 0)
             self.assertEqual(converted["layout"]["source_word_count"], 6)
             self.assertEqual(converted["layout"]["active_word_count"], 4)
             self.assertEqual(converted["layout"]["border_source_word_count"], 6)
