@@ -44,6 +44,9 @@ class ContentAuditTests(unittest.TestCase):
                         "active_word_count": 1,
                         "raw_blocks_u16": [0],
                         "trailing_words_u16": [],
+                        "border_source_word_count": 4,
+                        "border_active_words_u16": [1, 2, 3, 4],
+                        "border_trailing_words_u16": [],
                     },
                 }
                 (root / f"maps/{name}.json").write_text(json.dumps(doc))
@@ -72,7 +75,13 @@ class ContentAuditTests(unittest.TestCase):
                 "layout": {
                     "width": 1,
                     "height": 1,
+                    "source_word_count": 1,
+                    "active_word_count": 1,
                     "raw_blocks_u16": [0],
+                    "trailing_words_u16": [],
+                    "border_source_word_count": 4,
+                    "border_active_words_u16": [1, 2, 3, 4],
+                    "border_trailing_words_u16": [],
                 },
             }
             (root / "maps/A.json").write_text(json.dumps(doc))
