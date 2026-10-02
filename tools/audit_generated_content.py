@@ -47,12 +47,24 @@ def audit(root: Path) -> list[str]:
         width = int(layout.get("width", 0))
         height = int(layout.get("height", 0))
         blocks = layout.get("raw_blocks_u16", [])
+        trailing = layout.get("trailing_words_u16", [])
+        source_word_count = int(layout.get("source_word_count", len(blocks) + len(trailing)))
+        active_word_count = int(layout.get("active_word_count", len(blocks)))
 
         if width <= 0 or height <= 0:
             errors.append(f"{rel}: invalid dimensions")
-        elif len(blocks) != width * height:
+        elif active_word_count != width * height:
             errors.append(
-                f"{rel}: block count {len(blocks)} != {width}x{height}"
+                f"{rel}: active_word_count {active_word_count} != {width}x{height}"
+            )
+        elif len(blocks) != active_word_count:
+            errors.append(
+                f"{rel}: active block count {len(blocks)} != {active_word_count}"
+            )
+
+        if source_word_count != len(blocks) + len(trailing):
+            errors.append(
+                f"{rel}: source_word_count does not match active + trailing words"
             )
 
         if map_doc.get("id") != entry.get("id"):
