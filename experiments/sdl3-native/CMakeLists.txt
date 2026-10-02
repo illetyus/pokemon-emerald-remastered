@@ -14,18 +14,28 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(SDL3)
 
-add_executable(r0_sdl3
-    main.c
-)
+if(ANDROID)
+    # SDLActivity expects the application native entry target to be a shared
+    # library named "main" on Android.
+    add_library(main SHARED
+        main.c
+    )
+    set(R0_SDL3_TARGET main)
+else()
+    add_executable(r0_sdl3
+        main.c
+    )
+    set(R0_SDL3_TARGET r0_sdl3)
+endif()
 
-target_link_libraries(r0_sdl3
+target_link_libraries(${R0_SDL3_TARGET}
     PRIVATE
         remaster_core
         SDL3::SDL3-static
 )
 
 if(MSVC)
-    target_compile_options(r0_sdl3 PRIVATE /W4)
+    target_compile_options(${R0_SDL3_TARGET} PRIVATE /W4)
 else()
-    target_compile_options(r0_sdl3 PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    target_compile_options(${R0_SDL3_TARGET} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
