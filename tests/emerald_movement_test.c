@@ -15,6 +15,15 @@ static int camera_can_move(void *userdata, uint8_t direction)
     return direction != REMASTER_EMERALD_DIR_NORTH;
 }
 
+static int object_collision_exempt(
+    void *userdata,
+    size_t obstacle_index,
+    size_t collider_index)
+{
+    (void)userdata;
+    return obstacle_index == 1u && collider_index == 0u;
+}
+
 static int check(int condition, const char *message)
 {
     if (!condition) {
@@ -139,6 +148,17 @@ int main(void)
             "active object on target tile should collide"))
         return 1;
 
+    context.object_collision_exempt = object_collision_exempt;
+    collision = remaster_emerald_player_basic_collision(
+        &context,
+        &player,
+        REMASTER_EMERALD_DIR_EAST);
+    if (!check(
+            collision == REMASTER_EMERALD_COLLISION_NONE,
+            "follower collision exemption was not honored"))
+        return 1;
+
+    context.object_collision_exempt = 0;
     objects[1].elevation = 2;
     player.current_elevation = 1;
     collision = remaster_emerald_player_basic_collision(
