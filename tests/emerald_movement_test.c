@@ -140,6 +140,7 @@ int main(void)
         return 1;
 
     objects[1].elevation = 2;
+    player.current_elevation = 1;
     collision = remaster_emerald_player_basic_collision(
         &context,
         &player,
