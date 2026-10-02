@@ -224,16 +224,22 @@ def audit(root: Path) -> list[str]:
                     )
 
         for coord_index, coord in enumerate(map_doc.get("coord_events", [])):
-            if coord.get("type") != "trigger":
-                continue
-            if not isinstance(coord.get("var_id"), int):
-                errors.append(
-                    f"{rel}: coord event {coord_index} is missing numeric var_id"
-                )
-            if not isinstance(coord.get("var_value_u16"), int):
-                errors.append(
-                    f"{rel}: coord event {coord_index} is missing numeric var_value"
-                )
+            coord_type = coord.get("type")
+            if coord_type == "trigger":
+                if not isinstance(coord.get("var_id"), int):
+                    errors.append(
+                        f"{rel}: coord event {coord_index} is missing numeric var_id"
+                    )
+                if not isinstance(coord.get("var_value_u16"), int):
+                    errors.append(
+                        f"{rel}: coord event {coord_index} is missing numeric var_value"
+                    )
+            elif coord_type == "weather":
+                if not isinstance(coord.get("weather_id"), int):
+                    errors.append(
+                        f"{rel}: weather coord event {coord_index} "
+                        f"is missing numeric weather_id"
+                    )
 
     return errors
 
