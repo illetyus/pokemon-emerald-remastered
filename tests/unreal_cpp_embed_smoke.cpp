@@ -5,6 +5,7 @@ extern "C"
 {
 #include "../core/src/platform.c"
 #include "../core/src/mechanics.c"
+#include "../core/src/emerald_save.c"
 #include "../core/src/core.c"
 }
 
