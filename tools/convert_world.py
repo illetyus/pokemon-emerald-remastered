@@ -55,6 +55,16 @@ def convert_map(
     source_words = read_u16_le(block_path)
     active_word_count = width * height
 
+    border_path = source_root / layout["border_filepath"]
+    border_source_words = read_u16_le(border_path)
+    if len(border_source_words) < 4:
+        raise ValueError(
+            f"{border_path}: expected at least 4 Emerald border words, "
+            f"got {len(border_source_words)}"
+        )
+    border_words = border_source_words[:4]
+    border_trailing_words = border_source_words[4:]
+
     if len(source_words) < active_word_count:
         raise ValueError(
             f"{block_path}: expected at least {active_word_count} blocks, "
@@ -73,6 +83,7 @@ def convert_map(
         "source": {
             "map_json": str(map_path.relative_to(source_root)).replace("\\", "/"),
             "blockdata": str(block_path.relative_to(source_root)).replace("\\", "/"),
+            "border": str(border_path.relative_to(source_root)).replace("\\", "/"),
         },
         "map": {
             "id": source["id"],
@@ -113,6 +124,9 @@ def convert_map(
             "secondary_tileset": layout.get("secondary_tileset"),
             "source_word_count": len(source_words),
             "active_word_count": active_word_count,
+            "border_source_word_count": len(border_source_words),
+            "border_active_words_u16": border_words,
+            "border_trailing_words_u16": border_trailing_words,
             "raw_blocks_u16": blocks,
             "trailing_words_u16": trailing_words,
             "metatile_ids_u16": metatile_ids,
