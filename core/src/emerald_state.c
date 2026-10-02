@@ -239,3 +239,51 @@ void remaster_emerald_clear_temp_field_event_data(
     memset(save->save_block1 + SB1_FLAGS, 0, 4u);
     memset(save->save_block1 + SB1_VARS, 0, 16u * 2u);
 }
+
+
+static int read_warp_state(
+    const RemasterEmeraldSave *save,
+    size_t offset,
+    RemasterEmeraldWarpState *out_warp)
+{
+    if (save == 0 || out_warp == 0)
+        return 0;
+
+    out_warp->map_group = (int8_t)save->save_block1[offset + 0u];
+    out_warp->map_num = (int8_t)save->save_block1[offset + 1u];
+    out_warp->warp_id = (int8_t)save->save_block1[offset + 2u];
+    out_warp->x = read_i16_le(save->save_block1 + offset + 4u);
+    out_warp->y = read_i16_le(save->save_block1 + offset + 6u);
+    return 1;
+}
+
+static int write_warp_state(
+    RemasterEmeraldSave *save,
+    size_t offset,
+    const RemasterEmeraldWarpState *warp)
+{
+    if (save == 0 || warp == 0)
+        return 0;
+
+    save->save_block1[offset + 0u] = (uint8_t)warp->map_group;
+    save->save_block1[offset + 1u] = (uint8_t)warp->map_num;
+    save->save_block1[offset + 2u] = (uint8_t)warp->warp_id;
+    save->save_block1[offset + 3u] = 0u;
+    write_i16_le(save->save_block1 + offset + 4u, warp->x);
+    write_i16_le(save->save_block1 + offset + 6u, warp->y);
+    return 1;
+}
+
+int remaster_emerald_dynamic_warp_get(
+    const RemasterEmeraldSave *save,
+    RemasterEmeraldWarpState *out_warp)
+{
+    return read_warp_state(save, SB1_DYNAMIC_WARP, out_warp);
+}
+
+int remaster_emerald_dynamic_warp_set(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldWarpState *warp)
+{
+    return write_warp_state(save, SB1_DYNAMIC_WARP, warp);
+}
