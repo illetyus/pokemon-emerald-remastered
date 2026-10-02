@@ -4,6 +4,7 @@ extends SceneTree
 func _init() -> void:
     var script := load("res://main.gd")
     var node = script.new()
+    root.add_child(node)
 
     node.reset_state()
 
