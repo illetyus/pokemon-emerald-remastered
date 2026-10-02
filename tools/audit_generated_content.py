@@ -50,6 +50,14 @@ def audit(root: Path) -> list[str]:
         trailing = layout.get("trailing_words_u16", [])
         source_word_count = int(layout.get("source_word_count", len(blocks) + len(trailing)))
         active_word_count = int(layout.get("active_word_count", len(blocks)))
+        border_active = layout.get("border_active_words_u16", [])
+        border_trailing = layout.get("border_trailing_words_u16", [])
+        border_source_word_count = int(
+            layout.get(
+                "border_source_word_count",
+                len(border_active) + len(border_trailing),
+            )
+        )
 
         if width <= 0 or height <= 0:
             errors.append(f"{rel}: invalid dimensions")
@@ -65,6 +73,16 @@ def audit(root: Path) -> list[str]:
         if source_word_count != len(blocks) + len(trailing):
             errors.append(
                 f"{rel}: source_word_count does not match active + trailing words"
+            )
+
+        if len(border_active) != 4:
+            errors.append(
+                f"{rel}: Emerald border must expose exactly 4 active words"
+            )
+
+        if border_source_word_count != len(border_active) + len(border_trailing):
+            errors.append(
+                f"{rel}: border_source_word_count does not match active + trailing words"
             )
 
         if map_doc.get("id") != entry.get("id"):
