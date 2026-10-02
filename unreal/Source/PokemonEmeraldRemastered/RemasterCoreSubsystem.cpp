@@ -1,4 +1,5 @@
 #include "RemasterCoreSubsystem.h"
+#include "RemasterPlatformUnreal.h"
 
 #include "HAL/PlatformFileManager.h"
 #include "Misc/CoreDelegates.h"
@@ -38,6 +39,7 @@ void URemasterCoreSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
 
+    FRemasterPlatformUnreal::Install();
     Core.Reset();
     LoadPersistentState();
 
@@ -62,6 +64,7 @@ void URemasterCoreSubsystem::Deinitialize()
 
     FCoreDelegates::ApplicationWillEnterBackgroundDelegate.RemoveAll(this);
     FCoreDelegates::ApplicationHasEnteredForegroundDelegate.RemoveAll(this);
+    FRemasterPlatformUnreal::Uninstall();
 
     Super::Deinitialize();
 }
