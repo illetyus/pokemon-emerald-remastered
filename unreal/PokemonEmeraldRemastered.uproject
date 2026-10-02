@@ -1,0 +1,17 @@
+{
+  "FileVersion": 3,
+  "EngineAssociation": "5.8",
+  "Category": "Games",
+  "Description": "Android-first Pokemon Emerald remaster runtime with an authoritative portable C gameplay core.",
+  "Modules": [
+    {
+      "Name": "PokemonEmeraldRemastered",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ],
+  "TargetPlatforms": [
+    "Android",
+    "Win64"
+  ]
+}
