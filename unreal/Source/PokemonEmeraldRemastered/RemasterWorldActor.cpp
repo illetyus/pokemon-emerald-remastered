@@ -3,7 +3,9 @@
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "Components/SceneComponent.h"
 #include "Engine/StaticMesh.h"
+#include "Materials/MaterialInterface.h"
 #include "Misc/Paths.h"
+#include "RemasterVisualStyle.h"
 #include "UObject/ConstructorHelpers.h"
 
 ARemasterWorldActor::ARemasterWorldActor()
@@ -15,7 +17,7 @@ ARemasterWorldActor::ARemasterWorldActor()
 
     BlockInstances =
         CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(
-            TEXT("BlockInstances"));
+            TEXT("FallbackBlockInstances"));
     BlockInstances->SetupAttachment(SceneRoot);
     BlockInstances->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     BlockInstances->SetCastShadow(false);
@@ -42,6 +44,17 @@ void ARemasterWorldActor::BeginPlay()
 void ARemasterWorldActor::ClearWorld()
 {
     BlockInstances->ClearInstances();
+
+    for (TPair<int32, TObjectPtr<UHierarchicalInstancedStaticMeshComponent>>& Pair
+         : VisualComponents)
+    {
+        if (Pair.Value)
+        {
+            Pair.Value->DestroyComponent();
+        }
+    }
+
+    VisualComponents.Reset();
     LoadedMap = FRemasterMapIR{};
 }
 
@@ -70,6 +83,7 @@ bool ARemasterWorldActor::LoadMapFromGeneratedData(
         return false;
     }
 
+    ClearWorld();
     LoadedMap = MoveTemp(Candidate);
     BuildPreviewInstances();
 
@@ -85,6 +99,60 @@ bool ARemasterWorldActor::LoadMapFromGeneratedData(
     return true;
 }
 
+UHierarchicalInstancedStaticMeshComponent*
+ARemasterWorldActor::ComponentForBlock(uint16 RawBlock)
+{
+    if (!VisualStyle)
+    {
+        return BlockInstances;
+    }
+
+    const FRemasterTileVisualRule* Rule =
+        VisualStyle->TileRules.FindByPredicate(
+            [RawBlock](const FRemasterTileVisualRule& Candidate)
+            {
+                return Candidate.RawBlockValue == static_cast<int32>(RawBlock);
+            });
+
+    if (!Rule)
+    {
+        return BlockInstances;
+    }
+
+    const int32 Key = Rule->RawBlockValue;
+
+    if (TObjectPtr<UHierarchicalInstancedStaticMeshComponent>* Existing =
+            VisualComponents.Find(Key))
+    {
+        return Existing->Get();
+    }
+
+    UStaticMesh* Mesh = Rule->Mesh.LoadSynchronous();
+    if (!Mesh)
+    {
+        return BlockInstances;
+    }
+
+    UHierarchicalInstancedStaticMeshComponent* Component =
+        NewObject<UHierarchicalInstancedStaticMeshComponent>(
+            this,
+            *FString::Printf(TEXT("TileRule_%d"), Key));
+
+    Component->SetupAttachment(SceneRoot);
+    Component->SetStaticMesh(Mesh);
+    Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    Component->SetCastShadow(true);
+
+    if (UMaterialInterface* Material = Rule->Material.LoadSynchronous())
+    {
+        Component->SetMaterial(0, Material);
+    }
+
+    Component->RegisterComponent();
+    VisualComponents.Add(Key, Component);
+    return Component;
+}
+
 void ARemasterWorldActor::BuildPreviewInstances()
 {
     BlockInstances->ClearInstances();
@@ -95,7 +163,7 @@ void ARemasterWorldActor::BuildPreviewInstances()
     }
 
     const float EngineCubeSize = 100.0f;
-    const FVector Scale(
+    const FVector FallbackScale(
         TileWorldSize / EngineCubeSize,
         TileWorldSize / EngineCubeSize,
         PreviewThickness / EngineCubeSize);
@@ -110,17 +178,34 @@ void ARemasterWorldActor::BuildPreviewInstances()
                 continue;
             }
 
-            /*
-             * R4 preview intentionally does not decode gameplay semantics
-             * from metatile bits. Raw block values are preserved for the
-             * future visual mapping/import stage.
-             */
+            const uint16 RawBlock = LoadedMap.RawBlocks[Index];
+            UHierarchicalInstancedStaticMeshComponent* Target =
+                ComponentForBlock(RawBlock);
+
+            FVector Scale = FallbackScale;
+            float HeightOffset = -PreviewThickness * 0.5f;
+
+            if (VisualStyle)
+            {
+                if (const FRemasterTileVisualRule* Rule =
+                        VisualStyle->TileRules.FindByPredicate(
+                            [RawBlock](const FRemasterTileVisualRule& Candidate)
+                            {
+                                return Candidate.RawBlockValue ==
+                                    static_cast<int32>(RawBlock);
+                            }))
+                {
+                    Scale = Rule->Scale;
+                    HeightOffset = Rule->HeightOffset;
+                }
+            }
+
             const FVector Location(
                 static_cast<float>(X) * TileWorldSize,
                 static_cast<float>(Y) * TileWorldSize,
-                -PreviewThickness * 0.5f);
+                HeightOffset);
 
-            BlockInstances->AddInstance(
+            Target->AddInstance(
                 FTransform(
                     FRotator::ZeroRotator,
                     Location,
