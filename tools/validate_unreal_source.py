@@ -95,6 +95,7 @@ def main() -> int:
         "RemasterFeedbackSubsystem.cpp",
         "RemasterAudioSubsystem.cpp",
         "RemasterPerformanceSubsystem.cpp",
+        "RemasterVanillaPlusSaveSubsystem.cpp",
     ]
     for filename in required_runtime_files:
         require((MODULE / filename).is_file(), f"missing runtime layer: {filename}", errors)
