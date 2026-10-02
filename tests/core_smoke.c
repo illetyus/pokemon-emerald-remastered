@@ -21,13 +21,24 @@ int main(void)
     uint8_t save_data[REMASTER_CORE_STATE_BYTES];
     uint64_t first_hash;
     uint64_t second_hash;
+    uint32_t events;
 
     remaster_core_init(&state);
 
     assert(state.tile_x == 1);
     assert(state.tile_y == 1);
 
-    run_reference_sequence(&state);
+    events = remaster_core_step(&state, REMASTER_INPUT_MOVE_UP);
+    assert(events == REMASTER_EVENT_BLOCKED);
+
+    remaster_core_step(&state, REMASTER_INPUT_MOVE_RIGHT);
+    remaster_core_step(&state, REMASTER_INPUT_MOVE_RIGHT);
+    events = remaster_core_step(&state, REMASTER_INPUT_INTERACT);
+    assert(events == (REMASTER_EVENT_INTERACTED | REMASTER_EVENT_FLAG_SET));
+    remaster_core_step(&state, REMASTER_INPUT_MOVE_DOWN);
+    remaster_core_step(&state, REMASTER_INPUT_MOVE_DOWN);
+    events = remaster_core_step(&state, REMASTER_INPUT_MOVE_DOWN);
+    assert(events == (REMASTER_EVENT_MOVED | REMASTER_EVENT_ENCOUNTER));
 
     assert(state.tile_x == 3);
     assert(state.tile_y == 4);
