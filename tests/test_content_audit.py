@@ -47,6 +47,15 @@ class ContentAuditTests(unittest.TestCase):
                         "border_source_word_count": 4,
                         "border_active_words_u16": [1, 2, 3, 4],
                         "border_trailing_words_u16": [],
+                        "metatile_ids_u16": [0],
+                        "collision_u8": [0],
+                        "elevation_u8": [0],
+                        "primary_metatile_attributes_u16": [0],
+                        "secondary_metatile_attributes_u16": [0],
+                        "primary_metatile_behavior_u8": [0],
+                        "secondary_metatile_behavior_u8": [0],
+                        "primary_metatile_layer_u8": [0],
+                        "secondary_metatile_layer_u8": [0],
                     },
                 }
                 (root / f"maps/{name}.json").write_text(json.dumps(doc))
