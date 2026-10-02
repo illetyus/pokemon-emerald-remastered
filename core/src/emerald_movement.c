@@ -46,6 +46,13 @@ static int object_collision(
         if (!object->active || i == mover->self_object_index)
             continue;
 
+        if (context->object_collision_exempt != 0
+            && context->object_collision_exempt(
+                context->userdata,
+                i,
+                mover->self_object_index))
+            continue;
+
         if ((object->current_x == x && object->current_y == y)
             || (object->previous_x == x && object->previous_y == y)) {
             if (remaster_emerald_elevations_compatible(
