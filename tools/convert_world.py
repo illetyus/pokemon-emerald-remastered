@@ -398,6 +398,7 @@ def convert_map(
             "group_num": map_group,
             "map_num": map_num,
             "layout": layout_id,
+            "layout_num": int(layout["_numeric_id"]),
             "music": source.get("music"),
             "region_map_section": source.get("region_map_section"),
             "requires_flash": bool(source.get("requires_flash", False)),
@@ -470,7 +471,10 @@ def convert_map(
 
 def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
     layouts_doc = load_json(source_root / "data/layouts/layouts.json")
-    layouts = {entry["id"]: entry for entry in layouts_doc["layouts"]}
+    layouts = {
+        entry["id"]: {**entry, "_numeric_id": index + 1}
+        for index, entry in enumerate(layouts_doc["layouts"])
+    }
     tileset_attributes = build_tileset_attribute_index(source_root)
     map_locations = build_map_location_index(source_root)
 
