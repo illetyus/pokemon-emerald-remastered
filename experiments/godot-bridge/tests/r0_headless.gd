@@ -28,6 +28,7 @@ func _init() -> void:
     assert(bool(state.encounter_pending) == true)
 
     var hash_before: int = core.state_hash()
+    assert(hash_before == 7218695048241891488)
     var save_data: PackedByteArray = core.save_state()
     assert(save_data.size() > 0)
 
