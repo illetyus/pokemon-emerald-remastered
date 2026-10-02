@@ -3,17 +3,9 @@
 
 extern "C"
 {
-#include "../core/src/platform.c"
-#include "../core/src/mechanics.c"
-#include "../core/src/emerald_save.c"
-#include "../core/src/emerald_rtc.c"
-#include "../core/src/emerald_state.c"
-#include "../core/src/emerald_map.c"
-#include "../core/src/emerald_movement.c"
-#include "../core/src/emerald_events.c"
-#include "../core/src/emerald_transition.c"
-#include "../core/src/core.c"
+#include "remaster/core.h"
 }
+
 
 static int fail(const char* message)
 {
