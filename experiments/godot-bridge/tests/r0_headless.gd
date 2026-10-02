@@ -2,7 +2,8 @@ extends SceneTree
 
 
 func _init() -> void:
-    var core := RemasterCoreBridge.new()
+    var core = ClassDB.instantiate("RemasterCoreBridge")
+    assert(core != null)
 
     core.reset()
     var events: int = core.step(&"MOVE_UP")
