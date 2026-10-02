@@ -31,6 +31,7 @@ class ConvertWorldTests(unittest.TestCase):
                                 "height": 2,
                                 "primary_tileset": "Primary",
                                 "secondary_tileset": "Secondary",
+                                "border_filepath": "data/layouts/TestTown/border.bin",
                                 "blockdata_filepath": "data/layouts/TestTown/map.bin",
                             }
                         ]
@@ -41,6 +42,9 @@ class ConvertWorldTests(unittest.TestCase):
 
             (root / "data/layouts/TestTown/map.bin").write_bytes(
                 struct.pack("<6H", 1, 2, 0x1234, 0xFFFF, 0x1111, 0x2222)
+            )
+            (root / "data/layouts/TestTown/border.bin").write_bytes(
+                struct.pack("<6H", 0x000A, 0x000B, 0x000C, 0x000D, 0xAAAA, 0xBBBB)
             )
 
             (root / "data/maps/TestTown/map.json").write_text(
@@ -79,6 +83,9 @@ class ConvertWorldTests(unittest.TestCase):
             converted = json.loads((out / "maps/TestTown.json").read_text())
             self.assertEqual(converted["layout"]["source_word_count"], 6)
             self.assertEqual(converted["layout"]["active_word_count"], 4)
+            self.assertEqual(converted["layout"]["border_source_word_count"], 6)
+            self.assertEqual(converted["layout"]["border_active_words_u16"], [0x000A, 0x000B, 0x000C, 0x000D])
+            self.assertEqual(converted["layout"]["border_trailing_words_u16"], [0xAAAA, 0xBBBB])
             self.assertEqual(converted["layout"]["raw_blocks_u16"], [1, 2, 0x1234, 0xFFFF])
             self.assertEqual(converted["layout"]["trailing_words_u16"], [0x1111, 0x2222])
             self.assertEqual(converted["layout"]["metatile_ids_u16"], [1, 2, 0x234, 0x3FF])
