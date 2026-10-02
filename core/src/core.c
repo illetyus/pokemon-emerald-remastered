@@ -42,13 +42,14 @@ void remaster_core_init(RemasterState *state)
     state->encounter_pending = 0;
 }
 
-void remaster_core_step(RemasterState *state, RemasterInput input)
+uint32_t remaster_core_step(RemasterState *state, RemasterInput input)
 {
     int32_t next_x;
     int32_t next_y;
+    uint32_t events = REMASTER_EVENT_NONE;
 
     if (state == 0)
-        return;
+        return events;
 
     next_x = state->tile_x;
     next_y = state->tile_y;
@@ -69,28 +70,39 @@ void remaster_core_step(RemasterState *state, RemasterInput input)
         break;
     case REMASTER_INPUT_INTERACT:
         state->interaction_count++;
+        events |= REMASTER_EVENT_INTERACTED;
+
         /* R0 fixture event: interacting at (3, 1) raises bit 0. */
-        if (state->tile_x == 3 && state->tile_y == 1)
+        if (state->tile_x == 3 && state->tile_y == 1 &&
+            (state->event_flags & 1u) == 0u) {
             state->event_flags |= 1u;
-        return;
+            events |= REMASTER_EVENT_FLAG_SET;
+        }
+
+        return events;
     case REMASTER_INPUT_NONE:
     default:
-        return;
+        return events;
     }
 
     if (!is_walkable(next_x, next_y))
-        return;
+        return events | REMASTER_EVENT_BLOCKED;
 
     state->tile_x = next_x;
     state->tile_y = next_y;
     state->step_count++;
+    events |= REMASTER_EVENT_MOVED;
 
     /*
      * Deterministic encounter fixture: every 5 successful steps.
      * Later this is replaced by the imported Emerald encounter system.
      */
-    if ((state->step_count % 5u) == 0u)
+    if ((state->step_count % 5u) == 0u) {
         state->encounter_pending = 1;
+        events |= REMASTER_EVENT_ENCOUNTER;
+    }
+
+    return events;
 }
 
 static uint64_t fnv1a_u32(uint64_t hash, uint32_t value)
