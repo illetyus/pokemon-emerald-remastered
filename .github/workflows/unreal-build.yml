@@ -1,0 +1,67 @@
+name: Unreal 5.8 Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_android:
+        description: Package Android ARM64 development APK
+        required: true
+        default: true
+        type: boolean
+
+concurrency:
+  group: unreal-58-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: [self-hosted, windows, unreal-5.8]
+    timeout-minutes: 120
+
+    env:
+      UE_ROOT: C:\\Program Files\\Epic Games\\UE_5.8
+      PROJECT: ${{ github.workspace }}\\unreal\\PokemonEmeraldRemastered.uproject
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Unreal Engine
+        shell: pwsh
+        run: |
+          $build = Join-Path $env:UE_ROOT 'Engine\\Build\\BatchFiles\\Build.bat'
+          $uat = Join-Path $env:UE_ROOT 'Engine\\Build\\BatchFiles\\RunUAT.bat'
+          if (-not (Test-Path $build)) { throw "Unreal Build.bat not found: $build" }
+          if (-not (Test-Path $uat)) { throw "Unreal RunUAT.bat not found: $uat" }
+
+      - name: Build Win64 Development
+        shell: pwsh
+        run: |
+          & "$env:UE_ROOT\\Engine\\Build\\BatchFiles\\Build.bat" PokemonEmeraldRemastered Win64 Development "-Project=$env:PROJECT" -WaitMutex -NoHotReloadFromIDE
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Package Android ARM64 Development
+        if: ${{ inputs.package_android }}
+        shell: pwsh
+        run: |
+          $archive = Join-Path $env:GITHUB_WORKSPACE 'artifacts\\android'
+          New-Item -ItemType Directory -Force -Path $archive | Out-Null
+          & "$env:UE_ROOT\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun "-project=$env:PROJECT" -noP4 -platform=Android -clientconfig=Development -build -cook -stage -pak -package -archive "-archivedirectory=$archive"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Verify Android package
+        if: ${{ inputs.package_android }}
+        shell: pwsh
+        run: |
+          $apk = Get-ChildItem "$env:GITHUB_WORKSPACE\\artifacts\\android" -Recurse -Filter *.apk | Select-Object -First 1
+          if (-not $apk) { throw 'No Android APK was produced.' }
+          Write-Host "APK=$($apk.FullName)"
+          Get-FileHash $apk.FullName -Algorithm SHA256
+
+      - name: Upload Android artifact
+        if: ${{ inputs.package_android }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-emerald-remastered-unreal-android
+          path: artifacts/android/**/*.apk
+          if-no-files-found: error
