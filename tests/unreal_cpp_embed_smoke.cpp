@@ -10,6 +10,7 @@ extern "C"
 #include "../core/src/emerald_state.c"
 #include "../core/src/emerald_map.c"
 #include "../core/src/emerald_movement.c"
+#include "../core/src/emerald_events.c"
 #include "../core/src/core.c"
 }
 
