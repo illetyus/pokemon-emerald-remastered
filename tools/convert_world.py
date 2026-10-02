@@ -134,6 +134,7 @@ def build_numeric_constant_index(source_root: Path) -> dict[str, int]:
         source_root / "include/constants/vars.h",
         source_root / "include/constants/opponents.h",
         source_root / "include/constants/weather.h",
+        source_root / "include/constants/maps.h",
     ]
 
     expressions: dict[str, str] = {}
@@ -288,10 +289,13 @@ def add_numeric_map_targets(
         item = dict(event)
         target = item.get("dest_map", item.get("map"))
 
-        if isinstance(target, str) and target in map_id_locations:
+        if target == "MAP_DYNAMIC":
+            item["dynamic_target"] = True
+        elif isinstance(target, str) and target in map_id_locations:
             group_num, map_num = map_id_locations[target]
             item["dest_group_num"] = group_num
             item["dest_map_num"] = map_num
+            item["dynamic_target"] = False
 
         result.append(item)
 
