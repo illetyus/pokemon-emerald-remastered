@@ -65,6 +65,10 @@ int remaster_emerald_var_set(
     uint16_t var_id,
     uint16_t value);
 
+/* Mirrors Vanilla ClearTempFieldEventData on map load. */
+void remaster_emerald_clear_temp_field_event_data(
+    RemasterEmeraldSave *save);
+
 #ifdef __cplusplus
 }
 #endif
