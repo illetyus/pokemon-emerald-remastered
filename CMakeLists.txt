@@ -89,3 +89,18 @@ else()
 endif()
 
 add_test(NAME core_replay COMMAND core_replay_test)
+
+
+add_executable(platform_mechanics_contract_test
+    tests/platform_mechanics_contract.c
+)
+
+target_link_libraries(platform_mechanics_contract_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(platform_mechanics_contract_test PRIVATE /W4)
+else()
+    target_compile_options(platform_mechanics_contract_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME platform_mechanics_contract COMMAND platform_mechanics_contract_test)
