@@ -100,7 +100,7 @@ bool ARemasterWorldActor::LoadMapFromGeneratedData(
 }
 
 UHierarchicalInstancedStaticMeshComponent*
-ARemasterWorldActor::ComponentForBlock(uint16 RawBlock)
+ARemasterWorldActor::ComponentForMetatile(uint16 MetatileId)
 {
     if (!VisualStyle)
     {
@@ -109,9 +109,9 @@ ARemasterWorldActor::ComponentForBlock(uint16 RawBlock)
 
     const FRemasterTileVisualRule* Rule =
         VisualStyle->TileRules.FindByPredicate(
-            [RawBlock](const FRemasterTileVisualRule& Candidate)
+            [MetatileId](const FRemasterTileVisualRule& Candidate)
             {
-                return Candidate.MetatileId == static_cast<int32>(RawBlock);
+                return Candidate.MetatileId == static_cast<int32>(MetatileId);
             });
 
     if (!Rule)
@@ -173,14 +173,14 @@ void ARemasterWorldActor::BuildPreviewInstances()
         for (int32 X = 0; X < LoadedMap.Width; ++X)
         {
             const int32 Index = Y * LoadedMap.Width + X;
-            if (!LoadedMap.RawBlocks.IsValidIndex(Index))
+            if (!LoadedMap.MetatileIds.IsValidIndex(Index))
             {
                 continue;
             }
 
-            const uint16 RawBlock = LoadedMap.RawBlocks[Index];
+            const uint16 MetatileId = LoadedMap.MetatileIds[Index];
             UHierarchicalInstancedStaticMeshComponent* Target =
-                ComponentForBlock(RawBlock);
+                ComponentForMetatile(MetatileId);
 
             FVector Scale = FallbackScale;
             float HeightOffset = -PreviewThickness * 0.5f;
@@ -189,10 +189,10 @@ void ARemasterWorldActor::BuildPreviewInstances()
             {
                 if (const FRemasterTileVisualRule* Rule =
                         VisualStyle->TileRules.FindByPredicate(
-                            [RawBlock](const FRemasterTileVisualRule& Candidate)
+                            [MetatileId](const FRemasterTileVisualRule& Candidate)
                             {
                                 return Candidate.MetatileId ==
-                                    static_cast<int32>(RawBlock);
+                                    static_cast<int32>(MetatileId);
                             }))
                 {
                     Scale = Rule->Scale;
