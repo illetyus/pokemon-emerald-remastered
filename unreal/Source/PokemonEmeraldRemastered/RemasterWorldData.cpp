@@ -333,6 +333,8 @@ bool FRemasterWorldData::LoadMapJson(
                 IntFieldDefault(Object, TEXT("dest_group_num"), -1);
             Item.DestMapNum =
                 IntFieldDefault(Object, TEXT("dest_map_num"), -1);
+            Item.bDynamicTarget =
+                BoolField(Object, TEXT("dynamic_target"));
             OutMap.WarpEvents.Add(MoveTemp(Item));
         }
     }
