@@ -40,3 +40,15 @@ jobs:
 
       - name: Validate JSON fixtures
         run: python -m json.tool shared/scenarios/r0_walk_event_encounter.json > /dev/null
+
+
+  world-converter:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test world conversion pipeline
+        run: python -m unittest tests/test_convert_world.py
