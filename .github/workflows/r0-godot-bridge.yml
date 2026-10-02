@@ -37,13 +37,10 @@ jobs:
           unzip -q godot.zip
           chmod +x Godot_v4.7.2-stable_linux.x86_64
 
-      - name: Initialize Godot project and discover extension
+      - name: Register GDExtension for headless project
         run: |
-          ./Godot_v4.7.2-stable_linux.x86_64 \
-            --headless \
-            --editor \
-            --quit-after 2 \
-            --path experiments/godot-bridge
+          mkdir -p experiments/godot-bridge/.godot
+          printf '%s\n' 'res://remaster_bridge.gdextension' > experiments/godot-bridge/.godot/extension_list.cfg
 
       - name: Run Godot+C bridge equivalence test
         run: |
