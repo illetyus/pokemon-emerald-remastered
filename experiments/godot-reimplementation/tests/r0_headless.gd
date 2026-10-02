@@ -27,7 +27,7 @@ func _init() -> void:
     assert(node.event_flags == 1)
     assert(node.encounter_pending == true)
 
-    var saved := node.snapshot().duplicate(true)
+    var saved: Dictionary = node.snapshot().duplicate(true)
     node.reset_state()
     node.load_snapshot(saved)
 
