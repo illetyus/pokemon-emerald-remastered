@@ -1,4 +1,4 @@
-extends Control
+extends Node
 
 const MAP_WIDTH := 8
 const MAP_HEIGHT := 8
@@ -23,7 +23,10 @@ var perf_total_frame_ms := 0.0
 var perf_worst_frame_ms := 0.0
 var perf_frame_count := 0
 
+var root_ui: Control
 var background: ColorRect
+var boot_center: CenterContainer
+var boot_stage: Label
 var title_label: Label
 var status_label: Label
 var diagnostic_label: Label
@@ -33,13 +36,22 @@ var touch_hint: Label
 
 
 func _ready() -> void:
-    if OS.has_feature("mobile"):
-        DisplayServer.screen_set_orientation(DisplayServer.SCREEN_LANDSCAPE)
-        DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+    root_ui = get_parent() as Control
+    if root_ui == null:
+        push_error("R0 root Control is unavailable")
+        return
+
+    background = root_ui.get_node("BootBackground") as ColorRect
+    boot_center = root_ui.get_node("BootCenter") as CenterContainer
+    boot_stage = root_ui.get_node("BootCenter/BootBox/BootStage") as Label
+
+    boot_stage.text = "RUNTIME SCRIPT STARTED — BUILDING UI"
 
     set_process(true)
     set_process_unhandled_input(true)
     _build_ui()
+
+    boot_stage.text = "RUNTIME UI READY — LOADING C CORE"
 
     core = ClassDB.instantiate("RemasterCoreBridge")
 
@@ -49,16 +61,14 @@ func _ready() -> void:
 
     diagnostic_label.text = "C CORE: LOADED"
     diagnostic_label.modulate = Color(0.45, 1.0, 0.55)
+    boot_center.visible = false
+
     load_persistent_state()
     _refresh_ui()
 
 
 func _build_ui() -> void:
-    background = ColorRect.new()
-    background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     background.color = Color(0.035, 0.045, 0.065)
-    background.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    add_child(background)
 
     var margin := MarginContainer.new()
     margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -67,7 +77,7 @@ func _build_ui() -> void:
     margin.add_theme_constant_override("margin_top", 26)
     margin.add_theme_constant_override("margin_bottom", 24)
     margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    add_child(margin)
+    root_ui.add_child(margin)
 
     var root_box := VBoxContainer.new()
     root_box.add_theme_constant_override("separation", 12)
@@ -119,6 +129,9 @@ func _build_ui() -> void:
 
 func _show_bridge_error() -> void:
     background.color = Color(0.20, 0.025, 0.035)
+    boot_center.visible = true
+    boot_stage.text = "RUNTIME SCRIPT OK — C CORE FAILED TO LOAD"
+    boot_stage.modulate = Color(1.0, 0.38, 0.38)
     diagnostic_label.text = "ERROR: ANDROID GDEXTENSION DID NOT LOAD"
     diagnostic_label.modulate = Color(1.0, 0.35, 0.35)
     status_label.text = "RemasterCoreBridge is unavailable. This build is invalid."
