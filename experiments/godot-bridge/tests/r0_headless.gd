@@ -50,5 +50,25 @@ func _init() -> void:
     assert(int(state.tile_y) == 4)
     assert(int(state.step_count) == 6)
 
-    print("R0 Godot+C bridge test passed")
+    # Validate the actual presentation script's persistent file wrapper.
+    var main_script = load("res://main.gd")
+    assert(main_script != null)
+
+    var main_node = main_script.new()
+    root.add_child(main_node)
+    assert(main_node.core != null)
+
+    main_node.core.reset()
+    main_node.core.step(&"MOVE_RIGHT")
+    main_node.core.step(&"MOVE_RIGHT")
+    var persistent_hash: int = main_node.core.state_hash()
+
+    assert(main_node.persist_state_to_disk())
+    main_node.core.reset()
+    assert(main_node.core.state_hash() != persistent_hash)
+
+    assert(main_node.load_persistent_state())
+    assert(main_node.core.state_hash() == persistent_hash)
+
+    print("R0 Godot+C bridge and persistent-state tests passed")
     quit(0)
