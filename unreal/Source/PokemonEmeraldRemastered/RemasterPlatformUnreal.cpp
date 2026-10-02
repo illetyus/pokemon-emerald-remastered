@@ -12,10 +12,14 @@
 FString FRemasterPlatformUnreal::SlotPath(const char* Slot)
 {
     const FString SafeSlot = UTF8_TO_TCHAR(Slot ? Slot : "default");
+    const FString FileName = FPaths::GetExtension(SafeSlot).IsEmpty()
+        ? SafeSlot + TEXT(".bin")
+        : SafeSlot;
+
     return FPaths::Combine(
         FPaths::ProjectSavedDir(),
         TEXT("Core"),
-        SafeSlot + TEXT(".bin"));
+        FileName);
 }
 
 void FRemasterPlatformUnreal::Install(UGameInstance* GameInstance)
