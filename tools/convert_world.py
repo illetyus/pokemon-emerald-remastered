@@ -22,17 +22,12 @@ def load_json(path: Path) -> dict[str, Any]:
         return json.load(handle)
 
 
-def read_u16_le(path: Path, expected_words: int | None = None) -> list[int]:
+def read_u16_le(path: Path) -> list[int]:
     data = path.read_bytes()
     if len(data) % 2:
         raise ValueError(f"{path}: block data length is not 16-bit aligned")
 
-    words = list(struct.unpack(f"<{len(data) // 2}H", data))
-    if expected_words is not None and len(words) != expected_words:
-        raise ValueError(
-            f"{path}: expected {expected_words} blocks, got {len(words)}"
-        )
-    return words
+    return list(struct.unpack(f"<{len(data) // 2}H", data))
 
 
 def normalize_event(event: dict[str, Any]) -> dict[str, Any]:
@@ -57,7 +52,17 @@ def convert_map(
     height = int(layout["height"])
 
     block_path = source_root / layout["blockdata_filepath"]
-    blocks = read_u16_le(block_path, expected_words=width * height)
+    source_words = read_u16_le(block_path)
+    active_word_count = width * height
+
+    if len(source_words) < active_word_count:
+        raise ValueError(
+            f"{block_path}: expected at least {active_word_count} blocks, "
+            f"got {len(source_words)}"
+        )
+
+    blocks = source_words[:active_word_count]
+    trailing_words = source_words[active_word_count:]
 
     metatile_ids = [word & 0x03FF for word in blocks]
     collision = [(word & 0x0C00) >> 10 for word in blocks]
@@ -106,7 +111,10 @@ def convert_map(
             "height": height,
             "primary_tileset": layout.get("primary_tileset"),
             "secondary_tileset": layout.get("secondary_tileset"),
+            "source_word_count": len(source_words),
+            "active_word_count": active_word_count,
             "raw_blocks_u16": blocks,
+            "trailing_words_u16": trailing_words,
             "metatile_ids_u16": metatile_ids,
             "collision_u8": collision,
             "elevation_u8": elevation,
