@@ -186,9 +186,14 @@ bool URemasterWorldGameplaySubsystem::ResolveWarpAt(
         if (!FitsInt16(Event.X)
             || !FitsInt16(Event.Y)
             || !FitsUInt8(Event.Elevation)
-            || !FitsUInt8(Event.DestWarpIdNum)
-            || !FitsUInt8(Event.DestGroupNum)
-            || !FitsUInt8(Event.DestMapNum))
+            || !FitsUInt8(Event.DestWarpIdNum))
+        {
+            continue;
+        }
+
+        if (!Event.bDynamicTarget
+            && (!FitsUInt8(Event.DestGroupNum)
+                || !FitsUInt8(Event.DestMapNum)))
         {
             continue;
         }
@@ -198,8 +203,12 @@ bool URemasterWorldGameplaySubsystem::ResolveWarpAt(
         Native.y = static_cast<int16>(Event.Y);
         Native.elevation = static_cast<uint8>(Event.Elevation);
         Native.dest_warp_id = static_cast<uint8>(Event.DestWarpIdNum);
-        Native.dest_map_group = static_cast<uint8>(Event.DestGroupNum);
-        Native.dest_map_num = static_cast<uint8>(Event.DestMapNum);
+        Native.dest_map_group = Event.bDynamicTarget
+            ? 0u
+            : static_cast<uint8>(Event.DestGroupNum);
+        Native.dest_map_num = Event.bDynamicTarget
+            ? 0u
+            : static_cast<uint8>(Event.DestMapNum);
 
         NativeEvents.Add(Native);
         SourceIndices.Add(Index);
@@ -234,6 +243,7 @@ bool URemasterWorldGameplaySubsystem::ResolveWarpAt(
     OutWarp.DestMapNum = Source.DestMapNum;
     OutWarp.DestWarpId = Source.DestWarpIdNum;
     OutWarp.DestMap = Source.DestMap;
+    OutWarp.bDynamicTarget = Source.bDynamicTarget;
 
     return true;
 }
