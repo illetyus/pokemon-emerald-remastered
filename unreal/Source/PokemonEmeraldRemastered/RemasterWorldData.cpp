@@ -112,6 +112,30 @@ bool FRemasterWorldData::LoadMapJson(
             static_cast<uint16>(Value->AsNumber()));
     }
 
+    const TArray<TSharedPtr<FJsonValue>>* MetatileIds = nullptr;
+    const TArray<TSharedPtr<FJsonValue>>* Collision = nullptr;
+    const TArray<TSharedPtr<FJsonValue>>* Elevation = nullptr;
+
+    if (!Layout->TryGetArrayField(TEXT("metatile_ids_u16"), MetatileIds) ||
+        !Layout->TryGetArrayField(TEXT("collision_u8"), Collision) ||
+        !Layout->TryGetArrayField(TEXT("elevation_u8"), Elevation) ||
+        MetatileIds == nullptr ||
+        Collision == nullptr ||
+        Elevation == nullptr)
+    {
+        OutError = TEXT("Map IR is missing decoded block fields.");
+        return false;
+    }
+
+    for (const TSharedPtr<FJsonValue>& Value : *MetatileIds)
+        OutMap.MetatileIds.Add(static_cast<uint16>(Value->AsNumber()));
+
+    for (const TSharedPtr<FJsonValue>& Value : *Collision)
+        OutMap.Collision.Add(static_cast<uint8>(Value->AsNumber()));
+
+    for (const TSharedPtr<FJsonValue>& Value : *Elevation)
+        OutMap.Elevation.Add(static_cast<uint8>(Value->AsNumber()));
+
     const TArray<TSharedPtr<FJsonValue>>* Connections = nullptr;
     if (Map->TryGetArrayField(TEXT("connections"), Connections) &&
         Connections != nullptr)
