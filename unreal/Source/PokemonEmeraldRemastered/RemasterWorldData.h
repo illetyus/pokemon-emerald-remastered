@@ -85,6 +85,13 @@ struct FRemasterMapIR
     TArray<uint8> Collision;
     TArray<uint8> Elevation;
 
+    TArray<uint16> PrimaryMetatileAttributes;
+    TArray<uint16> SecondaryMetatileAttributes;
+    TArray<uint8> PrimaryMetatileBehavior;
+    TArray<uint8> SecondaryMetatileBehavior;
+    TArray<uint8> PrimaryMetatileLayer;
+    TArray<uint8> SecondaryMetatileLayer;
+
     TArray<FRemasterConnectionIR> Connections;
     TArray<FRemasterObjectEventIR> ObjectEvents;
     TArray<FRemasterWarpEventIR> WarpEvents;
@@ -105,6 +112,16 @@ struct FRemasterMapIR
             && MetatileIds.Num() == RawBlocks.Num()
             && Collision.Num() == RawBlocks.Num()
             && Elevation.Num() == RawBlocks.Num()
+            && !PrimaryMetatileAttributes.IsEmpty()
+            && !SecondaryMetatileAttributes.IsEmpty()
+            && PrimaryMetatileBehavior.Num()
+                == PrimaryMetatileAttributes.Num()
+            && SecondaryMetatileBehavior.Num()
+                == SecondaryMetatileAttributes.Num()
+            && PrimaryMetatileLayer.Num()
+                == PrimaryMetatileAttributes.Num()
+            && SecondaryMetatileLayer.Num()
+                == SecondaryMetatileAttributes.Num()
             && !Id.IsEmpty();
     }
 };
