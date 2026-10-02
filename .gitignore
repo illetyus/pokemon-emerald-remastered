@@ -22,3 +22,6 @@ export_presets.cfg
 /vendor/
 /generated/
 /local/
+
+# Generated native extension binaries
+experiments/**/bin/
