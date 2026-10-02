@@ -7,10 +7,12 @@ extern "C"
 #include "remaster/platform.h"
 }
 
+class UGameInstance;
+
 class FRemasterPlatformUnreal
 {
 public:
-    static void Install();
+    static void Install(UGameInstance* GameInstance);
     static void Uninstall();
 
 private:
