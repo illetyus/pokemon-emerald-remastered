@@ -31,3 +31,11 @@ jobs:
 
       - name: Build SDL3 prototype
         run: cmake --build build --config Release --target r0_sdl3
+
+      - name: Run SDL3 deterministic self-test
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path build -Recurse -Filter r0_sdl3.exe | Select-Object -First 1
+          if (-not $exe) { throw "r0_sdl3.exe not found" }
+          & $exe.FullName --self-test
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
