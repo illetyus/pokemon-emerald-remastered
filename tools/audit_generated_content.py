@@ -59,6 +59,17 @@ def audit(root: Path) -> list[str]:
             )
         )
 
+        metatile_ids = layout.get("metatile_ids_u16", [])
+        collision = layout.get("collision_u8", [])
+        elevation = layout.get("elevation_u8", [])
+
+        primary_attrs = layout.get("primary_metatile_attributes_u16", [])
+        secondary_attrs = layout.get("secondary_metatile_attributes_u16", [])
+        primary_behavior = layout.get("primary_metatile_behavior_u8", [])
+        secondary_behavior = layout.get("secondary_metatile_behavior_u8", [])
+        primary_layer = layout.get("primary_metatile_layer_u8", [])
+        secondary_layer = layout.get("secondary_metatile_layer_u8", [])
+
         if width <= 0 or height <= 0:
             errors.append(f"{rel}: invalid dimensions")
         elif active_word_count != width * height:
@@ -84,6 +95,53 @@ def audit(root: Path) -> list[str]:
             errors.append(
                 f"{rel}: border_source_word_count does not match active + trailing words"
             )
+
+        for name, values in (
+            ("metatile_ids_u16", metatile_ids),
+            ("collision_u8", collision),
+            ("elevation_u8", elevation),
+        ):
+            if len(values) != active_word_count:
+                errors.append(
+                    f"{rel}: {name} count {len(values)} != active word count "
+                    f"{active_word_count}"
+                )
+
+        for side, attrs, behavior, layer in (
+            ("primary", primary_attrs, primary_behavior, primary_layer),
+            ("secondary", secondary_attrs, secondary_behavior, secondary_layer),
+        ):
+            if not attrs:
+                errors.append(f"{rel}: {side} metatile attributes are empty")
+            if len(attrs) > 512:
+                errors.append(
+                    f"{rel}: {side} metatile attributes exceed 512 entries"
+                )
+            if len(behavior) != len(attrs):
+                errors.append(
+                    f"{rel}: {side} behavior count does not match attributes"
+                )
+            if len(layer) != len(attrs):
+                errors.append(
+                    f"{rel}: {side} layer count does not match attributes"
+                )
+
+        for metatile_id in metatile_ids:
+            if not isinstance(metatile_id, int) or metatile_id < 0 or metatile_id >= 1024:
+                errors.append(f"{rel}: invalid metatile id {metatile_id!r}")
+                continue
+
+            if metatile_id < 512:
+                if metatile_id >= len(primary_attrs):
+                    errors.append(
+                        f"{rel}: primary metatile {metatile_id} has no attribute entry"
+                    )
+            else:
+                secondary_index = metatile_id - 512
+                if secondary_index >= len(secondary_attrs):
+                    errors.append(
+                        f"{rel}: secondary metatile {metatile_id} has no attribute entry"
+                    )
 
         if map_doc.get("id") != entry.get("id"):
             errors.append(f"{rel}: manifest/map id mismatch")
