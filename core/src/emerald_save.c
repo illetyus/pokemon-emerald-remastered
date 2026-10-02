@@ -25,12 +25,12 @@ typedef struct SlotProbe {
     uint16_t id0_physical_index;
 } SlotProbe;
 
-static uint16_t read_u16_le(const uint8_t *p)
+static uint16_t emerald_read_u16_le(const uint8_t *p)
 {
     return (uint16_t)p[0] | ((uint16_t)p[1] << 8u);
 }
 
-static uint32_t read_u32_le(const uint8_t *p)
+static uint32_t emerald_read_u32_le(const uint8_t *p)
 {
     return (uint32_t)p[0]
         | ((uint32_t)p[1] << 8u)
@@ -38,13 +38,13 @@ static uint32_t read_u32_le(const uint8_t *p)
         | ((uint32_t)p[3] << 24u);
 }
 
-static void write_u16_le(uint8_t *p, uint16_t value)
+static void emerald_write_u16_le(uint8_t *p, uint16_t value)
 {
     p[0] = (uint8_t)(value & 0xffu);
     p[1] = (uint8_t)((value >> 8u) & 0xffu);
 }
 
-static void write_u32_le(uint8_t *p, uint32_t value)
+static void emerald_write_u32_le(uint8_t *p, uint32_t value)
 {
     p[0] = (uint8_t)(value & 0xffu);
     p[1] = (uint8_t)((value >> 8u) & 0xffu);
@@ -88,7 +88,7 @@ uint16_t remaster_emerald_checksum(const uint8_t *data, size_t size)
         return 0;
 
     for (i = 0; i < size; i += 4u)
-        checksum += read_u32_le(data + i);
+        checksum += emerald_read_u32_le(data + i);
 
     return (uint16_t)((checksum >> 16u) + checksum);
 }
@@ -106,7 +106,7 @@ static SlotProbe probe_slot(const uint8_t *image, uint8_t slot)
         const uint8_t *sector =
             image + sector_index * REMASTER_EMERALD_SECTOR_BYTES;
         const uint32_t signature =
-            read_u32_le(sector + FOOTER_SIGNATURE_OFFSET);
+            emerald_read_u32_le(sector + FOOTER_SIGNATURE_OFFSET);
         uint16_t id;
         size_t size;
         uint16_t expected;
@@ -116,20 +116,20 @@ static SlotProbe probe_slot(const uint8_t *image, uint8_t slot)
             continue;
 
         result.has_signature = 1;
-        id = read_u16_le(sector + FOOTER_ID_OFFSET);
+        id = emerald_read_u16_le(sector + FOOTER_ID_OFFSET);
 
         if (id >= REMASTER_EMERALD_MAIN_SECTORS)
             continue;
 
         size = logical_sector_size(id);
-        expected = read_u16_le(sector + FOOTER_CHECKSUM_OFFSET);
+        expected = emerald_read_u16_le(sector + FOOTER_CHECKSUM_OFFSET);
         actual = remaster_emerald_checksum(sector, size);
 
         if (expected != actual)
             continue;
 
         result.valid_ids |= (uint16_t)(1u << id);
-        result.counter = read_u32_le(sector + FOOTER_COUNTER_OFFSET);
+        result.counter = emerald_read_u32_le(sector + FOOTER_COUNTER_OFFSET);
 
         if (id == 0)
             result.id0_physical_index = physical;
@@ -194,15 +194,15 @@ static int reconstruct_selected_slot(
         uint16_t id;
         size_t size;
 
-        if (read_u32_le(sector + FOOTER_SIGNATURE_OFFSET) != kSectorSignature)
+        if (emerald_read_u32_le(sector + FOOTER_SIGNATURE_OFFSET) != kSectorSignature)
             continue;
 
-        id = read_u16_le(sector + FOOTER_ID_OFFSET);
+        id = emerald_read_u16_le(sector + FOOTER_ID_OFFSET);
         if (id >= REMASTER_EMERALD_MAIN_SECTORS)
             continue;
 
         size = logical_sector_size(id);
-        if (read_u16_le(sector + FOOTER_CHECKSUM_OFFSET)
+        if (emerald_read_u16_le(sector + FOOTER_CHECKSUM_OFFSET)
             != remaster_emerald_checksum(sector, size))
             continue;
 
@@ -321,12 +321,12 @@ int remaster_emerald_save_encode_next(
         memset(sector, 0, REMASTER_EMERALD_SECTOR_BYTES);
         memcpy(sector, payload, size);
 
-        write_u16_le(sector + FOOTER_ID_OFFSET, id);
-        write_u16_le(
+        emerald_write_u16_le(sector + FOOTER_ID_OFFSET, id);
+        emerald_write_u16_le(
             sector + FOOTER_CHECKSUM_OFFSET,
             remaster_emerald_checksum(payload, size));
-        write_u32_le(sector + FOOTER_SIGNATURE_OFFSET, kSectorSignature);
-        write_u32_le(sector + FOOTER_COUNTER_OFFSET, next_counter);
+        emerald_write_u32_le(sector + FOOTER_SIGNATURE_OFFSET, kSectorSignature);
+        emerald_write_u32_le(sector + FOOTER_COUNTER_OFFSET, next_counter);
     }
 
     save->counter = next_counter;
@@ -346,7 +346,7 @@ static RemasterEmeraldTime read_time(
     if (save == 0)
         return value;
 
-    value.days = (int16_t)read_u16_le(save->save_block2 + offset);
+    value.days = (int16_t)emerald_read_u16_le(save->save_block2 + offset);
     value.hours = (int8_t)save->save_block2[offset + 2u];
     value.minutes = (int8_t)save->save_block2[offset + 3u];
     value.seconds = (int8_t)save->save_block2[offset + 4u];
@@ -361,7 +361,7 @@ static void write_time(
     if (save == 0)
         return;
 
-    write_u16_le(save->save_block2 + offset, (uint16_t)value.days);
+    emerald_write_u16_le(save->save_block2 + offset, (uint16_t)value.days);
     save->save_block2[offset + 2u] = (uint8_t)value.hours;
     save->save_block2[offset + 3u] = (uint8_t)value.minutes;
     save->save_block2[offset + 4u] = (uint8_t)value.seconds;
