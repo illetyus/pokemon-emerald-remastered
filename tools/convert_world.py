@@ -8,6 +8,7 @@ rendering semantics. Gameplay and presentation decoding are separate phases.
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import re
 import struct
@@ -77,6 +78,142 @@ def build_tileset_attribute_index(source_root: Path) -> dict[str, Path]:
     return result
 
 
+def _eval_int_expr(expr: str, symbols: dict[str, int]) -> int:
+    node = ast.parse(expr, mode="eval")
+
+    def visit(value: ast.AST) -> int:
+        if isinstance(value, ast.Expression):
+            return visit(value.body)
+        if isinstance(value, ast.Constant) and isinstance(value.value, int):
+            return int(value.value)
+        if isinstance(value, ast.Name):
+            if value.id not in symbols:
+                raise KeyError(value.id)
+            return symbols[value.id]
+        if isinstance(value, ast.UnaryOp):
+            operand = visit(value.operand)
+            if isinstance(value.op, ast.UAdd):
+                return operand
+            if isinstance(value.op, ast.USub):
+                return -operand
+            if isinstance(value.op, ast.Invert):
+                return ~operand
+        if isinstance(value, ast.BinOp):
+            left = visit(value.left)
+            right = visit(value.right)
+            if isinstance(value.op, ast.Add):
+                return left + right
+            if isinstance(value.op, ast.Sub):
+                return left - right
+            if isinstance(value.op, ast.Mult):
+                return left * right
+            if isinstance(value.op, ast.FloorDiv):
+                return left // right
+            if isinstance(value.op, ast.Div):
+                return left // right
+            if isinstance(value.op, ast.Mod):
+                return left % right
+            if isinstance(value.op, ast.LShift):
+                return left << right
+            if isinstance(value.op, ast.RShift):
+                return left >> right
+            if isinstance(value.op, ast.BitOr):
+                return left | right
+            if isinstance(value.op, ast.BitAnd):
+                return left & right
+            if isinstance(value.op, ast.BitXor):
+                return left ^ right
+        raise ValueError(f"unsupported integer expression: {expr}")
+
+    return visit(node)
+
+
+def build_numeric_constant_index(source_root: Path) -> dict[str, int]:
+    paths = [
+        source_root / "include/constants/flags.h",
+        source_root / "include/constants/vars.h",
+        source_root / "include/constants/opponents.h",
+    ]
+
+    expressions: dict[str, str] = {}
+    pattern = re.compile(
+        r"^\s*#define\s+([A-Za-z_][A-Za-z0-9_]*)\s+(.+?)\s*$"
+    )
+
+    for path in paths:
+        if not path.is_file():
+            continue
+
+        for raw_line in path.read_text(encoding="utf-8").splitlines():
+            line = raw_line.split("//", 1)[0].strip()
+            if not line:
+                continue
+
+            match = pattern.match(line)
+            if not match:
+                continue
+
+            name = match.group(1)
+            expr = match.group(2).strip()
+
+            # Ignore function-like or string macros; only integer constants
+            # participate in event/save identity conversion.
+            if '"' in expr or "'" in expr:
+                continue
+
+            expressions[name] = expr
+
+    symbols: dict[str, int] = {}
+    pending = dict(expressions)
+
+    while pending:
+        progressed = False
+
+        for name, expr in list(pending.items()):
+            cleaned = expr
+            cleaned = re.sub(
+                r"\b(?:U|UL|ULL|L|LL)\b",
+                "",
+                cleaned,
+            )
+            cleaned = re.sub(
+                r"(?<=\d)[uUlL]+\b",
+                "",
+                cleaned,
+            )
+
+            try:
+                symbols[name] = _eval_int_expr(cleaned, symbols)
+            except (KeyError, SyntaxError, ValueError, ZeroDivisionError):
+                continue
+
+            del pending[name]
+            progressed = True
+
+        if not progressed:
+            break
+
+    return symbols
+
+
+def resolve_numeric(value: Any, constants: dict[str, int]) -> int | None:
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, int):
+        return value
+    if not isinstance(value, str):
+        return None
+
+    token = value.strip()
+    if token in constants:
+        return constants[token]
+
+    try:
+        return int(token, 0)
+    except ValueError:
+        return None
+
+
 def build_map_location_index(source_root: Path) -> dict[str, tuple[int, int, str]]:
     groups_path = source_root / "data/maps/map_groups.json"
     groups = load_json(groups_path)
@@ -100,10 +237,46 @@ def build_map_location_index(source_root: Path) -> dict[str, tuple[int, int, str
     return result
 
 
-def normalize_event(event: dict[str, Any]) -> dict[str, Any]:
-    # Keep source names/flags/scripts as symbolic identifiers. They are part of
-    # the gameplay contract and should not be baked into renderer logic.
-    return dict(event)
+def normalize_event(
+    event: dict[str, Any],
+    constants: dict[str, int],
+) -> dict[str, Any]:
+    # Preserve symbolic names and add numeric identities next to them.
+    result = dict(event)
+
+    for source_key, numeric_key in (
+        ("flag", "flag_id"),
+        ("var", "var_id"),
+        ("var_value", "var_value_u16"),
+        ("trainer_sight_or_berry_tree_id", "trainer_sight_or_berry_tree_id_u16"),
+        ("dest_warp_id", "dest_warp_id_u16"),
+    ):
+        if source_key in result:
+            numeric = resolve_numeric(result[source_key], constants)
+            if numeric is not None:
+                result[numeric_key] = numeric
+
+    return result
+
+
+def add_numeric_map_targets(
+    events: list[dict[str, Any]],
+    map_id_locations: dict[str, tuple[int, int]],
+) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+
+    for event in events:
+        item = dict(event)
+        target = item.get("dest_map", item.get("map"))
+
+        if isinstance(target, str) and target in map_id_locations:
+            group_num, map_num = map_id_locations[target]
+            item["dest_group_num"] = group_num
+            item["dest_map_num"] = map_num
+
+        result.append(item)
+
+    return result
 
 
 def convert_map(
@@ -112,6 +285,8 @@ def convert_map(
     layouts: dict[str, dict[str, Any]],
     tileset_attributes: dict[str, Path],
     map_locations: dict[str, tuple[int, int, str]],
+    constants: dict[str, int],
+    map_id_locations: dict[str, tuple[int, int]],
 ) -> dict[str, Any]:
     source = load_json(map_path)
     layout_id = source["layout"]
@@ -214,20 +389,28 @@ def convert_map(
             "allow_running": bool(source.get("allow_running", False)),
             "show_map_name": bool(source.get("show_map_name", False)),
             "battle_scene": source.get("battle_scene"),
-            "connections": [
-                normalize_event(x) for x in source.get("connections", [])
-            ],
+            "connections": add_numeric_map_targets(
+                [
+                    normalize_event(x, constants)
+                    for x in source.get("connections", [])
+                ],
+                map_id_locations,
+            ),
             "object_events": [
-                normalize_event(x) for x in source.get("object_events", [])
+                normalize_event(x, constants) for x in source.get("object_events", [])
             ],
-            "warp_events": [
-                normalize_event(x) for x in source.get("warp_events", [])
-            ],
+            "warp_events": add_numeric_map_targets(
+                [
+                    normalize_event(x, constants)
+                    for x in source.get("warp_events", [])
+                ],
+                map_id_locations,
+            ),
             "coord_events": [
-                normalize_event(x) for x in source.get("coord_events", [])
+                normalize_event(x, constants) for x in source.get("coord_events", [])
             ],
             "bg_events": [
-                normalize_event(x) for x in source.get("bg_events", [])
+                normalize_event(x, constants) for x in source.get("bg_events", [])
             ],
         },
         "layout": {
@@ -272,6 +455,19 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
     map_locations = build_map_location_index(source_root)
 
     map_files = sorted((source_root / "data/maps").glob("*/map.json"))
+    constants = build_numeric_constant_index(source_root)
+
+    map_id_locations: dict[str, tuple[int, int]] = {}
+    for map_path in map_files:
+        source = load_json(map_path)
+        map_name = source["name"]
+        if map_name not in map_locations:
+            raise KeyError(
+                f"{map_path}: map {map_name} is missing from map_groups.json"
+            )
+        group_num, map_num, _ = map_locations[map_name]
+        map_id_locations[source["id"]] = (group_num, map_num)
+
     output_maps = output_root / "maps"
     output_maps.mkdir(parents=True, exist_ok=True)
 
@@ -284,6 +480,8 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
             layouts,
             tileset_attributes,
             map_locations,
+            constants,
+            map_id_locations,
         )
         map_name = converted["map"]["name"]
         out_path = output_maps / f"{map_name}.json"
