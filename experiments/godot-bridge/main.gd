@@ -4,6 +4,8 @@ const MAP_WIDTH := 8
 const MAP_HEIGHT := 8
 const TILE_SIZE := 64.0
 const MAP_ORIGIN := Vector2(64.0, 64.0)
+const PERSISTENT_SAVE_PATH := "user://r0_state.bin"
+const SAVE_MAGIC := PackedByteArray([82, 48, 83, 49]) # R0S1
 
 const COLLISION := [
     [1,1,1,1,1,1,1,1],
@@ -25,7 +27,92 @@ func _ready() -> void:
     if core == null:
         push_error("RemasterCoreBridge GDExtension is not loaded")
         return
+
+    load_persistent_state()
     queue_redraw()
+
+
+func persist_state_to_disk() -> bool:
+    if core == null:
+        return false
+
+    var payload: PackedByteArray = core.save_state()
+    if payload.is_empty():
+        return false
+
+    var file := FileAccess.open(PERSISTENT_SAVE_PATH, FileAccess.WRITE)
+    if file == null:
+        push_error("R0 persistent save open failed: %s" % FileAccess.get_open_error())
+        return false
+
+    file.store_buffer(SAVE_MAGIC)
+    file.store_32(payload.size())
+    file.store_buffer(payload)
+    file.store_64(core.state_hash())
+    file.flush()
+
+    print("R0 persistent save complete hash=%d path=%s" % [
+        core.state_hash(),
+        PERSISTENT_SAVE_PATH,
+    ])
+    return true
+
+
+func load_persistent_state() -> bool:
+    if core == null or not FileAccess.file_exists(PERSISTENT_SAVE_PATH):
+        return false
+
+    var file := FileAccess.open(PERSISTENT_SAVE_PATH, FileAccess.READ)
+    if file == null:
+        return false
+
+    var magic := file.get_buffer(SAVE_MAGIC.size())
+    if magic != SAVE_MAGIC:
+        push_warning("R0 persistent save rejected: bad magic")
+        return false
+
+    var payload_size := file.get_32()
+    var expected_size: int = core.save_state().size()
+    if payload_size != expected_size:
+        push_warning("R0 persistent save rejected: payload size mismatch")
+        return false
+
+    var payload := file.get_buffer(payload_size)
+    var expected_hash := file.get_64()
+
+    if payload.size() != payload_size or not core.load_state(payload):
+        push_warning("R0 persistent save rejected: payload load failed")
+        core.reset()
+        return false
+
+    var actual_hash: int = core.state_hash()
+    if actual_hash != expected_hash:
+        push_warning("R0 persistent save rejected: hash mismatch")
+        core.reset()
+        return false
+
+    print("R0 persistent load complete hash=%d path=%s" % [
+        actual_hash,
+        PERSISTENT_SAVE_PATH,
+    ])
+    return true
+
+
+func _notification(what: int) -> void:
+    if core == null:
+        return
+
+    match what:
+        NOTIFICATION_APPLICATION_PAUSED:
+            print("R0 lifecycle: APPLICATION_PAUSED")
+            persist_state_to_disk()
+        NOTIFICATION_APPLICATION_RESUMED:
+            print("R0 lifecycle: APPLICATION_RESUMED hash=%d" % core.state_hash())
+
+
+func _exit_tree() -> void:
+    if core != null:
+        persist_state_to_disk()
 
 
 func apply_action(action: StringName) -> void:
@@ -43,9 +130,12 @@ func _unhandled_input(event: InputEvent) -> void:
                 queue_redraw()
             KEY_F5:
                 saved_state = core.save_state()
+                persist_state_to_disk()
             KEY_F9:
                 if not saved_state.is_empty():
                     core.load_state(saved_state)
+                    queue_redraw()
+                elif load_persistent_state():
                     queue_redraw()
             KEY_UP, KEY_W:
                 apply_action(&"MOVE_UP")
