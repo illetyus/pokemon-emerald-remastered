@@ -111,7 +111,7 @@ ARemasterWorldActor::ComponentForBlock(uint16 RawBlock)
         VisualStyle->TileRules.FindByPredicate(
             [RawBlock](const FRemasterTileVisualRule& Candidate)
             {
-                return Candidate.RawBlockValue == static_cast<int32>(RawBlock);
+                return Candidate.MetatileId == static_cast<int32>(RawBlock);
             });
 
     if (!Rule)
@@ -119,7 +119,7 @@ ARemasterWorldActor::ComponentForBlock(uint16 RawBlock)
         return BlockInstances;
     }
 
-    const int32 Key = Rule->RawBlockValue;
+    const int32 Key = Rule->MetatileId;
 
     if (TObjectPtr<UHierarchicalInstancedStaticMeshComponent>* Existing =
             VisualComponents.Find(Key))
@@ -191,7 +191,7 @@ void ARemasterWorldActor::BuildPreviewInstances()
                         VisualStyle->TileRules.FindByPredicate(
                             [RawBlock](const FRemasterTileVisualRule& Candidate)
                             {
-                                return Candidate.RawBlockValue ==
+                                return Candidate.MetatileId ==
                                     static_cast<int32>(RawBlock);
                             }))
                 {
