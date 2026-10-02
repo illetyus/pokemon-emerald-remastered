@@ -1,5 +1,8 @@
 #include "RemasterPlatformUnreal.h"
 
+#include "Engine/GameInstance.h"
+#include "RemasterFeedbackSubsystem.h"
+
 #include "HAL/PlatformTime.h"
 #include "Misc/DateTime.h"
 #include "Misc/FileHelper.h"
@@ -14,9 +17,10 @@ FString FRemasterPlatformUnreal::SlotPath(const char* Slot)
         SafeSlot + TEXT(".bin"));
 }
 
-void FRemasterPlatformUnreal::Install()
+void FRemasterPlatformUnreal::Install(UGameInstance* GameInstance)
 {
     RemasterPlatformVTable Platform{};
+    Platform.userdata = GameInstance;
     Platform.monotonic_time_ns = &MonotonicTimeNs;
     Platform.read_wall_clock = &ReadWallClock;
     Platform.save_read = &SaveRead;
@@ -140,7 +144,7 @@ void FRemasterPlatformUnreal::Log(
 }
 
 void FRemasterPlatformUnreal::EmitPresentationEvent(
-    void*,
+    void* Userdata,
     uint32 EventId,
     int64 Arg0,
     int64 Arg1)
@@ -152,4 +156,21 @@ void FRemasterPlatformUnreal::EmitPresentationEvent(
         EventId,
         static_cast<long long>(Arg0),
         static_cast<long long>(Arg1));
+
+    UGameInstance* GameInstance =
+        static_cast<UGameInstance*>(Userdata);
+
+    if (!GameInstance)
+    {
+        return;
+    }
+
+    if (URemasterFeedbackSubsystem* Feedback =
+            GameInstance->GetSubsystem<URemasterFeedbackSubsystem>())
+    {
+        Feedback->Emit(
+            FName(*FString::Printf(TEXT("CoreEvent.%u"), EventId)),
+            Arg0,
+            Arg1);
+    }
 }
