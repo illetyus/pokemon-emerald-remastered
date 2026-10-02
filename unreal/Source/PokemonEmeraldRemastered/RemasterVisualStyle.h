@@ -14,7 +14,7 @@ struct FRemasterTileVisualRule
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    int32 RawBlockValue = 0;
+    int32 MetatileId = 0;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UStaticMesh> Mesh;
