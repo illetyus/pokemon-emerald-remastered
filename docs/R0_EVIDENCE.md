@@ -176,3 +176,32 @@ Fixes:
 - Android CI requires the `remaster_library_init` symbol before APK export.
 
 The corrected APKs still require a second physical-device pass before R0 can select a production architecture.
+
+
+### Godot second device observation
+
+Observed from the corrected fullscreen build:
+
+- the app entered landscape fullscreen;
+- the screen remained the default uniform Godot gray;
+- neither the success grid nor the scripted red error UI appeared.
+
+Interpretation:
+
+- Android window/export/fullscreen setup is working;
+- the failure occurs before the scripted diagnostic UI reaches its first visible state;
+- a runtime display-setting call or script-start path can therefore mask the actual bridge state.
+
+Diagnostic hardening:
+
+- remove runtime orientation/fullscreen calls from the startup critical path;
+- move BOOT diagnostics into static scene nodes rather than creating them from script;
+- attach runtime logic to a child node;
+- require the headless test to instantiate the full presentation scene;
+- keep touch mapping relative to the root Control viewport.
+
+Expected next-device states are now unambiguous:
+
+- static BOOT screen only: runtime script did not start;
+- runtime UI + red bridge status: script works, GDExtension failed;
+- green grid + blue player + C CORE LOADED: bridge and presentation path work.
