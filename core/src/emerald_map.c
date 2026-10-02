@@ -206,6 +206,97 @@ int remaster_emerald_map_elevation_mismatch(
     return target_elevation != current_elevation;
 }
 
+int remaster_emerald_behavior_blocks_north(uint8_t behavior)
+{
+    return behavior == UINT8_C(0x32)
+        || behavior == UINT8_C(0x34)
+        || behavior == UINT8_C(0x35)
+        || behavior == UINT8_C(0xC0);
+}
+
+int remaster_emerald_behavior_blocks_south(uint8_t behavior)
+{
+    return behavior == UINT8_C(0x33)
+        || behavior == UINT8_C(0x36)
+        || behavior == UINT8_C(0x37)
+        || behavior == UINT8_C(0xC0);
+}
+
+int remaster_emerald_behavior_blocks_east(uint8_t behavior)
+{
+    return behavior == UINT8_C(0x30)
+        || behavior == UINT8_C(0x34)
+        || behavior == UINT8_C(0x36)
+        || behavior == UINT8_C(0xC1)
+        || behavior == UINT8_C(0xBE);
+}
+
+int remaster_emerald_behavior_blocks_west(uint8_t behavior)
+{
+    return behavior == UINT8_C(0x31)
+        || behavior == UINT8_C(0x35)
+        || behavior == UINT8_C(0x37)
+        || behavior == UINT8_C(0xC1)
+        || behavior == UINT8_C(0xBE);
+}
+
+int remaster_emerald_directionally_blocked(
+    uint8_t current_behavior,
+    uint8_t target_behavior,
+    uint8_t direction)
+{
+    switch (direction) {
+    case REMASTER_EMERALD_DIR_SOUTH:
+        return remaster_emerald_behavior_blocks_south(current_behavior)
+            || remaster_emerald_behavior_blocks_north(target_behavior);
+
+    case REMASTER_EMERALD_DIR_NORTH:
+        return remaster_emerald_behavior_blocks_north(current_behavior)
+            || remaster_emerald_behavior_blocks_south(target_behavior);
+
+    case REMASTER_EMERALD_DIR_WEST:
+        return remaster_emerald_behavior_blocks_west(current_behavior)
+            || remaster_emerald_behavior_blocks_east(target_behavior);
+
+    case REMASTER_EMERALD_DIR_EAST:
+        return remaster_emerald_behavior_blocks_east(current_behavior)
+            || remaster_emerald_behavior_blocks_west(target_behavior);
+
+    default:
+        return 1;
+    }
+}
+
+uint8_t remaster_emerald_ledge_jump_direction(
+    uint8_t target_behavior,
+    uint8_t direction)
+{
+    switch (direction) {
+    case REMASTER_EMERALD_DIR_SOUTH:
+        return target_behavior == UINT8_C(0x3B)
+            ? REMASTER_EMERALD_DIR_SOUTH
+            : REMASTER_EMERALD_DIR_NONE;
+
+    case REMASTER_EMERALD_DIR_NORTH:
+        return target_behavior == UINT8_C(0x3A)
+            ? REMASTER_EMERALD_DIR_NORTH
+            : REMASTER_EMERALD_DIR_NONE;
+
+    case REMASTER_EMERALD_DIR_WEST:
+        return target_behavior == UINT8_C(0x39)
+            ? REMASTER_EMERALD_DIR_WEST
+            : REMASTER_EMERALD_DIR_NONE;
+
+    case REMASTER_EMERALD_DIR_EAST:
+        return target_behavior == UINT8_C(0x38)
+            ? REMASTER_EMERALD_DIR_EAST
+            : REMASTER_EMERALD_DIR_NONE;
+
+    default:
+        return REMASTER_EMERALD_DIR_NONE;
+    }
+}
+
 int remaster_emerald_map_base_can_enter(
     const RemasterEmeraldMapView *map,
     int32_t x,
@@ -223,4 +314,32 @@ int remaster_emerald_map_base_can_enter(
     return !remaster_emerald_map_elevation_mismatch(
         current_elevation,
         elevation);
+}
+
+
+int remaster_emerald_map_can_enter_direction(
+    const RemasterEmeraldMapView *map,
+    int32_t from_x,
+    int32_t from_y,
+    int32_t target_x,
+    int32_t target_y,
+    uint8_t direction,
+    uint8_t current_elevation)
+{
+    const uint8_t current_behavior =
+        remaster_emerald_map_behavior_at(map, from_x, from_y);
+    const uint8_t target_behavior =
+        remaster_emerald_map_behavior_at(map, target_x, target_y);
+
+    if (!remaster_emerald_map_base_can_enter(
+            map,
+            target_x,
+            target_y,
+            current_elevation))
+        return 0;
+
+    return !remaster_emerald_directionally_blocked(
+        current_behavior,
+        target_behavior,
+        direction);
 }
