@@ -32,11 +32,12 @@ Implemented:
 - Windows build CI.
 - Canonical C-state hash verification.
 
-Observed so far:
+Observed:
 
 - Native SDL3 prototype compiles successfully in GitHub Actions on Windows.
-- Earlier deterministic self-test builds have completed successfully.
-- Final post-hash CI remains part of the active R0 gate.
+- Deterministic executable self-test passes.
+- Canonical C-state hash verification passes.
+- Presentation event parity checks pass.
 
 ## Candidate B — portable C core + Godot presentation bridge
 
@@ -52,10 +53,13 @@ Implemented:
 - Canonical C-state hash verification.
 - Linux bridge CI.
 
-Observed so far:
+Observed:
 
 - CMake configuration with Godot 4.7 API targeting succeeds.
-- Full extension build/runtime equivalence is still an active R0 gate.
+- Trimmed godot-cpp bindings and the GDExtension shared library build successfully.
+- Godot 4.7.2 loads the generated extension in headless CI.
+- Runtime equivalence test passes through the Godot-to-C boundary.
+- Canonical C-state hash, save/load continuation and presentation event masks survive the bridge unchanged.
 
 ## Candidate C — pure Godot reimplementation
 
@@ -80,4 +84,8 @@ Candidate C establishes that a pure Godot implementation is technically straight
 
 Candidates A and B keep one authoritative gameplay core. Candidate B additionally exposes Godot's scene/UI/2D rendering workflow without transferring gameplay ownership to Godot.
 
-No production architecture is selected until the remaining bridge test and Android-device evidence are complete.
+Desktop R0 evidence now passes for all three candidates.
+
+Candidate A and Candidate B advance to Android finalist testing because both preserve one authoritative gameplay core. Candidate C remains the control/comparison implementation: it proves Godot-only development is viable, but duplicates gameplay truth and would require reimplementing the existing Vanilla+ codebase.
+
+No production architecture is selected until Android build/device evidence is complete.
