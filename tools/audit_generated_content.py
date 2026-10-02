@@ -21,6 +21,7 @@ def audit(root: Path) -> list[str]:
 
     known_ids = {entry.get("id") for entry in maps}
     known_files = set()
+    known_numeric_maps: set[tuple[int, int]] = set()
 
     for entry in maps:
         rel = entry.get("file")
@@ -31,6 +32,23 @@ def audit(root: Path) -> list[str]:
         if rel in known_files:
             errors.append(f"duplicate map file: {rel}")
         known_files.add(rel)
+
+        group_num = entry.get("group_num")
+        map_num = entry.get("map_num")
+
+        if not isinstance(group_num, int) or group_num < 0:
+            errors.append(f"{rel}: invalid manifest group_num {group_num!r}")
+        if not isinstance(map_num, int) or map_num < 0:
+            errors.append(f"{rel}: invalid manifest map_num {map_num!r}")
+
+        if isinstance(group_num, int) and isinstance(map_num, int):
+            numeric_key = (group_num, map_num)
+            if numeric_key in known_numeric_maps:
+                errors.append(
+                    f"{rel}: duplicate numeric map address "
+                    f"{group_num},{map_num}"
+                )
+            known_numeric_maps.add(numeric_key)
 
         path = root / rel
         if not path.is_file():
@@ -145,6 +163,11 @@ def audit(root: Path) -> list[str]:
 
         if map_doc.get("id") != entry.get("id"):
             errors.append(f"{rel}: manifest/map id mismatch")
+
+        if map_doc.get("group_num") != group_num:
+            errors.append(f"{rel}: manifest/map group_num mismatch")
+        if map_doc.get("map_num") != map_num:
+            errors.append(f"{rel}: manifest/map map_num mismatch")
 
         for connection in map_doc.get("connections", []):
             target = connection.get("map")
