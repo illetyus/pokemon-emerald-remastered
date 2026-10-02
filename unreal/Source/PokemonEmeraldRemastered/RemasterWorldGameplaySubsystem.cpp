@@ -1,0 +1,360 @@
+#include "RemasterWorldGameplaySubsystem.h"
+
+#include "RemasterVanillaPlusSaveSubsystem.h"
+#include "RemasterWorldCatalogSubsystem.h"
+
+extern "C"
+{
+#include "remaster/emerald_events.h"
+#include "remaster/emerald_save.h"
+#include "remaster/emerald_state.h"
+}
+
+namespace
+{
+bool FitsInt16(int32 Value)
+{
+    return Value >= MIN_int16 && Value <= MAX_int16;
+}
+
+bool FitsUInt8(int32 Value)
+{
+    return Value >= 0 && Value <= MAX_uint8;
+}
+
+bool FitsUInt16(int32 Value)
+{
+    return Value >= 0 && Value <= MAX_uint16;
+}
+}
+
+void URemasterWorldGameplaySubsystem::Initialize(
+    FSubsystemCollectionBase& Collection)
+{
+    Collection.InitializeDependency<URemasterVanillaPlusSaveSubsystem>();
+    Collection.InitializeDependency<URemasterWorldCatalogSubsystem>();
+
+    Super::Initialize(Collection);
+
+    LoadCurrentMapFromSave(true);
+}
+
+bool URemasterWorldGameplaySubsystem::LoadCurrentMapFromSave(
+    bool bResetTemporaryState)
+{
+    bMapReady = false;
+    CurrentMap = FRemasterMapIR{};
+
+    UGameInstance* GI = GetGameInstance();
+    if (!GI)
+        return false;
+
+    URemasterVanillaPlusSaveSubsystem* SaveSubsystem =
+        GI->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
+    URemasterWorldCatalogSubsystem* CatalogSubsystem =
+        GI->GetSubsystem<URemasterWorldCatalogSubsystem>();
+
+    if (!SaveSubsystem
+        || !CatalogSubsystem
+        || !SaveSubsystem->HasUsableSave())
+    {
+        return false;
+    }
+
+    FRemasterLegacyOverworldSnapshot Snapshot;
+    if (!SaveSubsystem->GetOverworldSnapshot(Snapshot))
+        return false;
+
+    if (bResetTemporaryState)
+    {
+        RemasterEmeraldSave* NativeSave =
+            static_cast<RemasterEmeraldSave*>(
+                SaveSubsystem->GetMutableNativeSaveHandle());
+
+        if (!NativeSave)
+            return false;
+
+        remaster_emerald_clear_temp_field_event_data(NativeSave);
+    }
+
+    FString Error;
+    FRemasterMapIR Loaded;
+    if (!CatalogSubsystem->LoadMap(
+            Snapshot.MapGroup,
+            Snapshot.MapNum,
+            Loaded,
+            Error))
+    {
+        UE_LOG(
+            LogTemp,
+            Error,
+            TEXT("Vanilla+ map load failed for %d,%d: %s"),
+            Snapshot.MapGroup,
+            Snapshot.MapNum,
+            *Error);
+        return false;
+    }
+
+    CurrentMap = MoveTemp(Loaded);
+    bMapReady = true;
+
+    UE_LOG(
+        LogTemp,
+        Display,
+        TEXT("Vanilla+ gameplay map ready: %s (%d,%d) objects=%d warps=%d coords=%d"),
+        *CurrentMap.Id,
+        CurrentMap.GroupNum,
+        CurrentMap.MapNum,
+        CurrentMap.ObjectEvents.Num(),
+        CurrentMap.WarpEvents.Num(),
+        CurrentMap.CoordEvents.Num());
+
+    return true;
+}
+
+bool URemasterWorldGameplaySubsystem::IsObjectVisible(
+    int32 LocalId,
+    bool& OutVisible) const
+{
+    OutVisible = false;
+
+    if (!bMapReady || LocalId <= 0 || !GetGameInstance())
+        return false;
+
+    const FRemasterObjectEventIR* Event =
+        CurrentMap.ObjectEvents.FindByPredicate(
+            [LocalId](const FRemasterObjectEventIR& Candidate)
+            {
+                return Candidate.LocalId == LocalId;
+            });
+
+    if (!Event || !FitsUInt16(Event->FlagId))
+        return false;
+
+    const URemasterVanillaPlusSaveSubsystem* SaveSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
+
+    if (!SaveSubsystem || !SaveSubsystem->HasUsableSave())
+        return false;
+
+    const RemasterEmeraldSave* Save =
+        static_cast<const RemasterEmeraldSave*>(
+            SaveSubsystem->GetNativeSaveHandle());
+
+    if (!Save)
+        return false;
+
+    RemasterEmeraldObjectEventDef Native{};
+    Native.local_id = static_cast<uint16>(Event->LocalId);
+    Native.x = static_cast<int16>(Event->X);
+    Native.y = static_cast<int16>(Event->Y);
+    Native.elevation = static_cast<uint8>(Event->Elevation);
+    Native.flag_id = static_cast<uint16>(Event->FlagId);
+
+    OutVisible =
+        remaster_emerald_object_event_visible(Save, &Native) != 0;
+
+    return true;
+}
+
+bool URemasterWorldGameplaySubsystem::ResolveWarpAt(
+    int32 X,
+    int32 Y,
+    int32 Elevation,
+    FRemasterResolvedWarp& OutWarp) const
+{
+    OutWarp = FRemasterResolvedWarp{};
+
+    if (!bMapReady
+        || !FitsInt16(X)
+        || !FitsInt16(Y)
+        || !FitsUInt8(Elevation))
+    {
+        return false;
+    }
+
+    TArray<RemasterEmeraldWarpEventDef> NativeEvents;
+    TArray<int32> SourceIndices;
+
+    NativeEvents.Reserve(CurrentMap.WarpEvents.Num());
+    SourceIndices.Reserve(CurrentMap.WarpEvents.Num());
+
+    for (int32 Index = 0; Index < CurrentMap.WarpEvents.Num(); ++Index)
+    {
+        const FRemasterWarpEventIR& Event = CurrentMap.WarpEvents[Index];
+
+        if (!FitsInt16(Event.X)
+            || !FitsInt16(Event.Y)
+            || !FitsUInt8(Event.Elevation)
+            || !FitsUInt8(Event.DestWarpIdNum)
+            || !FitsUInt8(Event.DestGroupNum)
+            || !FitsUInt8(Event.DestMapNum))
+        {
+            continue;
+        }
+
+        RemasterEmeraldWarpEventDef Native{};
+        Native.x = static_cast<int16>(Event.X);
+        Native.y = static_cast<int16>(Event.Y);
+        Native.elevation = static_cast<uint8>(Event.Elevation);
+        Native.dest_warp_id = static_cast<uint8>(Event.DestWarpIdNum);
+        Native.dest_map_group = static_cast<uint8>(Event.DestGroupNum);
+        Native.dest_map_num = static_cast<uint8>(Event.DestMapNum);
+
+        NativeEvents.Add(Native);
+        SourceIndices.Add(Index);
+    }
+
+    if (NativeEvents.IsEmpty())
+        return false;
+
+    size_t MatchIndex = 0;
+    if (!remaster_emerald_find_warp(
+            NativeEvents.GetData(),
+            static_cast<size_t>(NativeEvents.Num()),
+            static_cast<int16>(X),
+            static_cast<int16>(Y),
+            static_cast<uint8>(Elevation),
+            &MatchIndex))
+    {
+        return false;
+    }
+
+    if (MatchIndex >= static_cast<size_t>(SourceIndices.Num()))
+        return false;
+
+    const int32 SourceIndex = SourceIndices[static_cast<int32>(MatchIndex)];
+    if (!CurrentMap.WarpEvents.IsValidIndex(SourceIndex))
+        return false;
+
+    const FRemasterWarpEventIR& Source = CurrentMap.WarpEvents[SourceIndex];
+
+    OutWarp.SourceEventIndex = SourceIndex;
+    OutWarp.DestGroupNum = Source.DestGroupNum;
+    OutWarp.DestMapNum = Source.DestMapNum;
+    OutWarp.DestWarpId = Source.DestWarpIdNum;
+    OutWarp.DestMap = Source.DestMap;
+
+    return true;
+}
+
+bool URemasterWorldGameplaySubsystem::ResolveCoordEventAt(
+    int32 X,
+    int32 Y,
+    int32 Elevation,
+    FRemasterResolvedCoordEvent& OutEvent) const
+{
+    OutEvent = FRemasterResolvedCoordEvent{};
+
+    if (!bMapReady
+        || !FitsInt16(X)
+        || !FitsInt16(Y)
+        || !FitsUInt8(Elevation)
+        || !GetGameInstance())
+    {
+        return false;
+    }
+
+    const URemasterVanillaPlusSaveSubsystem* SaveSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
+
+    if (!SaveSubsystem || !SaveSubsystem->HasUsableSave())
+        return false;
+
+    const RemasterEmeraldSave* Save =
+        static_cast<const RemasterEmeraldSave*>(
+            SaveSubsystem->GetNativeSaveHandle());
+
+    if (!Save)
+        return false;
+
+    TArray<RemasterEmeraldCoordEventDef> NativeEvents;
+    TArray<int32> SourceIndices;
+
+    NativeEvents.Reserve(CurrentMap.CoordEvents.Num());
+    SourceIndices.Reserve(CurrentMap.CoordEvents.Num());
+
+    for (int32 Index = 0; Index < CurrentMap.CoordEvents.Num(); ++Index)
+    {
+        const FRemasterCoordEventIR& Event = CurrentMap.CoordEvents[Index];
+
+        if (!FitsInt16(Event.X)
+            || !FitsInt16(Event.Y)
+            || !FitsUInt8(Event.Elevation))
+        {
+            continue;
+        }
+
+        RemasterEmeraldCoordEventDef Native{};
+        Native.x = static_cast<int16>(Event.X);
+        Native.y = static_cast<int16>(Event.Y);
+        Native.elevation = static_cast<uint8>(Event.Elevation);
+
+        if (Event.Type.Equals(TEXT("weather"), ESearchCase::IgnoreCase))
+        {
+            if (!FitsUInt16(Event.WeatherId))
+                continue;
+
+            Native.kind = REMASTER_EMERALD_COORD_WEATHER;
+            Native.weather = static_cast<uint16>(Event.WeatherId);
+        }
+        else if (Event.Type.Equals(TEXT("trigger"), ESearchCase::IgnoreCase))
+        {
+            if (!FitsUInt16(Event.VarId)
+                || !FitsUInt16(Event.VarValueNum))
+            {
+                continue;
+            }
+
+            Native.kind = REMASTER_EMERALD_COORD_TRIGGER;
+            Native.trigger = static_cast<uint16>(Event.VarId);
+            Native.index = static_cast<uint16>(Event.VarValueNum);
+        }
+        else
+        {
+            continue;
+        }
+
+        NativeEvents.Add(Native);
+        SourceIndices.Add(Index);
+    }
+
+    if (NativeEvents.IsEmpty())
+        return false;
+
+    const RemasterEmeraldCoordMatch Match =
+        remaster_emerald_find_coord_event(
+            Save,
+            NativeEvents.GetData(),
+            static_cast<size_t>(NativeEvents.Num()),
+            static_cast<int16>(X),
+            static_cast<int16>(Y),
+            static_cast<uint8>(Elevation));
+
+    if (Match.kind == REMASTER_EMERALD_COORD_MATCH_NONE
+        || Match.event_index >= static_cast<size_t>(SourceIndices.Num()))
+    {
+        return false;
+    }
+
+    const int32 SourceIndex =
+        SourceIndices[static_cast<int32>(Match.event_index)];
+
+    if (!CurrentMap.CoordEvents.IsValidIndex(SourceIndex))
+        return false;
+
+    const FRemasterCoordEventIR& Source =
+        CurrentMap.CoordEvents[SourceIndex];
+
+    OutEvent.SourceEventIndex = SourceIndex;
+    OutEvent.Script = Source.Script;
+    OutEvent.Weather = Source.Weather;
+    OutEvent.WeatherId = Source.WeatherId;
+
+    if (Match.kind == REMASTER_EMERALD_COORD_MATCH_WEATHER)
+        OutEvent.Kind = ERemasterResolvedCoordKind::Weather;
+    else
+        OutEvent.Kind = ERemasterResolvedCoordKind::Script;
+
+    return true;
+}
