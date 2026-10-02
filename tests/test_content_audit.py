@@ -20,8 +20,8 @@ class ContentAuditTests(unittest.TestCase):
                 "schema_version": 1,
                 "map_count": 2,
                 "maps": [
-                    {"id": "MAP_A", "file": "maps/A.json"},
-                    {"id": "MAP_B", "file": "maps/B.json"},
+                    {"id": "MAP_A", "file": "maps/A.json", "group_num": 0, "map_num": 0},
+                    {"id": "MAP_B", "file": "maps/B.json", "group_num": 0, "map_num": 1},
                 ],
             }
             (root / "manifest.json").write_text(json.dumps(manifest))
@@ -34,6 +34,8 @@ class ContentAuditTests(unittest.TestCase):
                     "schema_version": 1,
                     "map": {
                         "id": map_id,
+                        "group_num": 0,
+                        "map_num": 0 if map_id == "MAP_A" else 1,
                         "connections": [{"map": target}],
                         "warp_events": [],
                     },
@@ -70,7 +72,7 @@ class ContentAuditTests(unittest.TestCase):
             manifest = {
                 "schema_version": 1,
                 "map_count": 1,
-                "maps": [{"id": "MAP_A", "file": "maps/A.json"}],
+                "maps": [{"id": "MAP_A", "file": "maps/A.json", "group_num": 0, "map_num": 0}],
             }
             (root / "manifest.json").write_text(json.dumps(manifest))
 
@@ -78,6 +80,8 @@ class ContentAuditTests(unittest.TestCase):
                 "schema_version": 1,
                 "map": {
                     "id": "MAP_A",
+                    "group_num": 0,
+                    "map_num": 0,
                     "connections": [{"map": "MAP_MISSING"}],
                     "warp_events": [],
                 },
