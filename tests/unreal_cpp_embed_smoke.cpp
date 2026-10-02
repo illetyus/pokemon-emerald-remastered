@@ -7,6 +7,7 @@ extern "C"
 #include "../core/src/mechanics.c"
 #include "../core/src/emerald_save.c"
 #include "../core/src/emerald_rtc.c"
+#include "../core/src/emerald_state.c"
 #include "../core/src/core.c"
 }
 
