@@ -19,6 +19,9 @@ class ConvertWorldTests(unittest.TestCase):
 
             (root / "data/layouts/TestTown").mkdir(parents=True)
             (root / "data/maps/TestTown").mkdir(parents=True)
+            (root / "src/data/tilesets").mkdir(parents=True)
+            (root / "data/tilesets/primary/test_primary").mkdir(parents=True)
+            (root / "data/tilesets/secondary/test_secondary").mkdir(parents=True)
 
             (root / "data/layouts/layouts.json").write_text(
                 json.dumps(
@@ -29,8 +32,8 @@ class ConvertWorldTests(unittest.TestCase):
                                 "name": "TestTown_Layout",
                                 "width": 2,
                                 "height": 2,
-                                "primary_tileset": "Primary",
-                                "secondary_tileset": "Secondary",
+                                "primary_tileset": "gTileset_TestPrimary",
+                                "secondary_tileset": "gTileset_TestSecondary",
                                 "border_filepath": "data/layouts/TestTown/border.bin",
                                 "blockdata_filepath": "data/layouts/TestTown/map.bin",
                             }
@@ -38,6 +41,36 @@ class ConvertWorldTests(unittest.TestCase):
                     }
                 ),
                 encoding="utf-8",
+            )
+
+            (root / "src/data/tilesets/headers.h").write_text(
+                """
+const struct Tileset gTileset_TestPrimary =
+{
+    .isSecondary = FALSE,
+    .metatileAttributes = gMetatileAttributes_PrimaryStorageName,
+};
+const struct Tileset gTileset_TestSecondary =
+{
+    .isSecondary = TRUE,
+    .metatileAttributes = gMetatileAttributes_SecondaryStorageName,
+};
+""",
+                encoding="utf-8",
+            )
+            (root / "src/data/tilesets/metatiles.h").write_text(
+                """
+const u16 gMetatileAttributes_PrimaryStorageName[] = INCBIN_U16("data/tilesets/primary/test_primary/metatile_attributes.bin");
+const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets/secondary/test_secondary/metatile_attributes.bin");
+""",
+                encoding="utf-8",
+            )
+
+            (root / "data/tilesets/primary/test_primary/metatile_attributes.bin").write_bytes(
+                struct.pack("<4H", 0x0001, 0x1002, 0xF003, 0x2004)
+            )
+            (root / "data/tilesets/secondary/test_secondary/metatile_attributes.bin").write_bytes(
+                struct.pack("<3H", 0x0005, 0x3006, 0xF007)
             )
 
             (root / "data/layouts/TestTown/map.bin").write_bytes(
@@ -91,6 +124,30 @@ class ConvertWorldTests(unittest.TestCase):
             self.assertEqual(converted["layout"]["metatile_ids_u16"], [1, 2, 0x234, 0x3FF])
             self.assertEqual(converted["layout"]["collision_u8"], [0, 0, 0, 3])
             self.assertEqual(converted["layout"]["elevation_u8"], [0, 0, 1, 15])
+            self.assertEqual(
+                converted["source"]["primary_metatile_attributes"],
+                "data/tilesets/primary/test_primary/metatile_attributes.bin",
+            )
+            self.assertEqual(
+                converted["source"]["secondary_metatile_attributes"],
+                "data/tilesets/secondary/test_secondary/metatile_attributes.bin",
+            )
+            self.assertEqual(
+                converted["layout"]["primary_metatile_attributes_u16"],
+                [0x0001, 0x1002, 0xF003, 0x2004],
+            )
+            self.assertEqual(
+                converted["layout"]["secondary_metatile_attributes_u16"],
+                [0x0005, 0x3006, 0xF007],
+            )
+            self.assertEqual(
+                converted["layout"]["primary_metatile_behavior_u8"],
+                [1, 2, 3, 4],
+            )
+            self.assertEqual(
+                converted["layout"]["primary_metatile_layer_u8"],
+                [0, 1, 15, 2],
+            )
             self.assertEqual(converted["map"]["object_events"][0]["flag"], "FLAG_TEST")
             self.assertEqual(converted["map"]["connections"][0]["direction"], "up")
 
