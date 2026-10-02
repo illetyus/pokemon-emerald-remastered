@@ -14,6 +14,7 @@ add_library(remaster_core STATIC
     core/src/emerald_state.c
     core/src/emerald_map.c
     core/src/emerald_movement.c
+    core/src/emerald_events.c
 )
 
 set_target_properties(remaster_core PROPERTIES
@@ -199,3 +200,18 @@ else()
 endif()
 
 add_test(NAME emerald_movement_collision COMMAND emerald_movement_test)
+
+
+add_executable(emerald_events_test
+    tests/emerald_events_test.c
+)
+
+target_link_libraries(emerald_events_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_events_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_events_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME emerald_map_events COMMAND emerald_events_test)
