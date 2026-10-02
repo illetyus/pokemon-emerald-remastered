@@ -29,3 +29,10 @@ add_executable(core_smoke_test
 target_link_libraries(core_smoke_test PRIVATE remaster_core)
 
 add_test(NAME core_smoke COMMAND core_smoke_test)
+
+
+option(REMASTER_BUILD_SDL3 "Build the SDL3 native R0 presentation prototype" OFF)
+
+if(REMASTER_BUILD_SDL3)
+    add_subdirectory(experiments/sdl3-native)
+endif()
