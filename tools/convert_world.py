@@ -77,6 +77,29 @@ def build_tileset_attribute_index(source_root: Path) -> dict[str, Path]:
     return result
 
 
+def build_map_location_index(source_root: Path) -> dict[str, tuple[int, int, str]]:
+    groups_path = source_root / "data/maps/map_groups.json"
+    groups = load_json(groups_path)
+
+    result: dict[str, tuple[int, int, str]] = {}
+    group_order = groups.get("group_order", [])
+
+    for group_num, group_name in enumerate(group_order):
+        if group_name not in groups:
+            raise ValueError(
+                f"{groups_path}: group_order references missing {group_name}"
+            )
+
+        for map_num, map_name in enumerate(groups[group_name]):
+            if map_name in result:
+                raise ValueError(
+                    f"{groups_path}: duplicate map name {map_name}"
+                )
+            result[map_name] = (group_num, map_num, group_name)
+
+    return result
+
+
 def normalize_event(event: dict[str, Any]) -> dict[str, Any]:
     # Keep source names/flags/scripts as symbolic identifiers. They are part of
     # the gameplay contract and should not be baked into renderer logic.
@@ -88,9 +111,18 @@ def convert_map(
     map_path: Path,
     layouts: dict[str, dict[str, Any]],
     tileset_attributes: dict[str, Path],
+    map_locations: dict[str, tuple[int, int, str]],
 ) -> dict[str, Any]:
     source = load_json(map_path)
     layout_id = source["layout"]
+    map_name = source["name"]
+
+    if map_name not in map_locations:
+        raise KeyError(
+            f"{map_path}: map {map_name} is missing from map_groups.json"
+        )
+
+    map_group, map_num, map_group_name = map_locations[map_name]
 
     if layout_id not in layouts:
         raise KeyError(f"{map_path}: unknown layout {layout_id}")
@@ -167,7 +199,10 @@ def convert_map(
         },
         "map": {
             "id": source["id"],
-            "name": source["name"],
+            "name": map_name,
+            "group_name": map_group_name,
+            "group_num": map_group,
+            "map_num": map_num,
             "layout": layout_id,
             "music": source.get("music"),
             "region_map_section": source.get("region_map_section"),
@@ -234,6 +269,7 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
     layouts_doc = load_json(source_root / "data/layouts/layouts.json")
     layouts = {entry["id"]: entry for entry in layouts_doc["layouts"]}
     tileset_attributes = build_tileset_attribute_index(source_root)
+    map_locations = build_map_location_index(source_root)
 
     map_files = sorted((source_root / "data/maps").glob("*/map.json"))
     output_maps = output_root / "maps"
@@ -247,6 +283,7 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
             map_path,
             layouts,
             tileset_attributes,
+            map_locations,
         )
         map_name = converted["map"]["name"]
         out_path = output_maps / f"{map_name}.json"
@@ -261,6 +298,8 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
                 "file": f"maps/{map_name}.json",
                 "width": converted["layout"]["width"],
                 "height": converted["layout"]["height"],
+                "group_num": converted["map"]["group_num"],
+                "map_num": converted["map"]["map_num"],
             }
         )
 
