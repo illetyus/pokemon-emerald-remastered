@@ -76,6 +76,7 @@ add_executable(unreal_cpp_embed_smoke
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMovementEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldEventsEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldTransitionEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldScriptEmbed.cpp
 )
 
 target_include_directories(unreal_cpp_embed_smoke
