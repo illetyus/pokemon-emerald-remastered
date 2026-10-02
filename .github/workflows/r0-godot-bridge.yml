@@ -9,14 +9,6 @@ on:
       - "experiments/godot-bridge/**"
       - "CMakeLists.txt"
       - ".github/workflows/r0-godot-bridge.yml"
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "core/**"
-      - "experiments/godot-bridge/**"
-      - "CMakeLists.txt"
-      - ".github/workflows/r0-godot-bridge.yml"
 
 jobs:
   linux-bridge-test:
