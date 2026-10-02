@@ -33,6 +33,10 @@ var touch_hint: Label
 
 
 func _ready() -> void:
+    if OS.has_feature("mobile"):
+        DisplayServer.screen_set_orientation(DisplayServer.SCREEN_LANDSCAPE)
+        DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+
     set_process(true)
     set_process_unhandled_input(true)
     _build_ui()
@@ -95,7 +99,7 @@ func _build_ui() -> void:
     for y in range(MAP_HEIGHT):
         for x in range(MAP_WIDTH):
             var cell := ColorRect.new()
-            cell.custom_minimum_size = Vector2(54, 54)
+            cell.custom_minimum_size = Vector2(44, 44)
             cell.mouse_filter = Control.MOUSE_FILTER_IGNORE
             board.add_child(cell)
             cells.append(cell)
