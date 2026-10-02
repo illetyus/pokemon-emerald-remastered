@@ -40,7 +40,10 @@ class ContentAuditTests(unittest.TestCase):
                     "layout": {
                         "width": 1,
                         "height": 1,
+                        "source_word_count": 1,
+                        "active_word_count": 1,
                         "raw_blocks_u16": [0],
+                        "trailing_words_u16": [],
                     },
                 }
                 (root / f"maps/{name}.json").write_text(json.dumps(doc))
