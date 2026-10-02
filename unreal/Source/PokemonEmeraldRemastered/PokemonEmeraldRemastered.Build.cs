@@ -17,7 +17,8 @@ public class PokemonEmeraldRemastered : ModuleRules
             "JsonUtilities",
             "UMG",
             "EnhancedInput",
-            "Niagara"
+            "Niagara",
+            "DeveloperSettings"
         });
 
         PrivateDependencyModuleNames.AddRange(new string[]
