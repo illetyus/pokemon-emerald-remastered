@@ -32,12 +32,18 @@ jobs:
         shell: bash
         run: |
           yes | "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
-          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"             "platform-tools"             "platforms;android-35"             "build-tools;35.0.1"             "ndk;28.2.13676358"
+          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.1" \
+            "ndk;28.2.13676358"
 
       - name: Download pinned SDL3 source
         shell: bash
         run: |
-          curl -L --fail --retry 3             -o SDL3.tar.gz             https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-3.4.16.tar.gz
+          curl -L --fail --retry 3 \
+            -o SDL3.tar.gz \
+            https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-3.4.16.tar.gz
           echo "7322236cd12090c3eb40b9728be4d49c76f66ad17d04369584d4ecad5cf77c68  SDL3.tar.gz" | sha256sum -c -
           tar -xzf SDL3.tar.gz
 
@@ -48,12 +54,17 @@ jobs:
         run: |
           SDL_ROOT="$(find . -maxdepth 1 -type d -name 'SDL3-*' | head -n 1)"
           test -n "$SDL_ROOT"
-          python "$SDL_ROOT/build-scripts/create-android-project.py"             --variant copy             --output "$GITHUB_WORKSPACE/build-android-sdl"             com.illetyus.emeraldremaster.r0sdl             "$GITHUB_WORKSPACE/experiments/sdl3-native/main.c"             "$GITHUB_WORKSPACE/core/src/core.c"
+          python "$SDL_ROOT/build-scripts/create-android-project.py" \
+            --variant copy \
+            --output "$GITHUB_WORKSPACE/build-android-sdl" \
+            com.illetyus.emeraldremaster.r0sdl \
+            "$GITHUB_WORKSPACE/experiments/sdl3-native/main.c" \
+            "$GITHUB_WORKSPACE/core/src/core.c"
 
           PROJECT="$GITHUB_WORKSPACE/build-android-sdl/com.illetyus.emeraldremaster.r0sdl"
           cp "$GITHUB_WORKSPACE/core/include/remaster/core.h" "$PROJECT/app/jni/src/core.h"
           sed -i 's#"remaster/core.h"#"core.h"#g' "$PROJECT/app/jni/src/main.c" "$PROJECT/app/jni/src/core.c"
-          
+
       - name: Build ARM64 debug APK
         shell: bash
         env:
@@ -64,7 +75,7 @@ jobs:
           chmod +x gradlew
           ./gradlew --no-daemon assembleDebug
 
-      - name: Verify APK native libraries
+      - name: Verify APK native libraries and entry point
         shell: bash
         run: |
           APK="$GITHUB_WORKSPACE/build-android-sdl/com.illetyus.emeraldremaster.r0sdl/app/build/outputs/apk/debug/app-debug.apk"
@@ -72,19 +83,10 @@ jobs:
           unzip -l "$APK" | grep 'lib/arm64-v8a/libmain.so'
           unzip -l "$APK" | grep 'lib/arm64-v8a/libSDL3.so'
 
-      - name: Verify SDL_main export
-        shell: bash
-        run: |
-          APK="$GITHUB_WORKSPACE/build-android-sdl/com.illetyus.emeraldremaster.r0sdl/app/build/outputs/apk/debug/app-debug.apk"
           rm -rf "$GITHUB_WORKSPACE/apk-check"
           mkdir -p "$GITHUB_WORKSPACE/apk-check"
           unzip -q "$APK" 'lib/arm64-v8a/libmain.so' -d "$GITHUB_WORKSPACE/apk-check"
-          readelf -Ws "$GITHUB_WORKSPACE/apk-check/lib/arm64-v8a/libmain.so" | grep -E '[[:space:]]SDL_main        uses: actions/upload-artifact@v4
-        with:
-          name: r0-sdl3-android-arm64
-          path: build-android-sdl/com.illetyus.emeraldremaster.r0sdl/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-
+          readelf -Ws "$GITHUB_WORKSPACE/apk-check/lib/arm64-v8a/libmain.so" | grep 'SDL_main$'
 
       - name: Publish SDL3 R0 APK
         uses: actions/upload-artifact@v4
