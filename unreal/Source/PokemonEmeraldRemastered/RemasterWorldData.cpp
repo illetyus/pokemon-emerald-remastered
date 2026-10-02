@@ -94,6 +94,8 @@ bool FRemasterWorldData::LoadMapJson(
 
     OutMap.Width = IntField(Layout, TEXT("width"));
     OutMap.Height = IntField(Layout, TEXT("height"));
+    OutMap.SourceWordCount = IntField(Layout, TEXT("source_word_count"));
+    OutMap.ActiveWordCount = IntField(Layout, TEXT("active_word_count"));
     OutMap.PrimaryTileset = StringField(Layout, TEXT("primary_tileset"));
     OutMap.SecondaryTileset = StringField(Layout, TEXT("secondary_tileset"));
 
@@ -109,6 +111,21 @@ bool FRemasterWorldData::LoadMapJson(
     for (const TSharedPtr<FJsonValue>& Value : *RawBlocks)
     {
         OutMap.RawBlocks.Add(
+            static_cast<uint16>(Value->AsNumber()));
+    }
+
+    const TArray<TSharedPtr<FJsonValue>>* TrailingWords = nullptr;
+    if (!Layout->TryGetArrayField(TEXT("trailing_words_u16"), TrailingWords) ||
+        TrailingWords == nullptr)
+    {
+        OutError = TEXT("Map IR is missing trailing_words_u16.");
+        return false;
+    }
+
+    OutMap.TrailingWords.Reserve(TrailingWords->Num());
+    for (const TSharedPtr<FJsonValue>& Value : *TrailingWords)
+    {
+        OutMap.TrailingWords.Add(
             static_cast<uint16>(Value->AsNumber()));
     }
 
