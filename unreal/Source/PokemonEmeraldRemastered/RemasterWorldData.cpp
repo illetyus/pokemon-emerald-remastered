@@ -25,6 +25,17 @@ int32 IntField(
     return static_cast<int32>(Value);
 }
 
+int32 IntFieldDefault(
+    const TSharedPtr<FJsonObject>& Object,
+    const TCHAR* Name,
+    int32 DefaultValue)
+{
+    double Value = 0.0;
+    return Object->TryGetNumberField(Name, Value)
+        ? static_cast<int32>(Value)
+        : DefaultValue;
+}
+
 bool BoolField(
     const TSharedPtr<FJsonObject>& Object,
     const TCHAR* Name)
@@ -256,6 +267,10 @@ bool FRemasterWorldData::LoadMapJson(
             Item.Map = StringField(Object, TEXT("map"));
             Item.Direction = StringField(Object, TEXT("direction"));
             Item.Offset = IntField(Object, TEXT("offset"));
+            Item.DestGroupNum =
+                IntFieldDefault(Object, TEXT("dest_group_num"), -1);
+            Item.DestMapNum =
+                IntFieldDefault(Object, TEXT("dest_map_num"), -1);
             OutMap.Connections.Add(MoveTemp(Item));
         }
     }
@@ -271,14 +286,26 @@ bool FRemasterWorldData::LoadMapJson(
                 continue;
 
             FRemasterObjectEventIR Item;
+            Item.LocalId = IntField(Object, TEXT("local_id"));
             Item.GraphicsId = StringField(Object, TEXT("graphics_id"));
             Item.X = IntField(Object, TEXT("x"));
             Item.Y = IntField(Object, TEXT("y"));
             Item.Elevation = IntField(Object, TEXT("elevation"));
             Item.MovementType = StringField(Object, TEXT("movement_type"));
+            Item.MovementRangeX =
+                IntFieldDefault(Object, TEXT("movement_range_x"), 0);
+            Item.MovementRangeY =
+                IntFieldDefault(Object, TEXT("movement_range_y"), 0);
             Item.TrainerType = StringField(Object, TEXT("trainer_type"));
+            Item.TrainerSightOrBerryTreeId =
+                StringField(Object, TEXT("trainer_sight_or_berry_tree_id"));
+            Item.TrainerSightOrBerryTreeIdNum = IntFieldDefault(
+                Object,
+                TEXT("trainer_sight_or_berry_tree_id_u16"),
+                -1);
             Item.Script = StringField(Object, TEXT("script"));
             Item.Flag = StringField(Object, TEXT("flag"));
+            Item.FlagId = IntFieldDefault(Object, TEXT("flag_id"), 0);
             OutMap.ObjectEvents.Add(MoveTemp(Item));
         }
     }
@@ -299,6 +326,12 @@ bool FRemasterWorldData::LoadMapJson(
             Item.Elevation = IntField(Object, TEXT("elevation"));
             Item.DestMap = StringField(Object, TEXT("dest_map"));
             Item.DestWarpId = StringField(Object, TEXT("dest_warp_id"));
+            Item.DestWarpIdNum =
+                IntFieldDefault(Object, TEXT("dest_warp_id_u16"), -1);
+            Item.DestGroupNum =
+                IntFieldDefault(Object, TEXT("dest_group_num"), -1);
+            Item.DestMapNum =
+                IntFieldDefault(Object, TEXT("dest_map_num"), -1);
             OutMap.WarpEvents.Add(MoveTemp(Item));
         }
     }
@@ -319,7 +352,11 @@ bool FRemasterWorldData::LoadMapJson(
             Item.Y = IntField(Object, TEXT("y"));
             Item.Elevation = IntField(Object, TEXT("elevation"));
             Item.Var = StringField(Object, TEXT("var"));
+            Item.VarId = IntFieldDefault(Object, TEXT("var_id"), -1);
             Item.VarValue = StringField(Object, TEXT("var_value"));
+            Item.VarValueNum =
+                IntFieldDefault(Object, TEXT("var_value_u16"), -1);
+            Item.Weather = StringField(Object, TEXT("weather"));
             Item.Script = StringField(Object, TEXT("script"));
             OutMap.CoordEvents.Add(MoveTemp(Item));
         }
