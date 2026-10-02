@@ -10,6 +10,7 @@ add_library(remaster_core STATIC
     core/src/platform.c
     core/src/mechanics.c
     core/src/emerald_save.c
+    core/src/emerald_rtc.c
 )
 
 set_target_properties(remaster_core PROPERTIES
@@ -120,3 +121,18 @@ else()
 endif()
 
 add_test(NAME emerald_save_compatibility COMMAND emerald_save_test)
+
+
+add_executable(emerald_rtc_test
+    tests/emerald_rtc_test.c
+)
+
+target_link_libraries(emerald_rtc_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_rtc_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_rtc_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME emerald_rtc_compatibility COMMAND emerald_rtc_test)
