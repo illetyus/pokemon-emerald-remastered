@@ -199,6 +199,11 @@ static int run_self_test(void)
 
     hash_before = remaster_core_state_hash(&state);
 
+    if (hash_before != UINT64_C(7218695048241891488)) {
+        fprintf(stderr, "SDL3 R0 self-test: canonical state hash mismatch\n");
+        return 1;
+    }
+
     if (!remaster_core_save(&state, save_data, sizeof(save_data))) {
         fprintf(stderr, "SDL3 R0 self-test: save failed\n");
         return 1;
