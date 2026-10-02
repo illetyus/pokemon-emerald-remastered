@@ -73,3 +73,18 @@ else()
 endif()
 
 add_test(NAME unreal_cpp_embed COMMAND unreal_cpp_embed_smoke)
+
+
+add_executable(core_replay_test
+    tests/core_replay.c
+)
+
+target_link_libraries(core_replay_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(core_replay_test PRIVATE /W4)
+else()
+    target_compile_options(core_replay_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME core_replay COMMAND core_replay_test)
