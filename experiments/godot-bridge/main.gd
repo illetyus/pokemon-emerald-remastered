@@ -1,9 +1,7 @@
-extends Node2D
+extends Control
 
 const MAP_WIDTH := 8
 const MAP_HEIGHT := 8
-const TILE_SIZE := 64.0
-const MAP_ORIGIN := Vector2(64.0, 64.0)
 const PERSISTENT_SAVE_PATH := "user://r0_state.bin"
 const SAVE_MAGIC := PackedByteArray([82, 48, 83, 49]) # R0S1
 
@@ -25,15 +23,140 @@ var perf_total_frame_ms := 0.0
 var perf_worst_frame_ms := 0.0
 var perf_frame_count := 0
 
+var background: ColorRect
+var title_label: Label
+var status_label: Label
+var diagnostic_label: Label
+var board: GridContainer
+var cells: Array[ColorRect] = []
+var touch_hint: Label
+
 
 func _ready() -> void:
+    set_process(true)
+    set_process_unhandled_input(true)
+    _build_ui()
+
     core = ClassDB.instantiate("RemasterCoreBridge")
+
     if core == null:
-        push_error("RemasterCoreBridge GDExtension is not loaded")
+        _show_bridge_error()
         return
 
+    diagnostic_label.text = "C CORE: LOADED"
+    diagnostic_label.modulate = Color(0.45, 1.0, 0.55)
     load_persistent_state()
-    queue_redraw()
+    _refresh_ui()
+
+
+func _build_ui() -> void:
+    background = ColorRect.new()
+    background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    background.color = Color(0.035, 0.045, 0.065)
+    background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    add_child(background)
+
+    var margin := MarginContainer.new()
+    margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    margin.add_theme_constant_override("margin_left", 32)
+    margin.add_theme_constant_override("margin_right", 32)
+    margin.add_theme_constant_override("margin_top", 26)
+    margin.add_theme_constant_override("margin_bottom", 24)
+    margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    add_child(margin)
+
+    var root_box := VBoxContainer.new()
+    root_box.add_theme_constant_override("separation", 12)
+    margin.add_child(root_box)
+
+    title_label = Label.new()
+    title_label.text = "POKEMON EMERALD REMASTERED — R0"
+    title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    title_label.add_theme_font_size_override("font_size", 26)
+    root_box.add_child(title_label)
+
+    diagnostic_label = Label.new()
+    diagnostic_label.text = "C CORE: CHECKING..."
+    diagnostic_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    diagnostic_label.add_theme_font_size_override("font_size", 20)
+    root_box.add_child(diagnostic_label)
+
+    var board_center := CenterContainer.new()
+    board_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    root_box.add_child(board_center)
+
+    board = GridContainer.new()
+    board.columns = MAP_WIDTH
+    board.add_theme_constant_override("h_separation", 2)
+    board.add_theme_constant_override("v_separation", 2)
+    board_center.add_child(board)
+
+    cells.clear()
+    for y in range(MAP_HEIGHT):
+        for x in range(MAP_WIDTH):
+            var cell := ColorRect.new()
+            cell.custom_minimum_size = Vector2(54, 54)
+            cell.mouse_filter = Control.MOUSE_FILTER_IGNORE
+            board.add_child(cell)
+            cells.append(cell)
+
+    status_label = Label.new()
+    status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    status_label.add_theme_font_size_override("font_size", 18)
+    root_box.add_child(status_label)
+
+    touch_hint = Label.new()
+    touch_hint.text = "TOUCH: left side = movement   •   right side = interact"
+    touch_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    touch_hint.add_theme_font_size_override("font_size", 16)
+    touch_hint.modulate = Color(0.75, 0.8, 0.9)
+    root_box.add_child(touch_hint)
+
+
+func _show_bridge_error() -> void:
+    background.color = Color(0.20, 0.025, 0.035)
+    diagnostic_label.text = "ERROR: ANDROID GDEXTENSION DID NOT LOAD"
+    diagnostic_label.modulate = Color(1.0, 0.35, 0.35)
+    status_label.text = "RemasterCoreBridge is unavailable. This build is invalid."
+    touch_hint.text = "Report this red screen; do not accept the R0 build."
+    _paint_static_board()
+
+
+func _paint_static_board() -> void:
+    for y in range(MAP_HEIGHT):
+        for x in range(MAP_WIDTH):
+            var index := y * MAP_WIDTH + x
+            cells[index].color = Color(0.20, 0.22, 0.27) if COLLISION[y][x] == 1 else Color(0.18, 0.38, 0.20)
+
+
+func _refresh_ui() -> void:
+    if core == null:
+        return
+
+    var state: Dictionary = core.snapshot()
+
+    for y in range(MAP_HEIGHT):
+        for x in range(MAP_WIDTH):
+            var index := y * MAP_WIDTH + x
+            var color := Color(0.22, 0.25, 0.29) if COLLISION[y][x] == 1 else Color(0.22, 0.58, 0.27)
+
+            if x == 3 and y == 1:
+                color = Color(0.95, 0.65, 0.12) if (int(state.event_flags) & 1) != 0 else Color(0.58, 0.32, 0.10)
+
+            if x == int(state.tile_x) and y == int(state.tile_y):
+                color = Color(0.92, 0.25, 0.25) if bool(state.encounter_pending) else Color(0.16, 0.48, 0.95)
+
+            cells[index].color = color
+
+    status_label.text = "tile=(%d,%d)  steps=%d  interactions=%d  flags=0x%X  encounter=%s\nhash=%d" % [
+        int(state.tile_x),
+        int(state.tile_y),
+        int(state.step_count),
+        int(state.interaction_count),
+        int(state.event_flags),
+        str(bool(state.encounter_pending)),
+        core.state_hash(),
+    ]
 
 
 func persist_state_to_disk() -> bool:
@@ -145,27 +268,32 @@ func _process(delta: float) -> void:
 
 
 func apply_action(action: StringName) -> void:
+    if core == null:
+        return
     core.step(action)
-    queue_redraw()
+    _refresh_ui()
 
 
 func _unhandled_input(event: InputEvent) -> void:
+    if core == null:
+        return
+
     if event is InputEventKey and event.pressed and not event.echo:
         match event.keycode:
             KEY_ESCAPE:
                 get_tree().quit()
             KEY_R:
                 core.reset()
-                queue_redraw()
+                _refresh_ui()
             KEY_F5:
                 saved_state = core.save_state()
                 persist_state_to_disk()
             KEY_F9:
                 if not saved_state.is_empty():
                     core.load_state(saved_state)
-                    queue_redraw()
+                    _refresh_ui()
                 elif load_persistent_state():
-                    queue_redraw()
+                    _refresh_ui()
             KEY_UP, KEY_W:
                 apply_action(&"MOVE_UP")
             KEY_DOWN, KEY_S:
@@ -203,51 +331,3 @@ func _unhandled_input(event: InputEvent) -> void:
                 apply_action(&"MOVE_LEFT")
         elif normalized.x < 0.70:
             apply_action(&"MOVE_RIGHT")
-
-
-func _draw() -> void:
-    if core == null:
-        return
-
-    var state: Dictionary = core.snapshot()
-
-    draw_rect(Rect2(Vector2.ZERO, get_viewport_rect().size), Color(0.086, 0.102, 0.125), true)
-
-    for y in range(MAP_HEIGHT):
-        for x in range(MAP_WIDTH):
-            var rect := Rect2(
-                MAP_ORIGIN + Vector2(x, y) * TILE_SIZE,
-                Vector2(TILE_SIZE - 2.0, TILE_SIZE - 2.0)
-            )
-            var color := Color(0.227, 0.263, 0.298) if COLLISION[y][x] == 1 else Color(0.365, 0.604, 0.357)
-            draw_rect(rect, color, true)
-
-    var event_rect := Rect2(
-        MAP_ORIGIN + Vector2(3, 1) * TILE_SIZE,
-        Vector2(TILE_SIZE - 2.0, TILE_SIZE - 2.0)
-    )
-    draw_rect(
-        event_rect,
-        Color(0.929, 0.725, 0.294) if (int(state.event_flags) & 1) != 0 else Color(0.710, 0.455, 0.208),
-        true
-    )
-
-    var inset := 12.0
-    var player_rect := Rect2(
-        MAP_ORIGIN + Vector2(int(state.tile_x), int(state.tile_y)) * TILE_SIZE + Vector2(inset, inset),
-        Vector2(TILE_SIZE - inset * 2.0 - 2.0, TILE_SIZE - inset * 2.0 - 2.0)
-    )
-    draw_rect(
-        player_rect,
-        Color(0.824, 0.290, 0.290) if bool(state.encounter_pending) else Color(0.290, 0.545, 0.824),
-        true
-    )
-
-    var status := "C core | tile=(%d,%d) steps=%d flags=0x%X hash=%d" % [
-        int(state.tile_x),
-        int(state.tile_y),
-        int(state.step_count),
-        int(state.event_flags),
-        core.state_hash(),
-    ]
-    draw_string(ThemeDB.fallback_font, Vector2(64, 610), status, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color.WHITE)
