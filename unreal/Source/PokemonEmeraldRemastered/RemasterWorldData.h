@@ -39,6 +39,7 @@ struct FRemasterWarpEventIR
     int32 DestWarpIdNum = -1;
     int32 DestGroupNum = -1;
     int32 DestMapNum = -1;
+    bool bDynamicTarget = false;
 };
 
 struct FRemasterCoordEventIR
