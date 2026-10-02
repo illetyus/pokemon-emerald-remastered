@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  arm64-extension:
+  arm64-apk:
     timeout-minutes: 30
     runs-on: ubuntu-latest
 
@@ -29,113 +29,75 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Install pinned Android NDK
+      - name: Install pinned Android SDK components
         shell: bash
         run: |
           yes | "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
-          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"             "platforms;android-35"             "build-tools;35.0.1"             "ndk;28.1.13356709"
+          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" \
+            "platforms;android-35" \
+            "build-tools;35.0.1" \
+            "ndk;28.1.13356709"
 
       - name: Configure Linux host bridge for export scan
-        run: cmake -S . -B build-host-godot -DREMASTER_BUILD_GODOT_BRIDGE=ON -DCMAKE_BUILD_TYPE=Release
+        run: |
+          cmake -S . -B build-host-godot \
+            -DREMASTER_BUILD_GODOT_BRIDGE=ON \
+            -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build Linux host GDExtension for export scan
+      - name: Build Linux host GDExtension
         run: cmake --build build-host-godot --target remaster_core_bridge -j 2
 
       - name: Configure Android ARM64 bridge
         shell: bash
         run: |
           NDK="${ANDROID_HOME}/ndk/28.1.13356709"
-          cmake -S . -B build-android-godot             -DREMASTER_BUILD_GODOT_BRIDGE=ON             -DCMAKE_BUILD_TYPE=Debug             -DCMAKE_TOOLCHAIN_FILE="$NDK/build/cmake/android.toolchain.cmake"             -DANDROID_ABI=arm64-v8a             -DANDROID_PLATFORM=android-24             -DANDROID_STL=c++_static
+          cmake -S . -B build-android-godot \
+            -DREMASTER_BUILD_GODOT_BRIDGE=ON \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_TOOLCHAIN_FILE="$NDK/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=android-24 \
+            -DANDROID_STL=c++_static
 
       - name: Build Android ARM64 GDExtension
         run: cmake --build build-android-godot --target remaster_core_bridge -j 2
 
-      - name: Verify ARM64 shared library
+      - name: Verify ARM64 GDExtension
         shell: bash
         run: |
           LIB="experiments/godot-bridge/bin/android/arm64-v8a/libremaster_core_bridge.so"
           test -f "$LIB"
           file "$LIB"
           readelf -h "$LIB" | grep -E 'AArch64|ARM64'
-
-      - name: Verify GDExtension entry symbol
-        shell: bash
-        run: |
-          LIB="experiments/godot-bridge/bin/android/arm64-v8a/libremaster_core_bridge.so"
-          readelf -Ws "$LIB" | grep -E '[[:space:]]remaster_library_init        shell: bash
-        run: |
-          curl -L --fail --retry 3             -o godot.zip             https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
-          echo "cadd3204e728a35d3f13adb7fd0d7902636b79f6b95c40c265eb73b6c35329e4  godot.zip" | sha256sum -c -
-          unzip -q godot.zip
-          chmod +x Godot_v4.7.2-stable_linux.x86_64
-
-          curl -L --fail --retry 3             -o android_debug_template.apk             https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_android_debug.perfetto.apk
-          echo "7e480a90a763bbef7af2d9cc2873b094cc278d1ed26c13c0d2e72a36e4c815d0  android_debug_template.apk" | sha256sum -c -
-
-      - name: Create CI debug keystore
-        shell: bash
-        run: |
-          keytool -genkeypair -v             -keystore "$GITHUB_WORKSPACE/r0-debug.keystore"             -storepass android             -alias androiddebugkey             -keypass android             -dname "CN=Android Debug,O=Pokemon Emerald Remastered,C=TR"             -keyalg RSA             -keysize 2048             -validity 10000
-
-      - name: Configure custom Android template
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path("experiments/godot-bridge/export_presets.cfg")
-          s = p.read_text()
-          s = s.replace('custom_template/debug=""', f'custom_template/debug="{Path("android_debug_template.apk").resolve()}"')
-          p.write_text(s)
-          PY
-
-      - name: Export Godot+C Android debug APK
-        shell: bash
-        env:
-          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/r0-debug.keystore
-          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
-          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
-        run: |
-          mkdir -p artifacts
-          ./Godot_v4.7.2-stable_linux.x86_64             --headless             --path experiments/godot-bridge             --export-debug "Android ARM64 Debug"             "$GITHUB_WORKSPACE/artifacts/r0-godot-bridge-debug.apk"
-
-      - name: Verify Godot APK contents
-        shell: bash
-        run: |
-          APK="$GITHUB_WORKSPACE/artifacts/r0-godot-bridge-debug.apk"
-          test -f "$APK"
-          unzip -l "$APK" | grep 'lib/arm64-v8a/'
-          unzip -l "$APK" | grep 'libremaster_core_bridge.so'
-
-      - name: Publish Godot bridge Android APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: r0-godot-bridge-android-apk
-          path: artifacts/r0-godot-bridge-debug.apk
-          if-no-files-found: error
-
-      - name: Publish Godot bridge ARM64 library
-        uses: actions/upload-artifact@v4
-        with:
-          name: r0-godot-bridge-android-arm64
-          path: experiments/godot-bridge/bin/android/arm64-v8a/libremaster_core_bridge.so
-          if-no-files-found: error
-
+          readelf -Ws "$LIB" | grep 'remaster_library_init$'
 
       - name: Download Godot 4.7.2 editor and Android debug template
         shell: bash
         run: |
-          curl -L --fail --retry 3             -o godot.zip             https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          curl -L --fail --retry 3 \
+            -o godot.zip \
+            https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
           echo "cadd3204e728a35d3f13adb7fd0d7902636b79f6b95c40c265eb73b6c35329e4  godot.zip" | sha256sum -c -
           unzip -q godot.zip
           chmod +x Godot_v4.7.2-stable_linux.x86_64
 
-          curl -L --fail --retry 3             -o android_debug_template.apk             https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_android_debug.perfetto.apk
+          curl -L --fail --retry 3 \
+            -o android_debug_template.apk \
+            https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_android_debug.perfetto.apk
           echo "7e480a90a763bbef7af2d9cc2873b094cc278d1ed26c13c0d2e72a36e4c815d0  android_debug_template.apk" | sha256sum -c -
 
       - name: Create CI debug keystore
         shell: bash
         run: |
-          keytool -genkeypair -v             -keystore "$GITHUB_WORKSPACE/r0-debug.keystore"             -storepass android             -alias androiddebugkey             -keypass android             -dname "CN=Android Debug,O=Pokemon Emerald Remastered,C=TR"             -keyalg RSA             -keysize 2048             -validity 10000
+          keytool -genkeypair -v \
+            -keystore "$GITHUB_WORKSPACE/r0-debug.keystore" \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -dname "CN=Android Debug,O=Pokemon Emerald Remastered,C=TR" \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000
 
       - name: Configure custom Android template
         shell: bash
@@ -144,7 +106,10 @@ jobs:
           from pathlib import Path
           p = Path("experiments/godot-bridge/export_presets.cfg")
           s = p.read_text()
-          s = s.replace('custom_template/debug=""', f'custom_template/debug="{Path("android_debug_template.apk").resolve()}"')
+          s = s.replace(
+              'custom_template/debug=""',
+              f'custom_template/debug="{Path("android_debug_template.apk").resolve()}"'
+          )
           p.write_text(s)
           PY
 
@@ -156,7 +121,11 @@ jobs:
           GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
         run: |
           mkdir -p artifacts
-          ./Godot_v4.7.2-stable_linux.x86_64             --headless             --path experiments/godot-bridge             --export-debug "Android ARM64 Debug"             "$GITHUB_WORKSPACE/artifacts/r0-godot-bridge-debug.apk"
+          ./Godot_v4.7.2-stable_linux.x86_64 \
+            --headless \
+            --path experiments/godot-bridge \
+            --export-debug "Android ARM64 Debug" \
+            "$GITHUB_WORKSPACE/artifacts/r0-godot-bridge-debug.apk"
 
       - name: Verify Godot APK contents
         shell: bash
