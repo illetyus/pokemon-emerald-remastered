@@ -75,6 +75,9 @@ struct FRemasterMapIR
     FString PrimaryTileset;
     FString SecondaryTileset;
     TArray<uint16> RawBlocks;
+    TArray<uint16> MetatileIds;
+    TArray<uint8> Collision;
+    TArray<uint8> Elevation;
 
     TArray<FRemasterConnectionIR> Connections;
     TArray<FRemasterObjectEventIR> ObjectEvents;
@@ -88,6 +91,9 @@ struct FRemasterMapIR
             && Width > 0
             && Height > 0
             && RawBlocks.Num() == Width * Height
+            && MetatileIds.Num() == RawBlocks.Num()
+            && Collision.Num() == RawBlocks.Num()
+            && Elevation.Num() == RawBlocks.Num()
             && !Id.IsEmpty();
     }
 };
