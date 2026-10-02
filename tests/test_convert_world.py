@@ -78,6 +78,9 @@ class ConvertWorldTests(unittest.TestCase):
             self.assertEqual(manifest["map_count"], 1)
             converted = json.loads((out / "maps/TestTown.json").read_text())
             self.assertEqual(converted["layout"]["raw_blocks_u16"], [1, 2, 0x1234, 0xFFFF])
+            self.assertEqual(converted["layout"]["metatile_ids_u16"], [1, 2, 0x234, 0x3FF])
+            self.assertEqual(converted["layout"]["collision_u8"], [0, 0, 0, 3])
+            self.assertEqual(converted["layout"]["elevation_u8"], [0, 0, 1, 15])
             self.assertEqual(converted["map"]["object_events"][0]["flag"], "FLAG_TEST")
             self.assertEqual(converted["map"]["connections"][0]["direction"], "up")
 
