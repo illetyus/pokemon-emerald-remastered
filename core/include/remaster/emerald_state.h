@@ -17,6 +17,14 @@ enum {
     REMASTER_EMERALD_VAR_COUNT = 256
 };
 
+typedef struct RemasterEmeraldWarpState {
+    int8_t map_group;
+    int8_t map_num;
+    int8_t warp_id;
+    int16_t x;
+    int16_t y;
+} RemasterEmeraldWarpState;
+
 typedef struct RemasterEmeraldOverworldState {
     int16_t player_x;
     int16_t player_y;
@@ -44,6 +52,14 @@ int remaster_emerald_overworld_get(
 int remaster_emerald_overworld_set(
     RemasterEmeraldSave *save,
     const RemasterEmeraldOverworldState *state);
+
+int remaster_emerald_dynamic_warp_get(
+    const RemasterEmeraldSave *save,
+    RemasterEmeraldWarpState *out_warp);
+
+int remaster_emerald_dynamic_warp_set(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldWarpState *warp);
 
 int remaster_emerald_flag_get(
     const RemasterEmeraldSave *save,
