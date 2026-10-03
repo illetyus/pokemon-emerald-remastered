@@ -88,7 +88,9 @@ struct FRemasterMapIR
     FString Music;
     FString RegionMapSection;
     FString Weather;
+    int32 WeatherId = -1;
     FString MapType;
+    int32 MapTypeId = -1;
     FString BattleScene;
 
     bool bRequiresFlash = false;
@@ -151,6 +153,9 @@ struct FRemasterMapIR
                 == SecondaryMetatileAttributes.Num()
             && GroupNum >= 0
             && MapNum >= 0
+            && LayoutNum > 0
+            && WeatherId >= 0
+            && MapTypeId >= 0
             && !Id.IsEmpty();
     }
 };
