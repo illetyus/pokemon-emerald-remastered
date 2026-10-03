@@ -925,6 +925,79 @@ int main(void)
         }
     }
 
+    {
+        RemasterEmeraldScriptRuntime door_runtime;
+        RemasterEmeraldScriptRequest door_request;
+        RemasterEmeraldScriptCompletion door_completion;
+        const RemasterEmeraldScriptInstruction door_script[] = {
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_SET_VAR,
+                .a = 0x8004,
+                .b = 5,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_SET_VAR,
+                .a = 0x8005,
+                .b = 8,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_OPEN_DOOR,
+                .a = 0x8004,
+                .b = 0x8005,
+            },
+            { .opcode = REMASTER_EMERALD_SCRIPT_END },
+        };
+        const RemasterEmeraldScriptProgram door_programs[] = {
+            {
+                .script_id = "Door_Var_Operands",
+                .instructions = door_script,
+                .instruction_count =
+                    sizeof(door_script) / sizeof(door_script[0]),
+            },
+        };
+        const RemasterEmeraldScriptRegistry door_registry = {
+            door_programs,
+            1,
+        };
+
+        memset(&save, 0, sizeof(save));
+        remaster_emerald_script_runtime_start(
+            &door_runtime,
+            &save,
+            &door_registry,
+            0,
+            0);
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&door_runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_YIELDED
+                && remaster_emerald_script_runtime_pending_request(
+                    &door_runtime,
+                    &door_request)
+                && door_request.type
+                    == REMASTER_EMERALD_SCRIPT_REQUEST_DOOR
+                && door_request.action
+                    == REMASTER_EMERALD_SCRIPT_DOOR_OPEN
+                && door_request.x == 5
+                && door_request.y == 8,
+                "door request did not resolve VAR_0x8004/VAR_0x8005"))
+            return 1;
+
+        memset(&door_completion, 0, sizeof(door_completion));
+        door_completion.type = door_request.type;
+        door_completion.sequence = door_request.sequence;
+        door_completion.accepted = 1;
+        if (!check(
+                remaster_emerald_script_runtime_complete(
+                    &door_runtime,
+                    &door_completion)
+                && remaster_emerald_script_runtime_run(
+                    &door_runtime,
+                    100) == REMASTER_EMERALD_SCRIPT_HALTED,
+                "door var-operand script did not resume and halt"))
+            return 1;
+    }
+
     puts("Emerald script runtime yield/resume test passed.");
     return 0;
 }
