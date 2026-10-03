@@ -98,7 +98,9 @@ bool FRemasterWorldData::LoadMapJson(
     OutMap.Music = StringField(Map, TEXT("music"));
     OutMap.RegionMapSection = StringField(Map, TEXT("region_map_section"));
     OutMap.Weather = StringField(Map, TEXT("weather"));
+    OutMap.WeatherId = IntFieldDefault(Map, TEXT("weather_id"), -1);
     OutMap.MapType = StringField(Map, TEXT("map_type"));
+    OutMap.MapTypeId = IntFieldDefault(Map, TEXT("map_type_id"), -1);
     OutMap.BattleScene = StringField(Map, TEXT("battle_scene"));
 
     OutMap.bRequiresFlash = BoolField(Map, TEXT("requires_flash"));
