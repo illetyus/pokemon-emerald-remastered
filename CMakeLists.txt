@@ -307,6 +307,21 @@ endif()
 add_test(NAME emerald_script_object COMMAND emerald_script_object_test)
 
 
+add_executable(r2_opening_commands_test
+    tests/r2_opening_commands_test.c
+)
+
+target_link_libraries(r2_opening_commands_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(r2_opening_commands_test PRIVATE /W4)
+else()
+    target_compile_options(r2_opening_commands_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME r2_opening_commands COMMAND r2_opening_commands_test)
+
+
 add_executable(r1_vanillaplus_integration_test
     tests/r1_vanillaplus_integration_test.c
 )
