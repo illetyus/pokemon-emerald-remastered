@@ -187,15 +187,15 @@ int main(void)
         REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN,
         REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_BUFFER_LEAD_MON_SPECIES_NAME);
 
+    RUN_AND_ACK(
+        REMASTER_EMERALD_SCRIPT_REQUEST_BGM,
+        REMASTER_EMERALD_SCRIPT_BGM_FADE_DEFAULT);
+
     if (!check(
             remaster_emerald_overworld_get(&save, &state)
                 && state.saved_music == 77,
             "savebgm did not update authoritative saved music"))
         return 1;
-
-    RUN_AND_ACK(
-        REMASTER_EMERALD_SCRIPT_REQUEST_BGM,
-        REMASTER_EMERALD_SCRIPT_BGM_FADE_DEFAULT);
     RUN_AND_ACK(
         REMASTER_EMERALD_SCRIPT_REQUEST_WORLD,
         REMASTER_EMERALD_SCRIPT_WORLD_RELEASE_ALL);
