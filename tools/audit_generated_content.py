@@ -184,6 +184,17 @@ def audit(root: Path) -> list[str]:
                 errors.append(
                     f"{rel}: object {object_index} is missing numeric flag_id"
                 )
+            if (
+                "trainer_sight_or_berry_tree_id" in obj
+                and not isinstance(
+                    obj.get("trainer_sight_or_berry_tree_id_u16"),
+                    int,
+                )
+            ):
+                errors.append(
+                    f"{rel}: object {object_index} is missing numeric "
+                    "trainer/berry id"
+                )
 
         for connection in map_doc.get("connections", []):
             target = connection.get("map")
@@ -253,6 +264,56 @@ def audit(root: Path) -> list[str]:
                         f"{rel}: weather coord event {coord_index} "
                         f"is missing numeric weather_id"
                     )
+
+        for bg_index, bg in enumerate(map_doc.get("bg_events", [])):
+            bg_type = bg.get("type")
+
+            if bg_type == "sign":
+                facing = bg.get("player_facing_dir_id")
+                kind = bg.get("kind_id")
+                if not isinstance(facing, int) or facing < 0 or facing > 4:
+                    errors.append(
+                        f"{rel}: sign bg event {bg_index} is missing valid "
+                        "numeric facing id"
+                    )
+                if kind != facing:
+                    errors.append(
+                        f"{rel}: sign bg event {bg_index} kind/facing mismatch"
+                    )
+
+            elif bg_type == "hidden_item":
+                if bg.get("kind_id") != 7:
+                    errors.append(
+                        f"{rel}: hidden-item bg event {bg_index} "
+                        "must use kind_id 7"
+                    )
+                if not isinstance(bg.get("item_id"), int):
+                    errors.append(
+                        f"{rel}: hidden-item bg event {bg_index} "
+                        "is missing numeric item_id"
+                    )
+                if not isinstance(bg.get("flag_id"), int):
+                    errors.append(
+                        f"{rel}: hidden-item bg event {bg_index} "
+                        "is missing numeric flag_id"
+                    )
+
+            elif bg_type == "secret_base":
+                if bg.get("kind_id") != 8:
+                    errors.append(
+                        f"{rel}: secret-base bg event {bg_index} "
+                        "must use kind_id 8"
+                    )
+                if not isinstance(bg.get("secret_base_id_u16"), int):
+                    errors.append(
+                        f"{rel}: secret-base bg event {bg_index} "
+                        "is missing numeric secret-base id"
+                    )
+
+            else:
+                errors.append(
+                    f"{rel}: unknown background event type {bg_type!r}"
+                )
 
     return errors
 
