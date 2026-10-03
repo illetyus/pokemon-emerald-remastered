@@ -263,6 +263,26 @@ def normalize_event(
 
 
 
+
+def normalize_background_event(
+    event: dict[str, Any],
+    constants: dict[str, int],
+) -> dict[str, Any]:
+    item = normalize_event(event, constants)
+    event_type = item.get("type")
+
+    if event_type == "sign":
+        facing = item.get("player_facing_dir_id")
+        if isinstance(facing, int):
+            item["kind_id"] = facing
+    elif event_type == "hidden_item":
+        item["kind_id"] = 7
+    elif event_type == "secret_base":
+        item["kind_id"] = 8
+
+    return item
+
+
 def normalize_object_events(
     events: list[dict[str, Any]],
     constants: dict[str, int],
@@ -435,7 +455,8 @@ def convert_map(
                 normalize_event(x, constants) for x in source.get("coord_events", [])
             ],
             "bg_events": [
-                normalize_event(x, constants) for x in source.get("bg_events", [])
+                normalize_background_event(x, constants)
+                for x in source.get("bg_events", [])
             ],
         },
         "layout": {
