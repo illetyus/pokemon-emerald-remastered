@@ -184,6 +184,19 @@ def audit(root: Path) -> list[str]:
         if map_doc.get("layout_num") != layout_num:
             errors.append(f"{rel}: manifest/map layout_num mismatch")
 
+        weather_id = map_doc.get("weather_id")
+        map_type_id = map_doc.get("map_type_id")
+
+        if not isinstance(weather_id, int) or weather_id < 0 or weather_id > 255:
+            errors.append(
+                f"{rel}: invalid numeric weather_id {weather_id!r}"
+            )
+
+        if not isinstance(map_type_id, int) or map_type_id < 0 or map_type_id > 255:
+            errors.append(
+                f"{rel}: invalid numeric map_type_id {map_type_id!r}"
+            )
+
         shared_events_map = map_doc.get("shared_events_map")
         if shared_events_map is not None:
             if shared_events_map not in manifest_by_name:
