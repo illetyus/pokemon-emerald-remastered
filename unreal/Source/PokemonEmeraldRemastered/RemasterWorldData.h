@@ -15,13 +15,16 @@ struct FRemasterObjectEventIR
 {
     int32 LocalId = 0;
     FString GraphicsId;
+    int32 GraphicsIdNum = -1;
     int32 X = 0;
     int32 Y = 0;
     int32 Elevation = 0;
     FString MovementType;
+    int32 MovementTypeNum = -1;
     int32 MovementRangeX = 0;
     int32 MovementRangeY = 0;
     FString TrainerType;
+    int32 TrainerTypeNum = -1;
     FString TrainerSightOrBerryTreeId;
     int32 TrainerSightOrBerryTreeIdNum = -1;
     FString Script;
