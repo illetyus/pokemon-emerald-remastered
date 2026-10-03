@@ -117,3 +117,105 @@ RemasterEmeraldCoordMatch remaster_emerald_find_coord_event(
 
     return match;
 }
+
+
+static int background_facing_matches(
+    uint8_t kind,
+    uint8_t facing_direction)
+{
+    switch (kind) {
+    case REMASTER_EMERALD_BG_FACING_ANY:
+        return 1;
+    case REMASTER_EMERALD_BG_FACING_NORTH:
+        return facing_direction == REMASTER_EMERALD_DIR_NORTH;
+    case REMASTER_EMERALD_BG_FACING_SOUTH:
+        return facing_direction == REMASTER_EMERALD_DIR_SOUTH;
+    case REMASTER_EMERALD_BG_FACING_EAST:
+        return facing_direction == REMASTER_EMERALD_DIR_EAST;
+    case REMASTER_EMERALD_BG_FACING_WEST:
+        return facing_direction == REMASTER_EMERALD_DIR_WEST;
+    default:
+        return 0;
+    }
+}
+
+RemasterEmeraldBackgroundMatch remaster_emerald_find_background_event(
+    const RemasterEmeraldSave *save,
+    const RemasterEmeraldBackgroundEventDef *events,
+    size_t event_count,
+    int16_t x,
+    int16_t y,
+    uint8_t elevation,
+    uint8_t facing_direction)
+{
+    RemasterEmeraldBackgroundMatch match;
+    size_t i;
+
+    match.kind = REMASTER_EMERALD_BG_MATCH_NONE;
+    match.event_index = 0;
+    match.item_id = 0;
+    match.hidden_flag_id = 0;
+    match.secret_base_id = 0;
+
+    if (events == 0)
+        return match;
+
+    for (i = 0; i < event_count; ++i) {
+        int collected = 0;
+
+        if (events[i].x != x || events[i].y != y)
+            continue;
+
+        if (!elevation_matches(events[i].elevation, elevation))
+            continue;
+
+        /*
+         * Vanilla GetBackgroundEventAtPosition returns the first matching
+         * coordinate/elevation event. A direction mismatch or a collected
+         * hidden item therefore resolves to no interaction rather than
+         * falling through to a later event at the same tile.
+         */
+        match.event_index = i;
+
+        if (events[i].kind <= REMASTER_EMERALD_BG_FACING_WEST) {
+            if (background_facing_matches(
+                    events[i].kind,
+                    facing_direction)) {
+                match.kind = REMASTER_EMERALD_BG_MATCH_SCRIPT;
+            }
+            return match;
+        }
+
+        if (events[i].kind == REMASTER_EMERALD_BG_HIDDEN_ITEM) {
+            if (save == 0 || events[i].hidden_flag_id == 0u)
+                return match;
+
+            if (!remaster_emerald_flag_get(
+                    save,
+                    events[i].hidden_flag_id,
+                    &collected))
+                return match;
+
+            if (collected)
+                return match;
+
+            match.kind = REMASTER_EMERALD_BG_MATCH_HIDDEN_ITEM;
+            match.item_id = events[i].item_id;
+            match.hidden_flag_id = events[i].hidden_flag_id;
+            return match;
+        }
+
+        if (events[i].kind == REMASTER_EMERALD_BG_SECRET_BASE) {
+            if (facing_direction != REMASTER_EMERALD_DIR_NORTH)
+                return match;
+
+            match.kind = REMASTER_EMERALD_BG_MATCH_SECRET_BASE;
+            match.secret_base_id = events[i].secret_base_id;
+            return match;
+        }
+
+        return match;
+    }
+
+    return match;
+}
