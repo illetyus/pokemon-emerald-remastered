@@ -20,12 +20,15 @@ int main(void)
     RemasterEmeraldWarpEventDef warps[2];
     RemasterEmeraldCoordEventDef coords[4];
     RemasterEmeraldCoordMatch match;
+    RemasterEmeraldBackgroundEventDef backgrounds[3];
+    RemasterEmeraldBackgroundMatch bg_match;
     size_t index = 99u;
 
     memset(&save, 0, sizeof(save));
     memset(&object_event, 0, sizeof(object_event));
     memset(warps, 0, sizeof(warps));
     memset(coords, 0, sizeof(coords));
+    memset(backgrounds, 0, sizeof(backgrounds));
 
     object_event.local_id = 1;
     object_event.flag_id = 0;
@@ -172,6 +175,103 @@ int main(void)
             && match.event_index == 3
             && match.weather == 12,
             "weather coord event mismatch"))
+        return 1;
+
+    backgrounds[0].x = 2;
+    backgrounds[0].y = 3;
+    backgrounds[0].elevation = 0;
+    backgrounds[0].kind = REMASTER_EMERALD_BG_FACING_NORTH;
+
+    bg_match = remaster_emerald_find_background_event(
+        &save,
+        backgrounds,
+        1,
+        2,
+        3,
+        5,
+        REMASTER_EMERALD_DIR_NORTH);
+
+    if (!check(
+            bg_match.kind == REMASTER_EMERALD_BG_MATCH_SCRIPT
+            && bg_match.event_index == 0,
+            "north-facing sign should resolve"))
+        return 1;
+
+    bg_match = remaster_emerald_find_background_event(
+        &save,
+        backgrounds,
+        1,
+        2,
+        3,
+        5,
+        REMASTER_EMERALD_DIR_SOUTH);
+
+    if (!check(
+            bg_match.kind == REMASTER_EMERALD_BG_MATCH_NONE,
+            "wrong-facing sign should not resolve"))
+        return 1;
+
+    backgrounds[1].x = 4;
+    backgrounds[1].y = 5;
+    backgrounds[1].elevation = 3;
+    backgrounds[1].kind = REMASTER_EMERALD_BG_HIDDEN_ITEM;
+    backgrounds[1].item_id = 16;
+    backgrounds[1].hidden_flag_id = 0x1F4;
+
+    bg_match = remaster_emerald_find_background_event(
+        &save,
+        &backgrounds[1],
+        1,
+        4,
+        5,
+        3,
+        REMASTER_EMERALD_DIR_NORTH);
+
+    if (!check(
+            bg_match.kind == REMASTER_EMERALD_BG_MATCH_HIDDEN_ITEM
+            && bg_match.item_id == 16
+            && bg_match.hidden_flag_id == 0x1F4,
+            "uncollected hidden item should resolve"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_flag_set(&save, 0x1F4, 1),
+            "hidden-item flag set failed"))
+        return 1;
+
+    bg_match = remaster_emerald_find_background_event(
+        &save,
+        &backgrounds[1],
+        1,
+        4,
+        5,
+        3,
+        REMASTER_EMERALD_DIR_NORTH);
+
+    if (!check(
+            bg_match.kind == REMASTER_EMERALD_BG_MATCH_NONE,
+            "collected hidden item should not resolve"))
+        return 1;
+
+    backgrounds[2].x = 7;
+    backgrounds[2].y = 8;
+    backgrounds[2].elevation = 0;
+    backgrounds[2].kind = REMASTER_EMERALD_BG_SECRET_BASE;
+    backgrounds[2].secret_base_id = 33;
+
+    bg_match = remaster_emerald_find_background_event(
+        &save,
+        &backgrounds[2],
+        1,
+        7,
+        8,
+        2,
+        REMASTER_EMERALD_DIR_NORTH);
+
+    if (!check(
+            bg_match.kind == REMASTER_EMERALD_BG_MATCH_SECRET_BASE
+            && bg_match.secret_base_id == 33,
+            "north-facing secret base should resolve"))
         return 1;
 
     puts("Emerald map-event compatibility test passed.");
