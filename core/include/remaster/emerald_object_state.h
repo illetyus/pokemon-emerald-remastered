@@ -12,7 +12,7 @@ extern "C" {
 
 enum {
     REMASTER_EMERALD_SAVED_OBJECT_EVENT_COUNT = 16,
-    REMASTER_EMERALD_SAVED_OBJECT_EVENT_BYTES = 0x24,
+    REMASTER_EMERALD_SAVED_OBJECT_EVENT_BYTES = 0x28,
     REMASTER_EMERALD_OBJECT_TEMPLATE_COUNT = 64,
     REMASTER_EMERALD_OBJECT_TEMPLATE_BYTES = 0x18
 };
@@ -41,9 +41,9 @@ typedef struct RemasterEmeraldObjectTemplate {
 } RemasterEmeraldObjectTemplate;
 
 /*
- * Saved live ObjectEvent records are preserved as opaque 0x24-byte records.
- * AGBCC layout of the fork's widened graphicsId is intentionally not guessed
- * until an actual production-toolchain layout probe can run.
+ * Saved live ObjectEvent records are preserved as opaque 0x28-byte records.
+ * The fork widened graphicsId to u16. Production save-sector evidence and
+ * the resulting SaveBlock1 offsets confirm the AGBCC array stride is 0x28.
  */
 int remaster_emerald_saved_object_event_read(
     const RemasterEmeraldSave *save,
