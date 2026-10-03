@@ -675,6 +675,31 @@ def _normalize_script_command(
             "special_index": specials[special_name].special_id,
         }]
 
+    if name == "checkplayergender" and not args:
+        return [{
+            "op": "CHECK_PLAYER_GENDER",
+            "result_var": "VAR_RESULT",
+        }]
+
+    if name in {"opendoor", "closedoor"} and len(args) == 2:
+        return [{
+            "op": "OPEN_DOOR" if name == "opendoor" else "CLOSE_DOOR",
+            "x_operand": args[0],
+            "y_operand": args[1],
+        }]
+
+    if name in {"setobjectxy", "setobjectxyperm"} and len(args) == 3:
+        return [{
+            "op": (
+                "SET_OBJECT_XY"
+                if name == "setobjectxy"
+                else "SET_OBJECT_XY_PERM"
+            ),
+            "local_id": args[0],
+            "x": args[1],
+            "y": args[2],
+        }]
+
     field_shapes: dict[str, tuple[str, ...]] = {
         "setvar": ("var", "value"),
         "setflag": ("flag",),
