@@ -442,7 +442,7 @@ def convert_layout_document(
         "layout": {
             "id": layout_id,
             "name": layout.get("name"),
-            "layout_num": int(layout["layout_num"]),
+            "layout_num": int(layout["_numeric_id"]),
             "width": width,
             "height": height,
             "primary_tileset": primary_tileset,
