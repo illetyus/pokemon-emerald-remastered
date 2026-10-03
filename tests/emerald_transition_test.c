@@ -37,6 +37,7 @@ int main(void)
     state.player_y = 1;
     state.money = 1234;
     state.party_count = 2;
+    state.saved_music = 777;
     state.weather = REMASTER_EMERALD_WEATHER_SHADE;
     state.weather_cycle_stage = 2;
     state.flash_level = 4;
@@ -98,6 +99,7 @@ int main(void)
             && state.player_x == 10
             && state.player_y == 12
             && state.map_layout_id == 77
+            && state.saved_music == 0
             && state.weather == REMASTER_EMERALD_WEATHER_RAIN_THUNDERSTORM
             && state.weather_cycle_stage == 2
             && state.flash_level == 0,
