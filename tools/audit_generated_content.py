@@ -5,6 +5,11 @@ import argparse
 import json
 from pathlib import Path
 
+from world_fingerprint import (
+    fingerprint_document_content,
+    fingerprint_world_package,
+)
+
 
 def audit(root: Path) -> list[str]:
     errors: list[str] = []
@@ -32,6 +37,36 @@ def audit(root: Path) -> list[str]:
     }
     known_files = set()
     known_numeric_maps: set[tuple[int, int]] = set()
+
+    provenance_file = manifest.get("provenance_file")
+    provenance = None
+    if provenance_file is not None:
+        provenance_path = root / provenance_file
+        if not provenance_path.is_file():
+            errors.append(f"missing provenance file: {provenance_file}")
+        else:
+            provenance = json.loads(
+                provenance_path.read_text(encoding="utf-8")
+            )
+            source_counts = provenance.get("source_counts", {})
+            if source_counts.get("map_count") != manifest.get("map_count"):
+                errors.append(
+                    "provenance source map_count does not match manifest"
+                )
+            if (
+                "layout_count" in manifest
+                and source_counts.get("layout_count")
+                != manifest.get("layout_count")
+            ):
+                errors.append(
+                    "provenance source layout_count does not match manifest"
+                )
+
+            recomputed = fingerprint_world_package(root)
+            if provenance.get("package_sha256") != recomputed["package_sha256"]:
+                errors.append("provenance package fingerprint mismatch")
+            if provenance.get("file_sha256") != recomputed["file_sha256"]:
+                errors.append("provenance file fingerprints mismatch")
 
     script_catalog_by_map: dict[str, dict] = {}
     known_script_ids: set[str] = set()
@@ -355,6 +390,13 @@ def audit(root: Path) -> list[str]:
 
         if doc.get("schema_version") != 1:
             errors.append(f"{rel}: unsupported schema version")
+
+        if "fingerprint_sha256" in doc:
+            expected_map_fingerprint = fingerprint_document_content(doc)
+            if doc.get("fingerprint_sha256") != expected_map_fingerprint:
+                errors.append(f"{rel}: map fingerprint mismatch")
+        elif provenance_file is not None:
+            errors.append(f"{rel}: missing map fingerprint")
 
         width = int(layout.get("width", 0))
         height = int(layout.get("height", 0))
