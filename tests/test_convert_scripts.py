@@ -328,6 +328,18 @@ class ConvertScriptsIrTests(ConvertScriptsInventoryTests):
                 {"op": "CHECK_PLAYER_GENDER", "result_var": "VAR_RESULT"},
                 ops,
             )
+            self.assertTrue(
+                any(ins["op"] == "SET_VAR" for ins in ops),
+                "setvar must use canonical SET_VAR IR name",
+            )
+            self.assertTrue(
+                any(ins["op"] == "APPLY_MOVEMENT" for ins in ops),
+                "applymovement must use canonical APPLY_MOVEMENT IR name",
+            )
+            self.assertTrue(
+                any(ins["op"] == "MESSAGE" for ins in ops),
+                "msgbox must lower to canonical MESSAGE IR",
+            )
             self.assertIn(
                 {
                     "op": "SET_OBJECT_XY_PERM",
