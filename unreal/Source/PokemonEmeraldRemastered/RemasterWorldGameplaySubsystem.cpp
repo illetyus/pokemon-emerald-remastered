@@ -6,6 +6,7 @@
 extern "C"
 {
 #include "remaster/emerald_events.h"
+#include "remaster/emerald_object_state.h"
 #include "remaster/emerald_save.h"
 #include "remaster/emerald_state.h"
 #include "remaster/emerald_transition.h"
@@ -50,7 +51,148 @@ void URemasterWorldGameplaySubsystem::Initialize(
 
     Super::Initialize(Collection);
 
-    LoadCurrentMapFromSave(true);
+    LoadCurrentMapFromSave(false);
+}
+
+
+bool URemasterWorldGameplaySubsystem::ApplySavedObjectTemplateOverrides()
+{
+    if (!GetGameInstance())
+        return false;
+
+    const URemasterVanillaPlusSaveSubsystem* SaveSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
+
+    if (!SaveSubsystem || !SaveSubsystem->HasUsableSave())
+        return false;
+
+    const RemasterEmeraldSave* Save =
+        static_cast<const RemasterEmeraldSave*>(
+            SaveSubsystem->GetNativeSaveHandle());
+
+    if (!Save)
+        return false;
+
+    for (FRemasterObjectEventIR& Event : CurrentMap.ObjectEvents)
+    {
+        if (Event.LocalId <= 0 || Event.LocalId > MAX_uint8)
+            continue;
+
+        size_t TemplateIndex = 0;
+        if (!remaster_emerald_object_template_find_local_id(
+                Save,
+                static_cast<uint8>(Event.LocalId),
+                &TemplateIndex))
+        {
+            continue;
+        }
+
+        RemasterEmeraldObjectTemplate Saved{};
+        if (!remaster_emerald_object_template_get(
+                Save,
+                TemplateIndex,
+                &Saved))
+        {
+            continue;
+        }
+
+        /*
+         * Script addresses in SaveBlock1 are legacy GBA ROM pointers.
+         * Never consume them in Unreal; script identity comes from generated IR.
+         */
+        Event.GraphicsIdNum = Saved.graphics_id;
+        Event.X = Saved.x;
+        Event.Y = Saved.y;
+        Event.Elevation = Saved.elevation;
+        Event.MovementTypeNum = Saved.movement_type;
+        Event.MovementRangeX = Saved.movement_range_x;
+        Event.MovementRangeY = Saved.movement_range_y;
+        Event.TrainerTypeNum = Saved.trainer_type;
+        Event.TrainerSightOrBerryTreeIdNum =
+            Saved.trainer_range_or_berry_tree_id;
+        Event.FlagId = Saved.flag_id;
+    }
+
+    return true;
+}
+
+bool URemasterWorldGameplaySubsystem::RefreshSavedObjectTemplateCache(
+    const FRemasterMapIR& Map)
+{
+    if (!GetGameInstance()
+        || Map.ObjectEvents.Num() > REMASTER_EMERALD_OBJECT_TEMPLATE_COUNT)
+    {
+        return false;
+    }
+
+    URemasterVanillaPlusSaveSubsystem* SaveSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
+
+    if (!SaveSubsystem || !SaveSubsystem->HasUsableSave())
+        return false;
+
+    RemasterEmeraldSave* Save =
+        static_cast<RemasterEmeraldSave*>(
+            SaveSubsystem->GetMutableNativeSaveHandle());
+
+    if (!Save)
+        return false;
+
+    TArray<RemasterEmeraldObjectTemplate> Templates;
+    Templates.Reserve(Map.ObjectEvents.Num());
+
+    for (const FRemasterObjectEventIR& Event : Map.ObjectEvents)
+    {
+        if (Event.LocalId <= 0
+            || Event.LocalId > MAX_uint8
+            || !FitsUInt16(Event.GraphicsIdNum)
+            || !FitsInt16(Event.X)
+            || !FitsInt16(Event.Y)
+            || !FitsUInt8(Event.Elevation)
+            || !FitsUInt8(Event.MovementTypeNum)
+            || Event.MovementRangeX < 0
+            || Event.MovementRangeX > 0x0F
+            || Event.MovementRangeY < 0
+            || Event.MovementRangeY > 0x0F
+            || !FitsUInt16(Event.TrainerTypeNum)
+            || !FitsUInt16(Event.TrainerSightOrBerryTreeIdNum)
+            || !FitsUInt16(Event.FlagId))
+        {
+            UE_LOG(
+                LogTemp,
+                Error,
+                TEXT("Object template has unresolved numeric gameplay data: map=%s localId=%d"),
+                *Map.Id,
+                Event.LocalId);
+            return false;
+        }
+
+        RemasterEmeraldObjectTemplate Native{};
+        Native.local_id = static_cast<uint8>(Event.LocalId);
+        Native.kind = 0;
+        Native.graphics_id = static_cast<uint16>(Event.GraphicsIdNum);
+        Native.x = static_cast<int16>(Event.X);
+        Native.y = static_cast<int16>(Event.Y);
+        Native.elevation = static_cast<uint8>(Event.Elevation);
+        Native.movement_type = static_cast<uint8>(Event.MovementTypeNum);
+        Native.movement_range_x =
+            static_cast<uint8>(Event.MovementRangeX);
+        Native.movement_range_y =
+            static_cast<uint8>(Event.MovementRangeY);
+        Native.trainer_type =
+            static_cast<uint16>(Event.TrainerTypeNum);
+        Native.trainer_range_or_berry_tree_id =
+            static_cast<uint16>(Event.TrainerSightOrBerryTreeIdNum);
+        Native.legacy_script_address = 0u;
+        Native.flag_id = static_cast<uint16>(Event.FlagId);
+
+        Templates.Add(Native);
+    }
+
+    return remaster_emerald_object_templates_replace(
+        Save,
+        Templates.IsEmpty() ? nullptr : Templates.GetData(),
+        static_cast<size_t>(Templates.Num())) != 0;
 }
 
 bool URemasterWorldGameplaySubsystem::LoadCurrentMapFromSave(
@@ -110,6 +252,16 @@ bool URemasterWorldGameplaySubsystem::LoadCurrentMapFromSave(
     }
 
     CurrentMap = MoveTemp(Loaded);
+
+    if (!ApplySavedObjectTemplateOverrides())
+    {
+        UE_LOG(
+            LogTemp,
+            Warning,
+            TEXT("Failed to apply saved object template overrides for %s"),
+            *CurrentMap.Id);
+    }
+
     bMapReady = true;
 
     UE_LOG(
@@ -386,6 +538,16 @@ bool URemasterWorldGameplaySubsystem::ApplyResolvedConnection(
             static_cast<uint8>(TargetMap.MapTypeId),
             TargetMap.bRequiresFlash ? 1 : 0))
     {
+        return false;
+    }
+
+    if (!RefreshSavedObjectTemplateCache(TargetMap))
+    {
+        UE_LOG(
+            LogTemp,
+            Error,
+            TEXT("Failed to refresh object template cache after connection: %s"),
+            *TargetMap.Id);
         return false;
     }
 
@@ -887,6 +1049,16 @@ bool URemasterWorldGameplaySubsystem::ApplyResolvedWarp(
             TargetWarps.IsEmpty() ? nullptr : TargetWarps.GetData(),
             static_cast<size_t>(TargetWarps.Num())))
     {
+        return false;
+    }
+
+    if (!RefreshSavedObjectTemplateCache(TargetMap))
+    {
+        UE_LOG(
+            LogTemp,
+            Error,
+            TEXT("Failed to refresh object template cache after warp: %s"),
+            *TargetMap.Id);
         return false;
     }
 
