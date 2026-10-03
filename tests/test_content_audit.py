@@ -352,5 +352,115 @@ class ContentAuditTests(unittest.TestCase):
             self.assertTrue(any("null script sentinel" in item for item in errors))
 
 
+    def test_layout_catalog_count_and_usage_are_audited(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "maps").mkdir()
+            (root / "layouts").mkdir()
+
+            (root / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "map_count": 1,
+                        "layout_count": 2,
+                        "layouts_file": "layouts.json",
+                        "maps": [
+                            {
+                                "id": "MAP_A",
+                                "name": "A",
+                                "file": "maps/A.json",
+                                "group_num": 0,
+                                "map_num": 0,
+                                "layout": "LAYOUT_A",
+                                "layout_num": 1,
+                            }
+                        ],
+                    }
+                )
+            )
+            (root / "maps/A.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "map": {
+                            "id": "MAP_A",
+                            "name": "A",
+                            "group_num": 0,
+                            "map_num": 0,
+                            "layout": "LAYOUT_A",
+                            "layout_num": 1,
+                            "weather_id": 0,
+                            "map_type_id": 1,
+                            "connections": [],
+                            "object_events": [],
+                            "warp_events": [],
+                            "coord_events": [],
+                            "bg_events": [],
+                        },
+                        "layout": {
+                            "id": "LAYOUT_A",
+                            "layout_num": 1,
+                            "width": 1,
+                            "height": 1,
+                            "source_word_count": 1,
+                            "active_word_count": 1,
+                            "raw_blocks_u16": [0],
+                            "trailing_words_u16": [],
+                            "border_source_word_count": 4,
+                            "border_active_words_u16": [1, 2, 3, 4],
+                            "border_trailing_words_u16": [],
+                            "metatile_ids_u16": [0],
+                            "collision_u8": [0],
+                            "elevation_u8": [0],
+                            "primary_metatile_attributes_u16": [0],
+                            "secondary_metatile_attributes_u16": [0],
+                            "primary_metatile_behavior_u8": [0],
+                            "secondary_metatile_behavior_u8": [0],
+                            "primary_metatile_layer_u8": [0],
+                            "secondary_metatile_layer_u8": [0],
+                        },
+                    }
+                )
+            )
+            (root / "layouts.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "layout_count": 1,
+                        "layouts": [
+                            {
+                                "id": "LAYOUT_A",
+                                "layout_num": 1,
+                                "file": "layouts/LAYOUT_A.json",
+                                "used_by_maps": ["A"],
+                            }
+                        ],
+                    }
+                )
+            )
+            (root / "layouts/LAYOUT_A.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "used_by_maps": ["A"],
+                        "layout": {
+                            "id": "LAYOUT_A",
+                            "layout_num": 1,
+                            "width": 1,
+                            "height": 1,
+                        },
+                    }
+                )
+            )
+
+            errors = audit(root)
+
+            self.assertTrue(
+                any("layout_count" in item for item in errors),
+                errors,
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
