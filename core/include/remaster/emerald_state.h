@@ -37,6 +37,7 @@ typedef struct RemasterEmeraldOverworldState {
 
     uint16_t map_layout_id;
     uint8_t weather;
+    uint8_t weather_cycle_stage;
     uint8_t flash_level;
     uint8_t party_count;
 
