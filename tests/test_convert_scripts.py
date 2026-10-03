@@ -264,6 +264,29 @@ TestTown_BadScript::
             self.assertIn("mysterycommand", message)
             self.assertRegex(message, r":\d+:")
 
+    def test_duplicate_special_name_uses_latest_assembler_set_index(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source_tree(root)
+            specials_path = root / "data/specials.inc"
+            specials_path.write_text(
+                ".set __special__, 0\n"
+                "gSpecials::\n"
+                "    def_special DuplicateSpecial\n"
+                "    def_special OtherSpecial\n"
+                "    def_special DuplicateSpecial\n",
+                encoding="utf-8",
+            )
+
+            specials = build_special_inventory(root)
+
+            self.assertEqual(specials["OtherSpecial"].special_id, 1)
+            self.assertEqual(
+                specials["DuplicateSpecial"].special_id,
+                2,
+                "def_special uses .set, so a repeated symbol resolves to its latest index",
+            )
+
 
 class ConvertScriptsIrTests(ConvertScriptsInventoryTests):
     def test_cross_script_call_and_special_ids_are_stable_labels(self):
