@@ -229,6 +229,21 @@ Test_B::
             self.assertEqual(resolver.resolve("TRUE"), 1)
             self.assertEqual(resolver.resolve("FALSE"), 0)
 
+    def test_numeric_resolver_reads_assembler_assignments(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            asm = root / "asm/macros/event.inc"
+            asm.parent.mkdir(parents=True)
+            asm.write_text(
+                "MSGBOX_DEFAULT = 4\nMSGBOX_YESNO = 5\nYES = 1\nNO = 0\n",
+                encoding="utf-8",
+            )
+            resolver = build_numeric_resolver(root)
+            self.assertEqual(resolver.resolve("MSGBOX_DEFAULT"), 4)
+            self.assertEqual(resolver.resolve("MSGBOX_YESNO"), 5)
+            self.assertEqual(resolver.resolve("YES"), 1)
+            self.assertEqual(resolver.resolve("NO"), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
