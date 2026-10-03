@@ -494,9 +494,14 @@ def generate_c_fixture(
             )
         )
 
-    lines.append(
-        f"const RemasterEmeraldMapScriptEntry {prefix}MapScripts[] = {{"
-    )
+    if map_entries:
+        lines.append(
+            f"const RemasterEmeraldMapScriptEntry {prefix}MapScripts[] = {{"
+        )
+    else:
+        lines.append(
+            f"const RemasterEmeraldMapScriptEntry {prefix}MapScripts[1] = {{ {{ 0 }} }};"
+        )
     hook_map = {
         "MAP_SCRIPT_ON_LOAD": "REMASTER_EMERALD_MAP_SCRIPT_ON_LOAD",
         "MAP_SCRIPT_ON_TRANSITION":
@@ -518,12 +523,18 @@ def generate_c_fixture(
             + f".script_id = {_cstr(script_id)}"
             + " },"
         )
-    lines.append("};")
-    lines.append("")
-    lines.append(
-        f"const size_t {prefix}MapScriptCount = "
-        + f"sizeof({prefix}MapScripts) / sizeof({prefix}MapScripts[0]);"
-    )
+    if map_entries:
+        lines.append("};")
+        lines.append("")
+        lines.append(
+            f"const size_t {prefix}MapScriptCount = "
+            + f"sizeof({prefix}MapScripts) / sizeof({prefix}MapScripts[0]);"
+        )
+    else:
+        lines.append("")
+        lines.append(
+            f"const size_t {prefix}MapScriptCount = 0u;"
+        )
     lines.append("")
 
     return "\n".join(lines)
