@@ -145,6 +145,7 @@ def build_numeric_constant_index(source_root: Path) -> dict[str, int]:
         source_root / "include/constants/weather.h",
         source_root / "include/constants/maps.h",
         source_root / "include/constants/layouts.h",
+        source_root / "include/constants/map_types.h",
         source_root / "include/constants/items.h",
         source_root / "include/constants/event_bg.h",
         source_root / "include/constants/secret_bases.h",
@@ -440,6 +441,18 @@ def convert_map(
     collision = [(word & 0x0C00) >> 10 for word in blocks]
     elevation = [(word & 0xF000) >> 12 for word in blocks]
 
+    map_weather_id = resolve_numeric(source.get("weather"), constants)
+    map_type_id = resolve_numeric(source.get("map_type"), constants)
+
+    if map_weather_id is None:
+        raise ValueError(
+            f"{map_path}: unresolved map weather {source.get('weather')!r}"
+        )
+    if map_type_id is None:
+        raise ValueError(
+            f"{map_path}: unresolved map type {source.get('map_type')!r}"
+        )
+
     return {
         "schema_version": SCHEMA_VERSION,
         "source": {
@@ -470,7 +483,9 @@ def convert_map(
             "region_map_section": source.get("region_map_section"),
             "requires_flash": bool(source.get("requires_flash", False)),
             "weather": source.get("weather"),
+            "weather_id": map_weather_id,
             "map_type": source.get("map_type"),
+            "map_type_id": map_type_id,
             "allow_cycling": bool(source.get("allow_cycling", False)),
             "allow_escaping": bool(source.get("allow_escaping", False)),
             "allow_running": bool(source.get("allow_running", False)),
