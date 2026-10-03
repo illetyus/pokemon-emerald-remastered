@@ -101,6 +101,7 @@ int remaster_emerald_apply_warp(
     state.weather = remaster_emerald_translate_map_weather(
         target_weather,
         state.weather_cycle_stage);
+    state.saved_music = 0u; /* MUS_DUMMY */
 
     if (remaster_emerald_map_type_is_outdoors(target_map_type)) {
         if (!remaster_emerald_flag_set(
