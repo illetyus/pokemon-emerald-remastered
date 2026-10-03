@@ -45,11 +45,14 @@ def audit(root: Path) -> list[str]:
 
         group_num = entry.get("group_num")
         map_num = entry.get("map_num")
+        layout_num = entry.get("layout_num")
 
         if not isinstance(group_num, int) or group_num < 0:
             errors.append(f"{rel}: invalid manifest group_num {group_num!r}")
         if not isinstance(map_num, int) or map_num < 0:
             errors.append(f"{rel}: invalid manifest map_num {map_num!r}")
+        if not isinstance(layout_num, int) or layout_num <= 0:
+            errors.append(f"{rel}: invalid manifest layout_num {layout_num!r}")
 
         if isinstance(group_num, int) and isinstance(map_num, int):
             numeric_key = (group_num, map_num)
@@ -178,6 +181,8 @@ def audit(root: Path) -> list[str]:
             errors.append(f"{rel}: manifest/map group_num mismatch")
         if map_doc.get("map_num") != map_num:
             errors.append(f"{rel}: manifest/map map_num mismatch")
+        if map_doc.get("layout_num") != layout_num:
+            errors.append(f"{rel}: manifest/map layout_num mismatch")
 
         shared_events_map = map_doc.get("shared_events_map")
         if shared_events_map is not None:
