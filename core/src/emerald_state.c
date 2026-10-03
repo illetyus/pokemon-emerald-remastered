@@ -6,7 +6,10 @@ enum {
     SB1_POS_X = 0x0000,
     SB1_POS_Y = 0x0002,
     SB1_LOCATION = 0x0004,
+    SB1_CONTINUE_GAME_WARP = 0x000C,
     SB1_DYNAMIC_WARP = 0x0014,
+    SB1_LAST_HEAL_WARP = 0x001C,
+    SB1_ESCAPE_WARP = 0x0024,
     SB1_WEATHER = 0x002E,
     SB1_FLASH_LEVEL = 0x0030,
     SB1_MAP_LAYOUT_ID = 0x0032,
@@ -275,6 +278,20 @@ static int write_warp_state(
     return 1;
 }
 
+int remaster_emerald_continue_game_warp_get(
+    const RemasterEmeraldSave *save,
+    RemasterEmeraldWarpState *out_warp)
+{
+    return read_warp_state(save, SB1_CONTINUE_GAME_WARP, out_warp);
+}
+
+int remaster_emerald_continue_game_warp_set(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldWarpState *warp)
+{
+    return write_warp_state(save, SB1_CONTINUE_GAME_WARP, warp);
+}
+
 int remaster_emerald_dynamic_warp_get(
     const RemasterEmeraldSave *save,
     RemasterEmeraldWarpState *out_warp)
@@ -287,4 +304,33 @@ int remaster_emerald_dynamic_warp_set(
     const RemasterEmeraldWarpState *warp)
 {
     return write_warp_state(save, SB1_DYNAMIC_WARP, warp);
+}
+
+
+int remaster_emerald_last_heal_warp_get(
+    const RemasterEmeraldSave *save,
+    RemasterEmeraldWarpState *out_warp)
+{
+    return read_warp_state(save, SB1_LAST_HEAL_WARP, out_warp);
+}
+
+int remaster_emerald_last_heal_warp_set(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldWarpState *warp)
+{
+    return write_warp_state(save, SB1_LAST_HEAL_WARP, warp);
+}
+
+int remaster_emerald_escape_warp_get(
+    const RemasterEmeraldSave *save,
+    RemasterEmeraldWarpState *out_warp)
+{
+    return read_warp_state(save, SB1_ESCAPE_WARP, out_warp);
+}
+
+int remaster_emerald_escape_warp_set(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldWarpState *warp)
+{
+    return write_warp_state(save, SB1_ESCAPE_WARP, warp);
 }
