@@ -595,7 +595,7 @@ def convert_map(
             "group_num": map_group,
             "map_num": map_num,
             "layout": layout_id,
-            "layout_num": int(layout["_numeric_id"]),
+            "layout_num": int(layout["layout_num"]),
             "music": source.get("music"),
             "music_id": music_id,
             "region_map_section": source.get("region_map_section"),
