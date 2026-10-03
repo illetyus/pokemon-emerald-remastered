@@ -18,6 +18,7 @@ add_library(remaster_core STATIC
     core/src/emerald_transition.c
     core/src/emerald_script.c
     core/src/emerald_script_runtime.c
+    core/src/emerald_script_checkpoint.c
     core/src/emerald_object_state.c
 )
 

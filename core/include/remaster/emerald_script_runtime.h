@@ -48,6 +48,10 @@ typedef struct RemasterEmeraldSpecialRegistry {
     size_t binding_count;
 } RemasterEmeraldSpecialRegistry;
 
+enum {
+    REMASTER_EMERALD_SCRIPT_CHECKPOINT_VERSION = 1
+};
+
 typedef struct RemasterEmeraldScriptRuntime {
     RemasterEmeraldScriptVm vm;
     const RemasterEmeraldSpecialRegistry *special_registry;
@@ -84,6 +88,20 @@ int remaster_emerald_script_runtime_pending_request(
 int remaster_emerald_script_runtime_complete(
     RemasterEmeraldScriptRuntime *runtime,
     const RemasterEmeraldScriptCompletion *completion);
+
+size_t remaster_emerald_script_runtime_checkpoint_size(void);
+
+int remaster_emerald_script_runtime_checkpoint_write(
+    const RemasterEmeraldScriptRuntime *runtime,
+    void *dst,
+    size_t dst_size);
+
+int remaster_emerald_script_runtime_checkpoint_read(
+    RemasterEmeraldScriptRuntime *runtime,
+    const RemasterEmeraldScriptRegistry *registry,
+    RemasterEmeraldSave *save,
+    const void *src,
+    size_t src_size);
 
 RemasterEmeraldScriptDispatchResult
 remaster_emerald_script_runtime_dispatch_script_id(
