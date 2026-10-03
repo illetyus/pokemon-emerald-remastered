@@ -29,6 +29,16 @@ void remaster_emerald_script_runtime_init(
     runtime->vm.status = REMASTER_EMERALD_SCRIPT_HALTED;
 }
 
+void remaster_emerald_script_runtime_set_special_registry(
+    RemasterEmeraldScriptRuntime *runtime,
+    const RemasterEmeraldSpecialRegistry *special_registry)
+{
+    if (runtime == 0)
+        return;
+
+    runtime->special_registry = special_registry;
+}
+
 void remaster_emerald_script_runtime_start(
     RemasterEmeraldScriptRuntime *runtime,
     RemasterEmeraldSave *save,
@@ -47,6 +57,61 @@ void remaster_emerald_script_runtime_start(
         registry,
         program_index,
         entry_pc);
+}
+
+static const RemasterEmeraldSpecialBinding *find_special_binding(
+    const RemasterEmeraldScriptRuntime *runtime,
+    const char *special_id,
+    uint32_t special_index)
+{
+    size_t i;
+
+    if (runtime == 0
+        || runtime->special_registry == 0
+        || runtime->special_registry->bindings == 0
+        || special_id == 0)
+    {
+        return 0;
+    }
+
+    for (i = 0; i < runtime->special_registry->binding_count; ++i) {
+        const RemasterEmeraldSpecialBinding *binding =
+            &runtime->special_registry->bindings[i];
+
+        if (binding->special_id != 0
+            && strcmp(binding->special_id, special_id) == 0
+            && binding->special_index == special_index)
+        {
+            return binding;
+        }
+    }
+
+    return 0;
+}
+
+static RemasterEmeraldScriptStatus fail_unknown_special(
+    RemasterEmeraldScriptRuntime *runtime,
+    const RemasterEmeraldScriptInstruction *ins,
+    uint32_t pc)
+{
+    const char *script_id = 0;
+
+    if (runtime->vm.registry != 0
+        && runtime->vm.registry->programs != 0
+        && runtime->vm.program_index < runtime->vm.registry->program_count)
+    {
+        script_id =
+            runtime->vm.registry->programs[runtime->vm.program_index].script_id;
+    }
+
+    runtime->vm.error.code = REMASTER_EMERALD_SCRIPT_ERROR_UNKNOWN_SPECIAL;
+    runtime->vm.error.script_id = script_id;
+    runtime->vm.error.program_index = runtime->vm.program_index;
+    runtime->vm.error.pc = pc;
+    runtime->vm.error.opcode =
+        ins != 0 ? ins->opcode : REMASTER_EMERALD_SCRIPT_SPECIAL;
+    runtime->vm.status = REMASTER_EMERALD_SCRIPT_ERROR;
+    return runtime->vm.status;
 }
 
 RemasterEmeraldScriptStatus remaster_emerald_script_runtime_run(
@@ -269,6 +334,34 @@ RemasterEmeraldScriptStatus remaster_emerald_script_runtime_run(
                     REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_PARTY_SIZE;
                 request->result_var = 0x800D;
                 break;
+
+            case REMASTER_EMERALD_SCRIPT_SPECIAL:
+            case REMASTER_EMERALD_SCRIPT_SPECIAL_VAR:
+            {
+                const RemasterEmeraldSpecialBinding *binding =
+                    find_special_binding(
+                        runtime,
+                        ins->resource_id,
+                        ins->value_u32);
+
+                if (binding == 0) {
+                    memset(request, 0, sizeof(*request));
+                    return fail_unknown_special(
+                        runtime,
+                        ins,
+                        yielded_pc);
+                }
+
+                request->type = binding->request_type;
+                request->action = binding->action;
+                request->resource_id = ins->resource_id;
+                request->value_u32 = ins->value_u32;
+                request->result_var =
+                    ins->opcode == REMASTER_EMERALD_SCRIPT_SPECIAL_VAR
+                        ? ins->a
+                        : binding->result_var;
+                break;
+            }
 
             default:
                 break;
