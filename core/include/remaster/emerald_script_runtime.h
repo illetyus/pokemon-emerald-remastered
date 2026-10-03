@@ -35,8 +35,22 @@ typedef enum RemasterEmeraldScriptDispatchResult {
     REMASTER_EMERALD_SCRIPT_DISPATCH_STATE_ERROR = 4
 } RemasterEmeraldScriptDispatchResult;
 
+typedef struct RemasterEmeraldSpecialBinding {
+    const char *special_id;
+    uint32_t special_index;
+    RemasterEmeraldScriptRequestType request_type;
+    uint16_t action;
+    uint16_t result_var;
+} RemasterEmeraldSpecialBinding;
+
+typedef struct RemasterEmeraldSpecialRegistry {
+    const RemasterEmeraldSpecialBinding *bindings;
+    size_t binding_count;
+} RemasterEmeraldSpecialRegistry;
+
 typedef struct RemasterEmeraldScriptRuntime {
     RemasterEmeraldScriptVm vm;
+    const RemasterEmeraldSpecialRegistry *special_registry;
 
     uint64_t next_request_sequence;
     uint8_t has_pending_request;
@@ -47,6 +61,10 @@ void remaster_emerald_script_runtime_init(
     RemasterEmeraldScriptRuntime *runtime,
     RemasterEmeraldSave *save,
     const RemasterEmeraldScriptRegistry *registry);
+
+void remaster_emerald_script_runtime_set_special_registry(
+    RemasterEmeraldScriptRuntime *runtime,
+    const RemasterEmeraldSpecialRegistry *special_registry);
 
 void remaster_emerald_script_runtime_start(
     RemasterEmeraldScriptRuntime *runtime,
