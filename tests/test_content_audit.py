@@ -586,5 +586,120 @@ class ContentAuditTests(unittest.TestCase):
             )
 
 
+    def test_r3_encounter_catalog_linkage_is_audited(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "maps").mkdir()
+
+            (root / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "map_count": 1,
+                        "maps": [
+                            {
+                                "id": "MAP_A",
+                                "name": "A",
+                                "file": "maps/A.json",
+                                "group_num": 0,
+                                "map_num": 0,
+                                "layout_num": 1,
+                            }
+                        ],
+                        "encounters_file": "encounters.json",
+                        "encounter_group_count": 1,
+                        "map_encounter_count": 1,
+                    }
+                )
+            )
+            (root / "maps/A.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "map": {
+                            "id": "MAP_A",
+                            "name": "A",
+                            "group_num": 0,
+                            "map_num": 0,
+                            "layout_num": 1,
+                            "weather_id": 0,
+                            "map_type_id": 1,
+                            "connections": [],
+                            "object_events": [],
+                            "warp_events": [],
+                            "coord_events": [],
+                            "bg_events": [],
+                        },
+                        "layout": {
+                            "width": 1,
+                            "height": 1,
+                            "source_word_count": 1,
+                            "active_word_count": 1,
+                            "raw_blocks_u16": [0],
+                            "trailing_words_u16": [],
+                            "border_source_word_count": 4,
+                            "border_active_words_u16": [1, 2, 3, 4],
+                            "border_trailing_words_u16": [],
+                            "metatile_ids_u16": [0],
+                            "collision_u8": [0],
+                            "elevation_u8": [0],
+                            "primary_metatile_attributes_u16": [0],
+                            "secondary_metatile_attributes_u16": [0],
+                            "primary_metatile_behavior_u8": [0],
+                            "secondary_metatile_behavior_u8": [0],
+                            "primary_metatile_layer_u8": [0],
+                            "secondary_metatile_layer_u8": [0],
+                        },
+                    }
+                )
+            )
+            (root / "encounters.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "group_count": 1,
+                        "map_encounter_count": 1,
+                        "groups": [
+                            {
+                                "label": "gWild",
+                                "for_maps": True,
+                                "fields": [
+                                    {
+                                        "type": "land_mons",
+                                        "encounter_rates": [100],
+                                    }
+                                ],
+                                "encounters": [
+                                    {
+                                        "map": "MAP_MISSING",
+                                        "map_name": "Missing",
+                                        "group_num": 9,
+                                        "map_num": 9,
+                                        "land_mons": {
+                                            "encounter_rate": 20,
+                                            "mons": [
+                                                {
+                                                    "min_level": 5,
+                                                    "max_level": 3,
+                                                    "species": "SPECIES_TEST",
+                                                    "species_id": None,
+                                                }
+                                            ],
+                                        },
+                                    }
+                                ],
+                            }
+                        ],
+                    }
+                )
+            )
+
+            errors = audit(root)
+
+            self.assertTrue(any("encounter map" in item for item in errors), errors)
+            self.assertTrue(any("species_id" in item for item in errors), errors)
+            self.assertTrue(any("level range" in item for item in errors), errors)
+
+
 if __name__ == "__main__":
     unittest.main()
