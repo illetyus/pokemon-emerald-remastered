@@ -110,6 +110,12 @@ int main(void)
     memset(image, 0xff, REMASTER_EMERALD_SAVE_IMAGE_BYTES);
     memset(&source, 0, sizeof(source));
 
+    if (!check(
+            REMASTER_EMERALD_SAVE_BLOCK2_BYTES == 0x0F44
+            && REMASTER_EMERALD_SAVE_BLOCK1_BYTES == 0x3DC8,
+            "production Vanilla+ save block geometry changed"))
+        return 1;
+
     source.save_block2[0] = 0x11;
     source.save_block1[0] = 0x22;
     source.save_block1[REMASTER_EMERALD_SAVE_BLOCK1_BYTES - 1u] = 0x23;
