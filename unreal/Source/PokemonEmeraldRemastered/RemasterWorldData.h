@@ -29,7 +29,7 @@ struct FRemasterObjectEventIR
     int32 TrainerSightOrBerryTreeIdNum = -1;
     FString Script;
     FString Flag;
-    int32 FlagId = 0;
+    int32 FlagId = -1;
 };
 
 struct FRemasterWarpEventIR
