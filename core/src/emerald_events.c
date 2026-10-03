@@ -109,7 +109,12 @@ RemasterEmeraldCoordMatch remaster_emerald_find_coord_event(
         if (!remaster_emerald_var_get(save, events[i].trigger, &value))
             continue;
 
-        if (value == events[i].index) {
+        /*
+         * Vanilla TryRunCoordEventScript compares VarGet(trigger) against
+         * (u8)coordEvent->index. Preserve that truncation exactly instead of
+         * treating the serialized u16 as a full-width comparison value.
+         */
+        if (value == (uint16_t)(uint8_t)events[i].index) {
             match.kind = REMASTER_EMERALD_COORD_MATCH_SCRIPT;
             match.event_index = i;
             return match;
