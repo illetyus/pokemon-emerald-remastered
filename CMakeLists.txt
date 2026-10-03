@@ -17,6 +17,7 @@ add_library(remaster_core STATIC
     core/src/emerald_events.c
     core/src/emerald_transition.c
     core/src/emerald_script.c
+    core/src/emerald_script_runtime.c
     core/src/emerald_object_state.c
 )
 
@@ -78,6 +79,7 @@ add_executable(unreal_cpp_embed_smoke
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldEventsEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldTransitionEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldScriptEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldScriptRuntimeEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldObjectStateEmbed.cpp
 )
 
@@ -260,6 +262,20 @@ else()
 endif()
 
 add_test(NAME emerald_script_vm COMMAND emerald_script_test)
+
+add_executable(emerald_script_runtime_test
+    tests/emerald_script_runtime_test.c
+)
+
+target_link_libraries(emerald_script_runtime_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_script_runtime_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_script_runtime_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME emerald_script_runtime COMMAND emerald_script_runtime_test)
 
 
 add_executable(r1_vanillaplus_integration_test
