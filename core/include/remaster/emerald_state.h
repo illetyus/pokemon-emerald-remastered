@@ -55,6 +55,10 @@ int remaster_emerald_overworld_set(
     RemasterEmeraldSave *save,
     const RemasterEmeraldOverworldState *state);
 
+int remaster_emerald_player_gender_get(
+    const RemasterEmeraldSave *save,
+    uint8_t *out_gender);
+
 int remaster_emerald_continue_game_warp_get(
     const RemasterEmeraldSave *save,
     RemasterEmeraldWarpState *out_warp);
