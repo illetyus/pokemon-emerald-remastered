@@ -33,6 +33,70 @@ def audit(root: Path) -> list[str]:
     known_files = set()
     known_numeric_maps: set[tuple[int, int]] = set()
 
+    script_catalog_by_map: dict[str, dict] = {}
+    known_script_ids: set[str] = set()
+    scripts_file = manifest.get("scripts_file")
+    if scripts_file is not None:
+        script_catalog_path = root / scripts_file
+        if not script_catalog_path.is_file():
+            errors.append(f"missing script catalog: {scripts_file}")
+        else:
+            script_catalog = json.loads(
+                script_catalog_path.read_text(encoding="utf-8")
+            )
+            script_maps = script_catalog.get("maps", [])
+            script_labels = script_catalog.get("labels", [])
+            script_sources = script_catalog.get("source_files", [])
+
+            if script_catalog.get("map_count") != manifest.get("map_count"):
+                errors.append(
+                    "script catalog map_count does not match world manifest"
+                )
+            if script_catalog.get("script_label_count") != len(script_labels):
+                errors.append(
+                    "script catalog script_label_count does not match labels array"
+                )
+            if manifest.get("script_label_count") != len(script_labels):
+                errors.append(
+                    "manifest script_label_count does not match script catalog"
+                )
+            if (
+                script_catalog.get("script_source_file_count")
+                != len(script_sources)
+            ):
+                errors.append(
+                    "script catalog script_source_file_count does not match source_files"
+                )
+            if (
+                manifest.get("script_source_file_count")
+                != len(script_sources)
+            ):
+                errors.append(
+                    "manifest script_source_file_count does not match script catalog"
+                )
+
+            for script_map in script_maps:
+                map_name = script_map.get("map")
+                if not isinstance(map_name, str) or not map_name:
+                    errors.append("script catalog map entry has invalid map name")
+                    continue
+                if map_name in script_catalog_by_map:
+                    errors.append(
+                        f"duplicate script catalog map entry {map_name}"
+                    )
+                    continue
+                script_catalog_by_map[map_name] = script_map
+
+            for label in script_labels:
+                script_id = label.get("script_id")
+                if not isinstance(script_id, str) or not script_id:
+                    errors.append("script catalog label has invalid script_id")
+                    continue
+                if script_id in known_script_ids:
+                    errors.append(f"duplicate script catalog label {script_id}")
+                    continue
+                known_script_ids.add(script_id)
+
     layout_catalog_by_id: dict[str, dict] = {}
     layouts_file = manifest.get("layouts_file")
     if layouts_file is not None:
@@ -289,6 +353,24 @@ def audit(root: Path) -> list[str]:
         if map_doc.get("layout_num") != layout_num:
             errors.append(f"{rel}: manifest/map layout_num mismatch")
 
+        if scripts_file is not None:
+            map_name = entry.get("name")
+            script_map = script_catalog_by_map.get(map_name)
+            if script_map is None:
+                errors.append(
+                    f"{rel}: map missing from script catalog"
+                )
+            else:
+                expected_ownership = script_map.get("script_ownership")
+                if entry.get("script_ownership") != expected_ownership:
+                    errors.append(
+                        f"{rel}: manifest script ownership differs from script catalog"
+                    )
+                if map_doc.get("script_ownership") != expected_ownership:
+                    errors.append(
+                        f"{rel}: map script ownership differs from script catalog"
+                    )
+
         if layouts_file is not None:
             layout_id = entry.get("layout")
             if layout_id not in layout_catalog_by_id:
@@ -360,6 +442,11 @@ def audit(root: Path) -> list[str]:
                             )
 
         for object_index, obj in enumerate(map_doc.get("object_events", []), start=1):
+            script_id = obj.get("script_id")
+            if scripts_file is not None and script_id is not None and script_id not in known_script_ids:
+                errors.append(
+                    f"{rel}: object {object_index} has unknown script_id {script_id!r}"
+                )
             if obj.get("script") in {"0", "0x0", "0X0", "NULL", "null"} and obj.get("script_id") is not None:
                 errors.append(
                     f"{rel}: object {object_index} null script sentinel must have null script_id"
@@ -443,6 +530,11 @@ def audit(root: Path) -> list[str]:
                     )
 
         for coord_index, coord in enumerate(map_doc.get("coord_events", [])):
+            script_id = coord.get("script_id")
+            if scripts_file is not None and script_id is not None and script_id not in known_script_ids:
+                errors.append(
+                    f"{rel}: coord event {coord_index} has unknown script_id {script_id!r}"
+                )
             if coord.get("script") in {"0", "0x0", "0X0", "NULL", "null"} and coord.get("script_id") is not None:
                 errors.append(
                     f"{rel}: coord event {coord_index} null script sentinel must have null script_id"
@@ -465,6 +557,11 @@ def audit(root: Path) -> list[str]:
                     )
 
         for bg_index, bg in enumerate(map_doc.get("bg_events", [])):
+            script_id = bg.get("script_id")
+            if scripts_file is not None and script_id is not None and script_id not in known_script_ids:
+                errors.append(
+                    f"{rel}: bg event {bg_index} has unknown script_id {script_id!r}"
+                )
             if bg.get("script") in {"0", "0x0", "0X0", "NULL", "null"} and bg.get("script_id") is not None:
                 errors.append(
                     f"{rel}: bg event {bg_index} null script sentinel must have null script_id"
