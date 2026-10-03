@@ -276,14 +276,17 @@ def build_special_inventory(source_root: Path) -> dict[str, SpecialSpec]:
     result: dict[str, SpecialSpec] = {}
     pattern = re.compile(r"^\s*def_special\s+([A-Za-z_][A-Za-z0-9_]*)\b")
 
+    special_index = 0
     for raw in path.read_text(encoding="utf-8").splitlines():
         match = pattern.match(raw)
         if not match:
             continue
         name = match.group(1)
-        if name in result:
-            raise ScriptConversionError(f"{path}: duplicate special {name}")
-        result[name] = SpecialSpec(name=name, special_id=len(result))
+        # def_special is implemented with assembler .set.  Repeating the
+        # same symbolic special name therefore rebinds SPECIAL_<name> to the
+        # later table index rather than being an error.
+        result[name] = SpecialSpec(name=name, special_id=special_index)
+        special_index += 1
 
     return result
 
