@@ -291,7 +291,7 @@ bool FRemasterWorldData::LoadMapJson(
             FRemasterObjectEventIR Item;
             Item.LocalId = IntField(Object, TEXT("local_id"));
             Item.GraphicsId = StringField(Object, TEXT("graphics_id"));
-            Item.GraphicsIdNum = IntField(Object, TEXT("graphics_id_u16"));
+            Item.GraphicsIdNum = IntFieldDefault(Object, TEXT("graphics_id_u16"), -1);
             Item.X = IntField(Object, TEXT("x"));
             Item.Y = IntField(Object, TEXT("y"));
             Item.Elevation = IntField(Object, TEXT("elevation"));
