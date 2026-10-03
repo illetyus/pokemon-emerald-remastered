@@ -328,8 +328,9 @@ class ConvertScriptsIrTests(ConvertScriptsInventoryTests):
                 {"op": "CHECK_PLAYER_GENDER", "result_var": "VAR_RESULT"},
                 ops,
             )
+            shared_ops = scripts["Shared_EventScript_Helper"]["instructions"]
             self.assertTrue(
-                any(ins["op"] == "SET_VAR" for ins in ops),
+                any(ins["op"] == "SET_VAR" for ins in shared_ops),
                 "setvar must use canonical SET_VAR IR name",
             )
             self.assertTrue(
