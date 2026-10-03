@@ -316,12 +316,27 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                 ),
                 encoding="utf-8",
             )
+            (root / "data/maps/TestTown/scripts.inc").write_text(
+                """
+Test_EventScript::
+    end
+Test_CoordScript::
+    end
+Test_ImmediateScript::
+    end
+Test_SignScript::
+    end
+""".lstrip(),
+                encoding="utf-8",
+            )
 
             manifest = convert_world(root, out)
 
             self.assertEqual(manifest["map_count"], 2)
             self.assertEqual(manifest["layout_count"], 2)
             self.assertEqual(manifest["layouts_file"], "layouts.json")
+            self.assertEqual(manifest["scripts_file"], "scripts/manifest.json")
+            self.assertGreaterEqual(manifest["script_label_count"], 4)
             self.assertEqual(manifest["maps"][0]["group_num"], 0)
             self.assertEqual(manifest["maps"][0]["map_num"], 1)
             self.assertEqual(manifest["maps"][0]["layout_num"], 1)
@@ -473,6 +488,43 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(
                 unused_layout["layout"]["border_active_words_u16"],
                 [1, 2, 3, 4],
+            )
+
+            script_catalog = json.loads(
+                (out / "scripts/manifest.json").read_text()
+            )
+            self.assertEqual(script_catalog["map_count"], 2)
+            script_maps = {
+                item["map"]: item["script_ownership"]
+                for item in script_catalog["maps"]
+            }
+            self.assertEqual(
+                script_maps["TestTown"],
+                {
+                    "kind": "own",
+                    "owner": "TestTown",
+                    "source": "data/maps/TestTown/scripts.inc",
+                },
+            )
+            self.assertEqual(
+                script_maps["AliasTown"],
+                {
+                    "kind": "shared",
+                    "owner": "TestTown",
+                    "source": "data/maps/TestTown/scripts.inc",
+                },
+            )
+            refs = {
+                item["script_id"]
+                for item in script_catalog["event_script_references"]
+            }
+            self.assertTrue(
+                {
+                    "Test_EventScript",
+                    "Test_CoordScript",
+                    "Test_ImmediateScript",
+                    "Test_SignScript",
+                }.issubset(refs)
             )
 
 
