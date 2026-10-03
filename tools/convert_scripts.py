@@ -777,10 +777,15 @@ if __name__ == "__main__":
 def convert_script_closure(
     source_root: Path,
     roots: list[Path],
+    entry_labels: list[str] | None = None,
 ) -> dict:
     source_root = Path(source_root)
     roots = [Path(path) for path in roots]
-    closure = collect_script_dependency_closure(source_root, roots)
+    closure = collect_script_dependency_closure(
+        source_root,
+        roots,
+        entry_labels=entry_labels,
+    )
     sections = _script_source_sections(source_root, roots)
     labels = set(sections)
     specials = build_special_inventory(source_root)
