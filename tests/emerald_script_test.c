@@ -22,22 +22,22 @@ int main(void)
     int flag = 0;
 
     const RemasterEmeraldScriptInstruction program[] = {
-        /*  0 */ { REMASTER_EMERALD_SCRIPT_SET_VAR, 0x4020, 5, 0, 0, 0, 0 },
-        /*  1 */ { REMASTER_EMERALD_SCRIPT_ADD_VAR, 0x4020, 3, 0, 0, 0, 0 },
-        /*  2 */ { REMASTER_EMERALD_SCRIPT_SET_OR_COPY_VAR, 0x8000, 0x4020, 0, 0, 0, 0 },
-        /*  3 */ { REMASTER_EMERALD_SCRIPT_COMPARE_VAR_VALUE, 0x4020, 8, 0, 0, 0, 0 },
-        /*  4 */ { REMASTER_EMERALD_SCRIPT_GOTO_IF, 0, 0, REMASTER_EMERALD_CONDITION_EQUAL, 7, 0, 0 },
-        /*  5 */ { REMASTER_EMERALD_SCRIPT_SET_VAR, 0x4021, 999, 0, 0, 0, 0 },
-        /*  6 */ { REMASTER_EMERALD_SCRIPT_END, 0, 0, 0, 0, 0, 0 },
-        /*  7 */ { REMASTER_EMERALD_SCRIPT_CALL, 0, 0, 0, 13, 0, 0 },
-        /*  8 */ { REMASTER_EMERALD_SCRIPT_CHECK_FLAG, 0x0100, 0, 0, 0, 0, 0 },
-        /*  9 */ { REMASTER_EMERALD_SCRIPT_SET_WEATHER, 2, 0, 0, 0, 0, 0 },
-        /* 10 */ { REMASTER_EMERALD_SCRIPT_SET_MAP_LAYOUT, 77, 0, 0, 0, 0, 0 },
-        /* 11 */ { REMASTER_EMERALD_SCRIPT_WAIT_STATE, 0, 0, 0, 0, 0, 0 },
-        /* 12 */ { REMASTER_EMERALD_SCRIPT_END, 0, 0, 0, 0, 0, 0 },
-        /* 13 */ { REMASTER_EMERALD_SCRIPT_SET_FLAG, 0x0100, 0, 0, 0, 0, 0 },
-        /* 14 */ { REMASTER_EMERALD_SCRIPT_SUB_VAR, 0x4020, 2, 0, 0, 0, 0 },
-        /* 15 */ { REMASTER_EMERALD_SCRIPT_RETURN, 0, 0, 0, 0, 0, 0 },
+        /*  0 */ { .opcode = REMASTER_EMERALD_SCRIPT_SET_VAR, .a = 0x4020, .b = 5 },
+        /*  1 */ { .opcode = REMASTER_EMERALD_SCRIPT_ADD_VAR, .a = 0x4020, .b = 3 },
+        /*  2 */ { .opcode = REMASTER_EMERALD_SCRIPT_SET_OR_COPY_VAR, .a = 0x8000, .b = 0x4020 },
+        /*  3 */ { .opcode = REMASTER_EMERALD_SCRIPT_COMPARE_VAR_VALUE, .a = 0x4020, .b = 8 },
+        /*  4 */ { .opcode = REMASTER_EMERALD_SCRIPT_GOTO_IF, .condition = REMASTER_EMERALD_CONDITION_EQUAL, .target = 7 },
+        /*  5 */ { .opcode = REMASTER_EMERALD_SCRIPT_SET_VAR, .a = 0x4021, .b = 999 },
+        /*  6 */ { .opcode = REMASTER_EMERALD_SCRIPT_END },
+        /*  7 */ { .opcode = REMASTER_EMERALD_SCRIPT_CALL, .target = 13 },
+        /*  8 */ { .opcode = REMASTER_EMERALD_SCRIPT_CHECK_FLAG, .a = 0x0100 },
+        /*  9 */ { .opcode = REMASTER_EMERALD_SCRIPT_SET_WEATHER, .a = 2 },
+        /* 10 */ { .opcode = REMASTER_EMERALD_SCRIPT_SET_MAP_LAYOUT, .a = 77 },
+        /* 11 */ { .opcode = REMASTER_EMERALD_SCRIPT_WAIT_STATE },
+        /* 12 */ { .opcode = REMASTER_EMERALD_SCRIPT_END },
+        /* 13 */ { .opcode = REMASTER_EMERALD_SCRIPT_SET_FLAG, .a = 0x0100 },
+        /* 14 */ { .opcode = REMASTER_EMERALD_SCRIPT_SUB_VAR, .a = 0x4020, .b = 2 },
+        /* 15 */ { .opcode = REMASTER_EMERALD_SCRIPT_RETURN },
     };
 
     memset(&save, 0, sizeof(save));
