@@ -296,11 +296,15 @@ bool FRemasterWorldData::LoadMapJson(
             Item.Y = IntField(Object, TEXT("y"));
             Item.Elevation = IntField(Object, TEXT("elevation"));
             Item.MovementType = StringField(Object, TEXT("movement_type"));
+            Item.MovementTypeNum =
+                IntFieldDefault(Object, TEXT("movement_type_u8"), -1);
             Item.MovementRangeX =
                 IntFieldDefault(Object, TEXT("movement_range_x"), 0);
             Item.MovementRangeY =
                 IntFieldDefault(Object, TEXT("movement_range_y"), 0);
             Item.TrainerType = StringField(Object, TEXT("trainer_type"));
+            Item.TrainerTypeNum =
+                IntFieldDefault(Object, TEXT("trainer_type_u16"), -1);
             Item.TrainerSightOrBerryTreeId =
                 StringField(Object, TEXT("trainer_sight_or_berry_tree_id"));
             Item.TrainerSightOrBerryTreeIdNum = IntFieldDefault(
@@ -309,7 +313,7 @@ bool FRemasterWorldData::LoadMapJson(
                 -1);
             Item.Script = StringField(Object, TEXT("script"));
             Item.Flag = StringField(Object, TEXT("flag"));
-            Item.FlagId = IntFieldDefault(Object, TEXT("flag_id"), 0);
+            Item.FlagId = IntFieldDefault(Object, TEXT("flag_id"), -1);
             OutMap.ObjectEvents.Add(MoveTemp(Item));
         }
     }
