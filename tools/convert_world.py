@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from r3_script_catalog import build_script_catalog
+from convert_encounters import convert_encounters
 
 
 SCHEMA_VERSION = 1
@@ -755,6 +756,20 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
         encoding="utf-8",
     )
 
+    encounter_catalog = None
+    encounter_source = source_root / "src/data/wild_encounters.json"
+    if encounter_source.is_file():
+        encounter_catalog = convert_encounters(source_root)
+        (output_root / "encounters.json").write_text(
+            json.dumps(
+                encounter_catalog,
+                indent=2,
+                ensure_ascii=False,
+                sort_keys=True,
+            ) + "\n",
+            encoding="utf-8",
+        )
+
     output_maps = output_root / "maps"
     output_maps.mkdir(parents=True, exist_ok=True)
 
@@ -804,6 +819,10 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
         "script_source_file_count": script_catalog["script_source_file_count"],
         "maps": manifest_maps,
     }
+    if encounter_catalog is not None:
+        manifest["encounters_file"] = "encounters.json"
+        manifest["encounter_group_count"] = encounter_catalog["group_count"]
+        manifest["map_encounter_count"] = encounter_catalog["map_encounter_count"]
     (output_root / "manifest.json").write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
