@@ -83,15 +83,35 @@ Those continue in later phases.
 - [x] synthetic R1 end-to-end save/gameplay regression
 - [x] real-save inspection/rewrite verifier CLI
 
-## Remaining gates
+## Validation status
 
-- [ ] portable C/C++ test suite executes successfully after the latest R1 commits
-- [ ] full Vanilla+ world conversion audit succeeds on the pinned source tree
-- [ ] at least one real Vanilla+ `.sav` is decoded and compared against known in-game state
-- [ ] the same real save is rewritten by the native layer and reopened successfully
-- [ ] Unreal Engine 5.8 build validates the typed R1 bridge
+Native R1 implementation is code-complete against the pinned Vanilla+ baseline.
+The compatibility review has re-checked the authoritative fork's SaveBlock1
+offsets, ObjectEventTemplate layout, save-sector rotation/selection,
+warp-coordinate precedence, coord-event matching, background-event matching,
+and map-connection coordinate rules.
 
-The first two are automated/code gates. The real-save gate requires a known Vanilla+ save fixture. The Unreal build gate requires the UE 5.8 Linux build environment.
+Automated coverage is wired for all of those contracts, including the
+deterministic save -> gameplay mutation -> save -> reload path.
+
+Current evidence gates:
+
+- [x] R1 implementation is present in the portable core
+- [x] deterministic save/event/warp/object regression coverage is wired into CTest
+- [x] the Unreal C++ embed preflight links and exercises the saved object-template layer
+- [x] real-save inspection/rewrite verifier CLI exists and reopens its output
+- [ ] portable C/C++ suite executes on a functioning runner after the latest commits
+- [ ] one known real Vanilla+ 128 KiB `.sav` is decoded and compared with its known in-game state
+- [ ] that same real save is rewritten by the native layer and reopened by Vanilla+
+
+The current GitHub Actions jobs are failing before their first workflow step
+(no Checkout/Configure/Test step is created), so they do not constitute a
+code-test failure. The portable suite remains an execution evidence gate until
+a runner actually starts.
+
+The full all-Hoenn conversion audit belongs to R3 in the fixed roadmap and is
+not an R1 exit blocker. UE 5.8 Linux compile/cook/APK validation is the separate
+parallel Unreal-build line and does not block the engine-independent R1-R4 core.
 
 ## Regression commands
 
