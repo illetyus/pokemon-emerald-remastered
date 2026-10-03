@@ -304,6 +304,24 @@ class ConvertScriptsIrTests(ConvertScriptsInventoryTests):
             texts = {item["text_id"]: item for item in ir["texts"]}
             self.assertEqual(texts["TestTown_Text_Hello"]["strings"], ["Hello!$"])
 
+    def test_ir_emits_ordered_special_manifest(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source_tree(root)
+            ir = convert_script_closure(
+                root,
+                [Path("data/maps/TestTown/scripts.inc")],
+            )
+
+            self.assertEqual(
+                ir["specials"],
+                [
+                    {"special_id": "HealPlayerParty", "special_index": 0},
+                    {"special_id": "SetCableClubWarp", "special_index": 1},
+                    {"special_id": "ChooseStarter", "special_index": 2},
+                ],
+            )
+
     def test_ir_output_is_deterministic(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
