@@ -19,8 +19,15 @@ enum {
     SB1_MONEY = 0x0490,
     SB1_COINS = 0x0494,
     SB1_REGISTERED_ITEM = 0x0496,
-    SB1_FLAGS = 0x1270,
-    SB1_VARS = 0x139C,
+
+    /*
+     * Production AGBCC layout: the fork's widened ObjectEvent.graphicsId
+     * makes struct ObjectEvent 0x28 bytes instead of the stale 0x24 comment.
+     * Sixteen saved ObjectEvents therefore shift all following SaveBlock1
+     * fields by 0x40 bytes.
+     */
+    SB1_FLAGS = 0x12B0,
+    SB1_VARS = 0x13DC,
 
     SB2_ENCRYPTION_KEY = 0x00AC
 };
