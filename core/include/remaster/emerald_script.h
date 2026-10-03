@@ -51,7 +51,19 @@ typedef enum RemasterEmeraldScriptOpcode {
     REMASTER_EMERALD_SCRIPT_CHECK_FLAG,
     REMASTER_EMERALD_SCRIPT_SET_WEATHER,
     REMASTER_EMERALD_SCRIPT_SET_MAP_LAYOUT,
-    REMASTER_EMERALD_SCRIPT_WAIT_STATE
+    REMASTER_EMERALD_SCRIPT_WAIT_STATE,
+
+    REMASTER_EMERALD_SCRIPT_ADD_OBJECT,
+    REMASTER_EMERALD_SCRIPT_REMOVE_OBJECT,
+    REMASTER_EMERALD_SCRIPT_SHOW_OBJECT,
+    REMASTER_EMERALD_SCRIPT_HIDE_OBJECT,
+    REMASTER_EMERALD_SCRIPT_SET_OBJECT_XY,
+    REMASTER_EMERALD_SCRIPT_SET_OBJECT_XY_PERM,
+    REMASTER_EMERALD_SCRIPT_SET_OBJECT_MOVEMENT_TYPE,
+    REMASTER_EMERALD_SCRIPT_TURN_OBJECT,
+    REMASTER_EMERALD_SCRIPT_FACE_PLAYER,
+    REMASTER_EMERALD_SCRIPT_APPLY_MOVEMENT,
+    REMASTER_EMERALD_SCRIPT_WAIT_MOVEMENT
 } RemasterEmeraldScriptOpcode;
 
 typedef struct RemasterEmeraldScriptInstruction {
@@ -74,6 +86,15 @@ typedef struct RemasterEmeraldScriptInstruction {
      */
     uint32_t target_program;
     uint8_t target_program_valid;
+
+    /*
+     * Typed R2 resource payload. These are semantic IR values, never GBA
+     * pointers. resource_id is a generated stable identity.
+     */
+    uint32_t map_id;
+    const char *resource_id;
+    int16_t x;
+    int16_t y;
 } RemasterEmeraldScriptInstruction;
 
 typedef struct RemasterEmeraldScriptProgram {
