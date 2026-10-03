@@ -65,6 +65,15 @@ RemasterEmeraldScriptStatus remaster_emerald_script_runtime_run(
 
     if (status == REMASTER_EMERALD_SCRIPT_YIELDED) {
         RemasterEmeraldScriptRequest *request = &runtime->pending_request;
+        const RemasterEmeraldScriptInstruction *ins = 0;
+        uint32_t yielded_pc =
+            runtime->vm.pc == 0 ? 0 : runtime->vm.pc - 1u;
+
+        if (runtime->vm.program != 0
+            && yielded_pc < runtime->vm.program_count)
+        {
+            ins = &runtime->vm.program[yielded_pc];
+        }
 
         memset(request, 0, sizeof(*request));
         request->type = REMASTER_EMERALD_SCRIPT_REQUEST_WAIT_STATE;
@@ -72,7 +81,66 @@ RemasterEmeraldScriptStatus remaster_emerald_script_runtime_run(
         if (runtime->next_request_sequence == 0)
             runtime->next_request_sequence = 1;
         request->program_index = runtime->vm.program_index;
-        request->pc = runtime->vm.pc == 0 ? 0 : runtime->vm.pc - 1u;
+        request->pc = yielded_pc;
+
+        if (ins != 0) {
+            request->local_id = ins->a;
+            request->map_id = ins->map_id;
+            request->resource_id = ins->resource_id;
+            request->x = ins->x;
+            request->y = ins->y;
+            request->value_u16 = ins->b;
+
+            switch (ins->opcode) {
+            case REMASTER_EMERALD_SCRIPT_APPLY_MOVEMENT:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_MOVEMENT;
+                request->action = REMASTER_EMERALD_SCRIPT_MOVEMENT_START;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_WAIT_MOVEMENT:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_MOVEMENT;
+                request->action = REMASTER_EMERALD_SCRIPT_MOVEMENT_WAIT;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_ADD_OBJECT:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT;
+                request->action = REMASTER_EMERALD_SCRIPT_OBJECT_ADD;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_REMOVE_OBJECT:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT;
+                request->action = REMASTER_EMERALD_SCRIPT_OBJECT_REMOVE;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_SHOW_OBJECT:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT;
+                request->action = REMASTER_EMERALD_SCRIPT_OBJECT_SHOW;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_HIDE_OBJECT:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT;
+                request->action = REMASTER_EMERALD_SCRIPT_OBJECT_HIDE;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_SET_OBJECT_XY:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT;
+                request->action = REMASTER_EMERALD_SCRIPT_OBJECT_SET_XY;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_TURN_OBJECT:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT;
+                request->action = REMASTER_EMERALD_SCRIPT_OBJECT_TURN;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_FACE_PLAYER:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT;
+                request->action = REMASTER_EMERALD_SCRIPT_OBJECT_FACE_PLAYER;
+                break;
+
+            default:
+                break;
+            }
+        }
 
         runtime->has_pending_request = 1;
     }
@@ -109,6 +177,16 @@ int remaster_emerald_script_runtime_complete(
     if (completion->type != runtime->pending_request.type
         || completion->sequence != runtime->pending_request.sequence
         || !completion->accepted)
+    {
+        return 0;
+    }
+
+    if ((runtime->pending_request.type
+            == REMASTER_EMERALD_SCRIPT_REQUEST_MOVEMENT
+         || runtime->pending_request.type
+            == REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT)
+        && (completion->local_id != runtime->pending_request.local_id
+            || completion->map_id != runtime->pending_request.map_id))
     {
         return 0;
     }
