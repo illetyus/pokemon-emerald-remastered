@@ -53,11 +53,35 @@ int remaster_emerald_overworld_set(
     RemasterEmeraldSave *save,
     const RemasterEmeraldOverworldState *state);
 
+int remaster_emerald_continue_game_warp_get(
+    const RemasterEmeraldSave *save,
+    RemasterEmeraldWarpState *out_warp);
+
+int remaster_emerald_continue_game_warp_set(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldWarpState *warp);
+
 int remaster_emerald_dynamic_warp_get(
     const RemasterEmeraldSave *save,
     RemasterEmeraldWarpState *out_warp);
 
 int remaster_emerald_dynamic_warp_set(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldWarpState *warp);
+
+int remaster_emerald_last_heal_warp_get(
+    const RemasterEmeraldSave *save,
+    RemasterEmeraldWarpState *out_warp);
+
+int remaster_emerald_last_heal_warp_set(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldWarpState *warp);
+
+int remaster_emerald_escape_warp_get(
+    const RemasterEmeraldSave *save,
+    RemasterEmeraldWarpState *out_warp);
+
+int remaster_emerald_escape_warp_set(
     RemasterEmeraldSave *save,
     const RemasterEmeraldWarpState *warp);
 
