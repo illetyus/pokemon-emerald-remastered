@@ -86,6 +86,22 @@ class ConvertScriptsInventoryTests(unittest.TestCase):
 .endm
 .macro setobjectxyperm localId:req, x:req, y:req
 .endm
+.macro lockall
+.endm
+.macro releaseall
+.endm
+.macro setmetatile x:req, y:req, metatileId:req, impassable:req
+.endm
+.macro savebgm song:req
+.endm
+.macro fadedefaultbgm
+.endm
+.macro incrementgamestat stat:req
+.endm
+.macro bufferleadmonspeciesname stringVarId:req
+.endm
+.macro setfollower localId:req, flags:req
+.endm
 .macro map_script kind:req, script:req
 .endm
 .macro map_script_2 var:req, value:req, script:req
@@ -137,6 +153,16 @@ TestTown_OnTransition:
     checkplayergender
     setobjectxyperm VAR_0x8004, 3, 4
     opendoor VAR_0x8004, VAR_0x8005
+    lockall
+    setmetatile VAR_0x8004, VAR_0x8005, METATILE_TEST, TRUE
+    savebgm MUS_TEST
+    fadedefaultbgm
+    incrementgamestat GAME_STAT_TEST
+    bufferleadmonspeciesname STR_VAR_1
+    setfollower VAR_0x8004, 0x7E
+    followerintopokeball
+    updatefollowerpokemongraphic
+    releaseall
     applymovement 1, TestTown_Movement_Walk
     msgbox TestTown_Text_Hello, MSGBOX_DEFAULT
     setflag FLAG_TEST
@@ -319,6 +345,48 @@ class ConvertScriptsIrTests(ConvertScriptsInventoryTests):
                 },
                 ops,
             )
+
+            self.assertIn({"op": "LOCK_ALL"}, ops)
+            self.assertIn(
+                {
+                    "op": "SET_METATILE",
+                    "x_operand": "VAR_0x8004",
+                    "y_operand": "VAR_0x8005",
+                    "metatile": "METATILE_TEST",
+                    "impassable": "TRUE",
+                },
+                ops,
+            )
+            self.assertIn(
+                {"op": "SAVE_BGM", "song": "MUS_TEST"},
+                ops,
+            )
+            self.assertIn({"op": "FADE_DEFAULT_BGM"}, ops)
+            self.assertIn(
+                {"op": "INCREMENT_GAME_STAT", "stat": "GAME_STAT_TEST"},
+                ops,
+            )
+            self.assertIn(
+                {
+                    "op": "BUFFER_LEAD_MON_SPECIES_NAME",
+                    "string_var": "STR_VAR_1",
+                },
+                ops,
+            )
+            self.assertIn(
+                {
+                    "op": "SET_FOLLOWER",
+                    "local_id": "VAR_0x8004",
+                    "flags": "0x7E",
+                },
+                ops,
+            )
+            self.assertIn({"op": "FOLLOWER_INTO_POKEBALL"}, ops)
+            self.assertIn(
+                {"op": "UPDATE_FOLLOWER_POKEMON_GRAPHIC"},
+                ops,
+            )
+            self.assertIn({"op": "RELEASE_ALL"}, ops)
 
     def test_map_tables_movements_and_text_have_separate_stable_identity(self):
         with tempfile.TemporaryDirectory() as temp:
