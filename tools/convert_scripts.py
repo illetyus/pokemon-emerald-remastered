@@ -815,6 +815,18 @@ def _normalize_script_command(
             item["warp_id"] = args[1]
         return [item]
 
+    if name == "msgbox" and len(args) >= 1:
+        item: dict[str, object] = {
+            "op": "MESSAGE",
+            "text_id": args[0],
+        }
+        if len(args) >= 2:
+            item["mode"] = args[1]
+        result = [item]
+        if len(args) >= 2 and args[1] == "MSGBOX_YESNO":
+            result.append({"op": "CHOICE", "resource_id": "YesNo"})
+        return result
+
     field_shapes: dict[str, tuple[str, tuple[str, ...]]] = {
         "setvar": ("SET_VAR", ("var", "value")),
         "setflag": ("SET_FLAG", ("flag",)),
@@ -823,7 +835,6 @@ def _normalize_script_command(
         "applymovement":
             ("APPLY_MOVEMENT", ("local_id", "movement_id")),
         "waitmovement": ("WAIT_MOVEMENT", ("local_id",)),
-        "msgbox": ("MESSAGE", ("text_id", "mode")),
     }
     if name in field_shapes:
         op, fields = field_shapes[name]
