@@ -15,6 +15,8 @@ import struct
 from pathlib import Path
 from typing import Any
 
+from r3_script_catalog import build_script_catalog
+
 
 SCHEMA_VERSION = 1
 
@@ -648,6 +650,11 @@ def convert_map(
 def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
     layouts_doc = load_json(source_root / "data/layouts/layouts.json")
     constants = build_numeric_constant_index(source_root)
+    script_catalog = build_script_catalog(source_root)
+    script_ownership_by_map = {
+        item["map"]: item["script_ownership"]
+        for item in script_catalog["maps"]
+    }
 
     layout_specs: dict[str, dict[str, Any]] = {}
     for index, entry in enumerate(layouts_doc["layouts"]):
@@ -741,6 +748,13 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
         encoding="utf-8",
     )
 
+    output_scripts = output_root / "scripts"
+    output_scripts.mkdir(parents=True, exist_ok=True)
+    (output_scripts / "manifest.json").write_text(
+        json.dumps(script_catalog, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
     output_maps = output_root / "maps"
     output_maps.mkdir(parents=True, exist_ok=True)
 
@@ -757,6 +771,9 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
             map_id_locations,
         )
         map_name = converted["map"]["name"]
+        if map_name not in script_ownership_by_map:
+            raise KeyError(f"{map_name}: missing from R3 script catalog")
+        converted["map"]["script_ownership"] = script_ownership_by_map[map_name]
         out_path = output_maps / f"{map_name}.json"
         out_path.write_text(
             json.dumps(converted, indent=2, ensure_ascii=False) + "\n",
@@ -773,6 +790,7 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
                 "layout_num": converted["map"]["layout_num"],
                 "group_num": converted["map"]["group_num"],
                 "map_num": converted["map"]["map_num"],
+                "script_ownership": converted["map"]["script_ownership"],
             }
         )
 
@@ -781,6 +799,9 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
         "map_count": len(manifest_maps),
         "layout_count": len(layout_manifest_entries),
         "layouts_file": "layouts.json",
+        "scripts_file": "scripts/manifest.json",
+        "script_label_count": script_catalog["script_label_count"],
+        "script_source_file_count": script_catalog["script_source_file_count"],
         "maps": manifest_maps,
     }
     (output_root / "manifest.json").write_text(
