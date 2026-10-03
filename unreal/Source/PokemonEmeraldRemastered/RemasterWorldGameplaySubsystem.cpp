@@ -371,6 +371,145 @@ bool URemasterWorldGameplaySubsystem::ResolveCoordEventAt(
 }
 
 
+
+bool URemasterWorldGameplaySubsystem::ResolveBackgroundEventAt(
+    int32 X,
+    int32 Y,
+    int32 Elevation,
+    int32 FacingDirection,
+    FRemasterResolvedBackgroundEvent& OutEvent) const
+{
+    OutEvent = FRemasterResolvedBackgroundEvent{};
+
+    if (!bMapReady
+        || !FitsInt16(X)
+        || !FitsInt16(Y)
+        || !FitsUInt8(Elevation)
+        || FacingDirection < REMASTER_EMERALD_DIR_SOUTH
+        || FacingDirection > REMASTER_EMERALD_DIR_EAST
+        || !GetGameInstance())
+    {
+        return false;
+    }
+
+    const URemasterVanillaPlusSaveSubsystem* SaveSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
+
+    if (!SaveSubsystem || !SaveSubsystem->HasUsableSave())
+        return false;
+
+    const RemasterEmeraldSave* Save =
+        static_cast<const RemasterEmeraldSave*>(
+            SaveSubsystem->GetNativeSaveHandle());
+
+    if (!Save)
+        return false;
+
+    TArray<RemasterEmeraldBackgroundEventDef> NativeEvents;
+    TArray<int32> SourceIndices;
+
+    NativeEvents.Reserve(CurrentMap.BackgroundEvents.Num());
+    SourceIndices.Reserve(CurrentMap.BackgroundEvents.Num());
+
+    for (int32 Index = 0; Index < CurrentMap.BackgroundEvents.Num(); ++Index)
+    {
+        const FRemasterBackgroundEventIR& Event =
+            CurrentMap.BackgroundEvents[Index];
+
+        if (!FitsInt16(Event.X)
+            || !FitsInt16(Event.Y)
+            || !FitsUInt8(Event.Elevation)
+            || !FitsUInt8(Event.KindId))
+        {
+            continue;
+        }
+
+        RemasterEmeraldBackgroundEventDef Native{};
+        Native.x = static_cast<int16>(Event.X);
+        Native.y = static_cast<int16>(Event.Y);
+        Native.elevation = static_cast<uint8>(Event.Elevation);
+        Native.kind = static_cast<uint8>(Event.KindId);
+
+        if (Event.KindId == REMASTER_EMERALD_BG_HIDDEN_ITEM)
+        {
+            if (!FitsUInt16(Event.ItemId)
+                || !FitsUInt16(Event.FlagId))
+            {
+                continue;
+            }
+
+            Native.item_id = static_cast<uint16>(Event.ItemId);
+            Native.hidden_flag_id = static_cast<uint16>(Event.FlagId);
+        }
+        else if (Event.KindId == REMASTER_EMERALD_BG_SECRET_BASE)
+        {
+            if (!FitsUInt16(Event.SecretBaseId))
+                continue;
+
+            Native.secret_base_id =
+                static_cast<uint16>(Event.SecretBaseId);
+        }
+
+        NativeEvents.Add(Native);
+        SourceIndices.Add(Index);
+    }
+
+    if (NativeEvents.IsEmpty())
+        return false;
+
+    const RemasterEmeraldBackgroundMatch Match =
+        remaster_emerald_find_background_event(
+            Save,
+            NativeEvents.GetData(),
+            static_cast<size_t>(NativeEvents.Num()),
+            static_cast<int16>(X),
+            static_cast<int16>(Y),
+            static_cast<uint8>(Elevation),
+            static_cast<uint8>(FacingDirection));
+
+    if (Match.kind == REMASTER_EMERALD_BG_MATCH_NONE
+        || Match.event_index >= static_cast<size_t>(SourceIndices.Num()))
+    {
+        return false;
+    }
+
+    const int32 SourceIndex =
+        SourceIndices[static_cast<int32>(Match.event_index)];
+
+    if (!CurrentMap.BackgroundEvents.IsValidIndex(SourceIndex))
+        return false;
+
+    const FRemasterBackgroundEventIR& Source =
+        CurrentMap.BackgroundEvents[SourceIndex];
+
+    OutEvent.SourceEventIndex = SourceIndex;
+    OutEvent.Script = Source.Script;
+    OutEvent.Item = Source.Item;
+    OutEvent.ItemId = Source.ItemId;
+    OutEvent.FlagId = Source.FlagId;
+    OutEvent.SecretBaseId = Source.SecretBaseId;
+
+    switch (Match.kind)
+    {
+    case REMASTER_EMERALD_BG_MATCH_SCRIPT:
+        OutEvent.Kind = ERemasterResolvedBackgroundKind::Script;
+        break;
+
+    case REMASTER_EMERALD_BG_MATCH_HIDDEN_ITEM:
+        OutEvent.Kind = ERemasterResolvedBackgroundKind::HiddenItem;
+        break;
+
+    case REMASTER_EMERALD_BG_MATCH_SECRET_BASE:
+        OutEvent.Kind = ERemasterResolvedBackgroundKind::SecretBase;
+        break;
+
+    default:
+        return false;
+    }
+
+    return true;
+}
+
 bool URemasterWorldGameplaySubsystem::ApplyResolvedWarp(
     const FRemasterResolvedWarp& Warp)
 {
