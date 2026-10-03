@@ -372,7 +372,12 @@ Test_SignScript::
                 encoding="utf-8",
             )
 
-            manifest = convert_world(root, out)
+            manifest = convert_world(
+                root,
+                out,
+                source_commit="abc123",
+                source_repository="test/vanillaplus",
+            )
 
             self.assertEqual(manifest["map_count"], 2)
             self.assertEqual(manifest["layout_count"], 2)
@@ -382,6 +387,7 @@ Test_SignScript::
             self.assertEqual(manifest["encounters_file"], "encounters.json")
             self.assertEqual(manifest["encounter_group_count"], 1)
             self.assertEqual(manifest["map_encounter_count"], 1)
+            self.assertEqual(manifest["provenance_file"], "provenance.json")
             self.assertEqual(manifest["maps"][0]["group_num"], 0)
             self.assertEqual(manifest["maps"][0]["map_num"], 1)
             self.assertEqual(manifest["maps"][0]["layout_num"], 1)
@@ -389,6 +395,7 @@ Test_SignScript::
             self.assertEqual(manifest["maps"][1]["map_num"], 0)
             self.assertEqual(manifest["maps"][1]["layout_num"], 1)
             converted = json.loads((out / "maps/TestTown.json").read_text())
+            self.assertEqual(len(converted["fingerprint_sha256"]), 64)
             self.assertEqual(converted["map"]["group_name"], "gMapGroup_Test")
             self.assertEqual(converted["map"]["group_num"], 0)
             self.assertEqual(converted["map"]["map_num"], 0)
@@ -589,6 +596,14 @@ Test_SignScript::
                 encounter["land_mons"]["mons"][0]["species_id"],
                 25,
             )
+
+            provenance = json.loads((out / "provenance.json").read_text())
+            self.assertEqual(provenance["source_repository"], "test/vanillaplus")
+            self.assertEqual(provenance["source_commit"], "abc123")
+            self.assertEqual(provenance["source_counts"]["map_count"], 2)
+            self.assertEqual(provenance["source_counts"]["layout_count"], 2)
+            self.assertEqual(len(provenance["package_sha256"]), 64)
+            self.assertIn("maps/TestTown.json", provenance["file_sha256"])
 
 
 if __name__ == "__main__":
