@@ -50,6 +50,18 @@ class ConvertWorldTests(unittest.TestCase):
                 "#define WEATHER_TEST 9\n",
                 encoding="utf-8",
             )
+            (root / "include/constants/items.h").write_text(
+                "#define ITEM_TEST 16\n",
+                encoding="utf-8",
+            )
+            (root / "include/constants/event_bg.h").write_text(
+                "#define BG_EVENT_PLAYER_FACING_ANY 0\n"
+                "#define BG_EVENT_PLAYER_FACING_NORTH 1\n"
+                "#define BG_EVENT_PLAYER_FACING_SOUTH 2\n"
+                "#define BG_EVENT_PLAYER_FACING_EAST 3\n"
+                "#define BG_EVENT_PLAYER_FACING_WEST 4\n",
+                encoding="utf-8",
+            )
             (root / "include/constants/maps.h").write_text(
                 "#define WARP_ID_DYNAMIC 0x7F\n",
                 encoding="utf-8",
@@ -168,7 +180,24 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                                 "weather": "WEATHER_TEST",
                             },
                         ],
-                        "bg_events": [],
+                        "bg_events": [
+                            {
+                                "type": "sign",
+                                "x": 0,
+                                "y": 0,
+                                "elevation": 0,
+                                "player_facing_dir": "BG_EVENT_PLAYER_FACING_NORTH",
+                                "script": "Test_SignScript",
+                            },
+                            {
+                                "type": "hidden_item",
+                                "x": 1,
+                                "y": 1,
+                                "elevation": 3,
+                                "item": "ITEM_TEST",
+                                "flag": "FLAG_TEST",
+                            },
+                        ],
                     }
                 ),
                 encoding="utf-8",
@@ -232,6 +261,11 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(converted["map"]["coord_events"][0]["var_id"], 0x4007)
             self.assertEqual(converted["map"]["coord_events"][0]["var_value_u16"], 3)
             self.assertEqual(converted["map"]["coord_events"][1]["weather_id"], 9)
+            self.assertEqual(converted["map"]["bg_events"][0]["kind_id"], 1)
+            self.assertEqual(converted["map"]["bg_events"][0]["player_facing_dir_id"], 1)
+            self.assertEqual(converted["map"]["bg_events"][1]["kind_id"], 7)
+            self.assertEqual(converted["map"]["bg_events"][1]["item_id"], 16)
+            self.assertEqual(converted["map"]["bg_events"][1]["flag_id"], 0x123)
             self.assertEqual(converted["map"]["connections"][0]["direction"], "up")
 
 
