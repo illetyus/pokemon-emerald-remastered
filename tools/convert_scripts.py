@@ -313,6 +313,12 @@ def _index_script_sources(
     for path in (source_root / "data/scripts").glob("**/*.inc"):
         if path.is_file():
             candidates.add(path)
+    for path in (source_root / "data/text").glob("**/*.inc"):
+        if path.is_file():
+            candidates.add(path)
+    event_scripts = source_root / "data/event_scripts.s"
+    if event_scripts.is_file():
+        candidates.add(event_scripts)
     for relative in roots:
         path = source_root / relative
         if path.is_file():
@@ -492,6 +498,12 @@ def _script_source_sections(
     for path in (source_root / "data/scripts").glob("**/*.inc"):
         if path.is_file():
             candidates.add(path)
+    for path in (source_root / "data/text").glob("**/*.inc"):
+        if path.is_file():
+            candidates.add(path)
+    event_scripts = source_root / "data/event_scripts.s"
+    if event_scripts.is_file():
+        candidates.add(event_scripts)
     for relative in roots:
         path = source_root / relative
         if path.is_file():
