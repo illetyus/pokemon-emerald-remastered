@@ -111,6 +111,11 @@ class ConvertWorldTests(unittest.TestCase):
                 "#define BERRY_TREE_TEST 52\n",
                 encoding="utf-8",
             )
+            (root / "include/constants/species.h").write_text(
+                "#define SPECIES_NONE 0\n"
+                "#define SPECIES_TESTMON 25\n",
+                encoding="utf-8",
+            )
 
             (root / "data/layouts/layouts.json").write_text(
                 json.dumps(
@@ -330,6 +335,43 @@ Test_SignScript::
                 encoding="utf-8",
             )
 
+            (root / "src/data").mkdir(parents=True, exist_ok=True)
+            (root / "src/data/wild_encounters.json").write_text(
+                json.dumps(
+                    {
+                        "wild_encounter_groups": [
+                            {
+                                "label": "gWildMonHeaders",
+                                "for_maps": True,
+                                "fields": [
+                                    {
+                                        "type": "land_mons",
+                                        "encounter_rates": [100],
+                                    }
+                                ],
+                                "encounters": [
+                                    {
+                                        "map": "MAP_TEST_TOWN",
+                                        "base_label": "gTestTown",
+                                        "land_mons": {
+                                            "encounter_rate": 20,
+                                            "mons": [
+                                                {
+                                                    "min_level": 2,
+                                                    "max_level": 3,
+                                                    "species": "SPECIES_TESTMON",
+                                                }
+                                            ],
+                                        },
+                                    }
+                                ],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
             manifest = convert_world(root, out)
 
             self.assertEqual(manifest["map_count"], 2)
@@ -337,6 +379,9 @@ Test_SignScript::
             self.assertEqual(manifest["layouts_file"], "layouts.json")
             self.assertEqual(manifest["scripts_file"], "scripts/manifest.json")
             self.assertGreaterEqual(manifest["script_label_count"], 4)
+            self.assertEqual(manifest["encounters_file"], "encounters.json")
+            self.assertEqual(manifest["encounter_group_count"], 1)
+            self.assertEqual(manifest["map_encounter_count"], 1)
             self.assertEqual(manifest["maps"][0]["group_num"], 0)
             self.assertEqual(manifest["maps"][0]["map_num"], 1)
             self.assertEqual(manifest["maps"][0]["layout_num"], 1)
@@ -533,6 +578,16 @@ Test_SignScript::
                     "Test_ImmediateScript",
                     "Test_SignScript",
                 }.issubset(refs)
+            )
+
+            encounters = json.loads((out / "encounters.json").read_text())
+            self.assertEqual(encounters["group_count"], 1)
+            self.assertEqual(encounters["map_encounter_count"], 1)
+            encounter = encounters["groups"][0]["encounters"][0]
+            self.assertEqual(encounter["map_name"], "TestTown")
+            self.assertEqual(
+                encounter["land_mons"]["mons"][0]["species_id"],
+                25,
             )
 
 
