@@ -374,65 +374,21 @@ def add_numeric_map_targets(
     return result
 
 
-def convert_map(
+def convert_layout_document(
     source_root: Path,
-    map_path: Path,
-    layouts: dict[str, dict[str, Any]],
+    layout: dict[str, Any],
     tileset_attributes: dict[str, Path],
-    map_locations: dict[str, tuple[int, int, str]],
-    constants: dict[str, int],
-    map_id_locations: dict[str, tuple[int, int]],
 ) -> dict[str, Any]:
-    source = load_json(map_path)
-    layout_id = source["layout"]
-    map_name = source["name"]
-
-    event_source = source
-    shared_events_map = source.get("shared_events_map")
-    shared_events_json: Path | None = None
-    if shared_events_map is not None:
-        if not isinstance(shared_events_map, str) or not shared_events_map:
-            raise ValueError(
-                f"{map_path}: shared_events_map must be a non-empty map name"
-            )
-        shared_events_json = (
-            source_root / "data/maps" / shared_events_map / "map.json"
-        )
-        if not shared_events_json.is_file():
-            raise FileNotFoundError(
-                f"{map_path}: shared events map not found: {shared_events_json}"
-            )
-        event_source = load_json(shared_events_json)
-        if event_source.get("name") != shared_events_map:
-            raise ValueError(
-                f"{shared_events_json}: shared map name mismatch"
-            )
-
-    if map_name not in map_locations:
-        raise KeyError(
-            f"{map_path}: map {map_name} is missing from map_groups.json"
-        )
-
-    map_group, map_num, map_group_name = map_locations[map_name]
-
-    if layout_id not in layouts:
-        raise KeyError(f"{map_path}: unknown layout {layout_id}")
-
-    layout = layouts[layout_id]
+    layout_id = layout["id"]
     width = int(layout["width"])
     height = int(layout["height"])
-
     primary_tileset = layout["primary_tileset"]
     secondary_tileset = layout["secondary_tileset"]
 
     if primary_tileset not in tileset_attributes:
-        raise KeyError(
-            f"{map_path}: unknown primary tileset {primary_tileset}"
-        )
+        raise KeyError(f"{layout_id}: unknown primary tileset {primary_tileset}")
     if secondary_tileset not in tileset_attributes:
-        raise KeyError(
-            f"{map_path}: unknown secondary tileset {secondary_tileset}"
-        )
+        raise KeyError(f"{layout_id}: unknown secondary tileset {secondary_tileset}")
 
     primary_attributes_path = tileset_attributes[primary_tileset]
     secondary_attributes_path = tileset_attributes[secondary_tileset]
@@ -459,8 +415,6 @@ def convert_map(
             f"{border_path}: expected at least 4 Emerald border words, "
             f"got {len(border_source_words)}"
         )
-    border_words = border_source_words[:4]
-    border_trailing_words = border_source_words[4:]
 
     if len(source_words) < active_word_count:
         raise ValueError(
@@ -470,163 +424,18 @@ def convert_map(
 
     blocks = source_words[:active_word_count]
     trailing_words = source_words[active_word_count:]
-
-    metatile_ids = [word & 0x03FF for word in blocks]
-    collision = [(word & 0x0C00) >> 10 for word in blocks]
-    elevation = [(word & 0xF000) >> 12 for word in blocks]
-
-    map_weather_id = resolve_numeric(source.get("weather"), constants)
-    map_type_id = resolve_numeric(source.get("map_type"), constants)
-    music_id = resolve_numeric(source.get("music"), constants)
-    region_map_section_id = resolve_numeric(
-        source.get("region_map_section"),
-        constants,
-    )
-    battle_scene_id = resolve_numeric(source.get("battle_scene"), constants)
-
-    if map_weather_id is None:
-        raise ValueError(
-            f"{map_path}: unresolved map weather {source.get('weather')!r}"
-        )
-    if map_type_id is None:
-        raise ValueError(
-            f"{map_path}: unresolved map type {source.get('map_type')!r}"
-        )
-    if music_id is None:
-        raise ValueError(
-            f"{map_path}: unresolved map music {source.get('music')!r}"
-        )
-    if region_map_section_id is None:
-        raise ValueError(
-            f"{map_path}: unresolved region map section "
-            f"{source.get('region_map_section')!r}"
-        )
-    if battle_scene_id is None:
-        raise ValueError(
-            f"{map_path}: unresolved battle scene {source.get('battle_scene')!r}"
-        )
-
-    shared_scripts_map = source.get("shared_scripts_map")
-    own_scripts_path = source_root / "data/maps" / map_name / "scripts.inc"
-    if shared_scripts_map is not None:
-        script_ownership = {
-            "kind": "shared",
-            "owner": shared_scripts_map,
-        }
-    elif own_scripts_path.is_file():
-        script_ownership = {
-            "kind": "own",
-            "owner": map_name,
-        }
-    else:
-        script_ownership = {
-            "kind": "none",
-            "owner": None,
-        }
+    border_words = border_source_words[:4]
+    border_trailing_words = border_source_words[4:]
 
     return {
         "schema_version": SCHEMA_VERSION,
         "source": {
-            "map_json": str(map_path.relative_to(source_root)).replace("\\", "/"),
-            "blockdata": str(block_path.relative_to(source_root)).replace("\\", "/"),
-            "border": str(border_path.relative_to(source_root)).replace("\\", "/"),
-            "primary_metatile_attributes": str(
-                primary_attributes_path.relative_to(source_root)
-            ).replace("\\", "/"),
-            "secondary_metatile_attributes": str(
-                secondary_attributes_path.relative_to(source_root)
-            ).replace("\\", "/"),
-            "shared_events_json": (
-                str(shared_events_json.relative_to(source_root)).replace("\\", "/")
-                if shared_events_json is not None
-                else None
-            ),
+            "blockdata": layout_source["blockdata"],
+            "border": layout_source["border"],
+            "primary_metatile_attributes": layout_source["primary_metatile_attributes"],
+            "secondary_metatile_attributes": layout_source["secondary_metatile_attributes"],
         },
-        "map": {
-            "id": source["id"],
-            "name": map_name,
-            "group_name": map_group_name,
-            "group_num": map_group,
-            "map_num": map_num,
-            "layout": layout_id,
-            "layout_num": int(layout["_numeric_id"]),
-            "music": source.get("music"),
-            "music_id": music_id,
-            "region_map_section": source.get("region_map_section"),
-            "region_map_section_id": region_map_section_id,
-            "requires_flash": bool(source.get("requires_flash", False)),
-            "weather": source.get("weather"),
-            "weather_id": map_weather_id,
-            "map_type": source.get("map_type"),
-            "map_type_id": map_type_id,
-            "allow_cycling": bool(source.get("allow_cycling", False)),
-            "allow_escaping": bool(source.get("allow_escaping", False)),
-            "allow_running": bool(source.get("allow_running", False)),
-            "show_map_name": bool(source.get("show_map_name", False)),
-            "battle_scene": source.get("battle_scene"),
-            "battle_scene_id": battle_scene_id,
-            "shared_events_map": shared_events_map,
-            "shared_scripts_map": shared_scripts_map,
-            "script_ownership": script_ownership,
-            "connections": add_numeric_map_targets(
-                [
-                    normalize_event(x, constants)
-                    for x in list_field(source, "connections")
-                ],
-                map_id_locations,
-            ),
-            "object_events": normalize_object_events(
-                list_field(event_source, "object_events"),
-                constants,
-            ),
-            "warp_events": add_numeric_map_targets(
-                [
-                    normalize_event(x, constants)
-                    for x in list_field(event_source, "warp_events")
-                ],
-                map_id_locations,
-            ),
-            "coord_events": [
-                normalize_event(x, constants)
-                for x in list_field(event_source, "coord_events")
-            ],
-            "bg_events": [
-                normalize_background_event(x, constants)
-                for x in list_field(event_source, "bg_events")
-            ],
-        },
-        "layout": {
-            "id": layout_id,
-            "name": layout.get("name"),
-            "width": width,
-            "height": height,
-            "primary_tileset": primary_tileset,
-            "secondary_tileset": secondary_tileset,
-            "primary_metatile_attributes_u16": primary_attributes,
-            "secondary_metatile_attributes_u16": secondary_attributes,
-            "primary_metatile_behavior_u8": [
-                value & 0x00FF for value in primary_attributes
-            ],
-            "secondary_metatile_behavior_u8": [
-                value & 0x00FF for value in secondary_attributes
-            ],
-            "primary_metatile_layer_u8": [
-                (value & 0xF000) >> 12 for value in primary_attributes
-            ],
-            "secondary_metatile_layer_u8": [
-                (value & 0xF000) >> 12 for value in secondary_attributes
-            ],
-            "source_word_count": len(source_words),
-            "active_word_count": active_word_count,
-            "border_source_word_count": len(border_source_words),
-            "border_active_words_u16": border_words,
-            "border_trailing_words_u16": border_trailing_words,
-            "raw_blocks_u16": blocks,
-            "trailing_words_u16": trailing_words,
-            "metatile_ids_u16": metatile_ids,
-            "collision_u8": collision,
-            "elevation_u8": elevation,
-        },
+        "layout": dict(layout),
     }
 
 
@@ -634,7 +443,7 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
     layouts_doc = load_json(source_root / "data/layouts/layouts.json")
     constants = build_numeric_constant_index(source_root)
 
-    layouts: dict[str, dict[str, Any]] = {}
+    layout_specs: dict[str, dict[str, Any]] = {}
     for index, entry in enumerate(layouts_doc["layouts"]):
         layout_id = entry["id"]
         numeric_id = constants.get(layout_id)
@@ -651,16 +460,30 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
                 f"but layouts.h defines {numeric_id}"
             )
 
-        layouts[layout_id] = {
+        if layout_id in layout_specs:
+            raise ValueError(f"duplicate layout id {layout_id}")
+
+        layout_specs[layout_id] = {
             **entry,
             "_numeric_id": numeric_id,
         }
 
     tileset_attributes = build_tileset_attribute_index(source_root)
+    layouts = {
+        layout_id: convert_layout_document(
+            source_root,
+            layout,
+            tileset_attributes,
+        )
+        for layout_id, layout in layout_specs.items()
+    }
     map_locations = build_map_location_index(source_root)
 
     map_files = sorted((source_root / "data/maps").glob("*/map.json"))
 
+    layout_usage: dict[str, list[str]] = {
+        layout_id: [] for layout_id in layouts
+    }
     map_id_locations: dict[str, tuple[int, int]] = {}
     for map_path in map_files:
         source = load_json(map_path)
@@ -671,6 +494,46 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
             )
         group_num, map_num, _ = map_locations[map_name]
         map_id_locations[source["id"]] = (group_num, map_num)
+        layout_id = source["layout"]
+        if layout_id not in layout_usage:
+            raise KeyError(f"{map_path}: unknown layout {layout_id}")
+        layout_usage[layout_id].append(map_name)
+
+    output_layouts = output_root / "layouts"
+    output_layouts.mkdir(parents=True, exist_ok=True)
+    layout_manifest_entries: list[dict[str, Any]] = []
+    for layout_id, document in sorted(
+        layouts.items(),
+        key=lambda item: item[1]["layout"]["layout_num"],
+    ):
+        used_by = sorted(layout_usage[layout_id])
+        out_path = output_layouts / f"{layout_id}.json"
+        layout_document = {
+            **document,
+            "used_by_maps": used_by,
+        }
+        out_path.write_text(
+            json.dumps(layout_document, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        layout_manifest_entries.append(
+            {
+                "id": layout_id,
+                "layout_num": document["layout"]["layout_num"],
+                "file": f"layouts/{layout_id}.json",
+                "used_by_maps": used_by,
+            }
+        )
+
+    layout_manifest = {
+        "schema_version": SCHEMA_VERSION,
+        "layout_count": len(layout_manifest_entries),
+        "layouts": layout_manifest_entries,
+    }
+    (output_root / "layouts.json").write_text(
+        json.dumps(layout_manifest, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
 
     output_maps = output_root / "maps"
     output_maps.mkdir(parents=True, exist_ok=True)
@@ -700,6 +563,7 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
                 "file": f"maps/{map_name}.json",
                 "width": converted["layout"]["width"],
                 "height": converted["layout"]["height"],
+                "layout": converted["map"]["layout"],
                 "layout_num": converted["map"]["layout_num"],
                 "group_num": converted["map"]["group_num"],
                 "map_num": converted["map"]["map_num"],
@@ -709,6 +573,8 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
     manifest = {
         "schema_version": SCHEMA_VERSION,
         "map_count": len(manifest_maps),
+        "layout_count": len(layout_manifest_entries),
+        "layouts_file": "layouts.json",
         "maps": manifest_maps,
     }
     (output_root / "manifest.json").write_text(
