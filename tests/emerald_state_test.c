@@ -47,7 +47,9 @@ int main(void)
     input.warp_x = 6;
     input.warp_y = 11;
     input.map_layout_id = 0x123;
+    input.saved_music = 321;
     input.weather = 5;
+    input.weather_cycle_stage = 3;
     input.flash_level = 2;
     input.party_count = 6;
     input.money = 999999;
@@ -78,7 +80,9 @@ int main(void)
 
     if (!check(
             output.map_layout_id == input.map_layout_id
+            && output.saved_music == input.saved_music
             && output.weather == input.weather
+            && output.weather_cycle_stage == input.weather_cycle_stage
             && output.flash_level == input.flash_level
             && output.party_count == input.party_count,
             "overworld metadata mismatch"))
