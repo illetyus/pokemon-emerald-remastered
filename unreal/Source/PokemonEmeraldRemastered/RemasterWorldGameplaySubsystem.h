@@ -5,6 +5,31 @@
 #include "RemasterWorldData.h"
 #include "RemasterWorldGameplaySubsystem.generated.h"
 
+
+USTRUCT(BlueprintType)
+struct FRemasterResolvedConnection
+{
+    GENERATED_BODY()
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 SourceConnectionIndex = -1;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 Direction = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 Offset = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 DestGroupNum = -1;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 DestMapNum = -1;
+
+    UPROPERTY(BlueprintReadOnly)
+    FString DestMap;
+};
+
 USTRUCT(BlueprintType)
 struct FRemasterResolvedWarp
 {
@@ -137,6 +162,15 @@ public:
 
     UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
     bool IsObjectVisible(int32 LocalId, bool& OutVisible) const;
+
+    UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
+    bool ResolveConnection(
+        int32 Direction,
+        FRemasterResolvedConnection& OutConnection) const;
+
+    UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
+    bool ApplyResolvedConnection(
+        const FRemasterResolvedConnection& Connection);
 
     UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
     bool ResolveWarpAt(
