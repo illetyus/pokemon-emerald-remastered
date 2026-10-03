@@ -341,6 +341,50 @@ TestTown_PostgameOnly::
             self.assertIn("Shared_EventScript_Helper", script_ids)
             self.assertNotIn("TestTown_PostgameOnly", script_ids)
 
+
+    def test_external_text_sources_resolve_without_becoming_script_entries(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source_tree(root)
+            (root / "data/text").mkdir(parents=True)
+            (root / "data/text/common.inc").write_text(
+                'External_Text_FromInclude::\n    .string "From include$"\n',
+                encoding="utf-8",
+            )
+            (root / "data/event_scripts.s").write_text(
+                'External_Text_FromEventScripts::\n    .string "From event scripts$"\n',
+                encoding="utf-8",
+            )
+            script_path = root / "data/maps/TestTown/scripts.inc"
+            script_path.write_text(
+                script_path.read_text(encoding="utf-8")
+                + """
+TestTown_ExternalText::
+    msgbox External_Text_FromInclude, MSGBOX_DEFAULT
+    msgbox External_Text_FromEventScripts, MSGBOX_DEFAULT
+    end
+""",
+                encoding="utf-8",
+            )
+
+            ir = convert_script_closure(
+                root,
+                [Path("data/maps/TestTown/scripts.inc")],
+                entry_labels=["TestTown_ExternalText"],
+            )
+            texts = {item["text_id"]: item for item in ir["texts"]}
+            self.assertEqual(
+                texts["External_Text_FromInclude"]["strings"],
+                ["From include$"],
+            )
+            self.assertEqual(
+                texts["External_Text_FromEventScripts"]["strings"],
+                ["From event scripts$"],
+            )
+            script_ids = {item["script_id"] for item in ir["scripts"]}
+            self.assertNotIn("External_Text_FromInclude", script_ids)
+            self.assertNotIn("External_Text_FromEventScripts", script_ids)
+
     def test_ir_emits_ordered_special_manifest(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
