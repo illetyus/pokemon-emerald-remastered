@@ -17,6 +17,7 @@ add_library(remaster_core STATIC
     core/src/emerald_events.c
     core/src/emerald_transition.c
     core/src/emerald_script.c
+    core/src/emerald_object_state.c
 )
 
 set_target_properties(remaster_core PROPERTIES
@@ -286,3 +287,18 @@ if(MSVC)
 else()
     target_compile_options(emerald_save_inspect PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
+
+
+add_executable(emerald_object_state_test
+    tests/emerald_object_state_test.c
+)
+
+target_link_libraries(emerald_object_state_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_object_state_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_object_state_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME emerald_object_save_state COMMAND emerald_object_state_test)
