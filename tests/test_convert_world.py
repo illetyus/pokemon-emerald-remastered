@@ -48,7 +48,13 @@ class ConvertWorldTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (root / "include/constants/weather.h").write_text(
+                "#define WEATHER_NONE 0\n"
                 "#define WEATHER_TEST 9\n",
+                encoding="utf-8",
+            )
+            (root / "include/constants/map_types.h").write_text(
+                "#define MAP_TYPE_TOWN 1\n"
+                "#define MAP_TYPE_INDOOR 8\n",
                 encoding="utf-8",
             )
             (root / "include/constants/items.h").write_text(
@@ -264,6 +270,8 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(converted["map"]["group_num"], 0)
             self.assertEqual(converted["map"]["map_num"], 0)
             self.assertEqual(converted["map"]["layout_num"], 1)
+            self.assertEqual(converted["map"]["weather_id"], 0)
+            self.assertEqual(converted["map"]["map_type_id"], 1)
             self.assertEqual(converted["layout"]["source_word_count"], 6)
             self.assertEqual(converted["layout"]["active_word_count"], 4)
             self.assertEqual(converted["layout"]["border_source_word_count"], 6)
@@ -337,6 +345,8 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                 alias_converted["map"]["shared_scripts_map"],
                 "TestTown",
             )
+            self.assertEqual(alias_converted["map"]["weather_id"], 0)
+            self.assertEqual(alias_converted["map"]["map_type_id"], 8)
             self.assertEqual(
                 alias_converted["source"]["shared_events_json"],
                 "data/maps/TestTown/map.json",
