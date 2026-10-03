@@ -19,6 +19,7 @@ class ConvertWorldTests(unittest.TestCase):
 
             (root / "data/layouts/TestTown").mkdir(parents=True)
             (root / "data/maps/TestTown").mkdir(parents=True)
+            (root / "data/maps/AliasTown").mkdir(parents=True)
             (root / "src/data/tilesets").mkdir(parents=True)
             (root / "include/constants").mkdir(parents=True)
             (root / "data/tilesets/primary/test_primary").mkdir(parents=True)
@@ -28,7 +29,7 @@ class ConvertWorldTests(unittest.TestCase):
                 json.dumps(
                     {
                         "group_order": ["gMapGroup_Test"],
-                        "gMapGroup_Test": ["TestTown"],
+                        "gMapGroup_Test": ["TestTown", "AliasTown"],
                     }
                 ),
                 encoding="utf-8",
@@ -226,11 +227,32 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                 encoding="utf-8",
             )
 
+
+            (root / "data/maps/AliasTown/map.json").write_text(
+                json.dumps(
+                    {
+                        "id": "MAP_ALIAS_TOWN",
+                        "name": "AliasTown",
+                        "layout": "LAYOUT_TEST_TOWN",
+                        "music": "MUS_TEST",
+                        "weather": "WEATHER_NONE",
+                        "map_type": "MAP_TYPE_INDOOR",
+                        "allow_running": False,
+                        "connections": None,
+                        "shared_events_map": "TestTown",
+                        "shared_scripts_map": "TestTown",
+                    }
+                ),
+                encoding="utf-8",
+            )
+
             manifest = convert_world(root, out)
 
-            self.assertEqual(manifest["map_count"], 1)
+            self.assertEqual(manifest["map_count"], 2)
             self.assertEqual(manifest["maps"][0]["group_num"], 0)
-            self.assertEqual(manifest["maps"][0]["map_num"], 0)
+            self.assertEqual(manifest["maps"][0]["map_num"], 1)
+            self.assertEqual(manifest["maps"][1]["group_num"], 0)
+            self.assertEqual(manifest["maps"][1]["map_num"], 0)
             converted = json.loads((out / "maps/TestTown.json").read_text())
             self.assertEqual(converted["map"]["group_name"], "gMapGroup_Test")
             self.assertEqual(converted["map"]["group_num"], 0)
@@ -297,6 +319,39 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(converted["map"]["bg_events"][2]["kind_id"], 8)
             self.assertEqual(converted["map"]["bg_events"][2]["secret_base_id_u16"], 33)
             self.assertEqual(converted["map"]["connections"][0]["direction"], "up")
+
+            alias_converted = json.loads(
+                (out / "maps/AliasTown.json").read_text()
+            )
+            self.assertEqual(
+                alias_converted["map"]["shared_events_map"],
+                "TestTown",
+            )
+            self.assertEqual(
+                alias_converted["map"]["shared_scripts_map"],
+                "TestTown",
+            )
+            self.assertEqual(
+                alias_converted["source"]["shared_events_json"],
+                "data/maps/TestTown/map.json",
+            )
+            self.assertEqual(alias_converted["map"]["connections"], [])
+            self.assertEqual(
+                alias_converted["map"]["object_events"],
+                converted["map"]["object_events"],
+            )
+            self.assertEqual(
+                alias_converted["map"]["warp_events"],
+                converted["map"]["warp_events"],
+            )
+            self.assertEqual(
+                alias_converted["map"]["coord_events"],
+                converted["map"]["coord_events"],
+            )
+            self.assertEqual(
+                alias_converted["map"]["bg_events"],
+                converted["map"]["bg_events"],
+            )
 
 
 if __name__ == "__main__":
