@@ -94,6 +94,10 @@ class ConvertScriptsInventoryTests(unittest.TestCase):
 .endm
 .macro msgbox text:req, type=MSGBOX_DEFAULT
 .endm
+.macro followerintopokeball
+.endm
+.macro updatefollowerpokemongraphic
+.endm
 """.strip()
             + "\n",
             encoding="utf-8",
@@ -129,6 +133,8 @@ TestTown_OnTransition:
     applymovement 1, TestTown_Movement_Walk
     msgbox TestTown_Text_Hello, MSGBOX_DEFAULT
     setflag FLAG_TEST
+    followerintopokeball
+    updatefollowerpokemongraphic
     end
 
 TestTown_Final:
@@ -193,6 +199,11 @@ Shared_EventScript_Helper::
             )
             self.assertEqual(closure.commands["setflag"], "CORE")
             self.assertEqual(closure.commands["special"], "SPECIAL_ADAPTER")
+            self.assertEqual(closure.commands["followerintopokeball"], "WORLD")
+            self.assertEqual(
+                closure.commands["updatefollowerpokemongraphic"],
+                "WORLD",
+            )
 
     def test_reachable_unclassified_command_is_a_source_error(self):
         with tempfile.TemporaryDirectory() as temp:
