@@ -68,7 +68,17 @@ class ConvertWorldTests(unittest.TestCase):
             )
             (root / "include/constants/map_types.h").write_text(
                 "#define MAP_TYPE_TOWN 1\n"
-                "#define MAP_TYPE_INDOOR 8\n",
+                "#define MAP_TYPE_INDOOR 8\n"
+                "#define MAP_BATTLE_SCENE_NORMAL 0\n"
+                "#define MAP_BATTLE_SCENE_GYM 1\n",
+                encoding="utf-8",
+            )
+            (root / "include/constants/songs.h").write_text(
+                "#define MUS_TEST 301\n",
+                encoding="utf-8",
+            )
+            (root / "include/constants/region_map_sections.h").write_text(
+                "#define MAPSEC_TEST 7\n",
                 encoding="utf-8",
             )
             (root / "include/constants/items.h").write_text(
@@ -164,8 +174,10 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                         "name": "TestTown",
                         "layout": "LAYOUT_TEST_TOWN",
                         "music": "MUS_TEST",
+                        "region_map_section": "MAPSEC_TEST",
                         "weather": "WEATHER_NONE",
                         "map_type": "MAP_TYPE_TOWN",
+                        "battle_scene": "MAP_BATTLE_SCENE_NORMAL",
                         "allow_running": True,
                         "connections": [
                             {"map": "MAP_TEST_ROUTE", "offset": 0, "direction": "up"}
@@ -189,7 +201,7 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                                 "x": 0,
                                 "y": 1,
                                 "trainer_sight_or_berry_tree_id": "BERRY_TREE_TEST",
-                                "script": "BerryTreeScript",
+                                "script": "0x0",
                                 "flag": "0",
                             },
                         ],
@@ -274,8 +286,10 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                         "name": "AliasTown",
                         "layout": "LAYOUT_TEST_TOWN",
                         "music": "MUS_TEST",
+                        "region_map_section": "MAPSEC_TEST",
                         "weather": "WEATHER_NONE",
                         "map_type": "MAP_TYPE_INDOOR",
+                        "battle_scene": "MAP_BATTLE_SCENE_GYM",
                         "allow_running": False,
                         "connections": None,
                         "shared_events_map": "TestTown",
@@ -301,6 +315,9 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(converted["map"]["layout_num"], 1)
             self.assertEqual(converted["map"]["weather_id"], 0)
             self.assertEqual(converted["map"]["map_type_id"], 1)
+            self.assertEqual(converted["map"]["music_id"], 301)
+            self.assertEqual(converted["map"]["region_map_section_id"], 7)
+            self.assertEqual(converted["map"]["battle_scene_id"], 0)
             self.assertEqual(converted["layout"]["source_word_count"], 6)
             self.assertEqual(converted["layout"]["active_word_count"], 4)
             self.assertEqual(converted["layout"]["border_source_word_count"], 6)
@@ -347,6 +364,7 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                 4,
             )
             self.assertEqual(converted["map"]["object_events"][1]["local_id"], 2)
+            self.assertIsNone(converted["map"]["object_events"][1]["script_id"])
             self.assertEqual(
                 converted["map"]["object_events"][1]["trainer_sight_or_berry_tree_id_u16"],
                 52,
@@ -374,6 +392,11 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(converted["map"]["bg_events"][2]["kind_id"], 8)
             self.assertEqual(converted["map"]["bg_events"][2]["secret_base_id_u16"], 33)
             self.assertEqual(converted["map"]["connections"][0]["direction"], "up")
+            self.assertEqual(converted["map"]["connections"][0]["direction_id"], 2)
+            self.assertEqual(
+                converted["map"]["script_ownership"],
+                {"kind": "none", "owner": None},
+            )
 
             alias_converted = json.loads(
                 (out / "maps/AliasTown.json").read_text()
@@ -385,6 +408,10 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(
                 alias_converted["map"]["shared_scripts_map"],
                 "TestTown",
+            )
+            self.assertEqual(
+                alias_converted["map"]["script_ownership"],
+                {"kind": "shared", "owner": "TestTown"},
             )
             self.assertEqual(alias_converted["map"]["weather_id"], 0)
             self.assertEqual(alias_converted["map"]["map_type_id"], 8)
