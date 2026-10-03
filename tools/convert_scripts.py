@@ -111,6 +111,8 @@ WORLD_COMMANDS = {
     "setflashlevel",
     "setmaplayoutindex",
     "setrespawn",
+    "followerintopokeball",
+    "updatefollowerpokemongraphic",
 }
 
 PRESENTATION_COMMANDS = {
