@@ -440,6 +440,29 @@ static int set_map_layout(
 }
 
 
+static int set_saved_music(
+    RemasterEmeraldScriptVm *vm,
+    uint16_t operand)
+{
+    RemasterEmeraldOverworldState state;
+    uint16_t value;
+    int valid = 0;
+
+    if (vm == 0 || vm->save == 0)
+        return 0;
+
+    value = remaster_emerald_script_value_or_var(vm, operand, &valid);
+    if (!valid)
+        return 0;
+
+    if (!remaster_emerald_overworld_get(vm->save, &state))
+        return 0;
+
+    state.saved_music = value;
+    return remaster_emerald_overworld_set(vm->save, &state);
+}
+
+
 static int add_money(
     RemasterEmeraldScriptVm *vm,
     uint32_t amount)
@@ -811,6 +834,16 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
             }
             break;
 
+        case REMASTER_EMERALD_SCRIPT_SAVE_BGM:
+            if (!set_saved_music(vm, ins->a)) {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
+            break;
+
         case REMASTER_EMERALD_SCRIPT_WAIT_STATE:
             vm->status = REMASTER_EMERALD_SCRIPT_YIELDED;
             return vm->status;
@@ -913,6 +946,17 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
         case REMASTER_EMERALD_SCRIPT_DOMAIN_PARTY_SIZE:
         case REMASTER_EMERALD_SCRIPT_SPECIAL:
         case REMASTER_EMERALD_SCRIPT_SPECIAL_VAR:
+        case REMASTER_EMERALD_SCRIPT_LOCK:
+        case REMASTER_EMERALD_SCRIPT_LOCK_ALL:
+        case REMASTER_EMERALD_SCRIPT_RELEASE:
+        case REMASTER_EMERALD_SCRIPT_RELEASE_ALL:
+        case REMASTER_EMERALD_SCRIPT_SET_METATILE:
+        case REMASTER_EMERALD_SCRIPT_FADE_DEFAULT_BGM:
+        case REMASTER_EMERALD_SCRIPT_INCREMENT_GAME_STAT:
+        case REMASTER_EMERALD_SCRIPT_BUFFER_LEAD_MON_SPECIES_NAME:
+        case REMASTER_EMERALD_SCRIPT_SET_FOLLOWER:
+        case REMASTER_EMERALD_SCRIPT_FOLLOWER_INTO_POKEBALL:
+        case REMASTER_EMERALD_SCRIPT_UPDATE_FOLLOWER_POKEMON_GRAPHIC:
             vm->status = REMASTER_EMERALD_SCRIPT_YIELDED;
             return vm->status;
 
