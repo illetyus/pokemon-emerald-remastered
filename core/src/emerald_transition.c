@@ -39,6 +39,170 @@ int remaster_emerald_map_type_is_outdoors(uint8_t map_type)
         || map_type == REMASTER_EMERALD_MAP_TYPE_OCEAN_ROUTE;
 }
 
+
+static int connection_coord_matches(
+    int32_t coord,
+    int32_t source_max,
+    int32_t destination_max,
+    int32_t offset)
+{
+    int32_t start = offset;
+    int32_t end = source_max;
+
+    if (start < 0)
+        start = 0;
+
+    if (destination_max + offset < end)
+        end = destination_max + offset;
+
+    return start <= coord && coord <= end;
+}
+
+int remaster_emerald_find_incoming_connection(
+    const RemasterEmeraldConnectionDef *connections,
+    size_t connection_count,
+    uint8_t direction,
+    int16_t player_x,
+    int16_t player_y,
+    int16_t source_width,
+    int16_t source_height,
+    size_t *out_index)
+{
+    size_t i;
+
+    if (connections == 0 || out_index == 0
+        || source_width <= 0 || source_height <= 0)
+        return 0;
+
+    for (i = 0; i < connection_count; ++i) {
+        const RemasterEmeraldConnectionDef *connection = &connections[i];
+        int matches = 0;
+
+        if (connection->direction != direction
+            || connection->dest_width <= 0
+            || connection->dest_height <= 0)
+            continue;
+
+        switch (direction) {
+        case REMASTER_EMERALD_DIR_SOUTH:
+        case REMASTER_EMERALD_DIR_NORTH:
+            matches = connection_coord_matches(
+                player_x,
+                source_width,
+                connection->dest_width,
+                connection->offset);
+            break;
+
+        case REMASTER_EMERALD_DIR_WEST:
+        case REMASTER_EMERALD_DIR_EAST:
+            matches = connection_coord_matches(
+                player_y,
+                source_height,
+                connection->dest_height,
+                connection->offset);
+            break;
+
+        default:
+            break;
+        }
+
+        if (matches) {
+            *out_index = i;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+int remaster_emerald_apply_connection_transition(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldConnectionDef *connection,
+    uint16_t target_layout_id,
+    uint8_t target_weather,
+    uint8_t target_map_type,
+    int target_requires_flash)
+{
+    RemasterEmeraldOverworldState state;
+
+    (void)target_map_type;
+
+    if (save == 0 || connection == 0
+        || connection->dest_width <= 0
+        || connection->dest_height <= 0)
+        return 0;
+
+    if (!remaster_emerald_overworld_get(save, &state))
+        return 0;
+
+    switch (connection->direction) {
+    case REMASTER_EMERALD_DIR_EAST:
+        state.player_x = 0;
+        state.player_y = (int16_t)(state.player_y - connection->offset);
+        break;
+
+    case REMASTER_EMERALD_DIR_WEST:
+        state.player_x = (int16_t)(connection->dest_width - 1);
+        state.player_y = (int16_t)(state.player_y - connection->offset);
+        break;
+
+    case REMASTER_EMERALD_DIR_SOUTH:
+        state.player_x = (int16_t)(state.player_x - connection->offset);
+        state.player_y = 0;
+        break;
+
+    case REMASTER_EMERALD_DIR_NORTH:
+        state.player_x = (int16_t)(state.player_x - connection->offset);
+        state.player_y = (int16_t)(connection->dest_height - 1);
+        break;
+
+    default:
+        return 0;
+    }
+
+    if (state.player_x < 0
+        || state.player_y < 0
+        || state.player_x >= connection->dest_width
+        || state.player_y >= connection->dest_height)
+        return 0;
+
+    state.map_group = (int8_t)connection->dest_map_group;
+    state.map_num = (int8_t)connection->dest_map_num;
+    state.warp_id = -1;
+    state.warp_x = -1;
+    state.warp_y = -1;
+    state.map_layout_id = target_layout_id;
+
+    remaster_emerald_clear_temp_field_event_data(save);
+
+    state.weather = remaster_emerald_translate_map_weather(
+        target_weather,
+        state.weather_cycle_stage);
+    state.saved_music = 0u;
+
+    /*
+     * LoadMapFromCameraTransition calls SetDefaultFlashLevel but does not
+     * perform LoadMapFromWarp's outdoor FlagClear(FLAG_SYS_USE_FLASH).
+     */
+    if (!target_requires_flash) {
+        state.flash_level = 0;
+    } else {
+        int flash_in_use = 0;
+
+        if (!remaster_emerald_flag_get(
+                save,
+                REMASTER_EMERALD_FLAG_SYS_USE_FLASH,
+                &flash_in_use))
+            return 0;
+
+        state.flash_level = flash_in_use
+            ? 1u
+            : (uint8_t)(REMASTER_EMERALD_MAX_FLASH_LEVEL - 1u);
+    }
+
+    return remaster_emerald_overworld_set(save, &state);
+}
+
 int remaster_emerald_apply_warp(
     RemasterEmeraldSave *save,
     RemasterEmeraldWarpState destination,
