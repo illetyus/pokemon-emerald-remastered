@@ -11,7 +11,9 @@ enum {
     SPECIAL_VARS_END = 0x8015,
 
     SPECIAL_FLAGS_START = 0x4000,
-    SPECIAL_FLAGS_END = 0x407F
+    SPECIAL_FLAGS_END = 0x407F,
+    VAR_RESULT = 0x800D,
+    MAX_MONEY = 999999
 };
 
 static const uint8_t kConditionTable[6][3] = {
@@ -437,6 +439,59 @@ static int set_map_layout(
     return remaster_emerald_overworld_set(vm->save, &state);
 }
 
+
+static int add_money(
+    RemasterEmeraldScriptVm *vm,
+    uint32_t amount)
+{
+    RemasterEmeraldOverworldState state;
+    uint32_t next;
+
+    if (vm == 0 || vm->save == 0)
+        return 0;
+    if (!remaster_emerald_overworld_get(vm->save, &state))
+        return 0;
+
+    next = state.money + amount;
+    if (next > MAX_MONEY || next < state.money)
+        next = MAX_MONEY;
+
+    state.money = next;
+    return remaster_emerald_overworld_set(vm->save, &state);
+}
+
+static int remove_money(
+    RemasterEmeraldScriptVm *vm,
+    uint32_t amount)
+{
+    RemasterEmeraldOverworldState state;
+
+    if (vm == 0 || vm->save == 0)
+        return 0;
+    if (!remaster_emerald_overworld_get(vm->save, &state))
+        return 0;
+
+    state.money = state.money < amount ? 0u : state.money - amount;
+    return remaster_emerald_overworld_set(vm->save, &state);
+}
+
+static int check_money(
+    RemasterEmeraldScriptVm *vm,
+    uint32_t amount)
+{
+    RemasterEmeraldOverworldState state;
+
+    if (vm == 0 || vm->save == 0)
+        return 0;
+    if (!remaster_emerald_overworld_get(vm->save, &state))
+        return 0;
+
+    return remaster_emerald_script_var_set(
+        vm,
+        VAR_RESULT,
+        (uint16_t)(state.money >= amount ? 1u : 0u));
+}
+
 RemasterEmeraldScriptStatus remaster_emerald_script_run(
     RemasterEmeraldScriptVm *vm,
     size_t max_steps)
@@ -770,6 +825,36 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
             }
             break;
 
+        case REMASTER_EMERALD_SCRIPT_ADD_MONEY:
+            if (ins->b == 0u && !add_money(vm, ins->value_u32)) {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
+            break;
+
+        case REMASTER_EMERALD_SCRIPT_REMOVE_MONEY:
+            if (ins->b == 0u && !remove_money(vm, ins->value_u32)) {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
+            break;
+
+        case REMASTER_EMERALD_SCRIPT_CHECK_MONEY:
+            if (ins->b == 0u && !check_money(vm, ins->value_u32)) {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
+            break;
+
         case REMASTER_EMERALD_SCRIPT_ADD_OBJECT:
         case REMASTER_EMERALD_SCRIPT_REMOVE_OBJECT:
         case REMASTER_EMERALD_SCRIPT_SHOW_OBJECT:
@@ -779,6 +864,28 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
         case REMASTER_EMERALD_SCRIPT_FACE_PLAYER:
         case REMASTER_EMERALD_SCRIPT_APPLY_MOVEMENT:
         case REMASTER_EMERALD_SCRIPT_WAIT_MOVEMENT:
+        case REMASTER_EMERALD_SCRIPT_MESSAGE:
+        case REMASTER_EMERALD_SCRIPT_CLOSE_MESSAGE:
+        case REMASTER_EMERALD_SCRIPT_WAIT_MESSAGE:
+        case REMASTER_EMERALD_SCRIPT_CHOICE:
+        case REMASTER_EMERALD_SCRIPT_DELAY:
+        case REMASTER_EMERALD_SCRIPT_PLAY_SOUND:
+        case REMASTER_EMERALD_SCRIPT_WAIT_SOUND:
+        case REMASTER_EMERALD_SCRIPT_PLAY_FANFARE:
+        case REMASTER_EMERALD_SCRIPT_WAIT_FANFARE:
+        case REMASTER_EMERALD_SCRIPT_PLAY_BGM:
+        case REMASTER_EMERALD_SCRIPT_FADE:
+        case REMASTER_EMERALD_SCRIPT_OPEN_DOOR:
+        case REMASTER_EMERALD_SCRIPT_CLOSE_DOOR:
+        case REMASTER_EMERALD_SCRIPT_WAIT_DOOR:
+        case REMASTER_EMERALD_SCRIPT_WARP:
+        case REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_ADD:
+        case REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_REMOVE:
+        case REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_CHECK:
+        case REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_SPACE:
+        case REMASTER_EMERALD_SCRIPT_DOMAIN_GIVE_MON:
+        case REMASTER_EMERALD_SCRIPT_DOMAIN_HEAL_PARTY:
+        case REMASTER_EMERALD_SCRIPT_DOMAIN_PARTY_SIZE:
             vm->status = REMASTER_EMERALD_SCRIPT_YIELDED;
             return vm->status;
 
