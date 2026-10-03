@@ -641,7 +641,7 @@ int main(void)
                 && adapter_request.type
                     == REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN
                 && adapter_request.action
-                    == REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_ADD
+                    == REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_ITEM_ADD
                 && adapter_request.value_u16 == 42
                 && adapter_request.quantity == 2
                 && adapter_request.result_var == 0x800D,
@@ -669,7 +669,7 @@ int main(void)
                 && adapter_request.type
                     == REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN
                 && adapter_request.action
-                    == REMASTER_EMERALD_SCRIPT_DOMAIN_GIVE_MON
+                    == REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_GIVE_MON
                 && adapter_request.value_u16 == 252
                 && adapter_request.quantity == 5,
                 "give-mon domain payload mismatch"))
