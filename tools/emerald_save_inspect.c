@@ -208,55 +208,14 @@ static int equivalent_state(
     const RemasterEmeraldSave *before,
     const RemasterEmeraldSave *after)
 {
-    RemasterEmeraldOverworldState before_state;
-    RemasterEmeraldOverworldState after_state;
-    RemasterEmeraldWarpState before_warp;
-    RemasterEmeraldWarpState after_warp;
-    RemasterEmeraldTime before_time;
-    RemasterEmeraldTime after_time;
-
-    if (!remaster_emerald_overworld_get(before, &before_state)
-        || !remaster_emerald_overworld_get(after, &after_state))
+    if (before == NULL || after == NULL)
         return 0;
 
-    if (memcmp(
-            &before_state,
-            &after_state,
-            sizeof(before_state)) != 0)
-        return 0;
-
-#define CHECK_WARP(getter) \
-    do { \
-        if (!getter(before, &before_warp) \
-            || !getter(after, &after_warp) \
-            || memcmp( \
-                &before_warp, \
-                &after_warp, \
-                sizeof(before_warp)) != 0) \
-            return 0; \
-    } while (0)
-
-    CHECK_WARP(remaster_emerald_continue_game_warp_get);
-    CHECK_WARP(remaster_emerald_dynamic_warp_get);
-    CHECK_WARP(remaster_emerald_last_heal_warp_get);
-    CHECK_WARP(remaster_emerald_escape_warp_get);
-
-#undef CHECK_WARP
-
-    before_time =
-        remaster_emerald_save_get_local_time_offset(before);
-    after_time =
-        remaster_emerald_save_get_local_time_offset(after);
-    if (memcmp(&before_time, &after_time, sizeof(before_time)) != 0)
-        return 0;
-
-    before_time =
-        remaster_emerald_save_get_last_berry_update(before);
-    after_time =
-        remaster_emerald_save_get_last_berry_update(after);
-    if (memcmp(&before_time, &after_time, sizeof(before_time)) != 0)
-        return 0;
-
+    /*
+     * All R1 gameplay/RTC/warp state lives inside these authoritative
+     * payloads. Compare bytes rather than C structs so compiler padding
+     * cannot affect verification.
+     */
     return memcmp(
         before->save_block1,
         after->save_block1,
@@ -349,6 +308,14 @@ int main(int argc, char **argv)
         }
 
         if (!write_image(rewrite_path, image))
+            goto cleanup;
+
+        /*
+         * Verify the bytes actually persisted to disk, not merely the
+         * in-memory buffer that was passed to fwrite.
+         */
+        memset(image, 0, REMASTER_EMERALD_SAVE_IMAGE_BYTES);
+        if (!read_image(rewrite_path, image))
             goto cleanup;
 
         status = remaster_emerald_save_decode(
