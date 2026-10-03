@@ -449,6 +449,15 @@ RemasterEmeraldScriptStatus remaster_emerald_script_runtime_run(
                 break;
 
             case REMASTER_EMERALD_SCRIPT_WARP:
+                if (!resolve_request_xy(
+                        runtime,
+                        ins,
+                        &request->x,
+                        &request->y))
+                {
+                    memset(request, 0, sizeof(*request));
+                    return fail_state_access(runtime, ins, yielded_pc);
+                }
                 request->type = REMASTER_EMERALD_SCRIPT_REQUEST_WARP;
                 break;
 
