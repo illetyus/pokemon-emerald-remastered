@@ -82,6 +82,10 @@ class ConvertScriptsInventoryTests(unittest.TestCase):
 .endm
 .macro checkplayergender
 .endm
+.macro opendoor x:req, y:req
+.endm
+.macro setobjectxyperm localId:req, x:req, y:req
+.endm
 .macro map_script kind:req, script:req
 .endm
 .macro map_script_2 var:req, value:req, script:req
@@ -130,6 +134,9 @@ TestTown_OnTransition:
     call Shared_EventScript_Helper
     goto_if_eq VAR_TEST, 1, TestTown_Final
     call_if_unset FLAG_OTHER, TestTown_Final
+    checkplayergender
+    setobjectxyperm VAR_0x8004, 3, 4
+    opendoor VAR_0x8004, VAR_0x8005
     applymovement 1, TestTown_Movement_Walk
     msgbox TestTown_Text_Hello, MSGBOX_DEFAULT
     setflag FLAG_TEST
@@ -279,6 +286,39 @@ class ConvertScriptsIrTests(ConvertScriptsInventoryTests):
             self.assertEqual(ops[flag_index + 1]["op"], "CALL_IF")
             self.assertEqual(ops[flag_index + 1]["condition"], "FALSE")
             self.assertEqual(ops[flag_index + 1]["target_script_id"], "TestTown_Final")
+
+    def test_opening_operands_have_typed_var_aware_ir(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source_tree(root)
+            ir = convert_script_closure(
+                root,
+                [Path("data/maps/TestTown/scripts.inc")],
+            )
+            scripts = {item["script_id"]: item for item in ir["scripts"]}
+            ops = scripts["TestTown_OnTransition"]["instructions"]
+
+            self.assertIn(
+                {"op": "CHECK_PLAYER_GENDER", "result_var": "VAR_RESULT"},
+                ops,
+            )
+            self.assertIn(
+                {
+                    "op": "SET_OBJECT_XY_PERM",
+                    "local_id": "VAR_0x8004",
+                    "x": "3",
+                    "y": "4",
+                },
+                ops,
+            )
+            self.assertIn(
+                {
+                    "op": "OPEN_DOOR",
+                    "x_operand": "VAR_0x8004",
+                    "y_operand": "VAR_0x8005",
+                },
+                ops,
+            )
 
     def test_map_tables_movements_and_text_have_separate_stable_identity(self):
         with tempfile.TemporaryDirectory() as temp:
