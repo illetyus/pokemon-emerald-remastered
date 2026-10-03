@@ -192,6 +192,45 @@ Test_B::
                 generated,
             )
 
+    def test_empty_map_script_set_emits_portable_zero_count_storage(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source_tree(root)
+            ir = {
+                "schema_version": 1,
+                "scripts": [
+                    {
+                        "script_id": "Test_A",
+                        "source": {
+                            "file": "data/maps/TestTown/scripts.inc",
+                            "line": 3,
+                        },
+                        "instructions": [{"op": "END"}],
+                    }
+                ],
+                "map_scripts": [],
+                "map_script_tables": [],
+                "specials": [],
+                "movements": [],
+                "texts": [],
+            }
+
+            generated = generate_c_fixture(
+                ir,
+                root,
+                symbol_prefix="gR2Empty",
+            )
+
+            self.assertNotIn("gR2EmptyMapScripts[] = {\n};", generated)
+            self.assertIn(
+                "const RemasterEmeraldMapScriptEntry gR2EmptyMapScripts[1] = { { 0 } };",
+                generated,
+            )
+            self.assertIn(
+                "const size_t gR2EmptyMapScriptCount = 0u;",
+                generated,
+            )
+
     def test_unknown_ir_opcode_is_a_hard_generation_error(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
