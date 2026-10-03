@@ -27,6 +27,7 @@ In scope:
 - persistent and temporary flags/vars;
 - continue-game, dynamic, last-heal and escape warp state;
 - map group/map number/layout identity;
+- map weather, weather-cycle stage, Flash state and saved-music load parity;
 - numeric object/warp/coord/background-event identities;
 - Vanilla object visibility from hide flags;
 - coord-event var matching;
@@ -66,6 +67,9 @@ Those continue in later phases.
 - [x] dynamic warp
 - [x] last-heal warp
 - [x] escape warp
+- [x] savedMusic / weather / weatherCycleStage / flashLevel state
+- [x] Vanilla map-load weather-cycle translation
+- [x] Vanilla outdoor Flash reset and dark-cave flash-level rules
 - [x] numeric map group/map identities
 - [x] numeric flag/var/warp event identities
 - [x] Vanilla object-event local IDs
@@ -77,6 +81,7 @@ Those continue in later phases.
 - [x] Unreal legacy-save subsystem
 - [x] Unreal world-gameplay subsystem
 - [x] synthetic R1 end-to-end save/gameplay regression
+- [x] real-save inspection/rewrite verifier CLI
 
 ## Remaining gates
 
@@ -114,3 +119,20 @@ python tools/scan_platform_coupling.py <pokezumrut-vanillaplus-root> --output bu
 ## Exit criterion
 
 R1 closes when the native layer can take an existing Vanilla+ save, reproduce its persistent overworld/map/event state, mutate that state through native APIs, write a valid Emerald-compatible save image, and load the result again without GBA hardware dependencies.
+
+
+## Real save verifier
+
+Once a real Vanilla+ 128 KiB save is available, inspect it without modifying the source file:
+
+```text
+./build/emerald_save_inspect path/to/input.sav
+```
+
+To exercise the native writer, always target a new file:
+
+```text
+./build/emerald_save_inspect path/to/input.sav --rewrite build/roundtrip.sav
+```
+
+The tool refuses to overwrite the input. It reopens the written file from disk, decodes it again and compares the authoritative SaveBlock1, SaveBlock2 and PokémonStorage payloads byte-for-byte. Save slot/counter metadata is allowed to advance as Emerald normally does.
