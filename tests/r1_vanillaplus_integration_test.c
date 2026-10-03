@@ -1,4 +1,5 @@
 #include "remaster/emerald_events.h"
+#include "remaster/emerald_object_state.h"
 #include "remaster/emerald_save.h"
 #include "remaster/emerald_state.h"
 #include "remaster/emerald_transition.h"
@@ -114,6 +115,8 @@ int main(void)
     RemasterEmeraldWarpState destination;
     RemasterEmeraldWarpEventDef target_warps[2];
     RemasterEmeraldObjectEventDef object_event;
+    RemasterEmeraldObjectTemplate object_templates[2];
+    RemasterEmeraldObjectTemplate observed_template;
     RemasterEmeraldCoordEventDef coord_event;
     RemasterEmeraldCoordMatch coord_match;
     uint16_t var_value = 0;
@@ -133,6 +136,8 @@ int main(void)
     memset(&destination, 0, sizeof(destination));
     memset(target_warps, 0, sizeof(target_warps));
     memset(&object_event, 0, sizeof(object_event));
+    memset(object_templates, 0, sizeof(object_templates));
+    memset(&observed_template, 0, sizeof(observed_template));
     memset(&coord_event, 0, sizeof(coord_event));
 
     /* Seed a non-zero encryption key like a real Emerald save. */
@@ -182,6 +187,33 @@ int main(void)
             "failed to seed dynamic warp"))
         return 1;
 
+
+    object_templates[0].local_id = 1;
+    object_templates[0].graphics_id = 6;
+    object_templates[0].x = 16;
+    object_templates[0].y = 10;
+    object_templates[0].elevation = 3;
+    object_templates[0].movement_type = 2;
+    object_templates[0].movement_range_x = 1;
+    object_templates[0].movement_range_y = 2;
+    object_templates[0].flag_id = 0;
+
+    object_templates[1] = object_templates[0];
+    object_templates[1].local_id = 2;
+    object_templates[1].graphics_id = 9;
+    object_templates[1].x = 12;
+    object_templates[1].y = 13;
+    object_templates[1].movement_type = 5;
+    object_templates[1].flag_id = 0x123;
+
+    if (!check(
+            remaster_emerald_object_templates_replace(
+                &initial,
+                object_templates,
+                2),
+            "failed to seed saved object template cache"))
+        return 1;
+
     build_slot(image, 0, 40, 4, &initial);
     build_slot(image, 1, 41, 9, &initial);
 
@@ -223,6 +255,21 @@ int main(void)
             && observed_dynamic.x == 13
             && observed_dynamic.y == 14,
             "decoded dynamic warp mismatch"))
+        return 1;
+
+
+    if (!check(
+            remaster_emerald_object_template_get(
+                &live,
+                1,
+                &observed_template)
+            && observed_template.local_id == 2
+            && observed_template.graphics_id == 9
+            && observed_template.x == 12
+            && observed_template.y == 13
+            && observed_template.movement_type == 5
+            && observed_template.flag_id == 0x123,
+            "decoded object template cache mismatch"))
         return 1;
 
     /*
@@ -351,6 +398,20 @@ int main(void)
             "persistent event state changed during map transition"))
         return 1;
 
+
+    if (!check(
+            remaster_emerald_object_template_set_coords(
+                &live,
+                2,
+                19,
+                7)
+            && remaster_emerald_object_template_set_movement_type(
+                &live,
+                2,
+                12),
+            "failed to mutate cached object template"))
+        return 1;
+
     /*
      * Serialize the mutated live state back into a valid Emerald image and
      * decode again. This is the R1 compatibility boundary.
@@ -390,6 +451,21 @@ int main(void)
             remaster_emerald_var_get(&reloaded, 0x405A, &var_value)
             && var_value == 3,
             "reloaded persistent var mismatch"))
+        return 1;
+
+
+    if (!check(
+            remaster_emerald_object_template_get(
+                &reloaded,
+                1,
+                &observed_template)
+            && observed_template.local_id == 2
+            && observed_template.x == 19
+            && observed_template.y == 7
+            && observed_template.movement_type == 12
+            && observed_template.graphics_id == 9
+            && observed_template.flag_id == 0x123,
+            "reloaded object template mutation mismatch"))
         return 1;
 
     if (!check(
