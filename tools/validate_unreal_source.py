@@ -39,6 +39,7 @@ def main() -> int:
         "RemasterEmeraldEventsEmbed.cpp": "../../../core/src/emerald_events.c",
         "RemasterEmeraldTransitionEmbed.cpp": "../../../core/src/emerald_transition.c",
         "RemasterEmeraldScriptEmbed.cpp": "../../../core/src/emerald_script.c",
+        "RemasterEmeraldScriptRuntimeEmbed.cpp": "../../../core/src/emerald_script_runtime.c",
         "RemasterEmeraldObjectStateEmbed.cpp": "../../../core/src/emerald_object_state.c",
     }
 
