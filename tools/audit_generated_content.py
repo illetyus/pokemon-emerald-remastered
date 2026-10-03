@@ -25,6 +25,11 @@ def audit(root: Path) -> list[str]:
         for entry in maps
         if entry.get("id")
     }
+    manifest_by_name = {
+        entry.get("name"): entry
+        for entry in maps
+        if entry.get("name")
+    }
     known_files = set()
     known_numeric_maps: set[tuple[int, int]] = set()
 
@@ -173,6 +178,43 @@ def audit(root: Path) -> list[str]:
             errors.append(f"{rel}: manifest/map group_num mismatch")
         if map_doc.get("map_num") != map_num:
             errors.append(f"{rel}: manifest/map map_num mismatch")
+
+        shared_events_map = map_doc.get("shared_events_map")
+        if shared_events_map is not None:
+            if shared_events_map not in manifest_by_name:
+                errors.append(
+                    f"{rel}: shared_events_map {shared_events_map!r} "
+                    "is missing from manifest"
+                )
+            else:
+                shared_entry = manifest_by_name[shared_events_map]
+                shared_rel = shared_entry.get("file")
+                shared_path = root / shared_rel if shared_rel else None
+
+                if shared_path is None or not shared_path.is_file():
+                    errors.append(
+                        f"{rel}: shared events source file is missing"
+                    )
+                else:
+                    shared_doc = json.loads(
+                        shared_path.read_text(encoding="utf-8")
+                    )
+                    shared_map_doc = shared_doc.get("map", {})
+
+                    for event_key in (
+                        "object_events",
+                        "warp_events",
+                        "coord_events",
+                        "bg_events",
+                    ):
+                        if map_doc.get(event_key, []) != shared_map_doc.get(
+                            event_key,
+                            [],
+                        ):
+                            errors.append(
+                                f"{rel}: shared {event_key} differ from "
+                                f"{shared_events_map}"
+                            )
 
         for object_index, obj in enumerate(map_doc.get("object_events", []), start=1):
             if obj.get("local_id") != object_index:
