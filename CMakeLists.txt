@@ -277,6 +277,20 @@ endif()
 
 add_test(NAME emerald_script_runtime COMMAND emerald_script_runtime_test)
 
+add_executable(emerald_script_checkpoint_test
+    tests/emerald_script_checkpoint_test.c
+)
+
+target_link_libraries(emerald_script_checkpoint_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_script_checkpoint_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_script_checkpoint_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME emerald_script_checkpoint COMMAND emerald_script_checkpoint_test)
+
 add_executable(emerald_script_object_test
     tests/emerald_script_object_test.c
 )
