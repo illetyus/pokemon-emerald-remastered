@@ -11,6 +11,7 @@ if str(TOOLS) not in sys.path:
 
 from world_fingerprint import (  # noqa: E402
     canonical_json_bytes,
+    fingerprint_document_content,
     fingerprint_json,
     fingerprint_world_package,
 )
@@ -23,6 +24,18 @@ class WorldFingerprintTests(unittest.TestCase):
 
         self.assertEqual(canonical_json_bytes(a), canonical_json_bytes(b))
         self.assertEqual(fingerprint_json(a), fingerprint_json(b))
+
+    def test_document_content_fingerprint_ignores_its_own_hash_field(self):
+        doc = {
+            "schema_version": 1,
+            "map": {"id": "MAP_A"},
+        }
+        first = fingerprint_document_content(doc)
+        doc["fingerprint_sha256"] = first
+        self.assertEqual(fingerprint_document_content(doc), first)
+
+        doc["map"]["id"] = "MAP_B"
+        self.assertNotEqual(fingerprint_document_content(doc), first)
 
     def test_content_change_changes_fingerprint(self):
         self.assertNotEqual(
