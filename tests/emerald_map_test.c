@@ -16,7 +16,7 @@ int main(void)
     const uint16_t blocks[6] = {
         0x0001,
         0x0402,
-        0x1303,
+        0x1003,
         REMASTER_EMERALD_MAPGRID_UNDEFINED,
         0xF004,
         0x2005
