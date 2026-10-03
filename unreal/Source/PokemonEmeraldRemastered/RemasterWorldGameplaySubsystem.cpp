@@ -589,6 +589,8 @@ bool URemasterWorldGameplaySubsystem::ApplyResolvedWarp(
 
     if (TargetMap.LayoutNum <= 0
         || TargetMap.LayoutNum > MAX_uint16
+        || !FitsUInt8(TargetMap.WeatherId)
+        || !FitsUInt8(TargetMap.MapTypeId)
         || TargetMap.Width <= 0
         || TargetMap.Width > MAX_int16
         || TargetMap.Height <= 0
@@ -630,6 +632,9 @@ bool URemasterWorldGameplaySubsystem::ApplyResolvedWarp(
             Save,
             Destination,
             static_cast<uint16>(TargetMap.LayoutNum),
+            static_cast<uint8>(TargetMap.WeatherId),
+            static_cast<uint8>(TargetMap.MapTypeId),
+            TargetMap.bRequiresFlash ? 1 : 0,
             static_cast<int16>(TargetMap.Width),
             static_cast<int16>(TargetMap.Height),
             TargetWarps.IsEmpty() ? nullptr : TargetWarps.GetData(),
