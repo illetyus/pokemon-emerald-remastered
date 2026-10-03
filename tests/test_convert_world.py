@@ -49,6 +49,18 @@ class ConvertWorldTests(unittest.TestCase):
                 "#define TRAINER_TEST 42\n",
                 encoding="utf-8",
             )
+            (root / "include/constants/event_objects.h").write_text(
+                "#define OBJ_TEST 6\n",
+                encoding="utf-8",
+            )
+            (root / "include/constants/event_object_movement.h").write_text(
+                "#define MOVEMENT_TYPE_TEST 2\n",
+                encoding="utf-8",
+            )
+            (root / "include/constants/trainer_types.h").write_text(
+                "#define TRAINER_TYPE_TEST 1\n",
+                encoding="utf-8",
+            )
             (root / "include/constants/weather.h").write_text(
                 "#define WEATHER_NONE 0\n"
                 "#define WEATHER_TEST 9\n",
@@ -163,6 +175,12 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                                 "graphics_id": "OBJ_TEST",
                                 "x": 1,
                                 "y": 1,
+                                "elevation": 3,
+                                "movement_type": "MOVEMENT_TYPE_TEST",
+                                "movement_range_x": 1,
+                                "movement_range_y": 2,
+                                "trainer_type": "TRAINER_TYPE_TEST",
+                                "trainer_sight_or_berry_tree_id": "4",
                                 "script": "Test_EventScript",
                                 "flag": "FLAG_TEST",
                             },
@@ -320,6 +338,13 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(converted["map"]["object_events"][0]["flag"], "FLAG_TEST")
             self.assertEqual(converted["map"]["object_events"][0]["flag_id"], 0x123)
             self.assertEqual(converted["map"]["object_events"][0]["local_id"], 1)
+            self.assertEqual(converted["map"]["object_events"][0]["graphics_id_u16"], 6)
+            self.assertEqual(converted["map"]["object_events"][0]["movement_type_u8"], 2)
+            self.assertEqual(converted["map"]["object_events"][0]["trainer_type_u16"], 1)
+            self.assertEqual(
+                converted["map"]["object_events"][0]["trainer_sight_or_berry_tree_id_u16"],
+                4,
+            )
             self.assertEqual(converted["map"]["object_events"][1]["local_id"], 2)
             self.assertEqual(
                 converted["map"]["object_events"][1]["trainer_sight_or_berry_tree_id_u16"],
