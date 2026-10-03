@@ -114,6 +114,99 @@ static RemasterEmeraldScriptStatus fail_unknown_special(
     return runtime->vm.status;
 }
 
+static RemasterEmeraldScriptStatus fail_state_access(
+    RemasterEmeraldScriptRuntime *runtime,
+    const RemasterEmeraldScriptInstruction *ins,
+    uint32_t pc)
+{
+    const char *script_id = 0;
+
+    if (runtime != 0
+        && runtime->vm.registry != 0
+        && runtime->vm.registry->programs != 0
+        && runtime->vm.program_index < runtime->vm.registry->program_count)
+    {
+        script_id =
+            runtime->vm.registry->programs[runtime->vm.program_index].script_id;
+    }
+
+    if (runtime == 0)
+        return REMASTER_EMERALD_SCRIPT_ERROR;
+
+    runtime->vm.error.code = REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS;
+    runtime->vm.error.script_id = script_id;
+    runtime->vm.error.program_index = runtime->vm.program_index;
+    runtime->vm.error.pc = pc;
+    runtime->vm.error.opcode =
+        ins != 0 ? ins->opcode : REMASTER_EMERALD_SCRIPT_NOP;
+    runtime->vm.status = REMASTER_EMERALD_SCRIPT_ERROR;
+    return runtime->vm.status;
+}
+
+static int resolve_request_local_id(
+    const RemasterEmeraldScriptRuntime *runtime,
+    const RemasterEmeraldScriptInstruction *ins,
+    uint16_t *out_local_id)
+{
+    uint16_t value;
+    int valid = 0;
+
+    if (runtime == 0 || ins == 0 || out_local_id == 0)
+        return 0;
+
+    value = remaster_emerald_script_value_or_var(
+        &runtime->vm,
+        ins->a,
+        &valid);
+    if (!valid || value > 0xffu)
+        return 0;
+
+    *out_local_id = value;
+    return 1;
+}
+
+static int resolve_request_xy(
+    const RemasterEmeraldScriptRuntime *runtime,
+    const RemasterEmeraldScriptInstruction *ins,
+    int16_t *out_x,
+    int16_t *out_y)
+{
+    uint16_t x;
+    uint16_t y;
+    int valid_x = 0;
+    int valid_y = 0;
+
+    if (runtime == 0 || ins == 0 || out_x == 0 || out_y == 0)
+        return 0;
+
+    /*
+     * Generated R2 instructions preserve Vanilla door operands in a/b so
+     * VAR_0x8004-style coordinates keep VarGet semantics. Legacy/manual
+     * instructions that leave a/b at zero continue to use x/y directly.
+     */
+    if (ins->a == 0u && ins->b == 0u) {
+        *out_x = ins->x;
+        *out_y = ins->y;
+        return 1;
+    }
+
+    x = remaster_emerald_script_value_or_var(
+        &runtime->vm,
+        ins->a,
+        &valid_x);
+    y = remaster_emerald_script_value_or_var(
+        &runtime->vm,
+        ins->b,
+        &valid_y);
+    if (!valid_x || !valid_y)
+        return 0;
+
+    *out_x = (int16_t)x;
+    *out_y = (int16_t)y;
+    return 1;
+}
+
+
 RemasterEmeraldScriptStatus remaster_emerald_script_runtime_run(
     RemasterEmeraldScriptRuntime *runtime,
     size_t max_steps)
@@ -160,41 +253,105 @@ RemasterEmeraldScriptStatus remaster_emerald_script_runtime_run(
 
             switch (ins->opcode) {
             case REMASTER_EMERALD_SCRIPT_APPLY_MOVEMENT:
+                if (!resolve_request_local_id(
+                        runtime,
+                        ins,
+                        &request->local_id))
+                {
+                    memset(request, 0, sizeof(*request));
+                    return fail_state_access(runtime, ins, yielded_pc);
+                }
                 request->type = REMASTER_EMERALD_SCRIPT_REQUEST_MOVEMENT;
                 request->action = REMASTER_EMERALD_SCRIPT_MOVEMENT_START;
                 break;
 
             case REMASTER_EMERALD_SCRIPT_WAIT_MOVEMENT:
+                if (!resolve_request_local_id(
+                        runtime,
+                        ins,
+                        &request->local_id))
+                {
+                    memset(request, 0, sizeof(*request));
+                    return fail_state_access(runtime, ins, yielded_pc);
+                }
                 request->type = REMASTER_EMERALD_SCRIPT_REQUEST_MOVEMENT;
                 request->action = REMASTER_EMERALD_SCRIPT_MOVEMENT_WAIT;
                 break;
 
             case REMASTER_EMERALD_SCRIPT_ADD_OBJECT:
+                if (!resolve_request_local_id(
+                        runtime,
+                        ins,
+                        &request->local_id))
+                {
+                    memset(request, 0, sizeof(*request));
+                    return fail_state_access(runtime, ins, yielded_pc);
+                }
                 request->type = REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT;
                 request->action = REMASTER_EMERALD_SCRIPT_OBJECT_ADD;
                 break;
 
             case REMASTER_EMERALD_SCRIPT_REMOVE_OBJECT:
+                if (!resolve_request_local_id(
+                        runtime,
+                        ins,
+                        &request->local_id))
+                {
+                    memset(request, 0, sizeof(*request));
+                    return fail_state_access(runtime, ins, yielded_pc);
+                }
                 request->type = REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT;
                 request->action = REMASTER_EMERALD_SCRIPT_OBJECT_REMOVE;
                 break;
 
             case REMASTER_EMERALD_SCRIPT_SHOW_OBJECT:
+                if (!resolve_request_local_id(
+                        runtime,
+                        ins,
+                        &request->local_id))
+                {
+                    memset(request, 0, sizeof(*request));
+                    return fail_state_access(runtime, ins, yielded_pc);
+                }
                 request->type = REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT;
                 request->action = REMASTER_EMERALD_SCRIPT_OBJECT_SHOW;
                 break;
 
             case REMASTER_EMERALD_SCRIPT_HIDE_OBJECT:
+                if (!resolve_request_local_id(
+                        runtime,
+                        ins,
+                        &request->local_id))
+                {
+                    memset(request, 0, sizeof(*request));
+                    return fail_state_access(runtime, ins, yielded_pc);
+                }
                 request->type = REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT;
                 request->action = REMASTER_EMERALD_SCRIPT_OBJECT_HIDE;
                 break;
 
             case REMASTER_EMERALD_SCRIPT_SET_OBJECT_XY:
+                if (!resolve_request_local_id(
+                        runtime,
+                        ins,
+                        &request->local_id))
+                {
+                    memset(request, 0, sizeof(*request));
+                    return fail_state_access(runtime, ins, yielded_pc);
+                }
                 request->type = REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT;
                 request->action = REMASTER_EMERALD_SCRIPT_OBJECT_SET_XY;
                 break;
 
             case REMASTER_EMERALD_SCRIPT_TURN_OBJECT:
+                if (!resolve_request_local_id(
+                        runtime,
+                        ins,
+                        &request->local_id))
+                {
+                    memset(request, 0, sizeof(*request));
+                    return fail_state_access(runtime, ins, yielded_pc);
+                }
                 request->type = REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT;
                 request->action = REMASTER_EMERALD_SCRIPT_OBJECT_TURN;
                 break;
@@ -259,11 +416,29 @@ RemasterEmeraldScriptStatus remaster_emerald_script_runtime_run(
                 break;
 
             case REMASTER_EMERALD_SCRIPT_OPEN_DOOR:
+                if (!resolve_request_xy(
+                        runtime,
+                        ins,
+                        &request->x,
+                        &request->y))
+                {
+                    memset(request, 0, sizeof(*request));
+                    return fail_state_access(runtime, ins, yielded_pc);
+                }
                 request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOOR;
                 request->action = REMASTER_EMERALD_SCRIPT_DOOR_OPEN;
                 break;
 
             case REMASTER_EMERALD_SCRIPT_CLOSE_DOOR:
+                if (!resolve_request_xy(
+                        runtime,
+                        ins,
+                        &request->x,
+                        &request->y))
+                {
+                    memset(request, 0, sizeof(*request));
+                    return fail_state_access(runtime, ins, yielded_pc);
+                }
                 request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOOR;
                 request->action = REMASTER_EMERALD_SCRIPT_DOOR_CLOSE;
                 break;
