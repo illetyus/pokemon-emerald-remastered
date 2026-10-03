@@ -6,6 +6,7 @@ enum {
     SB1_POS_X = 0x0000,
     SB1_POS_Y = 0x0002,
     SB1_LOCATION = 0x0004,
+    SB1_DYNAMIC_WARP = 0x0014,
     SB1_WEATHER = 0x002E,
     SB1_FLASH_LEVEL = 0x0030,
     SB1_MAP_LAYOUT_ID = 0x0032,
@@ -252,8 +253,8 @@ static int read_warp_state(
     out_warp->map_group = (int8_t)save->save_block1[offset + 0u];
     out_warp->map_num = (int8_t)save->save_block1[offset + 1u];
     out_warp->warp_id = (int8_t)save->save_block1[offset + 2u];
-    out_warp->x = read_i16_le(save->save_block1 + offset + 4u);
-    out_warp->y = read_i16_le(save->save_block1 + offset + 6u);
+    out_warp->x = state_read_s16_le(save->save_block1 + offset + 4u);
+    out_warp->y = state_read_s16_le(save->save_block1 + offset + 6u);
     return 1;
 }
 
@@ -269,8 +270,8 @@ static int write_warp_state(
     save->save_block1[offset + 1u] = (uint8_t)warp->map_num;
     save->save_block1[offset + 2u] = (uint8_t)warp->warp_id;
     save->save_block1[offset + 3u] = 0u;
-    write_i16_le(save->save_block1 + offset + 4u, warp->x);
-    write_i16_le(save->save_block1 + offset + 6u, warp->y);
+    state_write_s16_le(save->save_block1 + offset + 4u, warp->x);
+    state_write_s16_le(save->save_block1 + offset + 6u, warp->y);
     return 1;
 }
 
