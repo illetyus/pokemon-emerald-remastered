@@ -97,6 +97,118 @@ def audit(root: Path) -> list[str]:
                     continue
                 known_script_ids.add(script_id)
 
+    encounters_file = manifest.get("encounters_file")
+    if encounters_file is not None:
+        encounter_path = root / encounters_file
+        if not encounter_path.is_file():
+            errors.append(f"missing encounter catalog: {encounters_file}")
+        else:
+            encounter_catalog = json.loads(
+                encounter_path.read_text(encoding="utf-8")
+            )
+            encounter_groups = encounter_catalog.get("groups", [])
+            if encounter_catalog.get("group_count") != len(encounter_groups):
+                errors.append(
+                    "encounter catalog group_count does not match groups array"
+                )
+            if manifest.get("encounter_group_count") != len(encounter_groups):
+                errors.append(
+                    "manifest encounter_group_count does not match encounter catalog"
+                )
+
+            counted_map_encounters = 0
+            for group_index, group in enumerate(encounter_groups):
+                fields = group.get("fields", [])
+                field_slots = {}
+                for field in fields:
+                    field_type = field.get("type")
+                    rates = field.get("encounter_rates", [])
+                    if isinstance(field_type, str) and isinstance(rates, list):
+                        field_slots[field_type] = len(rates)
+
+                for encounter_index, encounter in enumerate(
+                    group.get("encounters", [])
+                ):
+                    context = (
+                        f"encounter group {group_index} entry {encounter_index}"
+                    )
+                    if group.get("for_maps"):
+                        counted_map_encounters += 1
+                        map_id = encounter.get("map")
+                        if map_id not in manifest_by_id:
+                            errors.append(
+                                f"{context}: encounter map {map_id!r} "
+                                "is missing from world manifest"
+                            )
+                        else:
+                            target = manifest_by_id[map_id]
+                            if encounter.get("map_name") != target.get("name"):
+                                errors.append(
+                                    f"{context}: encounter map_name mismatch"
+                                )
+                            if encounter.get("group_num") != target.get("group_num"):
+                                errors.append(
+                                    f"{context}: encounter group_num mismatch"
+                                )
+                            if encounter.get("map_num") != target.get("map_num"):
+                                errors.append(
+                                    f"{context}: encounter map_num mismatch"
+                                )
+
+                    for field_name, value in encounter.items():
+                        if not field_name.endswith("_mons"):
+                            continue
+                        if not isinstance(value, dict):
+                            errors.append(
+                                f"{context}.{field_name}: expected object"
+                            )
+                            continue
+
+                        rate = value.get("encounter_rate")
+                        if not isinstance(rate, int) or rate < 0 or rate > 100:
+                            errors.append(
+                                f"{context}.{field_name}: invalid encounter_rate"
+                            )
+
+                        mons = value.get("mons", [])
+                        expected_slots = field_slots.get(field_name)
+                        if (
+                            expected_slots is not None
+                            and len(mons) != expected_slots
+                        ):
+                            errors.append(
+                                f"{context}.{field_name}: slot count mismatch"
+                            )
+
+                        for mon_index, mon in enumerate(mons):
+                            min_level = mon.get("min_level")
+                            max_level = mon.get("max_level")
+                            if (
+                                not isinstance(min_level, int)
+                                or not isinstance(max_level, int)
+                                or min_level < 1
+                                or max_level > 100
+                                or min_level > max_level
+                            ):
+                                errors.append(
+                                    f"{context}.{field_name}.mons[{mon_index}]: "
+                                    "invalid level range"
+                                )
+                            if not isinstance(mon.get("species_id"), int):
+                                errors.append(
+                                    f"{context}.{field_name}.mons[{mon_index}]: "
+                                    "missing numeric species_id"
+                                )
+
+            if encounter_catalog.get("map_encounter_count") != counted_map_encounters:
+                errors.append(
+                    "encounter catalog map_encounter_count does not match entries"
+                )
+            if manifest.get("map_encounter_count") != counted_map_encounters:
+                errors.append(
+                    "manifest map_encounter_count does not match encounter catalog"
+                )
+
     layout_catalog_by_id: dict[str, dict] = {}
     layouts_file = manifest.get("layouts_file")
     if layouts_file is not None:
