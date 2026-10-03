@@ -50,6 +50,9 @@ jobs:
       - name: Test world conversion pipeline
         run: python -m unittest tests/test_convert_world.py
 
+      - name: Test R3 source catalog
+        run: python -m unittest tests/test_r3_source_catalog.py -v
+
       - name: Test script conversion pipeline
         run: python -m unittest tests/test_convert_scripts.py tests/test_generate_script_c.py tests/test_r2_real_opening_source.py -v
 
