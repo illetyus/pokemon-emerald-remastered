@@ -16,7 +16,12 @@ from pathlib import Path
 from typing import Any
 
 from r3_script_catalog import build_script_catalog
+from r3_source_catalog import build_source_catalog
 from convert_encounters import convert_encounters
+from world_fingerprint import (
+    fingerprint_document_content,
+    fingerprint_world_package,
+)
 
 
 SCHEMA_VERSION = 1
@@ -648,9 +653,19 @@ def convert_map(
     }
 
 
-def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
+def convert_world(
+    source_root: Path,
+    output_root: Path,
+    *,
+    source_commit: str | None = None,
+    source_repository: str | None = None,
+) -> dict[str, Any]:
     layouts_doc = load_json(source_root / "data/layouts/layouts.json")
     constants = build_numeric_constant_index(source_root)
+    source_catalog = build_source_catalog(
+        source_root,
+        source_commit=source_commit,
+    )
     script_catalog = build_script_catalog(source_root)
     script_ownership_by_map = {
         item["map"]: item["script_ownership"]
@@ -789,6 +804,7 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
         if map_name not in script_ownership_by_map:
             raise KeyError(f"{map_name}: missing from R3 script catalog")
         converted["map"]["script_ownership"] = script_ownership_by_map[map_name]
+        converted["fingerprint_sha256"] = fingerprint_document_content(converted)
         out_path = output_maps / f"{map_name}.json"
         out_path.write_text(
             json.dumps(converted, indent=2, ensure_ascii=False) + "\n",
@@ -817,6 +833,7 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
         "scripts_file": "scripts/manifest.json",
         "script_label_count": script_catalog["script_label_count"],
         "script_source_file_count": script_catalog["script_source_file_count"],
+        "provenance_file": "provenance.json",
         "maps": manifest_maps,
     }
     if encounter_catalog is not None:
@@ -827,6 +844,30 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
+
+    provenance = {
+        "schema_version": SCHEMA_VERSION,
+        "source_repository": source_repository,
+        "source_commit": source_commit,
+        "source_counts": {
+            "group_count": source_catalog["group_count"],
+            "map_count": source_catalog["map_count"],
+            "layout_count": source_catalog["layout_count"],
+            "map_script_file_count": source_catalog["map_script_file_count"],
+        },
+    }
+    provenance_path = output_root / "provenance.json"
+    provenance_path.write_text(
+        json.dumps(provenance, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    package_fingerprint = fingerprint_world_package(output_root)
+    provenance.update(package_fingerprint)
+    provenance_path.write_text(
+        json.dumps(provenance, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
     return manifest
 
 
@@ -834,9 +875,16 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("source_root", type=Path)
     parser.add_argument("output_root", type=Path)
+    parser.add_argument("--source-commit")
+    parser.add_argument("--source-repository")
     args = parser.parse_args()
 
-    manifest = convert_world(args.source_root.resolve(), args.output_root.resolve())
+    manifest = convert_world(
+        args.source_root.resolve(),
+        args.output_root.resolve(),
+        source_commit=args.source_commit,
+        source_repository=args.source_repository,
+    )
     print(f"Converted {manifest['map_count']} maps.")
     return 0
 
