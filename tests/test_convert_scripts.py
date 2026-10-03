@@ -12,6 +12,7 @@ from convert_scripts import (  # noqa: E402
     build_command_inventory,
     build_special_inventory,
     collect_script_dependency_closure,
+    convert_script_closure,
 )
 
 
@@ -31,12 +32,17 @@ class ConvertScriptsInventoryTests(unittest.TestCase):
         handlers[0x06] = "ScrCmd_goto_if"
         handlers[0x07] = "ScrCmd_call_if"
         handlers[0x16] = "ScrCmd_setvar"
+        handlers[0x21] = "ScrCmd_compare_var_to_value"
         handlers[0x25] = "ScrCmd_special"
         handlers[0x27] = "ScrCmd_waitstate"
         handlers[0x29] = "ScrCmd_setflag"
         handlers[0x2A] = "ScrCmd_clearflag"
+        handlers[0x2B] = "ScrCmd_checkflag"
         handlers[0x4F] = "ScrCmd_applymovement"
         handlers[0x51] = "ScrCmd_waitmovement"
+        handlers[0x66] = "ScrCmd_waitmessage"
+        handlers[0x67] = "ScrCmd_message"
+        handlers[0x68] = "ScrCmd_closemessage"
         handlers[0xA0] = "ScrCmd_checkplayergender"
 
         lines = ["\t.align 2", "gScriptCmdTable::"]
@@ -68,6 +74,8 @@ class ConvertScriptsInventoryTests(unittest.TestCase):
 .endm
 .macro clearflag flag:req
 .endm
+.macro checkflag flag:req
+.endm
 .macro applymovement localId:req, movements:req, map
 .endm
 .macro waitmovement localId:req, map
@@ -75,6 +83,16 @@ class ConvertScriptsInventoryTests(unittest.TestCase):
 .macro checkplayergender
 .endm
 .macro map_script kind:req, script:req
+.endm
+.macro map_script_2 var:req, value:req, script:req
+.endm
+.macro goto_if_eq a:req, b, c
+.endm
+.macro call_if_unset flag:req, dest:req
+.endm
+.macro call_if_lt a:req, b, c
+.endm
+.macro msgbox text:req, type=MSGBOX_DEFAULT
 .endm
 """.strip()
             + "\n",
@@ -97,12 +115,31 @@ gSpecials::
             """
 TestTown_MapScripts::
     map_script MAP_SCRIPT_ON_TRANSITION, TestTown_OnTransition
+    map_script MAP_SCRIPT_ON_FRAME_TABLE, TestTown_OnFrame
     .byte 0
+
+TestTown_OnFrame:
+    map_script_2 VAR_TEST, 1, TestTown_Final
+    .2byte 0
 
 TestTown_OnTransition:
     call Shared_EventScript_Helper
+    goto_if_eq VAR_TEST, 1, TestTown_Final
+    call_if_unset FLAG_OTHER, TestTown_Final
+    applymovement 1, TestTown_Movement_Walk
+    msgbox TestTown_Text_Hello, MSGBOX_DEFAULT
     setflag FLAG_TEST
     end
+
+TestTown_Final:
+    end
+
+TestTown_Movement_Walk:
+    walk_down
+    step_end
+
+TestTown_Text_Hello:
+    .string "Hello!$"
 """.strip()
             + "\n",
             encoding="utf-8",
@@ -123,9 +160,7 @@ Shared_EventScript_Helper::
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             self.make_source_tree(root)
-
             inventory = build_command_inventory(root)
-
             self.assertEqual(len({spec.opcode for spec in inventory.values()}), 0xE8)
             self.assertEqual(inventory["setvar"].opcode, 0x16)
             self.assertEqual(inventory["special"].opcode, 0x25)
@@ -137,9 +172,7 @@ Shared_EventScript_Helper::
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             self.make_source_tree(root)
-
             specials = build_special_inventory(root)
-
             self.assertEqual(specials["HealPlayerParty"].special_id, 0)
             self.assertEqual(specials["SetCableClubWarp"].special_id, 1)
             self.assertEqual(specials["ChooseStarter"].special_id, 2)
@@ -148,12 +181,10 @@ Shared_EventScript_Helper::
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             self.make_source_tree(root)
-
             closure = collect_script_dependency_closure(
                 root,
                 [Path("data/maps/TestTown/scripts.inc")],
             )
-
             self.assertIn("TestTown_OnTransition", closure.labels)
             self.assertIn("Shared_EventScript_Helper", closure.labels)
             self.assertIn(
@@ -177,19 +208,138 @@ TestTown_BadScript::
 """,
                 encoding="utf-8",
             )
-
             with self.assertRaises(ScriptConversionError) as raised:
                 collect_script_dependency_closure(
                     root,
                     [Path("data/maps/TestTown/scripts.inc")],
                     entry_labels=["TestTown_BadScript"],
                 )
-
             message = str(raised.exception)
             self.assertIn("data/maps/TestTown/scripts.inc", message)
             self.assertIn("TestTown_BadScript", message)
             self.assertIn("mysterycommand", message)
             self.assertRegex(message, r":\d+:")
+
+
+class ConvertScriptsIrTests(ConvertScriptsInventoryTests):
+    def test_cross_script_call_and_special_ids_are_stable_labels(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source_tree(root)
+            ir = convert_script_closure(
+                root,
+                [Path("data/maps/TestTown/scripts.inc")],
+            )
+
+            scripts = {item["script_id"]: item for item in ir["scripts"]}
+            transition = scripts["TestTown_OnTransition"]
+            call = next(ins for ins in transition["instructions"] if ins["op"] == "CALL")
+            self.assertEqual(call["target_script_id"], "Shared_EventScript_Helper")
+
+            shared = scripts["Shared_EventScript_Helper"]
+            special = next(ins for ins in shared["instructions"] if ins["op"] == "SPECIAL")
+            self.assertEqual(special["special_id"], "HealPlayerParty")
+            self.assertEqual(special["special_index"], 0)
+
+    def test_convenience_macros_expand_to_compare_check_and_conditional_flow(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source_tree(root)
+            ir = convert_script_closure(
+                root,
+                [Path("data/maps/TestTown/scripts.inc")],
+            )
+            scripts = {item["script_id"]: item for item in ir["scripts"]}
+            ops = scripts["TestTown_OnTransition"]["instructions"]
+
+            eq_index = next(
+                i for i, ins in enumerate(ops)
+                if ins["op"] == "COMPARE_VAR_VALUE" and ins["var"] == "VAR_TEST"
+            )
+            self.assertEqual(ops[eq_index]["value"], "1")
+            self.assertEqual(ops[eq_index + 1]["op"], "GOTO_IF")
+            self.assertEqual(ops[eq_index + 1]["condition"], "EQUAL")
+            self.assertEqual(ops[eq_index + 1]["target_script_id"], "TestTown_Final")
+
+            flag_index = next(
+                i for i, ins in enumerate(ops)
+                if ins["op"] == "CHECK_FLAG" and ins["flag"] == "FLAG_OTHER"
+            )
+            self.assertEqual(ops[flag_index + 1]["op"], "CALL_IF")
+            self.assertEqual(ops[flag_index + 1]["condition"], "FALSE")
+            self.assertEqual(ops[flag_index + 1]["target_script_id"], "TestTown_Final")
+
+    def test_map_tables_movements_and_text_have_separate_stable_identity(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source_tree(root)
+            ir = convert_script_closure(
+                root,
+                [Path("data/maps/TestTown/scripts.inc")],
+            )
+
+            self.assertIn(
+                {
+                    "owner_id": "TestTown_MapScripts",
+                    "kind": "MAP_SCRIPT_ON_TRANSITION",
+                    "script_id": "TestTown_OnTransition",
+                },
+                ir["map_scripts"],
+            )
+            self.assertIn(
+                {
+                    "owner_id": "TestTown_OnFrame",
+                    "var": "VAR_TEST",
+                    "value": "1",
+                    "script_id": "TestTown_Final",
+                },
+                ir["map_script_tables"],
+            )
+
+            movements = {item["movement_id"]: item for item in ir["movements"]}
+            self.assertEqual(
+                [step["op"] for step in movements["TestTown_Movement_Walk"]["steps"]],
+                ["walk_down", "step_end"],
+            )
+            texts = {item["text_id"]: item for item in ir["texts"]}
+            self.assertEqual(texts["TestTown_Text_Hello"]["strings"], ["Hello!$"])
+
+    def test_ir_output_is_deterministic(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source_tree(root)
+            first = convert_script_closure(
+                root,
+                [Path("data/maps/TestTown/scripts.inc")],
+            )
+            second = convert_script_closure(
+                root,
+                [Path("data/maps/TestTown/scripts.inc")],
+            )
+            self.assertEqual(
+                json.dumps(first, sort_keys=True, ensure_ascii=False),
+                json.dumps(second, sort_keys=True, ensure_ascii=False),
+            )
+
+    def test_unresolved_script_target_is_a_conversion_error(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source_tree(root)
+            script_path = root / "data/maps/TestTown/scripts.inc"
+            script_path.write_text(
+                script_path.read_text(encoding="utf-8").replace(
+                    "call Shared_EventScript_Helper",
+                    "call Missing_EventScript",
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(ScriptConversionError) as raised:
+                convert_script_closure(
+                    root,
+                    [Path("data/maps/TestTown/scripts.inc")],
+                )
+            self.assertIn("Missing_EventScript", str(raised.exception))
 
 
 if __name__ == "__main__":
