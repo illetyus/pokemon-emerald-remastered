@@ -58,6 +58,41 @@ typedef struct RemasterEmeraldCoordMatch {
     uint16_t weather;
 } RemasterEmeraldCoordMatch;
 
+typedef enum RemasterEmeraldBackgroundEventKind {
+    REMASTER_EMERALD_BG_FACING_ANY = 0,
+    REMASTER_EMERALD_BG_FACING_NORTH = 1,
+    REMASTER_EMERALD_BG_FACING_SOUTH = 2,
+    REMASTER_EMERALD_BG_FACING_EAST = 3,
+    REMASTER_EMERALD_BG_FACING_WEST = 4,
+    REMASTER_EMERALD_BG_HIDDEN_ITEM = 7,
+    REMASTER_EMERALD_BG_SECRET_BASE = 8
+} RemasterEmeraldBackgroundEventKind;
+
+typedef struct RemasterEmeraldBackgroundEventDef {
+    int16_t x;
+    int16_t y;
+    uint8_t elevation;
+    uint8_t kind;
+    uint16_t item_id;
+    uint16_t hidden_flag_id;
+    uint16_t secret_base_id;
+} RemasterEmeraldBackgroundEventDef;
+
+typedef enum RemasterEmeraldBackgroundMatchKind {
+    REMASTER_EMERALD_BG_MATCH_NONE = 0,
+    REMASTER_EMERALD_BG_MATCH_SCRIPT = 1,
+    REMASTER_EMERALD_BG_MATCH_HIDDEN_ITEM = 2,
+    REMASTER_EMERALD_BG_MATCH_SECRET_BASE = 3
+} RemasterEmeraldBackgroundMatchKind;
+
+typedef struct RemasterEmeraldBackgroundMatch {
+    RemasterEmeraldBackgroundMatchKind kind;
+    size_t event_index;
+    uint16_t item_id;
+    uint16_t hidden_flag_id;
+    uint16_t secret_base_id;
+} RemasterEmeraldBackgroundMatch;
+
 int remaster_emerald_object_event_visible(
     const RemasterEmeraldSave *save,
     const RemasterEmeraldObjectEventDef *event);
@@ -77,6 +112,15 @@ RemasterEmeraldCoordMatch remaster_emerald_find_coord_event(
     int16_t x,
     int16_t y,
     uint8_t elevation);
+
+RemasterEmeraldBackgroundMatch remaster_emerald_find_background_event(
+    const RemasterEmeraldSave *save,
+    const RemasterEmeraldBackgroundEventDef *events,
+    size_t event_count,
+    int16_t x,
+    int16_t y,
+    uint8_t elevation,
+    uint8_t facing_direction);
 
 #ifdef __cplusplus
 }
