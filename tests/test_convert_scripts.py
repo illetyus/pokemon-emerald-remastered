@@ -11,6 +11,7 @@ from convert_scripts import (  # noqa: E402
     build_command_inventory,
     build_special_inventory,
     collect_script_dependency_closure,
+    convert_script_closure,
 )
 
 
@@ -54,6 +55,10 @@ class ConvertScriptsInventoryTests(unittest.TestCase):
 .macro return
 .macro call_if_eq a:req, b, c
 .macro call_if_unset flag:req, dest:req
+.macro goto_if_eq a:req, b, c
+.macro call_if_lt a:req, b, c
+.macro map_script kind:req, script:req
+.macro map_script_2 var:req, value:req, script:req
 .macro followerintopokeball
 .macro updatefollowerpokemongraphic
 """,
@@ -169,6 +174,115 @@ Common_Movement_Walk:
         self.assertIn("Broken_EventScript", message)
         self.assertIn("brandnewcmd", message)
         self.assertIn("line", message)
+
+
+class ConvertScriptsIrTests(ConvertScriptsInventoryTests):
+    def test_convert_script_closure_resolves_cross_script_targets_and_stable_ids(self):
+        temp, root = self.make_source()
+        self.addCleanup(temp.cleanup)
+        with (root / "data/maps/LittlerootTown/scripts.inc").open("w", encoding="utf-8") as handle:
+            handle.write(
+                """
+LittlerootTown_MapScripts::
+    map_script MAP_SCRIPT_ON_TRANSITION, LittlerootTown_OnTransition
+    map_script MAP_SCRIPT_ON_FRAME_TABLE, LittlerootTown_OnFrame
+    .byte 0
+
+LittlerootTown_OnFrame:
+    map_script_2 VAR_TEST, 1, LittlerootTown_FrameScript
+    .2byte 0
+
+LittlerootTown_OnTransition:
+    setvar VAR_TEST, 1
+    call Common_EventScript_Helper
+    goto_if_eq VAR_TEST, 1, LittlerootTown_FrameScript
+    end
+
+LittlerootTown_FrameScript:
+    call_if_unset FLAG_TEST, Common_EventScript_Helper
+    call_if_lt VAR_TEST, 3, Common_EventScript_Helper
+    special GetPlayerBigGuyGirlString
+    end
+
+LittlerootTown_Movement_Test:
+    walk_up
+    step_end
+
+LittlerootTown_Text_Test:
+    .string "Hello$"
+"""
+            )
+
+        ir = convert_script_closure(
+            root, [root / "data/maps/LittlerootTown/scripts.inc"]
+        )
+        scripts = {item["script_id"]: item for item in ir["scripts"]}
+        self.assertIn("LittlerootTown_OnTransition", scripts)
+        self.assertIn("Common_EventScript_Helper", scripts)
+        self.assertIn("LittlerootTown_FrameScript", scripts)
+
+        transition = scripts["LittlerootTown_OnTransition"]["instructions"]
+        self.assertEqual(transition[1]["op"], "CALL")
+        self.assertEqual(transition[1]["target_script_id"], "Common_EventScript_Helper")
+        self.assertEqual(transition[2]["op"], "COMPARE_VAR_VALUE")
+        self.assertEqual(transition[3]["op"], "GOTO_IF")
+        self.assertEqual(transition[3]["condition"], "EQUAL")
+        self.assertEqual(transition[3]["target_script_id"], "LittlerootTown_FrameScript")
+
+        frame = scripts["LittlerootTown_FrameScript"]["instructions"]
+        self.assertEqual(frame[0]["op"], "CHECK_FLAG")
+        self.assertEqual(frame[1]["op"], "CALL_IF")
+        self.assertEqual(frame[1]["condition"], "UNSET")
+        self.assertEqual(frame[2]["op"], "COMPARE_VAR_VALUE")
+        self.assertEqual(frame[3]["condition"], "LESS")
+
+        self.assertEqual(ir["movements"][0]["movement_id"], "LittlerootTown_Movement_Test")
+        self.assertEqual(ir["movements"][0]["steps"], ["walk_up", "step_end"])
+        self.assertEqual(ir["texts"][0]["text_id"], "LittlerootTown_Text_Test")
+
+    def test_convert_script_closure_emits_map_script_tables(self):
+        temp, root = self.make_source()
+        self.addCleanup(temp.cleanup)
+        with (root / "data/maps/LittlerootTown/scripts.inc").open("w", encoding="utf-8") as handle:
+            handle.write(
+                """
+LittlerootTown_MapScripts::
+    map_script MAP_SCRIPT_ON_TRANSITION, LittlerootTown_OnTransition
+    map_script MAP_SCRIPT_ON_FRAME_TABLE, LittlerootTown_OnFrame
+    .byte 0
+LittlerootTown_OnFrame:
+    map_script_2 VAR_TEST, 1, LittlerootTown_FrameScript
+    .2byte 0
+LittlerootTown_OnTransition:
+    end
+LittlerootTown_FrameScript:
+    end
+"""
+            )
+        ir = convert_script_closure(root, [root / "data/maps/LittlerootTown/scripts.inc"])
+        hooks = ir["map_scripts"]
+        self.assertIn(
+            {"kind": "MAP_SCRIPT_ON_TRANSITION", "script_id": "LittlerootTown_OnTransition"},
+            hooks,
+        )
+        tables = ir["map_script_tables"]
+        self.assertEqual(tables[0]["kind"], "MAP_SCRIPT_ON_FRAME_TABLE")
+        self.assertEqual(tables[0]["entries"][0]["var"], "VAR_TEST")
+        self.assertEqual(tables[0]["entries"][0]["value"], "1")
+        self.assertEqual(tables[0]["entries"][0]["script_id"], "LittlerootTown_FrameScript")
+
+    def test_convert_script_closure_is_deterministic_and_rejects_unresolved_target(self):
+        temp, root = self.make_source()
+        self.addCleanup(temp.cleanup)
+        first = convert_script_closure(root, [root / "data/maps/LittlerootTown/scripts.inc"])
+        second = convert_script_closure(root, [root / "data/maps/LittlerootTown/scripts.inc"])
+        self.assertEqual(first, second)
+
+        path = root / "data/maps/LittlerootTown/scripts.inc"
+        path.write_text("Bad::\n    call Missing_Label\n    end\n", encoding="utf-8")
+        with self.assertRaises(ScriptConversionError) as caught:
+            convert_script_closure(root, [path])
+        self.assertIn("Missing_Label", str(caught.exception))
 
 
 if __name__ == "__main__":

@@ -178,14 +178,21 @@ def collect_script_dependency_closure(source_root: Path, roots: list[Path]) -> S
             if clean.startswith((".", "#")):
                 continue
             first = clean.split(None, 1)[0]
-            if first in event_macros:
+            if first in {"map_script", "map_script_2"}:
+                classification = "STRUCTURAL"
+            elif first in event_macros:
                 classification = classify_command(first)
                 if classification is None:
                     rel = path.relative_to(source_root).as_posix()
                     raise ScriptConversionError(
                         f"{rel}: line {line_no}: {current_label}: unclassified command {first}"
                     )
-                commands.add(first)
+            else:
+                classification = None
+
+            if classification is not None:
+                if classification != "STRUCTURAL":
+                    commands.add(first)
                 if first in {"special", "specialvar"}:
                     args = clean.split(None, 1)[1] if " " in clean else ""
                     tokens = [t for t in TOKEN_RE.findall(args) if t not in {"VAR_RESULT"}]
@@ -201,6 +208,209 @@ def collect_script_dependency_closure(source_root: Path, roots: list[Path]) -> S
     for path in seen:
         labels.update(file_labels.get(path, set()))
     return ScriptClosure(files=sorted(seen), labels=labels, commands=commands, specials=specials)
+
+
+def _split_args(text: str) -> list[str]:
+    return [part.strip() for part in text.split(",") if part.strip()]
+
+
+def _source_record(source_root: Path, path: Path, line_no: int) -> dict:
+    return {"file": path.relative_to(source_root).as_posix(), "line": line_no}
+
+
+def _lower_script_command(
+    source_root: Path,
+    path: Path,
+    line_no: int,
+    command: str,
+    args: list[str],
+    known_labels: set[str],
+) -> list[dict]:
+    source = _source_record(source_root, path, line_no)
+
+    def target_record(op: str, target: str, **extra) -> dict:
+        if target not in known_labels:
+            raise ScriptConversionError(
+                f"{source['file']}: line {line_no}: unresolved script target {target}"
+            )
+        record = {"op": op, "target_script_id": target, "target_pc": 0, "source": source}
+        record.update(extra)
+        return record
+
+    if command == "call":
+        return [target_record("CALL", args[0])]
+    if command == "goto":
+        return [target_record("GOTO", args[0])]
+    if command == "goto_if_eq":
+        return [
+            {"op": "COMPARE_VAR_VALUE", "a": args[0], "b": args[1], "source": source},
+            target_record("GOTO_IF", args[2], condition="EQUAL"),
+        ]
+    if command == "call_if_lt":
+        return [
+            {"op": "COMPARE_VAR_VALUE", "a": args[0], "b": args[1], "source": source},
+            target_record("CALL_IF", args[2], condition="LESS"),
+        ]
+    if command == "call_if_unset":
+        return [
+            {"op": "CHECK_FLAG", "flag": args[0], "source": source},
+            target_record("CALL_IF", args[1], condition="UNSET"),
+        ]
+    if command == "call_if_set":
+        return [
+            {"op": "CHECK_FLAG", "flag": args[0], "source": source},
+            target_record("CALL_IF", args[1], condition="SET"),
+        ]
+    condition_names = {
+        "lt": "LESS", "eq": "EQUAL", "gt": "GREATER",
+        "le": "LESS_EQUAL", "ge": "GREATER_EQUAL", "ne": "NOT_EQUAL",
+    }
+    match = re.fullmatch(r"(goto|call)_if_(lt|eq|gt|le|ge|ne)", command)
+    if match:
+        op, cond = match.groups()
+        return [
+            {"op": "COMPARE_VAR_VALUE", "a": args[0], "b": args[1], "source": source},
+            target_record(f"{op.upper()}_IF", args[2], condition=condition_names[cond]),
+        ]
+    if command == "setvar":
+        return [{"op": "SET_VAR", "a": args[0], "b": args[1], "source": source}]
+    if command == "special":
+        return [{"op": "SPECIAL", "special_id": args[0], "source": source}]
+    if command == "specialvar":
+        return [{"op": "SPECIAL_VAR", "output": args[0], "special_id": args[1], "source": source}]
+    if command in {"end", "return"}:
+        return [{"op": command.upper(), "source": source}]
+
+    record = {"op": command.upper(), "source": source}
+    if args:
+        record["args"] = args
+    return [record]
+
+
+def convert_script_closure(source_root: Path, roots: list[Path]) -> dict:
+    closure = collect_script_dependency_closure(source_root, roots)
+    known_labels = set(closure.labels)
+    event_macros = _event_macro_names(source_root)
+
+    sections: list[tuple[Path, str, int, list[tuple[int, str]]]] = []
+    for path in closure.files:
+        current_label: str | None = None
+        current_line = 0
+        body: list[tuple[int, str]] = []
+        for line_no, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            clean = raw.split("@", 1)[0].strip()
+            label_match = LABEL_RE.match(clean)
+            if label_match:
+                if current_label is not None:
+                    sections.append((path, current_label, current_line, body))
+                current_label = label_match.group(1)
+                current_line = line_no
+                body = []
+                continue
+            if current_label is not None:
+                body.append((line_no, clean))
+        if current_label is not None:
+            sections.append((path, current_label, current_line, body))
+
+    table_kind_by_label: dict[str, str] = {}
+    map_scripts: list[dict] = []
+    for path, label, _, body in sections:
+        for line_no, clean in body:
+            if not clean:
+                continue
+            if clean.startswith("map_script "):
+                args = _split_args(clean[len("map_script "):])
+                if len(args) != 2:
+                    raise ScriptConversionError(
+                        f"{path.relative_to(source_root)}: line {line_no}: malformed map_script"
+                    )
+                kind, target = args
+                if target not in known_labels:
+                    raise ScriptConversionError(
+                        f"{path.relative_to(source_root)}: line {line_no}: unresolved script target {target}"
+                    )
+                if kind.endswith("_TABLE"):
+                    table_kind_by_label[target] = kind
+                else:
+                    map_scripts.append({"kind": kind, "script_id": target})
+
+    scripts: list[dict] = []
+    movements: list[dict] = []
+    texts: list[dict] = []
+    map_script_tables: list[dict] = []
+
+    for path, label, label_line, body in sections:
+        meaningful = [(n, x) for n, x in body if x]
+        first = meaningful[0][1] if meaningful else ""
+        if label in table_kind_by_label:
+            entries = []
+            for line_no, clean in meaningful:
+                if clean.startswith("map_script_2 "):
+                    args = _split_args(clean[len("map_script_2 "):])
+                    if len(args) != 3:
+                        raise ScriptConversionError(
+                            f"{path.relative_to(source_root)}: line {line_no}: malformed map_script_2"
+                        )
+                    var, value, target = args
+                    if target not in known_labels:
+                        raise ScriptConversionError(
+                            f"{path.relative_to(source_root)}: line {line_no}: unresolved script target {target}"
+                        )
+                    entries.append({"var": var, "value": value, "script_id": target})
+            map_script_tables.append({
+                "kind": table_kind_by_label[label],
+                "table_id": label,
+                "entries": entries,
+            })
+            continue
+        if "Movement" in label:
+            steps = [clean for _, clean in meaningful if not clean.startswith(".")]
+            movements.append({"movement_id": label, "steps": steps})
+            continue
+        if first.startswith(".string"):
+            texts.append({
+                "text_id": label,
+                "source": _source_record(source_root, path, label_line),
+            })
+            continue
+        if label.endswith("MapScripts"):
+            continue
+
+        instructions: list[dict] = []
+        for line_no, clean in meaningful:
+            if clean.startswith(".") or clean.startswith("map_script"):
+                continue
+            command = clean.split(None, 1)[0]
+            if command not in event_macros:
+                continue
+            args_text = clean[len(command):].strip()
+            args = _split_args(args_text)
+            instructions.extend(
+                _lower_script_command(
+                    source_root, path, line_no, command, args, known_labels
+                )
+            )
+        if instructions:
+            scripts.append({
+                "script_id": label,
+                "instructions": instructions,
+                "source": _source_record(source_root, path, label_line),
+            })
+
+    specials = build_special_inventory(source_root)
+    used_specials = sorted(closure.specials)
+    return {
+        "schema_version": 1,
+        "scripts": scripts,
+        "movements": movements,
+        "texts": texts,
+        "map_scripts": map_scripts,
+        "map_script_tables": map_script_tables,
+        "specials": [
+            {"special_id": name, "index": specials[name].index if name in specials else None}
+            for name in used_specials
+        ],
+    }
 
 
 def _report(source_root: Path, roots: list[Path]) -> dict:
