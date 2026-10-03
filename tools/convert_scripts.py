@@ -711,6 +711,7 @@ def _normalize_script_command(
         "closemessage": "CLOSE_MESSAGE",
         "waitse": "WAIT_SOUND",
         "waitfanfare": "WAIT_FANFARE",
+        "waitstate": "WAIT_STATE",
         "faceplayer": "FACE_PLAYER",
         "followerintopokeball": "FOLLOWER_INTO_POKEBALL",
         "updatefollowerpokemongraphic":
@@ -814,18 +815,19 @@ def _normalize_script_command(
             item["warp_id"] = args[1]
         return [item]
 
-    field_shapes: dict[str, tuple[str, ...]] = {
-        "setvar": ("var", "value"),
-        "setflag": ("flag",),
-        "clearflag": ("flag",),
-        "checkflag": ("flag",),
-        "applymovement": ("local_id", "movement_id"),
-        "waitmovement": ("local_id",),
-        "msgbox": ("text_id", "mode"),
+    field_shapes: dict[str, tuple[str, tuple[str, ...]]] = {
+        "setvar": ("SET_VAR", ("var", "value")),
+        "setflag": ("SET_FLAG", ("flag",)),
+        "clearflag": ("CLEAR_FLAG", ("flag",)),
+        "checkflag": ("CHECK_FLAG", ("flag",)),
+        "applymovement":
+            ("APPLY_MOVEMENT", ("local_id", "movement_id")),
+        "waitmovement": ("WAIT_MOVEMENT", ("local_id",)),
+        "msgbox": ("MESSAGE", ("text_id", "mode")),
     }
     if name in field_shapes:
-        fields = field_shapes[name]
-        item: dict[str, object] = {"op": name.upper()}
+        op, fields = field_shapes[name]
+        item: dict[str, object] = {"op": op}
         for index, field in enumerate(fields):
             if index < len(args):
                 item[field] = args[index]
