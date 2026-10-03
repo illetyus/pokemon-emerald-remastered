@@ -33,6 +33,111 @@ def audit(root: Path) -> list[str]:
     known_files = set()
     known_numeric_maps: set[tuple[int, int]] = set()
 
+    layout_catalog_by_id: dict[str, dict] = {}
+    layouts_file = manifest.get("layouts_file")
+    if layouts_file is not None:
+        layout_catalog_path = root / layouts_file
+        if not layout_catalog_path.is_file():
+            errors.append(f"missing layout catalog: {layouts_file}")
+        else:
+            layout_catalog = json.loads(
+                layout_catalog_path.read_text(encoding="utf-8")
+            )
+            layout_entries = layout_catalog.get("layouts", [])
+            manifest_layout_count = manifest.get("layout_count")
+            catalog_layout_count = layout_catalog.get("layout_count")
+
+            if manifest_layout_count != catalog_layout_count:
+                errors.append(
+                    "manifest layout_count does not match layout catalog"
+                )
+            if catalog_layout_count != len(layout_entries):
+                errors.append(
+                    "layout catalog layout_count does not match layouts array"
+                )
+
+            seen_layout_nums: set[int] = set()
+            map_names = {
+                item.get("name")
+                for item in maps
+                if isinstance(item.get("name"), str)
+            }
+            expected_usage: dict[str, list[str]] = {}
+            for map_entry in maps:
+                layout_id = map_entry.get("layout")
+                map_name = map_entry.get("name")
+                if isinstance(layout_id, str) and isinstance(map_name, str):
+                    expected_usage.setdefault(layout_id, []).append(map_name)
+
+            for layout_entry in layout_entries:
+                layout_id = layout_entry.get("id")
+                layout_num = layout_entry.get("layout_num")
+                rel_layout = layout_entry.get("file")
+                used_by = layout_entry.get("used_by_maps", [])
+
+                if not isinstance(layout_id, str) or not layout_id:
+                    errors.append("layout catalog entry has invalid id")
+                    continue
+                if layout_id in layout_catalog_by_id:
+                    errors.append(f"duplicate layout catalog id {layout_id}")
+                    continue
+                layout_catalog_by_id[layout_id] = layout_entry
+
+                if not isinstance(layout_num, int) or layout_num <= 0:
+                    errors.append(
+                        f"{layout_id}: invalid layout_num {layout_num!r}"
+                    )
+                elif layout_num in seen_layout_nums:
+                    errors.append(
+                        f"{layout_id}: duplicate numeric layout id {layout_num}"
+                    )
+                else:
+                    seen_layout_nums.add(layout_num)
+
+                if not isinstance(rel_layout, str) or not rel_layout:
+                    errors.append(f"{layout_id}: missing layout file")
+                    continue
+
+                layout_path = root / rel_layout
+                if not layout_path.is_file():
+                    errors.append(f"missing layout file: {rel_layout}")
+                    continue
+
+                layout_doc = json.loads(
+                    layout_path.read_text(encoding="utf-8")
+                )
+                canonical = layout_doc.get("layout", {})
+                if canonical.get("id") != layout_id:
+                    errors.append(
+                        f"{rel_layout}: layout catalog/file id mismatch"
+                    )
+                if canonical.get("layout_num") != layout_num:
+                    errors.append(
+                        f"{rel_layout}: layout catalog/file number mismatch"
+                    )
+                if layout_doc.get("used_by_maps", []) != used_by:
+                    errors.append(
+                        f"{rel_layout}: layout usage differs from catalog"
+                    )
+
+                if not isinstance(used_by, list):
+                    errors.append(f"{layout_id}: used_by_maps must be an array")
+                    continue
+                unknown_users = [
+                    name for name in used_by if name not in map_names
+                ]
+                if unknown_users:
+                    errors.append(
+                        f"{layout_id}: unknown map in used_by_maps "
+                        f"{unknown_users[0]!r}"
+                    )
+
+                expected = sorted(expected_usage.get(layout_id, []))
+                if sorted(used_by) != expected:
+                    errors.append(
+                        f"{layout_id}: layout usage does not match map manifest"
+                    )
+
     for entry in maps:
         rel = entry.get("file")
         if not rel:
@@ -183,6 +288,15 @@ def audit(root: Path) -> list[str]:
             errors.append(f"{rel}: manifest/map map_num mismatch")
         if map_doc.get("layout_num") != layout_num:
             errors.append(f"{rel}: manifest/map layout_num mismatch")
+
+        if layouts_file is not None:
+            layout_id = entry.get("layout")
+            if layout_id not in layout_catalog_by_id:
+                errors.append(
+                    f"{rel}: map layout {layout_id!r} missing from layout catalog"
+                )
+            elif map_doc.get("layout") != layout_id:
+                errors.append(f"{rel}: manifest/map layout id mismatch")
 
         weather_id = map_doc.get("weather_id")
         map_type_id = map_doc.get("map_type_id")
