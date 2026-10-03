@@ -172,5 +172,82 @@ class ContentAuditTests(unittest.TestCase):
             self.assertTrue(any("unknown map" in item for item in errors))
 
 
+    def test_missing_numeric_event_identity_fails(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "maps").mkdir()
+
+            manifest = {
+                "schema_version": 1,
+                "map_count": 1,
+                "maps": [
+                    {
+                        "id": "MAP_A",
+                        "file": "maps/A.json",
+                        "group_num": 0,
+                        "map_num": 0,
+                    }
+                ],
+            }
+            (root / "manifest.json").write_text(json.dumps(manifest))
+
+            doc = {
+                "schema_version": 1,
+                "map": {
+                    "id": "MAP_A",
+                    "group_num": 0,
+                    "map_num": 0,
+                    "connections": [],
+                    "object_events": [
+                        {
+                            "local_id": 1,
+                            "flag": "0",
+                            "flag_id": 0,
+                            "trainer_sight_or_berry_tree_id": "BERRY_TREE_TEST",
+                        }
+                    ],
+                    "warp_events": [],
+                    "coord_events": [],
+                    "bg_events": [
+                        {
+                            "type": "sign",
+                            "player_facing_dir": "BG_EVENT_PLAYER_FACING_NORTH",
+                            "kind_id": -1,
+                        }
+                    ],
+                },
+                "layout": {
+                    "width": 1,
+                    "height": 1,
+                    "source_word_count": 1,
+                    "active_word_count": 1,
+                    "raw_blocks_u16": [0],
+                    "trailing_words_u16": [],
+                    "border_source_word_count": 4,
+                    "border_active_words_u16": [1, 2, 3, 4],
+                    "border_trailing_words_u16": [],
+                    "metatile_ids_u16": [0],
+                    "collision_u8": [0],
+                    "elevation_u8": [0],
+                    "primary_metatile_attributes_u16": [0],
+                    "secondary_metatile_attributes_u16": [0],
+                    "primary_metatile_behavior_u8": [0],
+                    "secondary_metatile_behavior_u8": [0],
+                    "primary_metatile_layer_u8": [0],
+                    "secondary_metatile_layer_u8": [0],
+                },
+            }
+            (root / "maps/A.json").write_text(json.dumps(doc))
+
+            errors = audit(root)
+
+            self.assertTrue(
+                any("numeric trainer/berry id" in item for item in errors)
+            )
+            self.assertTrue(
+                any("numeric facing id" in item for item in errors)
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
