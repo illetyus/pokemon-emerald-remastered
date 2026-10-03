@@ -18,7 +18,7 @@ int main(void)
     RemasterEmeraldSave save;
     RemasterEmeraldObjectEventDef object_event;
     RemasterEmeraldWarpEventDef warps[2];
-    RemasterEmeraldCoordEventDef coords[4];
+    RemasterEmeraldCoordEventDef coords[5];
     RemasterEmeraldCoordMatch match;
     RemasterEmeraldBackgroundEventDef backgrounds[3];
     RemasterEmeraldBackgroundMatch bg_match;
@@ -129,6 +129,18 @@ int main(void)
     coords[3].elevation = 0;
     coords[3].weather = 12;
 
+    /*
+     * Vanilla stores index as u16 in the map structure but compares it as
+     * (u8)index. A high byte in generated/native data must not change the
+     * trigger result.
+     */
+    coords[4].kind = REMASTER_EMERALD_COORD_TRIGGER;
+    coords[4].x = 9;
+    coords[4].y = 10;
+    coords[4].elevation = 0;
+    coords[4].trigger = 0x4007;
+    coords[4].index = 0x0104;
+
     if (!check(
             remaster_emerald_var_set(&save, 0x4007, 4),
             "failed to set coord var"))
@@ -175,6 +187,20 @@ int main(void)
             && match.event_index == 3
             && match.weather == 12,
             "weather coord event mismatch"))
+        return 1;
+
+    match = remaster_emerald_find_coord_event(
+        &save,
+        coords,
+        5,
+        9,
+        10,
+        6);
+
+    if (!check(
+            match.kind == REMASTER_EMERALD_COORD_MATCH_SCRIPT
+            && match.event_index == 4,
+            "coord index must compare with Vanilla u8 truncation"))
         return 1;
 
     backgrounds[0].x = 2;
