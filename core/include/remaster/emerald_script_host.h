@@ -41,6 +41,33 @@ typedef enum RemasterEmeraldScriptMovementAction {
     REMASTER_EMERALD_SCRIPT_MOVEMENT_WAIT
 } RemasterEmeraldScriptMovementAction;
 
+typedef enum RemasterEmeraldScriptMessageAction {
+    REMASTER_EMERALD_SCRIPT_MESSAGE_SHOW = 1,
+    REMASTER_EMERALD_SCRIPT_MESSAGE_CLOSE,
+    REMASTER_EMERALD_SCRIPT_MESSAGE_WAIT
+} RemasterEmeraldScriptMessageAction;
+
+typedef enum RemasterEmeraldScriptAsyncAction {
+    REMASTER_EMERALD_SCRIPT_ASYNC_START = 1,
+    REMASTER_EMERALD_SCRIPT_ASYNC_WAIT
+} RemasterEmeraldScriptAsyncAction;
+
+typedef enum RemasterEmeraldScriptDoorAction {
+    REMASTER_EMERALD_SCRIPT_DOOR_OPEN = 1,
+    REMASTER_EMERALD_SCRIPT_DOOR_CLOSE,
+    REMASTER_EMERALD_SCRIPT_DOOR_WAIT
+} RemasterEmeraldScriptDoorAction;
+
+typedef enum RemasterEmeraldScriptDomainAction {
+    REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_ADD = 1,
+    REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_REMOVE,
+    REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_CHECK,
+    REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_SPACE,
+    REMASTER_EMERALD_SCRIPT_DOMAIN_GIVE_MON,
+    REMASTER_EMERALD_SCRIPT_DOMAIN_HEAL_PARTY,
+    REMASTER_EMERALD_SCRIPT_DOMAIN_PARTY_SIZE
+} RemasterEmeraldScriptDomainAction;
+
 typedef struct RemasterEmeraldScriptRequest {
     RemasterEmeraldScriptRequestType type;
     uint64_t sequence;
@@ -54,6 +81,9 @@ typedef struct RemasterEmeraldScriptRequest {
     int16_t x;
     int16_t y;
     uint16_t value_u16;
+    uint32_t value_u32;
+    uint16_t quantity;
+    uint16_t result_var;
 } RemasterEmeraldScriptRequest;
 
 typedef struct RemasterEmeraldScriptCompletion {
