@@ -1,5 +1,6 @@
 #include "remaster/emerald_script.h"
 #include "remaster/emerald_state.h"
+#include "remaster/emerald_object_state.h"
 
 #include <string.h>
 
@@ -737,6 +738,47 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
             break;
 
         case REMASTER_EMERALD_SCRIPT_WAIT_STATE:
+            vm->status = REMASTER_EMERALD_SCRIPT_YIELDED;
+            return vm->status;
+
+        case REMASTER_EMERALD_SCRIPT_SET_OBJECT_XY_PERM:
+            if (!remaster_emerald_object_template_set_coords(
+                    vm->save,
+                    (uint8_t)ins->a,
+                    ins->x,
+                    ins->y))
+            {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
+            break;
+
+        case REMASTER_EMERALD_SCRIPT_SET_OBJECT_MOVEMENT_TYPE:
+            if (!remaster_emerald_object_template_set_movement_type(
+                    vm->save,
+                    (uint8_t)ins->a,
+                    (uint8_t)ins->b))
+            {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
+            break;
+
+        case REMASTER_EMERALD_SCRIPT_ADD_OBJECT:
+        case REMASTER_EMERALD_SCRIPT_REMOVE_OBJECT:
+        case REMASTER_EMERALD_SCRIPT_SHOW_OBJECT:
+        case REMASTER_EMERALD_SCRIPT_HIDE_OBJECT:
+        case REMASTER_EMERALD_SCRIPT_SET_OBJECT_XY:
+        case REMASTER_EMERALD_SCRIPT_TURN_OBJECT:
+        case REMASTER_EMERALD_SCRIPT_FACE_PLAYER:
+        case REMASTER_EMERALD_SCRIPT_APPLY_MOVEMENT:
+        case REMASTER_EMERALD_SCRIPT_WAIT_MOVEMENT:
             vm->status = REMASTER_EMERALD_SCRIPT_YIELDED;
             return vm->status;
 
