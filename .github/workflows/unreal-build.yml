@@ -1,0 +1,97 @@
+name: Unreal 5.8 Linux Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_android:
+        description: Package Android ARM64 development APK
+        required: true
+        default: true
+        type: boolean
+
+concurrency:
+  group: unreal-58-linux-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: [self-hosted, linux, unreal-5.8]
+    timeout-minutes: 180
+
+    env:
+      PROJECT: ${{ github.workspace }}/unreal/PokemonEmeraldRemastered.uproject
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve Unreal Engine
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          candidates=(
+            "${UE_ROOT:-}"
+            "/opt/UnrealEngine-5.8"
+            "/opt/UnrealEngine"
+            "$HOME/UnrealEngine-5.8"
+            "$HOME/UnrealEngine"
+          )
+
+          for candidate in "${candidates[@]}"; do
+            if [[ -n "$candidate" && -x "$candidate/Engine/Build/BatchFiles/Linux/Build.sh" ]]; then
+              echo "UE_ROOT=$candidate" >> "$GITHUB_ENV"
+              echo "Using Unreal Engine: $candidate"
+              exit 0
+            fi
+          done
+
+          echo "Unreal Engine 5.8 installation not found." >&2
+          echo "Set UE_ROOT on the runner or install UE under /opt/UnrealEngine-5.8." >&2
+          exit 1
+
+      - name: Linux Unreal preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tools/unreal_linux_preflight.sh "$UE_ROOT"
+
+      - name: Build Linux Development
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh"             PokemonEmeraldRemastered             Linux             Development             "-Project=$PROJECT"             -WaitMutex             -NoHotReloadFromIDE
+
+      - name: Package Android ARM64 Development
+        if: ${{ inputs.package_android }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          archive="$GITHUB_WORKSPACE/artifacts/android"
+          mkdir -p "$archive"
+
+          "$UE_ROOT/Engine/Build/BatchFiles/RunUAT.sh" BuildCookRun             "-project=$PROJECT"             -noP4             -platform=Android             -clientconfig=Development             -build             -cook             -stage             -pak             -package             -archive             "-archivedirectory=$archive"
+
+      - name: Verify Android package
+        if: ${{ inputs.package_android }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          apk="$(find "$GITHUB_WORKSPACE/artifacts/android" -type f -name '*.apk' -print -quit)"
+          if [[ -z "$apk" ]]; then
+            echo "No Android APK was produced." >&2
+            exit 1
+          fi
+
+          echo "APK=$apk"
+          sha256sum "$apk"
+
+      - name: Upload Android artifact
+        if: ${{ inputs.package_android }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-emerald-remastered-unreal-linux-android
+          path: artifacts/android/**/*.apk
+          if-no-files-found: error

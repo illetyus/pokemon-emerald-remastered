@@ -1,13 +1,7 @@
 name: R0 Android SDL3
 
 on:
-  push:
-    branches:
-      - remaster/**
-    paths:
-      - "core/**"
-      - "experiments/sdl3-native/**"
-      - ".github/workflows/r0-android-sdl3.yml"
+  workflow_dispatch:
 
 concurrency:
   group: r0-android-sdl3-${{ github.ref }}

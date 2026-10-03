@@ -37,4 +37,11 @@ R0 exists to prove the technical direction before production art or large-scale 
 - R14 — Regression and compatibility
 - R15 — Full content conversion and final polish
 
-Development work for R0 lives on `remaster/r0-architecture`.
+Current Unreal migration work lives on `remaster/r0-unreal`. The architecture branch remains the comparison/evidence base.
+
+
+## Linux-first Unreal build
+
+Unreal Engine 5.8 builds are now designed to run on Linux. The engine-side workflow expects a Linux runner labeled `unreal-5.8`, builds the native Linux Development target, then cooks and packages the Android ARM64 Development APK with `RunUAT.sh`.
+
+Portable core, conversion, replay and architecture checks continue to run independently on ordinary GitHub-hosted Linux CI.

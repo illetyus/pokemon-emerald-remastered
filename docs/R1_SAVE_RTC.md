@@ -1,0 +1,126 @@
+# R1 Save / RTC Compatibility
+
+Status: R1 field validation complete.
+
+Authoritative source baseline:
+
+- `illetyus/pokezumrut-vanillaplus`
+- commit `70db90c9077aed1272e746fc2537d9f12b95a91c`
+
+## Preserved save contracts
+
+The portable layer preserves the existing Emerald / Vanilla+ 128 KiB flash image.
+
+Main-save geometry:
+
+- 32 total 4 KiB sectors;
+- 14 sectors per alternating main slot;
+- sectors 28-31 remain outside normal main-save rotation;
+- 3968 bytes of data per main sector;
+- footer fields remain sector id, checksum, signature and counter;
+- signature remains `0x08012025`.
+
+Persistent block sizes are pinned to the production AGBCC layout verified
+against a real VP019 save image:
+
+- SaveBlock2: `0x0F44`
+- SaveBlock1: `0x3DC8`
+- PokemonStorage: `0x83D0`
+
+The source comments still show the pre-extension `0x0F2C` / `0x3D88`
+sizes. Those comments are stale: the appended 0x18-byte `Follower` expands
+SaveBlock2, while the widened `ObjectEvent.graphicsId` makes compiled
+`ObjectEvent` records 0x28 bytes and shifts the latter SaveBlock1 fields by
+0x40 bytes.
+
+The new implementation reconstructs logical SaveBlock2, SaveBlock1 and PokemonStorage from rotated sectors, selects the newest valid slot, falls back to the older valid slot when the newer copy is damaged, and writes the next save using Emerald's counter/rotation scheme.
+
+It does not convert the user's save to a new application-specific format.
+
+## RTC
+
+Vanilla+ persists RTC state in the existing SaveBlock2 fields:
+
+- `localTimeOffset` at `0x98`
+- `lastBerryTreeUpdate` at `0xA0`
+
+The portable RTC layer preserves Emerald's original semantics:
+
+1. obtain platform wall clock;
+2. convert the full year back to the GBA RTC two-digit-year representation;
+3. calculate Emerald day count;
+4. subtract persisted `localTimeOffset`;
+5. borrow seconds/minutes/hours exactly as the original code does.
+
+RTC correction updates the existing offset and `lastBerryTreeUpdate`; no new persistent RTC fields are introduced.
+
+## State view
+
+The portable save-state view currently exposes:
+
+- player tile coordinates;
+- current map group / map number / warp id;
+- warp coordinates;
+- map layout id;
+- weather / flash level;
+- party count;
+- encrypted money and coins using the existing SaveBlock2 encryption key;
+- registered item;
+- persistent flags;
+- persistent vars;
+- current local RTC time.
+
+Persistent flag bytes are at SaveBlock1 `0x12B0`.
+
+Persistent vars are at SaveBlock1 `0x13DC`, with IDs beginning at `0x4000`.
+
+## Unreal bridge
+
+`URemasterVanillaPlusSaveSubsystem` owns the engine-side bridge.
+
+Its canonical compatibility file is:
+
+```text
+Saved/Core/vanillaplus.sav
+```
+
+The subsystem depends on the core platform subsystem, loads the 128 KiB file through the portable platform vtable and exposes state/flag/var/RTC queries to C++ and Blueprint.
+
+Unreal does not parse Emerald flash sectors itself.
+
+## Regression coverage
+
+Portable tests cover:
+
+- checksum calculation;
+- two valid save slots;
+- newest-counter selection;
+- rotated sector reconstruction;
+- fallback when newest slot is damaged;
+- SaveBlock1/2 and PokemonStorage tail boundaries;
+- RTC persisted offsets;
+- next-slot write/reload;
+- preservation of sectors outside the main-save slots;
+- platform-backed load/store;
+- map/player state view;
+- encrypted currency;
+- flag set/clear;
+- var get/set;
+- RTC realignment and wall-clock progression.
+
+## Remaining validation
+
+A real 128 KiB VP019 test save has now been decoded successfully after
+correcting the production AGBCC layout. Both main slots validate, the newest
+counter/rotation is selected correctly, and the decoded Fiery Path map/object
+template state matches the Vanilla+ source data. A no-gameplay-change rewrite
+also decodes back to byte-identical SaveBlock1, SaveBlock2 and PokemonStorage
+payloads in the native verifier.
+
+The rewritten save was reopened successfully in the actual Vanilla+ ROM/emulator
+on 2026-10-03, completing the real-save field acceptance gate.
+
+Portable CTest execution remains an evidence gate while GitHub Actions is
+failing before the first job step. UE 5.8/Linux/Android compilation is tracked
+by the separate parallel Unreal-build line in the fixed roadmap, not as an R1
+core blocker.

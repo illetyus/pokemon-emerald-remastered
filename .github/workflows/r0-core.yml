@@ -13,10 +13,7 @@ concurrency:
 jobs:
   portable-core:
     timeout-minutes: 10
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -40,3 +37,24 @@ jobs:
 
       - name: Validate JSON fixtures
         run: python -m json.tool shared/scenarios/r0_walk_event_encounter.json > /dev/null
+
+
+  world-converter:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test world conversion pipeline
+        run: python -m unittest tests/test_convert_world.py
+
+      - name: Test generated content audit
+        run: python -m unittest tests/test_content_audit.py
+
+      - name: Test platform coupling inventory
+        run: python -m unittest tests/test_platform_coupling.py
+
+      - name: Validate Unreal source architecture
+        run: python tools/validate_unreal_source.py

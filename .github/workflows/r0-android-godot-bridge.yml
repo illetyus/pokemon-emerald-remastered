@@ -1,14 +1,7 @@
 name: R0 Android Godot Bridge
 
 on:
-  push:
-    branches:
-      - remaster/**
-    paths:
-      - "core/**"
-      - "experiments/godot-bridge/**"
-      - "CMakeLists.txt"
-      - ".github/workflows/r0-android-godot-bridge.yml"
+  workflow_dispatch:
 
 concurrency:
   group: r0-android-godot-bridge-${{ github.ref }}

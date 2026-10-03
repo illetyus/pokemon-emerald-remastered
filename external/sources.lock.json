@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "vanillaplus": {
+    "repository": "illetyus/pokezumrut-vanillaplus",
+    "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+    "role": "authoritative gameplay/content source"
+  },
+  "multiplatform_reference": {
+    "repository": "gradenGnostic/pokeemerald-multiplatform",
+    "branch": "main",
+    "role": "reference implementation for native platform decoupling"
+  }
+}
