@@ -719,6 +719,212 @@ int main(void)
 #undef ACK_ADAPTER
     }
 
+
+    {
+        RemasterEmeraldScriptRuntime special_runtime;
+        RemasterEmeraldScriptRequest special_request;
+        RemasterEmeraldScriptCompletion special_completion;
+        RemasterEmeraldScriptError special_error;
+        uint16_t special_result = 0;
+
+        const RemasterEmeraldScriptInstruction special_script[] = {
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_SPECIAL,
+                .resource_id = "ChooseStarter",
+                .value_u32 = 159,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_SPECIAL,
+                .resource_id = "HealPlayerParty",
+                .value_u32 = 0,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_SPECIAL_VAR,
+                .a = 0x800D,
+                .resource_id = "HasAllHoennMons",
+                .value_u32 = 200,
+            },
+            { .opcode = REMASTER_EMERALD_SCRIPT_END },
+        };
+        const RemasterEmeraldScriptProgram special_programs[] = {
+            { "Special_Test", special_script, 4 },
+        };
+        const RemasterEmeraldScriptRegistry special_program_registry = {
+            special_programs,
+            1,
+        };
+        const RemasterEmeraldSpecialBinding special_bindings[] = {
+            {
+                "HealPlayerParty",
+                0,
+                REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN,
+                REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_HEAL_PARTY,
+                0,
+            },
+            {
+                "ChooseStarter",
+                159,
+                REMASTER_EMERALD_SCRIPT_REQUEST_STARTER_SELECTION,
+                0,
+                0x800D,
+            },
+            {
+                "HasAllHoennMons",
+                200,
+                REMASTER_EMERALD_SCRIPT_REQUEST_SPECIAL,
+                0,
+                0,
+            },
+        };
+        const RemasterEmeraldSpecialRegistry special_registry = {
+            special_bindings,
+            sizeof(special_bindings) / sizeof(special_bindings[0]),
+        };
+
+        memset(&save, 0, sizeof(save));
+        remaster_emerald_script_runtime_start(
+            &special_runtime,
+            &save,
+            &special_program_registry,
+            0,
+            0);
+        remaster_emerald_script_runtime_set_special_registry(
+            &special_runtime,
+            &special_registry);
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&special_runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_YIELDED
+                && remaster_emerald_script_runtime_pending_request(
+                    &special_runtime,
+                    &special_request)
+                && special_request.type
+                    == REMASTER_EMERALD_SCRIPT_REQUEST_STARTER_SELECTION
+                && special_request.resource_id != 0
+                && strcmp(
+                    special_request.resource_id,
+                    "ChooseStarter") == 0
+                && special_request.value_u32 == 159
+                && special_request.result_var == 0x800D,
+                "ChooseStarter special binding mismatch"))
+            return 1;
+
+        memset(&special_completion, 0, sizeof(special_completion));
+        special_completion.type = special_request.type;
+        special_completion.sequence = special_request.sequence;
+        special_completion.result_u16 = 2;
+        special_completion.accepted = 1;
+        if (!check(
+                remaster_emerald_script_runtime_complete(
+                    &special_runtime,
+                    &special_completion)
+                && remaster_emerald_script_var_get(
+                    &special_runtime.vm,
+                    0x800D,
+                    &special_result)
+                && special_result == 2,
+                "ChooseStarter result did not reach VAR_RESULT"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&special_runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_YIELDED
+                && remaster_emerald_script_runtime_pending_request(
+                    &special_runtime,
+                    &special_request)
+                && special_request.type
+                    == REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN
+                && special_request.action
+                    == REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_HEAL_PARTY,
+                "HealPlayerParty special binding mismatch"))
+            return 1;
+
+        memset(&special_completion, 0, sizeof(special_completion));
+        special_completion.type = special_request.type;
+        special_completion.sequence = special_request.sequence;
+        special_completion.accepted = 1;
+        if (!check(
+                remaster_emerald_script_runtime_complete(
+                    &special_runtime,
+                    &special_completion),
+                "HealPlayerParty completion failed"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&special_runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_YIELDED
+                && remaster_emerald_script_runtime_pending_request(
+                    &special_runtime,
+                    &special_request)
+                && special_request.type
+                    == REMASTER_EMERALD_SCRIPT_REQUEST_SPECIAL
+                && special_request.result_var == 0x800D,
+                "specialvar binding mismatch"))
+            return 1;
+
+        memset(&special_completion, 0, sizeof(special_completion));
+        special_completion.type = special_request.type;
+        special_completion.sequence = special_request.sequence;
+        special_completion.result_u16 = 1;
+        special_completion.accepted = 1;
+        if (!check(
+                remaster_emerald_script_runtime_complete(
+                    &special_runtime,
+                    &special_completion)
+                && remaster_emerald_script_var_get(
+                    &special_runtime.vm,
+                    0x800D,
+                    &special_result)
+                && special_result == 1,
+                "specialvar result mismatch"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&special_runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_HALTED,
+                "special test script did not halt"))
+            return 1;
+
+        {
+            const RemasterEmeraldScriptInstruction unknown_script[] = {
+                {
+                    .opcode = REMASTER_EMERALD_SCRIPT_SPECIAL,
+                    .resource_id = "UnknownSpecial",
+                    .value_u32 = 999,
+                },
+            };
+            const RemasterEmeraldScriptProgram unknown_programs[] = {
+                { "Unknown_Special_Test", unknown_script, 1 },
+            };
+            const RemasterEmeraldScriptRegistry unknown_registry = {
+                unknown_programs,
+                1,
+            };
+
+            remaster_emerald_script_runtime_start(
+                &special_runtime,
+                &save,
+                &unknown_registry,
+                0,
+                0);
+            remaster_emerald_script_runtime_set_special_registry(
+                &special_runtime,
+                &special_registry);
+
+            if (!check(
+                    remaster_emerald_script_runtime_run(
+                        &special_runtime,
+                        100) == REMASTER_EMERALD_SCRIPT_ERROR
+                    && remaster_emerald_script_error_get(
+                        &special_runtime.vm,
+                        &special_error)
+                    && special_error.code
+                        == REMASTER_EMERALD_SCRIPT_ERROR_UNKNOWN_SPECIAL,
+                    "unknown special should be a structured runtime error"))
+                return 1;
+        }
+    }
+
     puts("Emerald script runtime yield/resume test passed.");
     return 0;
 }
