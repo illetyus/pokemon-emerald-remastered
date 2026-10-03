@@ -27,6 +27,19 @@ bool FitsUInt16(int32 Value)
 {
     return Value >= 0 && Value <= MAX_uint16;
 }
+
+int32 ConnectionDirectionFromString(const FString& Value)
+{
+    if (Value.Equals(TEXT("down"), ESearchCase::IgnoreCase))
+        return REMASTER_EMERALD_DIR_SOUTH;
+    if (Value.Equals(TEXT("up"), ESearchCase::IgnoreCase))
+        return REMASTER_EMERALD_DIR_NORTH;
+    if (Value.Equals(TEXT("left"), ESearchCase::IgnoreCase))
+        return REMASTER_EMERALD_DIR_WEST;
+    if (Value.Equals(TEXT("right"), ESearchCase::IgnoreCase))
+        return REMASTER_EMERALD_DIR_EAST;
+    return REMASTER_EMERALD_DIR_NONE;
+}
 }
 
 void URemasterWorldGameplaySubsystem::Initialize(
@@ -154,6 +167,240 @@ bool URemasterWorldGameplaySubsystem::IsObjectVisible(
 
     OutVisible =
         remaster_emerald_object_event_visible(Save, &Native) != 0;
+
+    return true;
+}
+
+
+bool URemasterWorldGameplaySubsystem::ResolveConnection(
+    int32 Direction,
+    FRemasterResolvedConnection& OutConnection) const
+{
+    OutConnection = FRemasterResolvedConnection{};
+
+    if (!bMapReady
+        || Direction < REMASTER_EMERALD_DIR_SOUTH
+        || Direction > REMASTER_EMERALD_DIR_EAST
+        || !GetGameInstance()
+        || CurrentMap.Width <= 0
+        || CurrentMap.Width > MAX_int16
+        || CurrentMap.Height <= 0
+        || CurrentMap.Height > MAX_int16)
+    {
+        return false;
+    }
+
+    const URemasterVanillaPlusSaveSubsystem* SaveSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
+    URemasterWorldCatalogSubsystem* CatalogSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterWorldCatalogSubsystem>();
+
+    if (!SaveSubsystem
+        || !CatalogSubsystem
+        || !SaveSubsystem->HasUsableSave())
+    {
+        return false;
+    }
+
+    const RemasterEmeraldSave* Save =
+        static_cast<const RemasterEmeraldSave*>(
+            SaveSubsystem->GetNativeSaveHandle());
+
+    if (!Save)
+        return false;
+
+    RemasterEmeraldOverworldState State{};
+    if (!remaster_emerald_overworld_get(Save, &State))
+        return false;
+
+    TArray<RemasterEmeraldConnectionDef> NativeConnections;
+    TArray<int32> SourceIndices;
+
+    NativeConnections.Reserve(CurrentMap.Connections.Num());
+    SourceIndices.Reserve(CurrentMap.Connections.Num());
+
+    for (int32 Index = 0; Index < CurrentMap.Connections.Num(); ++Index)
+    {
+        const FRemasterConnectionIR& Source = CurrentMap.Connections[Index];
+        const int32 NativeDirection =
+            ConnectionDirectionFromString(Source.Direction);
+
+        if (NativeDirection != Direction
+            || !FitsUInt8(Source.DestGroupNum)
+            || !FitsUInt8(Source.DestMapNum))
+        {
+            continue;
+        }
+
+        FRemasterMapIR Target;
+        FString Error;
+        if (!CatalogSubsystem->LoadMap(
+                Source.DestGroupNum,
+                Source.DestMapNum,
+                Target,
+                Error))
+        {
+            UE_LOG(
+                LogTemp,
+                Warning,
+                TEXT("Connection target map load failed for %d,%d: %s"),
+                Source.DestGroupNum,
+                Source.DestMapNum,
+                *Error);
+            continue;
+        }
+
+        if (Target.Width <= 0
+            || Target.Width > MAX_int16
+            || Target.Height <= 0
+            || Target.Height > MAX_int16)
+        {
+            continue;
+        }
+
+        RemasterEmeraldConnectionDef Native{};
+        Native.direction = static_cast<uint8>(NativeDirection);
+        Native.offset = Source.Offset;
+        Native.dest_map_group = static_cast<uint8>(Source.DestGroupNum);
+        Native.dest_map_num = static_cast<uint8>(Source.DestMapNum);
+        Native.dest_width = static_cast<int16>(Target.Width);
+        Native.dest_height = static_cast<int16>(Target.Height);
+
+        NativeConnections.Add(Native);
+        SourceIndices.Add(Index);
+    }
+
+    if (NativeConnections.IsEmpty())
+        return false;
+
+    size_t MatchIndex = 0;
+    if (!remaster_emerald_find_incoming_connection(
+            NativeConnections.GetData(),
+            static_cast<size_t>(NativeConnections.Num()),
+            static_cast<uint8>(Direction),
+            State.player_x,
+            State.player_y,
+            static_cast<int16>(CurrentMap.Width),
+            static_cast<int16>(CurrentMap.Height),
+            &MatchIndex))
+    {
+        return false;
+    }
+
+    if (MatchIndex >= static_cast<size_t>(SourceIndices.Num()))
+        return false;
+
+    const int32 SourceIndex =
+        SourceIndices[static_cast<int32>(MatchIndex)];
+
+    if (!CurrentMap.Connections.IsValidIndex(SourceIndex))
+        return false;
+
+    const FRemasterConnectionIR& Source =
+        CurrentMap.Connections[SourceIndex];
+
+    OutConnection.SourceConnectionIndex = SourceIndex;
+    OutConnection.Direction = Direction;
+    OutConnection.Offset = Source.Offset;
+    OutConnection.DestGroupNum = Source.DestGroupNum;
+    OutConnection.DestMapNum = Source.DestMapNum;
+    OutConnection.DestMap = Source.Map;
+    return true;
+}
+
+bool URemasterWorldGameplaySubsystem::ApplyResolvedConnection(
+    const FRemasterResolvedConnection& Connection)
+{
+    if (!bMapReady
+        || !GetGameInstance()
+        || Connection.Direction < REMASTER_EMERALD_DIR_SOUTH
+        || Connection.Direction > REMASTER_EMERALD_DIR_EAST
+        || !FitsUInt8(Connection.DestGroupNum)
+        || !FitsUInt8(Connection.DestMapNum))
+    {
+        return false;
+    }
+
+    URemasterVanillaPlusSaveSubsystem* SaveSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
+    URemasterWorldCatalogSubsystem* CatalogSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterWorldCatalogSubsystem>();
+
+    if (!SaveSubsystem
+        || !CatalogSubsystem
+        || !SaveSubsystem->HasUsableSave())
+    {
+        return false;
+    }
+
+    RemasterEmeraldSave* Save =
+        static_cast<RemasterEmeraldSave*>(
+            SaveSubsystem->GetMutableNativeSaveHandle());
+
+    if (!Save)
+        return false;
+
+    FRemasterMapIR TargetMap;
+    FString Error;
+    if (!CatalogSubsystem->LoadMap(
+            Connection.DestGroupNum,
+            Connection.DestMapNum,
+            TargetMap,
+            Error))
+    {
+        UE_LOG(
+            LogTemp,
+            Error,
+            TEXT("Connection target map load failed for %d,%d: %s"),
+            Connection.DestGroupNum,
+            Connection.DestMapNum,
+            *Error);
+        return false;
+    }
+
+    if (TargetMap.LayoutNum <= 0
+        || TargetMap.LayoutNum > MAX_uint16
+        || !FitsUInt8(TargetMap.WeatherId)
+        || !FitsUInt8(TargetMap.MapTypeId)
+        || TargetMap.Width <= 0
+        || TargetMap.Width > MAX_int16
+        || TargetMap.Height <= 0
+        || TargetMap.Height > MAX_int16)
+    {
+        return false;
+    }
+
+    RemasterEmeraldConnectionDef Native{};
+    Native.direction = static_cast<uint8>(Connection.Direction);
+    Native.offset = Connection.Offset;
+    Native.dest_map_group = static_cast<uint8>(Connection.DestGroupNum);
+    Native.dest_map_num = static_cast<uint8>(Connection.DestMapNum);
+    Native.dest_width = static_cast<int16>(TargetMap.Width);
+    Native.dest_height = static_cast<int16>(TargetMap.Height);
+
+    if (!remaster_emerald_apply_connection_transition(
+            Save,
+            &Native,
+            static_cast<uint16>(TargetMap.LayoutNum),
+            static_cast<uint8>(TargetMap.WeatherId),
+            static_cast<uint8>(TargetMap.MapTypeId),
+            TargetMap.bRequiresFlash ? 1 : 0))
+    {
+        return false;
+    }
+
+    CurrentMap = MoveTemp(TargetMap);
+    bMapReady = true;
+
+    UE_LOG(
+        LogTemp,
+        Display,
+        TEXT("Vanilla+ connection applied: map=%s (%d,%d) dir=%d offset=%d"),
+        *CurrentMap.Id,
+        CurrentMap.GroupNum,
+        CurrentMap.MapNum,
+        Connection.Direction,
+        Connection.Offset);
 
     return true;
 }
