@@ -85,9 +85,12 @@ Those continue in later phases.
 
 ## Validation status
 
-Native R1 implementation is code-complete against the pinned Vanilla+ baseline.
-The compatibility review has re-checked the authoritative fork's SaveBlock1
-offsets, ObjectEventTemplate layout, save-sector rotation/selection,
+Native R1 implementation is now corrected against both the pinned Vanilla+
+source and a real VP019 save image. The real save exposed stale source-layout
+comments: production SaveBlock2 is 0x0F44, SaveBlock1 is 0x3DC8, compiled
+ObjectEvent stride is 0x28, object templates begin at 0x0CB0, flags at 0x12B0
+and vars at 0x13DC. The compatibility review has re-checked save-sector
+rotation/selection, ObjectEventTemplate layout,
 warp-coordinate precedence, coord-event matching, background-event matching,
 and map-connection coordinate rules.
 
@@ -101,8 +104,10 @@ Current evidence gates:
 - [x] the Unreal C++ embed preflight links and exercises the saved object-template layer
 - [x] real-save inspection/rewrite verifier CLI exists and reopens its output
 - [ ] portable C/C++ suite executes on a functioning runner after the latest commits
-- [ ] one known real Vanilla+ 128 KiB `.sav` is decoded and compared with its known in-game state
-- [ ] that same real save is rewritten by the native layer and reopened by Vanilla+
+- [x] one real Vanilla+ VP019 128 KiB save is decoded with both slots/checksums valid
+- [x] its Fiery Path map/object-template state is cross-checked against Vanilla+ source data
+- [x] that save is rewritten by the native layer and re-decoded with byte-identical gameplay payloads
+- [ ] the rewritten save is reopened successfully by the actual Vanilla+ ROM/emulator
 
 The current GitHub Actions jobs are failing before their first workflow step
 (no Checkout/Configure/Test step is created), so they do not constitute a
