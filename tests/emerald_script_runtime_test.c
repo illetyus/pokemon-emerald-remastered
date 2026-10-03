@@ -410,6 +410,315 @@ int main(void)
             return 1;
     }
 
+
+    {
+        RemasterEmeraldScriptRuntime adapter_runtime;
+        RemasterEmeraldOverworldState money_state;
+        RemasterEmeraldScriptRequest adapter_request;
+        RemasterEmeraldScriptCompletion adapter_completion;
+        uint16_t result_value = 0;
+
+        const RemasterEmeraldScriptInstruction adapter_script[] = {
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_MESSAGE,
+                .resource_id = "Text_Test",
+                .b = 2,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_CHOICE,
+                .resource_id = "YesNo",
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_DELAY,
+                .value_u32 = 15,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_FADE,
+                .b = 1,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_OPEN_DOOR,
+                .x = 5,
+                .y = 8,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_ADD_MONEY,
+                .value_u32 = 1000000,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_REMOVE_MONEY,
+                .value_u32 = 25,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_CHECK_MONEY,
+                .value_u32 = 999974,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_ADD,
+                .a = 42,
+                .b = 2,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_DOMAIN_GIVE_MON,
+                .a = 252,
+                .b = 5,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_WARP,
+                .map_id = 0x0102,
+                .x = 6,
+                .y = 5,
+            },
+            { .opcode = REMASTER_EMERALD_SCRIPT_END },
+        };
+        const RemasterEmeraldScriptProgram adapter_programs[] = {
+            {
+                .script_id = "Adapter_Test",
+                .instructions = adapter_script,
+                .instruction_count =
+                    sizeof(adapter_script) / sizeof(adapter_script[0]),
+            },
+        };
+        const RemasterEmeraldScriptRegistry adapter_registry = {
+            adapter_programs,
+            1,
+        };
+
+        memset(&save, 0, sizeof(save));
+        memset(&money_state, 0, sizeof(money_state));
+        money_state.money = 100;
+        if (!check(
+                remaster_emerald_overworld_set(&save, &money_state),
+                "failed to seed money state"))
+            return 1;
+
+        remaster_emerald_script_runtime_start(
+            &adapter_runtime,
+            &save,
+            &adapter_registry,
+            0,
+            0);
+
+#define ACK_ADAPTER(expected_type)                                            \
+        do {                                                                  \
+            if (!check(                                                       \
+                    remaster_emerald_script_runtime_pending_request(          \
+                        &adapter_runtime,                                      \
+                        &adapter_request)                                      \
+                        && adapter_request.type == (expected_type),            \
+                    "adapter request type mismatch"))                         \
+                return 1;                                                     \
+            memset(&adapter_completion, 0, sizeof(adapter_completion));       \
+            adapter_completion.type = adapter_request.type;                   \
+            adapter_completion.sequence = adapter_request.sequence;           \
+            adapter_completion.local_id = adapter_request.local_id;           \
+            adapter_completion.map_id = adapter_request.map_id;               \
+            adapter_completion.accepted = 1;                                  \
+            if (!check(                                                       \
+                    remaster_emerald_script_runtime_complete(                 \
+                        &adapter_runtime,                                      \
+                        &adapter_completion),                                 \
+                    "adapter completion failed"))                             \
+                return 1;                                                     \
+        } while (0)
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&adapter_runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_YIELDED,
+                "message should yield"))
+            return 1;
+        if (!check(
+                remaster_emerald_script_runtime_pending_request(
+                    &adapter_runtime,
+                    &adapter_request)
+                && adapter_request.type
+                    == REMASTER_EMERALD_SCRIPT_REQUEST_MESSAGE
+                && adapter_request.resource_id != 0
+                && strcmp(adapter_request.resource_id, "Text_Test") == 0
+                && adapter_request.value_u16 == 2,
+                "message payload mismatch"))
+            return 1;
+        ACK_ADAPTER(REMASTER_EMERALD_SCRIPT_REQUEST_MESSAGE);
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&adapter_runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_YIELDED,
+                "choice should yield"))
+            return 1;
+        if (!check(
+                remaster_emerald_script_runtime_pending_request(
+                    &adapter_runtime,
+                    &adapter_request)
+                && adapter_request.type
+                    == REMASTER_EMERALD_SCRIPT_REQUEST_CHOICE
+                && adapter_request.result_var == 0x800D,
+                "choice result contract mismatch"))
+            return 1;
+        memset(&adapter_completion, 0, sizeof(adapter_completion));
+        adapter_completion.type = adapter_request.type;
+        adapter_completion.sequence = adapter_request.sequence;
+        adapter_completion.result_u16 = 1;
+        adapter_completion.accepted = 1;
+        if (!check(
+                remaster_emerald_script_runtime_complete(
+                    &adapter_runtime,
+                    &adapter_completion)
+                && remaster_emerald_script_var_get(
+                    &adapter_runtime.vm,
+                    0x800D,
+                    &result_value)
+                && result_value == 1,
+                "choice did not write VAR_RESULT"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&adapter_runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_YIELDED,
+                "delay should yield"))
+            return 1;
+        if (!check(
+                remaster_emerald_script_runtime_pending_request(
+                    &adapter_runtime,
+                    &adapter_request)
+                && adapter_request.type
+                    == REMASTER_EMERALD_SCRIPT_REQUEST_DELAY
+                && adapter_request.value_u32 == 15,
+                "delay payload mismatch"))
+            return 1;
+        ACK_ADAPTER(REMASTER_EMERALD_SCRIPT_REQUEST_DELAY);
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&adapter_runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_YIELDED,
+                "fade should yield"))
+            return 1;
+        ACK_ADAPTER(REMASTER_EMERALD_SCRIPT_REQUEST_FADE);
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&adapter_runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_YIELDED,
+                "door should yield"))
+            return 1;
+        if (!check(
+                remaster_emerald_script_runtime_pending_request(
+                    &adapter_runtime,
+                    &adapter_request)
+                && adapter_request.type
+                    == REMASTER_EMERALD_SCRIPT_REQUEST_DOOR
+                && adapter_request.action
+                    == REMASTER_EMERALD_SCRIPT_DOOR_OPEN
+                && adapter_request.x == 5
+                && adapter_request.y == 8,
+                "door payload mismatch"))
+            return 1;
+        ACK_ADAPTER(REMASTER_EMERALD_SCRIPT_REQUEST_DOOR);
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&adapter_runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_YIELDED,
+                "item add should be the next async operation"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_overworld_get(&save, &money_state)
+                && money_state.money == 999974,
+                "Vanilla money saturation/removal semantics mismatch"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_script_var_get(
+                    &adapter_runtime.vm,
+                    0x800D,
+                    &result_value)
+                && result_value == 1,
+                "checkmoney did not write VAR_RESULT"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_script_runtime_pending_request(
+                    &adapter_runtime,
+                    &adapter_request)
+                && adapter_request.type
+                    == REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN
+                && adapter_request.action
+                    == REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_ADD
+                && adapter_request.value_u16 == 42
+                && adapter_request.quantity == 2
+                && adapter_request.result_var == 0x800D,
+                "item-domain payload mismatch"))
+            return 1;
+
+        memset(&adapter_completion, 0, sizeof(adapter_completion));
+        adapter_completion.type = adapter_request.type;
+        adapter_completion.sequence = adapter_request.sequence;
+        adapter_completion.result_u16 = 1;
+        adapter_completion.accepted = 1;
+        if (!check(
+                remaster_emerald_script_runtime_complete(
+                    &adapter_runtime,
+                    &adapter_completion),
+                "item completion failed"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&adapter_runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_YIELDED
+                && remaster_emerald_script_runtime_pending_request(
+                    &adapter_runtime,
+                    &adapter_request)
+                && adapter_request.type
+                    == REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN
+                && adapter_request.action
+                    == REMASTER_EMERALD_SCRIPT_DOMAIN_GIVE_MON
+                && adapter_request.value_u16 == 252
+                && adapter_request.quantity == 5,
+                "give-mon domain payload mismatch"))
+            return 1;
+        memset(&adapter_completion, 0, sizeof(adapter_completion));
+        adapter_completion.type = adapter_request.type;
+        adapter_completion.sequence = adapter_request.sequence;
+        adapter_completion.result_u16 = 0;
+        adapter_completion.accepted = 1;
+        if (!check(
+                remaster_emerald_script_runtime_complete(
+                    &adapter_runtime,
+                    &adapter_completion),
+                "give-mon completion failed"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&adapter_runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_YIELDED
+                && remaster_emerald_script_runtime_pending_request(
+                    &adapter_runtime,
+                    &adapter_request)
+                && adapter_request.type
+                    == REMASTER_EMERALD_SCRIPT_REQUEST_WARP
+                && adapter_request.map_id == 0x0102
+                && adapter_request.x == 6
+                && adapter_request.y == 5,
+                "warp request mismatch"))
+            return 1;
+
+        /* The presentation/host may not mutate save location pre-completion. */
+        if (!check(
+                remaster_emerald_overworld_get(&save, &money_state)
+                && money_state.map_group == 0
+                && money_state.map_num == 0,
+                "warp request mutated authoritative location early"))
+            return 1;
+
+        ACK_ADAPTER(REMASTER_EMERALD_SCRIPT_REQUEST_WARP);
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&adapter_runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_HALTED,
+                "adapter script did not halt"))
+            return 1;
+
+#undef ACK_ADAPTER
+    }
+
     puts("Emerald script runtime yield/resume test passed.");
     return 0;
 }
