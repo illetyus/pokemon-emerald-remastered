@@ -313,6 +313,37 @@ class ConvertScriptsIrTests(ConvertScriptsInventoryTests):
             self.assertEqual(ops[flag_index + 1]["condition"], "FALSE")
             self.assertEqual(ops[flag_index + 1]["target_script_id"], "TestTown_Final")
 
+    def test_yesno_msgbox_emits_choice_result_step(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source_tree(root)
+            scripts_path = root / "data/maps/TestTown/scripts.inc"
+            with scripts_path.open("a", encoding="utf-8") as handle:
+                handle.write(
+                    "\nTestTown_EventScript_YesNo::\n"
+                    "    msgbox TestTown_Text_Hello, MSGBOX_YESNO\n"
+                    "    goto_if_eq VAR_RESULT, TRUE, Shared_EventScript_Helper\n"
+                    "    end\n"
+                )
+
+            ir = convert_script_closure(
+                root,
+                [Path("data/maps/TestTown/scripts.inc")],
+                entry_labels=["TestTown_EventScript_YesNo"],
+            )
+            script = next(
+                item for item in ir["scripts"]
+                if item["script_id"] == "TestTown_EventScript_YesNo"
+            )
+            self.assertEqual(
+                [ins["op"] for ins in script["instructions"][:2]],
+                ["MESSAGE", "CHOICE"],
+            )
+            self.assertEqual(
+                script["instructions"][0]["mode"],
+                "MSGBOX_YESNO",
+            )
+
     def test_opening_operands_have_typed_var_aware_ir(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
