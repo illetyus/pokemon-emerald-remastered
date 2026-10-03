@@ -125,7 +125,10 @@ def _strip_c_comment(value: str) -> str:
 
 def build_numeric_resolver(source_root: Path) -> NumericResolver:
     source_root = Path(source_root)
-    globals_: dict[str, str] = {}
+    globals_: dict[str, str] = {
+        "FALSE": "0",
+        "TRUE": "1",
+    }
     locals_: dict[Path, dict[str, str]] = {}
 
     define_pattern = re.compile(
