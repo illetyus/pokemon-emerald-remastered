@@ -128,6 +128,9 @@ def build_numeric_resolver(source_root: Path) -> NumericResolver:
     globals_: dict[str, str] = {
         "FALSE": "0",
         "TRUE": "1",
+        "STR_VAR_1": "0",
+        "STR_VAR_2": "1",
+        "STR_VAR_3": "2",
     }
     locals_: dict[Path, dict[str, str]] = {}
 
