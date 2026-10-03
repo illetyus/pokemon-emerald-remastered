@@ -137,6 +137,9 @@ def build_numeric_resolver(source_root: Path) -> NumericResolver:
     set_pattern = re.compile(
         r"^\s*\.set\s+([A-Za-z_][A-Za-z0-9_]*)\s*,\s*(.+?)\s*$"
     )
+    assignment_pattern = re.compile(
+        r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+?)\s*$"
+    )
 
     include = source_root / "include"
     if include.is_dir():
@@ -155,10 +158,16 @@ def build_numeric_resolver(source_root: Path) -> NumericResolver:
         table: dict[str, str] = {}
         for raw in path.read_text(encoding="utf-8").splitlines():
             match = set_pattern.match(raw)
-            if not match:
+            if match:
+                name, expr = match.groups()
+                table[name] = _strip_c_comment(expr)
                 continue
-            name, expr = match.groups()
-            table[name] = _strip_c_comment(expr)
+
+            assignment = assignment_pattern.match(raw)
+            if assignment:
+                name, expr = assignment.groups()
+                globals_[name] = _strip_c_comment(expr)
+
         if table:
             locals_[rel] = table
 
