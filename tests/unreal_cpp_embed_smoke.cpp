@@ -4,6 +4,7 @@
 extern "C"
 {
 #include "remaster/core.h"
+#include "remaster/emerald_object_state.h"
 }
 
 
@@ -46,6 +47,30 @@ int main()
         return fail("event-flags mismatch");
     if (state.encounter_pending != 1u)
         return fail("encounter state mismatch");
+
+    RemasterEmeraldSave save{};
+    RemasterEmeraldObjectTemplate object_template{};
+    RemasterEmeraldObjectTemplate observed_template{};
+
+    object_template.local_id = 7;
+    object_template.graphics_id = 42;
+    object_template.x = 12;
+    object_template.y = 9;
+    object_template.elevation = 3;
+    object_template.movement_type = 5;
+    object_template.flag_id = 0x123;
+
+    if (!remaster_emerald_object_template_set(&save, 0, &object_template))
+        return fail("object-template write failed");
+    if (!remaster_emerald_object_template_get(&save, 0, &observed_template))
+        return fail("object-template read failed");
+    if (observed_template.local_id != 7
+        || observed_template.graphics_id != 42
+        || observed_template.x != 12
+        || observed_template.y != 9
+        || observed_template.movement_type != 5
+        || observed_template.flag_id != 0x123)
+        return fail("object-template state mismatch");
 
     const std::uint64_t hash = remaster_core_state_hash(&state);
     if (hash != UINT64_C(7218695048241891488))
