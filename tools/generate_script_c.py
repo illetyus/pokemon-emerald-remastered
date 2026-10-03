@@ -50,8 +50,11 @@ class NumericResolver:
         if not text:
             raise ScriptCGenerationError("empty numeric operand")
 
-        text = re.sub(r"(?<=\b0[xX][0-9A-Fa-f]+)[uUlL]+\b", "", text)
-        text = re.sub(r"(?<=\b\d)[uUlL]+\b", "", text)
+        text = re.sub(
+            r"\\b(0[xX][0-9A-Fa-f]+|\\d+)[uUlL]+\\b",
+            r"\\1",
+            text,
+        )
 
         try:
             return int(text, 0)
