@@ -33,6 +33,18 @@ def fingerprint_json(value: Any) -> str:
     return hashlib.sha256(canonical_json_bytes(value)).hexdigest()
 
 
+def fingerprint_document_content(value: Any) -> str:
+    if isinstance(value, dict):
+        normalized = {
+            key: item
+            for key, item in value.items()
+            if key != "fingerprint_sha256"
+        }
+    else:
+        normalized = value
+    return fingerprint_json(normalized)
+
+
 def _normalized_document(relative: str, value: Any) -> Any:
     if relative == "provenance.json" and isinstance(value, dict):
         return {
@@ -69,6 +81,7 @@ def fingerprint_world_package(root: Path) -> dict[str, Any]:
 
 __all__ = [
     "canonical_json_bytes",
+    "fingerprint_document_content",
     "fingerprint_json",
     "fingerprint_world_package",
 ]
