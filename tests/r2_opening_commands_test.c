@@ -91,6 +91,12 @@ int main(void)
             .opcode = REMASTER_EMERALD_SCRIPT_FADE_DEFAULT_BGM,
         },
         { .opcode = REMASTER_EMERALD_SCRIPT_RELEASE_ALL },
+        {
+            .opcode = REMASTER_EMERALD_SCRIPT_WARP,
+            .a = 0x8004,
+            .b = 0x8005,
+            .map_id = 0x0104,
+        },
         { .opcode = REMASTER_EMERALD_SCRIPT_END },
     };
     const RemasterEmeraldScriptProgram programs[] = {
@@ -199,6 +205,21 @@ int main(void)
     RUN_AND_ACK(
         REMASTER_EMERALD_SCRIPT_REQUEST_WORLD,
         REMASTER_EMERALD_SCRIPT_WORLD_RELEASE_ALL);
+
+    if (!check(
+            remaster_emerald_script_runtime_run(&runtime, 100)
+                == REMASTER_EMERALD_SCRIPT_YIELDED
+            && remaster_emerald_script_runtime_pending_request(
+                &runtime,
+                &request)
+            && request.type == REMASTER_EMERALD_SCRIPT_REQUEST_WARP
+            && request.map_id == 0x0104
+            && request.x == 5
+            && request.y == 8,
+            "warp request did not resolve VarGet coordinates"))
+        return 1;
+    if (!check(acknowledge(&runtime, &request), "warp ack failed"))
+        return 1;
 
     if (!check(
             remaster_emerald_script_runtime_run(&runtime, 100)
