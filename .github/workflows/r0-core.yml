@@ -53,6 +53,16 @@ jobs:
       - name: Test script conversion pipeline
         run: python -m unittest tests/test_convert_scripts.py tests/test_generate_script_c.py tests/test_r2_real_opening_source.py -v
 
+      - name: Build real R2 opening native fixture
+        run: python tools/build_r2_littleroot_fixture.py tests/fixtures/r2/vanillaplus_source /tmp/r2_littleroot_generated.c
+
+      - name: Upload real R2 opening native fixture
+        uses: actions/upload-artifact@v4
+        with:
+          name: r2-littleroot-native-fixture
+          path: /tmp/r2_littleroot_generated.c
+          if-no-files-found: error
+
       - name: Test generated content audit
         run: python -m unittest tests/test_content_audit.py
 
