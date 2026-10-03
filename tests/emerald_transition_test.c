@@ -37,6 +37,9 @@ int main(void)
     state.player_y = 1;
     state.money = 1234;
     state.party_count = 2;
+    state.weather = REMASTER_EMERALD_WEATHER_SHADE;
+    state.weather_cycle_stage = 2;
+    state.flash_level = 4;
 
     if (!check(
             remaster_emerald_overworld_set(&save, &state),
@@ -51,6 +54,13 @@ int main(void)
     if (!check(remaster_emerald_flag_set(&save, 0x001F, 1), "temp flag seed failed"))
         return 1;
     if (!check(remaster_emerald_flag_set(&save, 0x0020, 1), "persistent flag seed failed"))
+        return 1;
+    if (!check(
+            remaster_emerald_flag_set(
+                &save,
+                REMASTER_EMERALD_FLAG_SYS_USE_FLASH,
+                1),
+            "Flash flag seed failed"))
         return 1;
     if (!check(remaster_emerald_var_set(&save, 0x4000, 9), "temp var seed failed"))
         return 1;
@@ -68,6 +78,9 @@ int main(void)
                 &save,
                 destination,
                 77,
+                REMASTER_EMERALD_WEATHER_ROUTE119_CYCLE,
+                REMASTER_EMERALD_MAP_TYPE_INDOOR,
+                0,
                 20,
                 18,
                 target_warps,
@@ -84,7 +97,10 @@ int main(void)
             && state.warp_id == 1
             && state.player_x == 10
             && state.player_y == 12
-            && state.map_layout_id == 77,
+            && state.map_layout_id == 77
+            && state.weather == REMASTER_EMERALD_WEATHER_RAIN_THUNDERSTORM
+            && state.weather_cycle_stage == 2
+            && state.flash_level == 0,
             "warp-id destination state mismatch"))
         return 1;
 
@@ -94,6 +110,15 @@ int main(void)
             && remaster_emerald_var_get(&save, 0x4000, &value) && value == 0
             && remaster_emerald_var_get(&save, 0x4010, &value) && value == 8,
             "map-entry temp reset mismatch"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_flag_get(
+                &save,
+                REMASTER_EMERALD_FLAG_SYS_USE_FLASH,
+                &flag)
+            && flag == 1,
+            "indoor map should preserve Flash flag"))
         return 1;
 
     destination.map_group = 3;
@@ -107,6 +132,9 @@ int main(void)
                 &save,
                 destination,
                 88,
+                REMASTER_EMERALD_WEATHER_ROUTE123_CYCLE,
+                REMASTER_EMERALD_MAP_TYPE_UNDERGROUND,
+                1,
                 30,
                 22,
                 target_warps,
@@ -118,7 +146,9 @@ int main(void)
     if (!check(
             state.player_x == 6
             && state.player_y == 7
-            && state.map_layout_id == 88,
+            && state.map_layout_id == 88
+            && state.weather == REMASTER_EMERALD_WEATHER_RAIN
+            && state.flash_level == 1,
             "explicit coordinates were not used"))
         return 1;
 
@@ -133,6 +163,9 @@ int main(void)
                 &save,
                 destination,
                 99,
+                REMASTER_EMERALD_WEATHER_SUNNY,
+                REMASTER_EMERALD_MAP_TYPE_ROUTE,
+                0,
                 21,
                 19,
                 target_warps,
@@ -143,8 +176,48 @@ int main(void)
     remaster_emerald_overworld_get(&save, &state);
     if (!check(
             state.player_x == 10
-            && state.player_y == 9,
+            && state.player_y == 9
+            && state.weather == REMASTER_EMERALD_WEATHER_SUNNY
+            && state.flash_level == 0,
             "center fallback coordinates mismatch"))
+        return 1;
+
+
+    if (!check(
+            remaster_emerald_flag_get(
+                &save,
+                REMASTER_EMERALD_FLAG_SYS_USE_FLASH,
+                &flag)
+            && flag == 0,
+            "outdoor map should clear Flash flag"))
+        return 1;
+
+    destination.map_group = 6;
+    destination.map_num = 7;
+    destination.warp_id = -1;
+    destination.x = 2;
+    destination.y = 2;
+
+    if (!check(
+            remaster_emerald_apply_warp(
+                &save,
+                destination,
+                100,
+                REMASTER_EMERALD_WEATHER_NONE,
+                REMASTER_EMERALD_MAP_TYPE_UNDERGROUND,
+                1,
+                12,
+                12,
+                target_warps,
+                2),
+            "dark-cave transition failed"))
+        return 1;
+
+    remaster_emerald_overworld_get(&save, &state);
+    if (!check(
+            state.weather == REMASTER_EMERALD_WEATHER_NONE
+            && state.flash_level == 7,
+            "dark cave without Flash should use default darkness level"))
         return 1;
 
     dynamic_warp.map_group = 7;
