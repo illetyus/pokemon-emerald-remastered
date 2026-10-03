@@ -122,6 +122,22 @@ def main() -> int:
         errors,
     )
 
+    # Continue path must preserve TEMP flags/vars exactly as Vanilla does.
+    world_gameplay = (
+        MODULE / "RemasterWorldGameplaySubsystem.cpp"
+    ).read_text(encoding="utf-8")
+    require(
+        "LoadCurrentMapFromSave(false);" in world_gameplay,
+        "saved-game startup must not clear temporary field state",
+        errors,
+    )
+    require(
+        "remaster_emerald_object_template_find_local_id" in world_gameplay
+        and "remaster_emerald_object_templates_replace" in world_gameplay,
+        "world gameplay bridge must synchronize saved object templates",
+        errors,
+    )
+
     # No production Unreal code should include Godot/SDL presentation APIs.
     forbidden = re.compile(r"\b(?:Godot|SDL3?|GDExtension)\b")
     for path in MODULE.glob("*.[ch]pp"):
