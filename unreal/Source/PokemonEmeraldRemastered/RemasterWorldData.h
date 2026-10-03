@@ -6,6 +6,7 @@ struct FRemasterConnectionIR
 {
     FString Map;
     FString Direction;
+    int32 DirectionId = -1;
     int32 Offset = 0;
     int32 DestGroupNum = -1;
     int32 DestMapNum = -1;
@@ -28,6 +29,7 @@ struct FRemasterObjectEventIR
     FString TrainerSightOrBerryTreeId;
     int32 TrainerSightOrBerryTreeIdNum = -1;
     FString Script;
+    FString ScriptId;
     FString Flag;
     int32 FlagId = -1;
 };
@@ -58,6 +60,7 @@ struct FRemasterCoordEventIR
     FString Weather;
     int32 WeatherId = -1;
     FString Script;
+    FString ScriptId;
 };
 
 struct FRemasterBackgroundEventIR
@@ -70,6 +73,7 @@ struct FRemasterBackgroundEventIR
     int32 FacingId = -1;
     int32 KindId = -1;
     FString Script;
+    FString ScriptId;
     FString Item;
     int32 ItemId = -1;
     FString Flag;
@@ -89,12 +93,16 @@ struct FRemasterMapIR
     FString LayoutId;
     int32 LayoutNum = -1;
     FString Music;
+    int32 MusicId = -1;
     FString RegionMapSection;
+    int32 RegionMapSectionId = -1;
     FString Weather;
     int32 WeatherId = -1;
     FString MapType;
     int32 MapTypeId = -1;
     FString BattleScene;
+    int32 BattleSceneId = -1;
+    FString FingerprintSha256;
 
     bool bRequiresFlash = false;
     bool bAllowCycling = false;
