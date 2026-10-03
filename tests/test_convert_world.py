@@ -40,7 +40,9 @@ class ConvertWorldTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (root / "include/constants/vars.h").write_text(
-                "#define VARS_START 0x4000\n#define VAR_TEST (VARS_START + 7)\n",
+                "#define VARS_START 0x4000\n"
+                "#define VAR_TEST (VARS_START + 7)\n"
+                "#define TRIGGER_RUN_IMMEDIATELY 0\n",
                 encoding="utf-8",
             )
             (root / "include/constants/opponents.h").write_text(
@@ -200,6 +202,15 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                                 "script": "Test_CoordScript",
                             },
                             {
+                                "type": "trigger",
+                                "x": 0,
+                                "y": 1,
+                                "elevation": 3,
+                                "var": "TRIGGER_RUN_IMMEDIATELY",
+                                "var_value": "0",
+                                "script": "Test_ImmediateScript",
+                            },
+                            {
                                 "type": "weather",
                                 "x": 0,
                                 "y": 0,
@@ -324,7 +335,9 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertNotIn("dest_map_num", converted["map"]["warp_events"][1])
             self.assertEqual(converted["map"]["coord_events"][0]["var_id"], 0x4007)
             self.assertEqual(converted["map"]["coord_events"][0]["var_value_u16"], 3)
-            self.assertEqual(converted["map"]["coord_events"][1]["weather_id"], 9)
+            self.assertEqual(converted["map"]["coord_events"][1]["var_id"], 0)
+            self.assertEqual(converted["map"]["coord_events"][1]["var_value_u16"], 0)
+            self.assertEqual(converted["map"]["coord_events"][2]["weather_id"], 9)
             self.assertEqual(converted["map"]["bg_events"][0]["kind_id"], 1)
             self.assertEqual(converted["map"]["bg_events"][0]["player_facing_dir_id"], 1)
             self.assertEqual(converted["map"]["bg_events"][1]["kind_id"], 7)
