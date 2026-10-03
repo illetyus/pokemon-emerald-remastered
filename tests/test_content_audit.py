@@ -37,6 +37,8 @@ class ContentAuditTests(unittest.TestCase):
                         "group_num": 0,
                         "map_num": 0 if map_id == "MAP_A" else 1,
                         "layout_num": 1,
+                        "weather_id": 0,
+                        "map_type_id": 1,
                         "connections": [
                             {
                                 "map": target,
@@ -100,6 +102,8 @@ class ContentAuditTests(unittest.TestCase):
                     "group_num": 0,
                     "map_num": 0,
                     "layout_num": 1,
+                    "weather_id": 0,
+                    "map_type_id": 1,
                     "connections": [],
                     "object_events": [],
                     "warp_events": [
@@ -155,6 +159,8 @@ class ContentAuditTests(unittest.TestCase):
                     "group_num": 0,
                     "map_num": 0,
                     "layout_num": 1,
+                    "weather_id": 0,
+                    "map_type_id": 1,
                     "connections": [{"map": "MAP_MISSING"}],
                     "warp_events": [],
                 },
@@ -203,6 +209,8 @@ class ContentAuditTests(unittest.TestCase):
                     "group_num": 0,
                     "map_num": 0,
                     "layout_num": 1,
+                    "weather_id": 0,
+                    "map_type_id": 1,
                     "connections": [],
                     "object_events": [
                         {
