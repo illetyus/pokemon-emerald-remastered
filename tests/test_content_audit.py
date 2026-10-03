@@ -462,5 +462,129 @@ class ContentAuditTests(unittest.TestCase):
             )
 
 
+    def test_r3_script_catalog_ownership_and_event_refs_are_audited(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "maps").mkdir()
+            (root / "scripts").mkdir()
+
+            ownership = {
+                "kind": "own",
+                "owner": "A",
+                "source": "data/maps/A/scripts.inc",
+            }
+            (root / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "map_count": 1,
+                        "maps": [
+                            {
+                                "id": "MAP_A",
+                                "name": "A",
+                                "file": "maps/A.json",
+                                "group_num": 0,
+                                "map_num": 0,
+                                "layout_num": 1,
+                                "script_ownership": ownership,
+                            }
+                        ],
+                        "scripts_file": "scripts/manifest.json",
+                        "script_label_count": 1,
+                        "script_source_file_count": 1,
+                    }
+                )
+            )
+            (root / "scripts/manifest.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "map_count": 1,
+                        "script_label_count": 1,
+                        "script_source_file_count": 1,
+                        "maps": [
+                            {
+                                "map": "A",
+                                "map_id": "MAP_A",
+                                "script_ownership": ownership,
+                            }
+                        ],
+                        "labels": [
+                            {
+                                "script_id": "Known_EventScript",
+                                "source": "data/maps/A/scripts.inc",
+                                "line": 1,
+                                "owner_map": "A",
+                            }
+                        ],
+                        "commands": {},
+                        "event_script_references": [],
+                        "source_files": ["data/maps/A/scripts.inc"],
+                    }
+                )
+            )
+
+            doc = {
+                "schema_version": 1,
+                "map": {
+                    "id": "MAP_A",
+                    "name": "A",
+                    "group_num": 0,
+                    "map_num": 0,
+                    "layout_num": 1,
+                    "weather_id": 0,
+                    "map_type_id": 1,
+                    "script_ownership": {
+                        "kind": "none",
+                        "owner": None,
+                        "source": None,
+                    },
+                    "connections": [],
+                    "object_events": [
+                        {
+                            "local_id": 1,
+                            "script": "Missing_EventScript",
+                            "script_id": "Missing_EventScript",
+                        }
+                    ],
+                    "warp_events": [],
+                    "coord_events": [],
+                    "bg_events": [],
+                },
+                "layout": {
+                    "width": 1,
+                    "height": 1,
+                    "source_word_count": 1,
+                    "active_word_count": 1,
+                    "raw_blocks_u16": [0],
+                    "trailing_words_u16": [],
+                    "border_source_word_count": 4,
+                    "border_active_words_u16": [1, 2, 3, 4],
+                    "border_trailing_words_u16": [],
+                    "metatile_ids_u16": [0],
+                    "collision_u8": [0],
+                    "elevation_u8": [0],
+                    "primary_metatile_attributes_u16": [0],
+                    "secondary_metatile_attributes_u16": [0],
+                    "primary_metatile_behavior_u8": [0],
+                    "secondary_metatile_behavior_u8": [0],
+                    "primary_metatile_layer_u8": [0],
+                    "secondary_metatile_layer_u8": [0],
+                },
+            }
+            (root / "maps/A.json").write_text(json.dumps(doc))
+
+            errors = audit(root)
+
+            self.assertTrue(
+                any("script ownership" in item for item in errors),
+                errors,
+            )
+            self.assertTrue(
+                any("unknown script_id" in item for item in errors),
+                errors,
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
