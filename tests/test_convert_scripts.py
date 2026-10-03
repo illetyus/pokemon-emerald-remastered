@@ -315,6 +315,32 @@ class ConvertScriptsIrTests(ConvertScriptsInventoryTests):
             texts = {item["text_id"]: item for item in ir["texts"]}
             self.assertEqual(texts["TestTown_Text_Hello"]["strings"], ["Hello!$"])
 
+
+    def test_explicit_entry_labels_limit_acceptance_closure(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source_tree(root)
+            script_path = root / "data/maps/TestTown/scripts.inc"
+            script_path.write_text(
+                script_path.read_text(encoding="utf-8")
+                + """
+TestTown_PostgameOnly::
+    special ChooseStarter
+    end
+""",
+                encoding="utf-8",
+            )
+
+            ir = convert_script_closure(
+                root,
+                [Path("data/maps/TestTown/scripts.inc")],
+                entry_labels=["TestTown_OnTransition"],
+            )
+            script_ids = {item["script_id"] for item in ir["scripts"]}
+            self.assertIn("TestTown_OnTransition", script_ids)
+            self.assertIn("Shared_EventScript_Helper", script_ids)
+            self.assertNotIn("TestTown_PostgameOnly", script_ids)
+
     def test_ir_emits_ordered_special_manifest(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
