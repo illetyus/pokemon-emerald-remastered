@@ -322,6 +322,39 @@ endif()
 add_test(NAME r2_opening_commands COMMAND r2_opening_commands_test)
 
 
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+set(R2_LITTLEROOT_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(R2_LITTLEROOT_GENERATED_C "${R2_LITTLEROOT_GENERATED_DIR}/r2_littleroot_generated.c")
+file(MAKE_DIRECTORY "${R2_LITTLEROOT_GENERATED_DIR}")
+
+execute_process(
+    COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tools/build_r2_littleroot_fixture.py"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/r2/vanillaplus_source"
+        "${R2_LITTLEROOT_GENERATED_C}"
+    RESULT_VARIABLE R2_LITTLEROOT_GENERATE_RESULT
+)
+if(NOT R2_LITTLEROOT_GENERATE_RESULT EQUAL 0)
+    message(FATAL_ERROR "Failed to generate real R2 Littleroot fixture")
+endif()
+
+add_executable(r2_littleroot_integration_test
+    tests/r2_littleroot_integration_test.c
+    "${R2_LITTLEROOT_GENERATED_C}"
+)
+
+target_link_libraries(r2_littleroot_integration_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(r2_littleroot_integration_test PRIVATE /W4)
+else()
+    target_compile_options(r2_littleroot_integration_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME r2_littleroot_integration COMMAND r2_littleroot_integration_test)
+
+
 add_executable(r1_vanillaplus_integration_test
     tests/r1_vanillaplus_integration_test.c
 )
