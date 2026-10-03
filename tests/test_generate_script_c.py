@@ -192,6 +192,70 @@ Test_B::
                 generated,
             )
 
+    def test_flag_boolean_conditions_preserve_vanilla_condition_codes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source_tree(root)
+            ir = {
+                "schema_version": 1,
+                "scripts": [
+                    {
+                        "script_id": "Test_A",
+                        "source": {
+                            "file": "data/maps/TestTown/scripts.inc",
+                            "line": 3,
+                        },
+                        "instructions": [
+                            {"op": "CHECK_FLAG", "flag": "FLAG_TEST"},
+                            {
+                                "op": "GOTO_IF",
+                                "condition": "FALSE",
+                                "target_script_id": "Test_B",
+                            },
+                            {"op": "CHECK_FLAG", "flag": "FLAG_TEST"},
+                            {
+                                "op": "GOTO_IF",
+                                "condition": "TRUE",
+                                "target_script_id": "Test_B",
+                            },
+                            {"op": "END"},
+                        ],
+                    },
+                    {
+                        "script_id": "Test_B",
+                        "source": {
+                            "file": "data/maps/TestTown/scripts.inc",
+                            "line": 6,
+                        },
+                        "instructions": [{"op": "RETURN"}],
+                    },
+                ],
+                "map_scripts": [],
+                "map_script_tables": [],
+                "specials": [],
+                "movements": [],
+                "texts": [],
+            }
+
+            generated = generate_c_fixture(
+                ir,
+                root,
+                symbol_prefix="gR2Flags",
+            )
+
+            self.assertIn(
+                ".condition = REMASTER_EMERALD_CONDITION_LESS",
+                generated,
+            )
+            self.assertIn(
+                ".condition = REMASTER_EMERALD_CONDITION_EQUAL",
+                generated,
+            )
+            self.assertNotIn(
+                ".condition = REMASTER_EMERALD_CONDITION_NOT_EQUAL",
+                generated,
+            )
+
     def test_empty_map_script_set_emits_portable_zero_count_storage(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
