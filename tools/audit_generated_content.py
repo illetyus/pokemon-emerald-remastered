@@ -187,12 +187,13 @@ def audit(root: Path) -> list[str]:
         weather_id = map_doc.get("weather_id")
         map_type_id = map_doc.get("map_type_id")
 
-        if not isinstance(weather_id, int) or weather_id < 0 or weather_id > 255:
+        valid_weather_ids = set(range(16)) | {20, 21}
+        if not isinstance(weather_id, int) or weather_id not in valid_weather_ids:
             errors.append(
                 f"{rel}: invalid numeric weather_id {weather_id!r}"
             )
 
-        if not isinstance(map_type_id, int) or map_type_id < 0 or map_type_id > 255:
+        if not isinstance(map_type_id, int) or map_type_id not in range(10):
             errors.append(
                 f"{rel}: invalid numeric map_type_id {map_type_id!r}"
             )
