@@ -2,6 +2,7 @@
 #define REMASTER_EMERALD_TRANSITION_H
 
 #include "remaster/emerald_events.h"
+#include "remaster/emerald_map.h"
 #include "remaster/emerald_save.h"
 #include "remaster/emerald_state.h"
 
@@ -52,6 +53,43 @@ uint8_t remaster_emerald_translate_map_weather(
     uint8_t weather_cycle_stage);
 
 int remaster_emerald_map_type_is_outdoors(uint8_t map_type);
+
+typedef struct RemasterEmeraldConnectionDef {
+    uint8_t direction;
+    int32_t offset;
+    uint8_t dest_map_group;
+    uint8_t dest_map_num;
+    int16_t dest_width;
+    int16_t dest_height;
+} RemasterEmeraldConnectionDef;
+
+/*
+ * Mirrors Vanilla GetIncomingConnection/IsCoordInIncomingConnectingMap.
+ * The source player position and dimensions are map-local, matching
+ * SaveBlock1.pos rather than the GBA MAP_OFFSET-expanded grid.
+ */
+int remaster_emerald_find_incoming_connection(
+    const RemasterEmeraldConnectionDef *connections,
+    size_t connection_count,
+    uint8_t direction,
+    int16_t player_x,
+    int16_t player_y,
+    int16_t source_width,
+    int16_t source_height,
+    size_t *out_index);
+
+/*
+ * Mirrors the stateful result of CameraMove + LoadMapFromCameraTransition.
+ * Unlike a normal warp, a camera/connection transition does not clear
+ * FLAG_SYS_USE_FLASH merely because the destination is outdoors.
+ */
+int remaster_emerald_apply_connection_transition(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldConnectionDef *connection,
+    uint16_t target_layout_id,
+    uint8_t target_weather,
+    uint8_t target_map_type,
+    int target_requires_flash);
 
 /*
  * Mirrors the stateful part of Vanilla WarpIntoMap:
