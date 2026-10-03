@@ -263,5 +263,94 @@ class ContentAuditTests(unittest.TestCase):
             )
 
 
+    def test_r3_numeric_metadata_and_null_script_are_audited(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "maps").mkdir()
+
+            (root / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "map_count": 1,
+                        "maps": [
+                            {
+                                "id": "MAP_A",
+                                "file": "maps/A.json",
+                                "group_num": 0,
+                                "map_num": 0,
+                                "layout_num": 1,
+                            }
+                        ],
+                    }
+                )
+            )
+
+            doc = {
+                "schema_version": 1,
+                "map": {
+                    "id": "MAP_A",
+                    "group_num": 0,
+                    "map_num": 0,
+                    "layout_num": 1,
+                    "music": "MUS_TEST",
+                    "music_id": None,
+                    "region_map_section": "MAPSEC_TEST",
+                    "region_map_section_id": None,
+                    "weather_id": 0,
+                    "map_type_id": 1,
+                    "battle_scene": "MAP_BATTLE_SCENE_NORMAL",
+                    "battle_scene_id": None,
+                    "connections": [
+                        {
+                            "map": "MAP_A",
+                            "direction": "up",
+                            "dest_group_num": 0,
+                            "dest_map_num": 0,
+                        }
+                    ],
+                    "object_events": [
+                        {
+                            "local_id": 1,
+                            "script": "0x0",
+                            "script_id": "0x0",
+                        }
+                    ],
+                    "warp_events": [],
+                    "coord_events": [],
+                    "bg_events": [],
+                },
+                "layout": {
+                    "width": 1,
+                    "height": 1,
+                    "source_word_count": 1,
+                    "active_word_count": 1,
+                    "raw_blocks_u16": [0],
+                    "trailing_words_u16": [],
+                    "border_source_word_count": 4,
+                    "border_active_words_u16": [1, 2, 3, 4],
+                    "border_trailing_words_u16": [],
+                    "metatile_ids_u16": [0],
+                    "collision_u8": [0],
+                    "elevation_u8": [0],
+                    "primary_metatile_attributes_u16": [0],
+                    "secondary_metatile_attributes_u16": [0],
+                    "primary_metatile_behavior_u8": [0],
+                    "secondary_metatile_behavior_u8": [0],
+                    "primary_metatile_layer_u8": [0],
+                    "secondary_metatile_layer_u8": [0],
+                },
+            }
+            (root / "maps/A.json").write_text(json.dumps(doc))
+
+            errors = audit(root)
+
+            self.assertTrue(any("music_id" in item for item in errors))
+            self.assertTrue(any("region_map_section_id" in item for item in errors))
+            self.assertTrue(any("battle_scene_id" in item for item in errors))
+            self.assertTrue(any("direction_id" in item for item in errors))
+            self.assertTrue(any("null script sentinel" in item for item in errors))
+
+
 if __name__ == "__main__":
     unittest.main()
