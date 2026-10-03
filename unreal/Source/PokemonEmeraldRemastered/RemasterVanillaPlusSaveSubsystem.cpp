@@ -155,7 +155,9 @@ bool URemasterVanillaPlusSaveSubsystem::GetOverworldSnapshot(
     OutSnapshot.WarpX = Native.warp_x;
     OutSnapshot.WarpY = Native.warp_y;
     OutSnapshot.MapLayoutId = Native.map_layout_id;
+    OutSnapshot.SavedMusic = Native.saved_music;
     OutSnapshot.Weather = Native.weather;
+    OutSnapshot.WeatherCycleStage = Native.weather_cycle_stage;
     OutSnapshot.FlashLevel = Native.flash_level;
     OutSnapshot.PartyCount = Native.party_count;
     OutSnapshot.Money = static_cast<int64>(Native.money);
