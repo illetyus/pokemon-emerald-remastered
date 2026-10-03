@@ -187,6 +187,16 @@ def audit(root: Path) -> list[str]:
         weather_id = map_doc.get("weather_id")
         map_type_id = map_doc.get("map_type_id")
 
+        for source_key, numeric_key in (
+            ("music", "music_id"),
+            ("region_map_section", "region_map_section_id"),
+            ("battle_scene", "battle_scene_id"),
+        ):
+            if source_key in map_doc and not isinstance(map_doc.get(numeric_key), int):
+                errors.append(
+                    f"{rel}: {source_key} is missing numeric {numeric_key}"
+                )
+
         valid_weather_ids = set(range(16)) | {20, 21}
         if not isinstance(weather_id, int) or weather_id not in valid_weather_ids:
             errors.append(
@@ -236,6 +246,10 @@ def audit(root: Path) -> list[str]:
                             )
 
         for object_index, obj in enumerate(map_doc.get("object_events", []), start=1):
+            if obj.get("script") in {"0", "0x0", "0X0", "NULL", "null"} and obj.get("script_id") is not None:
+                errors.append(
+                    f"{rel}: object {object_index} null script sentinel must have null script_id"
+                )
             if obj.get("local_id") != object_index:
                 errors.append(
                     f"{rel}: object local_id {obj.get('local_id')!r} "
@@ -259,6 +273,12 @@ def audit(root: Path) -> list[str]:
 
         for connection in map_doc.get("connections", []):
             target = connection.get("map")
+            if "direction" in connection:
+                direction_id = connection.get("direction_id")
+                if not isinstance(direction_id, int) or direction_id not in {1, 2, 3, 4}:
+                    errors.append(
+                        f"{rel}: connection {target!r} is missing valid direction_id"
+                    )
             if target and target not in known_ids:
                 errors.append(
                     f"{rel}: connection references unknown map {target}"
@@ -309,6 +329,10 @@ def audit(root: Path) -> list[str]:
                     )
 
         for coord_index, coord in enumerate(map_doc.get("coord_events", [])):
+            if coord.get("script") in {"0", "0x0", "0X0", "NULL", "null"} and coord.get("script_id") is not None:
+                errors.append(
+                    f"{rel}: coord event {coord_index} null script sentinel must have null script_id"
+                )
             coord_type = coord.get("type")
             if coord_type == "trigger":
                 if not isinstance(coord.get("var_id"), int):
@@ -327,6 +351,10 @@ def audit(root: Path) -> list[str]:
                     )
 
         for bg_index, bg in enumerate(map_doc.get("bg_events", [])):
+            if bg.get("script") in {"0", "0x0", "0X0", "NULL", "null"} and bg.get("script_id") is not None:
+                errors.append(
+                    f"{rel}: bg event {bg_index} null script sentinel must have null script_id"
+                )
             bg_type = bg.get("type")
 
             if bg_type == "sign":
