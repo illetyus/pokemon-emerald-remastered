@@ -153,6 +153,8 @@ def build_numeric_constant_index(source_root: Path) -> dict[str, int]:
         source_root / "include/constants/event_objects.h",
         source_root / "include/constants/event_object_movement.h",
         source_root / "include/constants/trainer_types.h",
+        source_root / "include/constants/songs.h",
+        source_root / "include/constants/region_map_sections.h",
     ]
 
     expressions: dict[str, str] = {}
@@ -265,10 +267,16 @@ def normalize_event(
     result = dict(event)
 
     script = result.get("script")
-    if isinstance(script, str) and script:
-        # R2 stable script identity is the canonical Vanilla+ script label.
-        # Keep the original symbolic field for audit/debug compatibility.
-        result["script_id"] = script
+    if isinstance(script, str):
+        token = script.strip()
+        if token in {"", "0", "0x0", "0X0", "NULL", "null"}:
+            result["script_id"] = None
+        else:
+            # R2 stable script identity is the canonical Vanilla+ script label.
+            # Keep the original symbolic field for audit/debug compatibility.
+            result["script_id"] = token
+    elif script == 0:
+        result["script_id"] = None
 
     for source_key, numeric_key in (
         ("flag", "flag_id"),
@@ -329,6 +337,14 @@ def normalize_object_events(
     return result
 
 
+CONNECTION_DIRECTION_IDS = {
+    "down": 1,
+    "up": 2,
+    "left": 3,
+    "right": 4,
+}
+
+
 def add_numeric_map_targets(
     events: list[dict[str, Any]],
     map_id_locations: dict[str, tuple[int, int]],
@@ -338,6 +354,12 @@ def add_numeric_map_targets(
     for event in events:
         item = dict(event)
         target = item.get("dest_map", item.get("map"))
+
+        direction = item.get("direction")
+        if direction is not None:
+            if direction not in CONNECTION_DIRECTION_IDS:
+                raise ValueError(f"unknown map connection direction {direction!r}")
+            item["direction_id"] = CONNECTION_DIRECTION_IDS[direction]
 
         if target == "MAP_DYNAMIC":
             item["dynamic_target"] = True
@@ -455,6 +477,12 @@ def convert_map(
 
     map_weather_id = resolve_numeric(source.get("weather"), constants)
     map_type_id = resolve_numeric(source.get("map_type"), constants)
+    music_id = resolve_numeric(source.get("music"), constants)
+    region_map_section_id = resolve_numeric(
+        source.get("region_map_section"),
+        constants,
+    )
+    battle_scene_id = resolve_numeric(source.get("battle_scene"), constants)
 
     if map_weather_id is None:
         raise ValueError(
@@ -464,6 +492,37 @@ def convert_map(
         raise ValueError(
             f"{map_path}: unresolved map type {source.get('map_type')!r}"
         )
+    if music_id is None:
+        raise ValueError(
+            f"{map_path}: unresolved map music {source.get('music')!r}"
+        )
+    if region_map_section_id is None:
+        raise ValueError(
+            f"{map_path}: unresolved region map section "
+            f"{source.get('region_map_section')!r}"
+        )
+    if battle_scene_id is None:
+        raise ValueError(
+            f"{map_path}: unresolved battle scene {source.get('battle_scene')!r}"
+        )
+
+    shared_scripts_map = source.get("shared_scripts_map")
+    own_scripts_path = source_root / "data/maps" / map_name / "scripts.inc"
+    if shared_scripts_map is not None:
+        script_ownership = {
+            "kind": "shared",
+            "owner": shared_scripts_map,
+        }
+    elif own_scripts_path.is_file():
+        script_ownership = {
+            "kind": "own",
+            "owner": map_name,
+        }
+    else:
+        script_ownership = {
+            "kind": "none",
+            "owner": None,
+        }
 
     return {
         "schema_version": SCHEMA_VERSION,
@@ -492,7 +551,9 @@ def convert_map(
             "layout": layout_id,
             "layout_num": int(layout["_numeric_id"]),
             "music": source.get("music"),
+            "music_id": music_id,
             "region_map_section": source.get("region_map_section"),
+            "region_map_section_id": region_map_section_id,
             "requires_flash": bool(source.get("requires_flash", False)),
             "weather": source.get("weather"),
             "weather_id": map_weather_id,
@@ -503,8 +564,10 @@ def convert_map(
             "allow_running": bool(source.get("allow_running", False)),
             "show_map_name": bool(source.get("show_map_name", False)),
             "battle_scene": source.get("battle_scene"),
+            "battle_scene_id": battle_scene_id,
             "shared_events_map": shared_events_map,
-            "shared_scripts_map": source.get("shared_scripts_map"),
+            "shared_scripts_map": shared_scripts_map,
+            "script_ownership": script_ownership,
             "connections": add_numeric_map_targets(
                 [
                     normalize_event(x, constants)
