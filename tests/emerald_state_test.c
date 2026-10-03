@@ -174,6 +174,11 @@ int main(void)
         return 1;
     if (!check(flag == 1, "flag did not persist"))
         return 1;
+    if (!check(
+            (save.save_block1[0x12B0 + 0x123 / 8u]
+                & (uint8_t)(1u << (0x123u % 8u))) != 0,
+            "flag bytes are not at production SaveBlock1 offset"))
+        return 1;
     if (!check(remaster_emerald_flag_set(&save, 0x123, 0), "flag clear failed"))
         return 1;
     if (!check(remaster_emerald_flag_get(&save, 0x123, &flag) && flag == 0, "flag clear mismatch"))
@@ -187,6 +192,11 @@ int main(void)
             remaster_emerald_var_get(&save, 0x405A, &value)
             && value == 0xBEEF,
             "var get mismatch"))
+        return 1;
+    if (!check(
+            save.save_block1[0x13DC + 0x5Au * 2u] == 0xEF
+            && save.save_block1[0x13DC + 0x5Au * 2u + 1u] == 0xBE,
+            "var bytes are not at production SaveBlock1 offset"))
         return 1;
 
     if (!check(
