@@ -1,6 +1,6 @@
 # R1 Save / RTC Compatibility
 
-Status: native implementation complete; real-save field validation pending.
+Status: native implementation corrected from real VP019 save evidence; Vanilla+ reopen validation pending.
 
 Authoritative source baseline:
 
@@ -20,11 +20,18 @@ Main-save geometry:
 - footer fields remain sector id, checksum, signature and counter;
 - signature remains `0x08012025`.
 
-Persistent block sizes are pinned to the Vanilla+ source layout:
+Persistent block sizes are pinned to the production AGBCC layout verified
+against a real VP019 save image:
 
-- SaveBlock2: `0x0F2C`
-- SaveBlock1: `0x3D88`
+- SaveBlock2: `0x0F44`
+- SaveBlock1: `0x3DC8`
 - PokemonStorage: `0x83D0`
+
+The source comments still show the pre-extension `0x0F2C` / `0x3D88`
+sizes. Those comments are stale: the appended 0x18-byte `Follower` expands
+SaveBlock2, while the widened `ObjectEvent.graphicsId` makes compiled
+`ObjectEvent` records 0x28 bytes and shifts the latter SaveBlock1 fields by
+0x40 bytes.
 
 The new implementation reconstructs logical SaveBlock2, SaveBlock1 and PokemonStorage from rotated sectors, selects the newest valid slot, falls back to the older valid slot when the newer copy is damaged, and writes the next save using Emerald's counter/rotation scheme.
 
@@ -63,9 +70,9 @@ The portable save-state view currently exposes:
 - persistent vars;
 - current local RTC time.
 
-Persistent flag bytes remain at SaveBlock1 `0x1270`.
+Persistent flag bytes are at SaveBlock1 `0x12B0`.
 
-Persistent vars remain at SaveBlock1 `0x139C`, with IDs beginning at `0x4000`.
+Persistent vars are at SaveBlock1 `0x13DC`, with IDs beginning at `0x4000`.
 
 ## Unreal bridge
 
@@ -103,10 +110,15 @@ Portable tests cover:
 
 ## Remaining validation
 
-The Save/RTC implementation is complete at the native-code level. Field
-acceptance still requires a known real Vanilla+ 128 KiB save so that the
-observed map/player state can be compared with the original game and the
-native rewrite can be reopened by Vanilla+ without changing the legacy layout.
+A real 128 KiB VP019 test save has now been decoded successfully after
+correcting the production AGBCC layout. Both main slots validate, the newest
+counter/rotation is selected correctly, and the decoded Fiery Path map/object
+template state matches the Vanilla+ source data. A no-gameplay-change rewrite
+also decodes back to byte-identical SaveBlock1, SaveBlock2 and PokemonStorage
+payloads in the native verifier.
+
+The remaining field acceptance step is reopening that rewritten save in the
+actual Vanilla+ ROM/emulator.
 
 Portable CTest execution remains an evidence gate while GitHub Actions is
 failing before the first job step. UE 5.8/Linux/Android compilation is tracked
