@@ -700,6 +700,120 @@ def _normalize_script_command(
             "y": args[2],
         }]
 
+    no_arg_ops = {
+        "lock": "LOCK",
+        "lockall": "LOCK_ALL",
+        "release": "RELEASE",
+        "releaseall": "RELEASE_ALL",
+        "fadedefaultbgm": "FADE_DEFAULT_BGM",
+        "waitdooranim": "WAIT_DOOR",
+        "waitmessage": "WAIT_MESSAGE",
+        "closemessage": "CLOSE_MESSAGE",
+        "waitse": "WAIT_SOUND",
+        "waitfanfare": "WAIT_FANFARE",
+        "faceplayer": "FACE_PLAYER",
+        "followerintopokeball": "FOLLOWER_INTO_POKEBALL",
+        "updatefollowerpokemongraphic":
+            "UPDATE_FOLLOWER_POKEMON_GRAPHIC",
+    }
+    if name in no_arg_ops and not args:
+        return [{"op": no_arg_ops[name]}]
+
+    if name == "setmetatile" and len(args) == 4:
+        return [{
+            "op": "SET_METATILE",
+            "x_operand": args[0],
+            "y_operand": args[1],
+            "metatile": args[2],
+            "impassable": args[3],
+        }]
+
+    if name == "savebgm" and len(args) == 1:
+        return [{"op": "SAVE_BGM", "song": args[0]}]
+
+    if name == "playbgm" and len(args) == 2:
+        return [{
+            "op": "PLAY_BGM",
+            "song": args[0],
+            "save": args[1],
+        }]
+
+    if name == "playse" and len(args) == 1:
+        return [{"op": "PLAY_SOUND", "sound": args[0]}]
+
+    if name == "playfanfare" and len(args) == 1:
+        return [{"op": "PLAY_FANFARE", "song": args[0]}]
+
+    if name == "fadescreen" and len(args) == 1:
+        return [{"op": "FADE", "mode": args[0]}]
+
+    if name == "delay" and len(args) == 1:
+        return [{"op": "DELAY", "frames": args[0]}]
+
+    if name == "incrementgamestat" and len(args) == 1:
+        return [{"op": "INCREMENT_GAME_STAT", "stat": args[0]}]
+
+    if name == "bufferleadmonspeciesname" and len(args) == 1:
+        return [{
+            "op": "BUFFER_LEAD_MON_SPECIES_NAME",
+            "string_var": args[0],
+        }]
+
+    if name == "setfollower" and len(args) == 2:
+        return [{
+            "op": "SET_FOLLOWER",
+            "local_id": args[0],
+            "flags": args[1],
+        }]
+
+    if name == "message" and len(args) == 1:
+        return [{"op": "MESSAGE", "text_id": args[0]}]
+
+    if name in {"addobject", "removeobject"} and len(args) in {1, 2}:
+        item = {
+            "op": "ADD_OBJECT" if name == "addobject" else "REMOVE_OBJECT",
+            "local_id": args[0],
+        }
+        if len(args) == 2:
+            item["map_id"] = args[1]
+        return [item]
+
+    if name == "hideobjectat" and len(args) == 2:
+        return [{
+            "op": "HIDE_OBJECT",
+            "local_id": args[0],
+            "map_id": args[1],
+        }]
+
+    if name == "turnobject" and len(args) == 2:
+        return [{
+            "op": "TURN_OBJECT",
+            "local_id": args[0],
+            "direction": args[1],
+        }]
+
+    if name == "setobjectmovementtype" and len(args) == 2:
+        return [{
+            "op": "SET_OBJECT_MOVEMENT_TYPE",
+            "local_id": args[0],
+            "movement_type": args[1],
+        }]
+
+    if name == "setmaplayoutindex" and len(args) == 1:
+        return [{"op": "SET_MAP_LAYOUT", "layout": args[0]}]
+
+    if name in {"warp", "warpsilent"} and len(args) in {3, 4}:
+        item = {
+            "op": "WARP",
+            "map_id": args[0],
+            "x_operand": args[-2],
+            "y_operand": args[-1],
+            "silent": name == "warpsilent",
+        }
+        if len(args) == 4:
+            item["warp_id"] = args[1]
+        return [item]
+
     field_shapes: dict[str, tuple[str, ...]] = {
         "setvar": ("var", "value"),
         "setflag": ("flag",),
