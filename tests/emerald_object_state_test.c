@@ -25,6 +25,11 @@ int main(void)
     memset(&save, 0, sizeof(save));
     memset(input, 0, sizeof(input));
 
+    if (!check(
+            REMASTER_EMERALD_SAVED_OBJECT_EVENT_BYTES == 0x28,
+            "production ObjectEvent stride changed"))
+        return 1;
+
     input[0].local_id = 1;
     input[0].kind = 0;
     input[0].graphics_id = 6;
@@ -55,6 +60,13 @@ int main(void)
                 input,
                 2),
             "template replace failed"))
+        return 1;
+
+    if (!check(
+            save.save_block1[0x0CB0] == 1
+            && save.save_block1[0x0CB0 + 4] == 16
+            && save.save_block1[0x0CB0 + 6] == 10,
+            "compiled object-template offset mismatch"))
         return 1;
 
     if (!check(
