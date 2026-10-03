@@ -191,6 +191,92 @@ int main(void)
             "object/movement script did not halt"))
         return 1;
 
+    {
+        RemasterEmeraldScriptRequest dynamic_request;
+        const RemasterEmeraldScriptInstruction dynamic_instructions[] = {
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_SET_VAR,
+                .a = 0x8004,
+                .b = 2,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_SET_OBJECT_XY_PERM,
+                .a = 0x8004,
+                .x = 21,
+                .y = 22,
+            },
+            {
+                .opcode = REMASTER_EMERALD_SCRIPT_APPLY_MOVEMENT,
+                .a = 0x8004,
+                .map_id = 0x0018,
+                .resource_id = "Movement_DynamicLocalId",
+            },
+            { .opcode = REMASTER_EMERALD_SCRIPT_END },
+        };
+        const RemasterEmeraldScriptProgram dynamic_programs[] = {
+            {
+                .script_id = "Dynamic_Local_Id",
+                .instructions = dynamic_instructions,
+                .instruction_count =
+                    sizeof(dynamic_instructions)
+                    / sizeof(dynamic_instructions[0]),
+            },
+        };
+        const RemasterEmeraldScriptRegistry dynamic_registry = {
+            dynamic_programs,
+            1,
+        };
+
+        memset(&save, 0, sizeof(save));
+        memset(templates, 0, sizeof(templates));
+        templates[0].local_id = 1;
+        templates[1].local_id = 2;
+        templates[1].x = 10;
+        templates[1].y = 11;
+        if (!check(
+                remaster_emerald_object_templates_replace(
+                    &save,
+                    templates,
+                    2),
+                "failed to seed dynamic-id templates"))
+            return 1;
+
+        remaster_emerald_script_runtime_start(
+            &runtime,
+            &save,
+            &dynamic_registry,
+            0,
+            0);
+
+        if (!check(
+                remaster_emerald_script_runtime_run(&runtime, 100)
+                    == REMASTER_EMERALD_SCRIPT_YIELDED,
+                "special-var local id should reach movement yield"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_object_template_get(&save, 1, &observed)
+                    && observed.local_id == 2
+                    && observed.x == 21
+                    && observed.y == 22,
+                "special-var local id did not select object template 2"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_script_runtime_pending_request(
+                    &runtime,
+                    &dynamic_request)
+                    && dynamic_request.type
+                        == REMASTER_EMERALD_SCRIPT_REQUEST_MOVEMENT
+                    && dynamic_request.local_id == 2
+                    && dynamic_request.resource_id != 0
+                    && strcmp(
+                        dynamic_request.resource_id,
+                        "Movement_DynamicLocalId") == 0,
+                "movement request did not resolve special-var local id"))
+            return 1;
+    }
+
     puts("Emerald scripted object/movement test passed.");
     return 0;
 }
