@@ -203,6 +203,10 @@ public:
     }
 
 private:
+    bool ApplySavedObjectTemplateOverrides();
+    bool RefreshSavedObjectTemplateCache(
+        const FRemasterMapIR& Map);
+
     FRemasterMapIR CurrentMap;
     bool bMapReady = false;
 };
