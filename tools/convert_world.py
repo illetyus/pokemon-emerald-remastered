@@ -150,6 +150,9 @@ def build_numeric_constant_index(source_root: Path) -> dict[str, int]:
         source_root / "include/constants/event_bg.h",
         source_root / "include/constants/secret_bases.h",
         source_root / "include/constants/berry.h",
+        source_root / "include/constants/event_objects.h",
+        source_root / "include/constants/event_object_movement.h",
+        source_root / "include/constants/trainer_types.h",
     ]
 
     expressions: dict[str, str] = {}
@@ -271,6 +274,9 @@ def normalize_event(
         ("item", "item_id"),
         ("player_facing_dir", "player_facing_dir_id"),
         ("secret_base_id", "secret_base_id_u16"),
+        ("graphics_id", "graphics_id_u16"),
+        ("movement_type", "movement_type_u8"),
+        ("trainer_type", "trainer_type_u16"),
     ):
         if source_key in result:
             numeric = resolve_numeric(result[source_key], constants)
