@@ -244,6 +244,15 @@ Test_B::
             self.assertEqual(resolver.resolve("YES"), 1)
             self.assertEqual(resolver.resolve("NO"), 0)
 
+    def test_numeric_resolver_has_event_string_var_operands(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "include").mkdir(parents=True)
+            resolver = build_numeric_resolver(root)
+            self.assertEqual(resolver.resolve("STR_VAR_1"), 0)
+            self.assertEqual(resolver.resolve("STR_VAR_2"), 1)
+            self.assertEqual(resolver.resolve("STR_VAR_3"), 2)
+
 
 if __name__ == "__main__":
     unittest.main()
