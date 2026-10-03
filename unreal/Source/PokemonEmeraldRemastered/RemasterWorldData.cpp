@@ -383,7 +383,29 @@ bool FRemasterWorldData::LoadMapJson(
             Item.Y = IntField(Object, TEXT("y"));
             Item.Elevation = IntField(Object, TEXT("elevation"));
             Item.Facing = StringField(Object, TEXT("player_facing_dir"));
+            Item.FacingId = IntFieldDefault(
+                Object,
+                TEXT("player_facing_dir_id"),
+                -1);
+            Item.KindId = IntFieldDefault(
+                Object,
+                TEXT("kind_id"),
+                -1);
             Item.Script = StringField(Object, TEXT("script"));
+            Item.Item = StringField(Object, TEXT("item"));
+            Item.ItemId = IntFieldDefault(
+                Object,
+                TEXT("item_id"),
+                -1);
+            Item.Flag = StringField(Object, TEXT("flag"));
+            Item.FlagId = IntFieldDefault(
+                Object,
+                TEXT("flag_id"),
+                -1);
+            Item.SecretBaseId = IntFieldDefault(
+                Object,
+                TEXT("secret_base_id_u16"),
+                -1);
             OutMap.BackgroundEvents.Add(MoveTemp(Item));
         }
     }
