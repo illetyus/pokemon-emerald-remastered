@@ -11,6 +11,7 @@ enum {
     SB1_LAST_HEAL_WARP = 0x001C,
     SB1_ESCAPE_WARP = 0x0024,
     SB1_WEATHER = 0x002E,
+    SB1_WEATHER_CYCLE_STAGE = 0x002F,
     SB1_FLASH_LEVEL = 0x0030,
     SB1_MAP_LAYOUT_ID = 0x0032,
     SB1_PARTY_COUNT = 0x0234,
@@ -88,6 +89,8 @@ int remaster_emerald_overworld_get(
         state_read_s16_le(save->save_block1 + SB1_LOCATION + 6u);
 
     out_state->weather = save->save_block1[SB1_WEATHER];
+    out_state->weather_cycle_stage =
+        save->save_block1[SB1_WEATHER_CYCLE_STAGE];
     out_state->flash_level = save->save_block1[SB1_FLASH_LEVEL];
     out_state->map_layout_id =
         state_read_u16_le(save->save_block1 + SB1_MAP_LAYOUT_ID);
@@ -130,6 +133,8 @@ int remaster_emerald_overworld_set(
         state->warp_y);
 
     save->save_block1[SB1_WEATHER] = state->weather;
+    save->save_block1[SB1_WEATHER_CYCLE_STAGE] =
+        state->weather_cycle_stage;
     save->save_block1[SB1_FLASH_LEVEL] = state->flash_level;
     state_write_u16_le(
         save->save_block1 + SB1_MAP_LAYOUT_ID,
