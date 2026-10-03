@@ -29,6 +29,7 @@ enum {
     SB1_FLAGS = 0x12B0,
     SB1_VARS = 0x13DC,
 
+    SB2_PLAYER_GENDER = 0x0008,
     SB2_ENCRYPTION_KEY = 0x00AC
 };
 
@@ -295,6 +296,18 @@ static int write_warp_state(
     state_write_s16_le(save->save_block1 + offset + 6u, warp->y);
     return 1;
 }
+
+int remaster_emerald_player_gender_get(
+    const RemasterEmeraldSave *save,
+    uint8_t *out_gender)
+{
+    if (save == 0 || out_gender == 0)
+        return 0;
+
+    *out_gender = save->save_block2[SB2_PLAYER_GENDER];
+    return 1;
+}
+
 
 int remaster_emerald_continue_game_warp_get(
     const RemasterEmeraldSave *save,
