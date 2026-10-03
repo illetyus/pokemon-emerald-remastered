@@ -24,6 +24,15 @@ def load_json(path: Path) -> dict[str, Any]:
         return json.load(handle)
 
 
+def list_field(document: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = document.get(key)
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise ValueError(f"{key} must be an array or null")
+    return value
+
+
 def read_u16_le(path: Path) -> list[int]:
     data = path.read_bytes()
     if len(data) % 2:
@@ -342,6 +351,27 @@ def convert_map(
     layout_id = source["layout"]
     map_name = source["name"]
 
+    event_source = source
+    shared_events_map = source.get("shared_events_map")
+    shared_events_json: Path | None = None
+    if shared_events_map is not None:
+        if not isinstance(shared_events_map, str) or not shared_events_map:
+            raise ValueError(
+                f"{map_path}: shared_events_map must be a non-empty map name"
+            )
+        shared_events_json = (
+            source_root / "data/maps" / shared_events_map / "map.json"
+        )
+        if not shared_events_json.is_file():
+            raise FileNotFoundError(
+                f"{map_path}: shared events map not found: {shared_events_json}"
+            )
+        event_source = load_json(shared_events_json)
+        if event_source.get("name") != shared_events_map:
+            raise ValueError(
+                f"{shared_events_json}: shared map name mismatch"
+            )
+
     if map_name not in map_locations:
         raise KeyError(
             f"{map_path}: map {map_name} is missing from map_groups.json"
@@ -421,6 +451,11 @@ def convert_map(
             "secondary_metatile_attributes": str(
                 secondary_attributes_path.relative_to(source_root)
             ).replace("\\", "/"),
+            "shared_events_json": (
+                str(shared_events_json.relative_to(source_root)).replace("\\", "/")
+                if shared_events_json is not None
+                else None
+            ),
         },
         "map": {
             "id": source["id"],
@@ -440,30 +475,33 @@ def convert_map(
             "allow_running": bool(source.get("allow_running", False)),
             "show_map_name": bool(source.get("show_map_name", False)),
             "battle_scene": source.get("battle_scene"),
+            "shared_events_map": shared_events_map,
+            "shared_scripts_map": source.get("shared_scripts_map"),
             "connections": add_numeric_map_targets(
                 [
                     normalize_event(x, constants)
-                    for x in source.get("connections", [])
+                    for x in list_field(source, "connections")
                 ],
                 map_id_locations,
             ),
             "object_events": normalize_object_events(
-                source.get("object_events", []),
+                list_field(event_source, "object_events"),
                 constants,
             ),
             "warp_events": add_numeric_map_targets(
                 [
                     normalize_event(x, constants)
-                    for x in source.get("warp_events", [])
+                    for x in list_field(event_source, "warp_events")
                 ],
                 map_id_locations,
             ),
             "coord_events": [
-                normalize_event(x, constants) for x in source.get("coord_events", [])
+                normalize_event(x, constants)
+                for x in list_field(event_source, "coord_events")
             ],
             "bg_events": [
                 normalize_background_event(x, constants)
-                for x in source.get("bg_events", [])
+                for x in list_field(event_source, "bg_events")
             ],
         },
         "layout": {
