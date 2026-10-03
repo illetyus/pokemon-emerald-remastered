@@ -18,6 +18,7 @@ class ConvertWorldTests(unittest.TestCase):
             out = Path(temp) / "out"
 
             (root / "data/layouts/TestTown").mkdir(parents=True)
+            (root / "data/layouts/Unused").mkdir(parents=True)
             (root / "data/maps/TestTown").mkdir(parents=True)
             (root / "data/maps/AliasTown").mkdir(parents=True)
             (root / "src/data/tilesets").mkdir(parents=True)
@@ -98,7 +99,8 @@ class ConvertWorldTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (root / "include/constants/layouts.h").write_text(
-                "#define LAYOUT_TEST_TOWN 1\n",
+                "#define LAYOUT_TEST_TOWN 1\n"
+                "#define LAYOUT_UNUSED 2\n",
                 encoding="utf-8",
             )
             (root / "include/constants/secret_bases.h").write_text(
@@ -123,6 +125,16 @@ class ConvertWorldTests(unittest.TestCase):
                                 "secondary_tileset": "gTileset_TestSecondary",
                                 "border_filepath": "data/layouts/TestTown/border.bin",
                                 "blockdata_filepath": "data/layouts/TestTown/map.bin",
+                            },
+                            {
+                                "id": "LAYOUT_UNUSED",
+                                "name": "Unused_Layout",
+                                "width": 1,
+                                "height": 1,
+                                "primary_tileset": "gTileset_TestPrimary",
+                                "secondary_tileset": "gTileset_TestSecondary",
+                                "border_filepath": "data/layouts/Unused/border.bin",
+                                "blockdata_filepath": "data/layouts/Unused/map.bin",
                             }
                         ]
                     }
@@ -165,6 +177,12 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             )
             (root / "data/layouts/TestTown/border.bin").write_bytes(
                 struct.pack("<6H", 0x000A, 0x000B, 0x000C, 0x000D, 0xAAAA, 0xBBBB)
+            )
+            (root / "data/layouts/Unused/map.bin").write_bytes(
+                struct.pack("<1H", 3)
+            )
+            (root / "data/layouts/Unused/border.bin").write_bytes(
+                struct.pack("<4H", 1, 2, 3, 4)
             )
 
             (root / "data/maps/TestTown/map.json").write_text(
@@ -302,6 +320,8 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             manifest = convert_world(root, out)
 
             self.assertEqual(manifest["map_count"], 2)
+            self.assertEqual(manifest["layout_count"], 2)
+            self.assertEqual(manifest["layouts_file"], "layouts.json")
             self.assertEqual(manifest["maps"][0]["group_num"], 0)
             self.assertEqual(manifest["maps"][0]["map_num"], 1)
             self.assertEqual(manifest["maps"][0]["layout_num"], 1)
@@ -435,6 +455,24 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(
                 alias_converted["map"]["bg_events"],
                 converted["map"]["bg_events"],
+            )
+
+            layout_catalog = json.loads((out / "layouts.json").read_text())
+            self.assertEqual(layout_catalog["layout_count"], 2)
+            by_id = {item["id"]: item for item in layout_catalog["layouts"]}
+            self.assertEqual(
+                by_id["LAYOUT_TEST_TOWN"]["used_by_maps"],
+                ["AliasTown", "TestTown"],
+            )
+            self.assertEqual(by_id["LAYOUT_UNUSED"]["used_by_maps"], [])
+            unused_layout = json.loads(
+                (out / "layouts/LAYOUT_UNUSED.json").read_text()
+            )
+            self.assertEqual(unused_layout["layout"]["layout_num"], 2)
+            self.assertEqual(unused_layout["layout"]["raw_blocks_u16"], [3])
+            self.assertEqual(
+                unused_layout["layout"]["border_active_words_u16"],
+                [1, 2, 3, 4],
             )
 
 
