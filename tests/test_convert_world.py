@@ -66,6 +66,14 @@ class ConvertWorldTests(unittest.TestCase):
                 "#define WARP_ID_DYNAMIC 0x7F\n",
                 encoding="utf-8",
             )
+            (root / "include/constants/secret_bases.h").write_text(
+                "#define SECRET_BASE_TEST 33\n",
+                encoding="utf-8",
+            )
+            (root / "include/constants/berry.h").write_text(
+                "#define BERRY_TREE_TEST 52\n",
+                encoding="utf-8",
+            )
 
             (root / "data/layouts/layouts.json").write_text(
                 json.dumps(
@@ -144,7 +152,15 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                                 "y": 1,
                                 "script": "Test_EventScript",
                                 "flag": "FLAG_TEST",
-                            }
+                            },
+                            {
+                                "graphics_id": "OBJ_BERRY_TREE",
+                                "x": 0,
+                                "y": 1,
+                                "trainer_sight_or_berry_tree_id": "BERRY_TREE_TEST",
+                                "script": "BerryTreeScript",
+                                "flag": "0",
+                            },
                         ],
                         "warp_events": [
                             {
@@ -196,6 +212,13 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                                 "elevation": 3,
                                 "item": "ITEM_TEST",
                                 "flag": "FLAG_TEST",
+                            },
+                            {
+                                "type": "secret_base",
+                                "x": 1,
+                                "y": 0,
+                                "elevation": 0,
+                                "secret_base_id": "SECRET_BASE_TEST",
                             },
                         ],
                     }
@@ -250,6 +273,11 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(converted["map"]["object_events"][0]["flag"], "FLAG_TEST")
             self.assertEqual(converted["map"]["object_events"][0]["flag_id"], 0x123)
             self.assertEqual(converted["map"]["object_events"][0]["local_id"], 1)
+            self.assertEqual(converted["map"]["object_events"][1]["local_id"], 2)
+            self.assertEqual(
+                converted["map"]["object_events"][1]["trainer_sight_or_berry_tree_id_u16"],
+                52,
+            )
             self.assertEqual(converted["map"]["warp_events"][0]["dest_group_num"], 0)
             self.assertEqual(converted["map"]["warp_events"][0]["dest_map_num"], 0)
             self.assertEqual(converted["map"]["warp_events"][0]["dest_warp_id_u16"], 2)
@@ -266,6 +294,8 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(converted["map"]["bg_events"][1]["kind_id"], 7)
             self.assertEqual(converted["map"]["bg_events"][1]["item_id"], 16)
             self.assertEqual(converted["map"]["bg_events"][1]["flag_id"], 0x123)
+            self.assertEqual(converted["map"]["bg_events"][2]["kind_id"], 8)
+            self.assertEqual(converted["map"]["bg_events"][2]["secret_base_id_u16"], 33)
             self.assertEqual(converted["map"]["connections"][0]["direction"], "up")
 
 
