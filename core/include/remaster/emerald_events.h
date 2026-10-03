@@ -1,6 +1,7 @@
 #ifndef REMASTER_EMERALD_EVENTS_H
 #define REMASTER_EMERALD_EVENTS_H
 
+#include "remaster/emerald_map.h"
 #include "remaster/emerald_save.h"
 
 #include <stddef.h>
