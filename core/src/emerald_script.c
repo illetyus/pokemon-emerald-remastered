@@ -772,6 +772,25 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
             vm->comparison_result = (uint8_t)(value ? 1u : 0u);
             break;
 
+        case REMASTER_EMERALD_SCRIPT_CHECK_PLAYER_GENDER:
+        {
+            uint8_t gender = 0;
+
+            if (!remaster_emerald_player_gender_get(vm->save, &gender)
+                || !remaster_emerald_script_var_set(
+                    vm,
+                    VAR_RESULT,
+                    (uint16_t)gender))
+            {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
+            break;
+        }
+
         case REMASTER_EMERALD_SCRIPT_SET_WEATHER:
             if (!set_saved_weather(vm, ins->a)) {
                 return script_fail(
@@ -797,9 +816,12 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
             return vm->status;
 
         case REMASTER_EMERALD_SCRIPT_SET_OBJECT_XY_PERM:
-            if (!remaster_emerald_object_template_set_coords(
+            lhs = remaster_emerald_script_value_or_var(vm, ins->a, &valid);
+            if (!valid
+                || lhs > 0xffu
+                || !remaster_emerald_object_template_set_coords(
                     vm->save,
-                    (uint8_t)ins->a,
+                    (uint8_t)lhs,
                     ins->x,
                     ins->y))
             {
@@ -812,9 +834,12 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
             break;
 
         case REMASTER_EMERALD_SCRIPT_SET_OBJECT_MOVEMENT_TYPE:
-            if (!remaster_emerald_object_template_set_movement_type(
+            lhs = remaster_emerald_script_value_or_var(vm, ins->a, &valid);
+            if (!valid
+                || lhs > 0xffu
+                || !remaster_emerald_object_template_set_movement_type(
                     vm->save,
-                    (uint8_t)ins->a,
+                    (uint8_t)lhs,
                     (uint8_t)ins->b))
             {
                 return script_fail(
