@@ -221,6 +221,14 @@ Test_B::
             self.assertIn("Test_A", str(raised.exception))
             self.assertIn("NOT_A_REAL_OPCODE", str(raised.exception))
 
+    def test_numeric_resolver_has_emerald_boolean_constants(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "include").mkdir(parents=True)
+            resolver = build_numeric_resolver(root)
+            self.assertEqual(resolver.resolve("TRUE"), 1)
+            self.assertEqual(resolver.resolve("FALSE"), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
