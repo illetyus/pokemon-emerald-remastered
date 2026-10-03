@@ -1,4 +1,5 @@
 #include "remaster/emerald_events.h"
+#include "remaster/emerald_map.h"
 #include "remaster/emerald_state.h"
 
 static int elevation_matches(uint8_t event_elevation, uint8_t elevation)
