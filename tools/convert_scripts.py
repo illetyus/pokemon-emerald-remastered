@@ -8,6 +8,7 @@ IR emission is added in Task 2.
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import re
 from pathlib import Path
@@ -465,6 +466,458 @@ def collect_script_dependency_closure(
                     pending.append(target)
 
     return closure
+
+
+
+_CONDITION_SUFFIX = {
+    "lt": "LESS",
+    "eq": "EQUAL",
+    "gt": "GREATER",
+    "le": "LESS_EQUAL",
+    "ge": "GREATER_EQUAL",
+    "ne": "NOT_EQUAL",
+}
+
+
+def _script_source_sections(
+    source_root: Path,
+    roots: list[Path],
+) -> dict[str, tuple[Path, int, list[tuple[int, str]]]]:
+    candidates: set[Path] = set()
+    for path in (source_root / "data/maps").glob("**/scripts.inc"):
+        if path.is_file():
+            candidates.add(path)
+    for path in (source_root / "data/scripts").glob("**/*.inc"):
+        if path.is_file():
+            candidates.add(path)
+    for relative in roots:
+        path = source_root / relative
+        if path.is_file():
+            candidates.add(path)
+
+    sections: dict[str, tuple[Path, int, list[tuple[int, str]]]] = {}
+    label_pattern = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)(?:::|:)$")
+
+    current: str | None
+    for absolute in sorted(candidates):
+        relative = absolute.relative_to(source_root)
+        current = None
+        for line_no, raw in enumerate(
+            absolute.read_text(encoding="utf-8").splitlines(),
+            start=1,
+        ):
+            stripped = raw.strip()
+            label_match = label_pattern.match(stripped)
+            if label_match:
+                current = label_match.group(1)
+                if current in sections:
+                    previous = sections[current][0]
+                    raise ScriptConversionError(
+                        f"{relative}:{line_no}: duplicate label {current}; "
+                        f"first defined in {previous}"
+                    )
+                sections[current] = (relative, line_no, [])
+                continue
+            if current is not None:
+                sections[current][2].append((line_no, raw))
+    return sections
+
+
+def _symbolic_target_or_error(
+    target: str,
+    labels: set[str],
+    command: SourceCommand,
+) -> str:
+    if target not in labels:
+        raise ScriptConversionError(
+            f"{command.path}:{command.line}: {command.label}: "
+            f"unresolved script label {target}"
+        )
+    return target
+
+
+def _compare_instruction(lhs: str, rhs: str) -> dict:
+    if rhs.startswith("VAR_"):
+        return {"op": "COMPARE_VAR_VAR", "lhs_var": lhs, "rhs_var": rhs}
+    return {"op": "COMPARE_VAR_VALUE", "var": lhs, "value": rhs}
+
+
+def _normalize_script_command(
+    command: SourceCommand,
+    labels: set[str],
+    specials: dict[str, SpecialSpec],
+) -> list[dict]:
+    name = command.name
+    args = command.args
+
+    if name in {"map_script", "map_script_2"}:
+        return []
+
+    if name == "call" and len(args) == 1:
+        return [{
+            "op": "CALL",
+            "target_script_id": _symbolic_target_or_error(
+                args[0], labels, command
+            ),
+        }]
+
+    if name == "goto" and len(args) == 1:
+        return [{
+            "op": "GOTO",
+            "target_script_id": _symbolic_target_or_error(
+                args[0], labels, command
+            ),
+        }]
+
+    if name in {"goto_if", "call_if"} and len(args) == 2:
+        return [{
+            "op": "GOTO_IF" if name == "goto_if" else "CALL_IF",
+            "condition": args[0],
+            "target_script_id": _symbolic_target_or_error(
+                args[1], labels, command
+            ),
+        }]
+
+    if name in {
+        "goto_if_unset",
+        "goto_if_set",
+        "call_if_unset",
+        "call_if_set",
+    } and len(args) == 2:
+        is_call = name.startswith("call_")
+        is_set = name.endswith("_set")
+        return [
+            {"op": "CHECK_FLAG", "flag": args[0]},
+            {
+                "op": "CALL_IF" if is_call else "GOTO_IF",
+                "condition": "TRUE" if is_set else "FALSE",
+                "target_script_id": _symbolic_target_or_error(
+                    args[1], labels, command
+                ),
+            },
+        ]
+
+    conditional = re.fullmatch(r"(goto|call)_if_(lt|eq|gt|le|ge|ne)", name)
+    if conditional:
+        branch_op = "GOTO_IF" if conditional.group(1) == "goto" else "CALL_IF"
+        condition = _CONDITION_SUFFIX[conditional.group(2)]
+        if len(args) == 3:
+            return [
+                _compare_instruction(args[0], args[1]),
+                {
+                    "op": branch_op,
+                    "condition": condition,
+                    "target_script_id": _symbolic_target_or_error(
+                        args[2], labels, command
+                    ),
+                },
+            ]
+        if len(args) == 1:
+            return [{
+                "op": branch_op,
+                "condition": condition,
+                "target_script_id": _symbolic_target_or_error(
+                    args[0], labels, command
+                ),
+            }]
+
+    if name == "compare" and len(args) == 2:
+        return [_compare_instruction(args[0], args[1])]
+
+    if name == "compare_var_to_value" and len(args) == 2:
+        return [{"op": "COMPARE_VAR_VALUE", "var": args[0], "value": args[1]}]
+
+    if name == "compare_var_to_var" and len(args) == 2:
+        return [{
+            "op": "COMPARE_VAR_VAR",
+            "lhs_var": args[0],
+            "rhs_var": args[1],
+        }]
+
+    if name == "special" and len(args) == 1:
+        special_name = args[0]
+        if special_name not in specials:
+            raise ScriptConversionError(
+                f"{command.path}:{command.line}: {command.label}: "
+                f"unknown special {special_name}"
+            )
+        return [{
+            "op": "SPECIAL",
+            "special_id": special_name,
+            "special_index": specials[special_name].special_id,
+        }]
+
+    if name == "specialvar" and len(args) == 2:
+        special_name = args[1]
+        if special_name not in specials:
+            raise ScriptConversionError(
+                f"{command.path}:{command.line}: {command.label}: "
+                f"unknown special {special_name}"
+            )
+        return [{
+            "op": "SPECIAL_VAR",
+            "output_var": args[0],
+            "special_id": special_name,
+            "special_index": specials[special_name].special_id,
+        }]
+
+    field_shapes: dict[str, tuple[str, ...]] = {
+        "setvar": ("var", "value"),
+        "setflag": ("flag",),
+        "clearflag": ("flag",),
+        "checkflag": ("flag",),
+        "applymovement": ("local_id", "movement_id"),
+        "waitmovement": ("local_id",),
+        "msgbox": ("text_id", "mode"),
+    }
+    if name in field_shapes:
+        fields = field_shapes[name]
+        item: dict[str, object] = {"op": name.upper()}
+        for index, field in enumerate(fields):
+            if index < len(args):
+                item[field] = args[index]
+        return [item]
+
+    # Task 2 preserves known commands that do not yet have a typed execution
+    # shape as semantic command names plus symbolic operands.  Later R2 tasks
+    # replace these generic payloads as the VM/host contracts are introduced.
+    return [{"op": name.upper(), "args": list(args)}]
+
+
+def _extract_text_strings(lines: list[tuple[int, str]]) -> list[str]:
+    result: list[str] = []
+    pattern = re.compile(r'^\s*\.string\s+(.+?)\s*    result: list[Path] = []
+    for name in root_names:
+        raw = Path(name)
+        direct = source_root / raw
+        if direct.is_file():
+            result.append(raw)
+            continue
+
+        map_script = Path("data/maps") / name / "scripts.inc"
+        if (source_root / map_script).is_file():
+            result.append(map_script)
+            continue
+
+        raise ScriptConversionError(f"unable to resolve script root {name}")
+    return result
+
+
+def _report(
+    source_root: Path,
+    roots: list[Path],
+) -> dict:
+    command_inventory = build_command_inventory(source_root)
+    specials = build_special_inventory(source_root)
+    closure = collect_script_dependency_closure(source_root, roots)
+
+    return {
+        "schema_version": 1,
+        "opcode_count": len({spec.opcode for spec in command_inventory.values()}),
+        "special_count": len(specials),
+        "roots": [str(path).replace("\\", "/") for path in roots],
+        "reachable_labels": sorted(closure.labels),
+        "source_files": sorted(
+            str(path).replace("\\", "/") for path in closure.source_files
+        ),
+        "reachable_commands": {
+            name: closure.commands[name] for name in sorted(closure.commands)
+        },
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("source_root", type=Path)
+    parser.add_argument("output_dir", type=Path)
+    parser.add_argument("--roots", nargs="+", required=True)
+    parser.add_argument("--inventory-only", action="store_true")
+    args = parser.parse_args()
+
+    roots = _resolve_root_paths(args.source_root, args.roots)
+    document = (
+        _report(args.source_root, roots)
+        if args.inventory_only
+        else convert_script_closure(args.source_root, roots)
+    )
+
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    output = args.output_dir / (
+        "script_compatibility.json"
+        if args.inventory_only
+        else "script_ir.json"
+    )
+    output.write_text(
+        json.dumps(document, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    print(output)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+)
+    for _line_no, raw in lines:
+        match = pattern.match(raw)
+        if not match:
+            continue
+        token = match.group(1)
+        try:
+            value = ast.literal_eval(token)
+        except (SyntaxError, ValueError):
+            value = token.strip().strip('"')
+        result.append(str(value))
+    return result
+
+
+def convert_script_closure(
+    source_root: Path,
+    roots: list[Path],
+) -> dict:
+    source_root = Path(source_root)
+    roots = [Path(path) for path in roots]
+    closure = collect_script_dependency_closure(source_root, roots)
+    sections = _script_source_sections(source_root, roots)
+    labels = set(sections)
+    specials = build_special_inventory(source_root)
+
+    # Unlike the Task 1 inventory, semantic conversion requires every branch
+    # target to resolve.  This prevents partial IR when a dependency file was
+    # omitted or a label changed upstream.
+    for command in closure.source_commands:
+        for target in _script_targets(command):
+            if re.fullmatch(r"(?:0x[0-9A-Fa-f]+|\d+)", target):
+                continue
+            _symbolic_target_or_error(target, labels, command)
+
+    source_by_label: dict[str, list[SourceCommand]] = {}
+    for command in closure.source_commands:
+        source_by_label.setdefault(command.label, []).append(command)
+
+    scripts: list[dict] = []
+    map_scripts: list[dict] = []
+    map_script_tables: list[dict] = []
+    movement_ids: set[str] = set()
+    text_ids: set[str] = set()
+
+    for label in sorted(closure.labels):
+        commands = source_by_label.get(label, [])
+        if commands and all(
+            command.name in {"map_script", "map_script_2"}
+            for command in commands
+        ):
+            for command in commands:
+                if command.name == "map_script" and len(command.args) >= 2:
+                    map_scripts.append({
+                        "owner_id": label,
+                        "kind": command.args[0],
+                        "script_id": _symbolic_target_or_error(
+                            command.args[-1], labels, command
+                        ),
+                    })
+                elif command.name == "map_script_2" and len(command.args) >= 3:
+                    map_script_tables.append({
+                        "owner_id": label,
+                        "var": command.args[0],
+                        "value": command.args[1],
+                        "script_id": _symbolic_target_or_error(
+                            command.args[-1], labels, command
+                        ),
+                    })
+            continue
+
+        instructions: list[dict] = []
+        for command in commands:
+            normalized = _normalize_script_command(command, labels, specials)
+            instructions.extend(normalized)
+
+            if command.name in {"applymovement", "applymovementat"}:
+                if len(command.args) >= 2:
+                    movement_ids.add(command.args[1])
+            if command.name in {
+                "msgbox",
+                "message",
+                "messageinstant",
+                "messageautoscroll",
+                "pokenavcall",
+            } and command.args:
+                text_ids.add(command.args[0])
+
+        if instructions:
+            source_path, source_line, _ = sections[label]
+            scripts.append({
+                "script_id": label,
+                "source": {
+                    "file": str(source_path).replace("\\", "/"),
+                    "line": source_line,
+                },
+                "instructions": instructions,
+            })
+
+    movements: list[dict] = []
+    for movement_id in sorted(movement_ids):
+        if movement_id not in sections:
+            raise ScriptConversionError(
+                f"unresolved movement label {movement_id}"
+            )
+        source_path, source_line, lines = sections[movement_id]
+        steps: list[dict] = []
+        for _line_no, raw in lines:
+            line = _strip_comment(raw)
+            if not line or line.startswith("."):
+                continue
+            match = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)\b(.*)$", line)
+            if not match:
+                continue
+            steps.append({
+                "op": match.group(1),
+                "args": list(_parse_args(match.group(2).strip())),
+            })
+        movements.append({
+            "movement_id": movement_id,
+            "source": {
+                "file": str(source_path).replace("\\", "/"),
+                "line": source_line,
+            },
+            "steps": steps,
+        })
+
+    texts: list[dict] = []
+    for text_id in sorted(text_ids):
+        if text_id not in sections:
+            raise ScriptConversionError(f"unresolved text label {text_id}")
+        source_path, source_line, lines = sections[text_id]
+        texts.append({
+            "text_id": text_id,
+            "source": {
+                "file": str(source_path).replace("\\", "/"),
+                "line": source_line,
+            },
+            "strings": _extract_text_strings(lines),
+        })
+
+    return {
+        "schema_version": 1,
+        "scripts": sorted(scripts, key=lambda item: item["script_id"]),
+        "movements": sorted(
+            movements, key=lambda item: item["movement_id"]
+        ),
+        "texts": sorted(texts, key=lambda item: item["text_id"]),
+        "map_scripts": sorted(
+            map_scripts,
+            key=lambda item: (
+                item["owner_id"], item["kind"], item["script_id"]
+            ),
+        ),
+        "map_script_tables": sorted(
+            map_script_tables,
+            key=lambda item: (
+                item["owner_id"], item["var"], item["value"], item["script_id"]
+            ),
+        ),
+    }
 
 
 def _resolve_root_paths(source_root: Path, root_names: list[str]) -> list[Path]:
