@@ -28,6 +28,8 @@ static int complete_pending(
     memset(&completion, 0, sizeof(completion));
     completion.type = out_request->type;
     completion.sequence = out_request->sequence;
+    completion.local_id = out_request->local_id;
+    completion.map_id = out_request->map_id;
     completion.accepted = 1;
     return remaster_emerald_script_runtime_complete(runtime, &completion);
 }
