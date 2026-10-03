@@ -258,3 +258,18 @@ else()
 endif()
 
 add_test(NAME emerald_script_vm COMMAND emerald_script_test)
+
+
+add_executable(r1_vanillaplus_integration_test
+    tests/r1_vanillaplus_integration_test.c
+)
+
+target_link_libraries(r1_vanillaplus_integration_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(r1_vanillaplus_integration_test PRIVATE /W4)
+else()
+    target_compile_options(r1_vanillaplus_integration_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME r1_vanillaplus_integration COMMAND r1_vanillaplus_integration_test)
