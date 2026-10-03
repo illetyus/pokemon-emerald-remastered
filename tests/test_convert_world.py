@@ -67,6 +67,10 @@ class ConvertWorldTests(unittest.TestCase):
                 "#define WARP_ID_DYNAMIC 0x7F\n",
                 encoding="utf-8",
             )
+            (root / "include/constants/layouts.h").write_text(
+                "#define LAYOUT_TEST_TOWN 1\n",
+                encoding="utf-8",
+            )
             (root / "include/constants/secret_bases.h").write_text(
                 "#define SECRET_BASE_TEST 33\n",
                 encoding="utf-8",
@@ -251,8 +255,10 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(manifest["map_count"], 2)
             self.assertEqual(manifest["maps"][0]["group_num"], 0)
             self.assertEqual(manifest["maps"][0]["map_num"], 1)
+            self.assertEqual(manifest["maps"][0]["layout_num"], 1)
             self.assertEqual(manifest["maps"][1]["group_num"], 0)
             self.assertEqual(manifest["maps"][1]["map_num"], 0)
+            self.assertEqual(manifest["maps"][1]["layout_num"], 1)
             converted = json.loads((out / "maps/TestTown.json").read_text())
             self.assertEqual(converted["map"]["group_name"], "gMapGroup_Test")
             self.assertEqual(converted["map"]["group_num"], 0)
