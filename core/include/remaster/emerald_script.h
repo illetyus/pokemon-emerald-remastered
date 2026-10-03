@@ -67,7 +67,47 @@ typedef struct RemasterEmeraldScriptInstruction {
 
     /* Instruction index for goto/call targets. */
     uint32_t target;
+
+    /*
+     * Zero-initialized legacy instructions keep target_program_valid == 0,
+     * which means "current program". Cross-script IR sets both fields.
+     */
+    uint32_t target_program;
+    uint8_t target_program_valid;
 } RemasterEmeraldScriptInstruction;
+
+typedef struct RemasterEmeraldScriptProgram {
+    const char *script_id;
+    const RemasterEmeraldScriptInstruction *instructions;
+    size_t instruction_count;
+} RemasterEmeraldScriptProgram;
+
+typedef struct RemasterEmeraldScriptRegistry {
+    const RemasterEmeraldScriptProgram *programs;
+    size_t program_count;
+} RemasterEmeraldScriptRegistry;
+
+typedef struct RemasterEmeraldScriptCallFrame {
+    uint32_t program_index;
+    uint32_t return_pc;
+} RemasterEmeraldScriptCallFrame;
+
+typedef enum RemasterEmeraldScriptErrorCode {
+    REMASTER_EMERALD_SCRIPT_ERROR_NONE = 0,
+    REMASTER_EMERALD_SCRIPT_ERROR_INVALID_PROGRAM,
+    REMASTER_EMERALD_SCRIPT_ERROR_INVALID_PC,
+    REMASTER_EMERALD_SCRIPT_ERROR_STACK_OVERFLOW,
+    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+    REMASTER_EMERALD_SCRIPT_ERROR_INVALID_OPCODE
+} RemasterEmeraldScriptErrorCode;
+
+typedef struct RemasterEmeraldScriptError {
+    RemasterEmeraldScriptErrorCode code;
+    const char *script_id;
+    uint32_t program_index;
+    uint32_t pc;
+    RemasterEmeraldScriptOpcode opcode;
+} RemasterEmeraldScriptError;
 
 typedef enum RemasterEmeraldScriptStatus {
     REMASTER_EMERALD_SCRIPT_HALTED = 0,
@@ -80,11 +120,14 @@ typedef enum RemasterEmeraldScriptStatus {
 typedef struct RemasterEmeraldScriptVm {
     RemasterEmeraldSave *save;
 
+    const RemasterEmeraldScriptRegistry *registry;
+    uint32_t program_index;
+
     const RemasterEmeraldScriptInstruction *program;
     size_t program_count;
     uint32_t pc;
 
-    uint32_t stack[REMASTER_EMERALD_SCRIPT_STACK_DEPTH];
+    RemasterEmeraldScriptCallFrame stack[REMASTER_EMERALD_SCRIPT_STACK_DEPTH];
     uint8_t stack_depth;
 
     uint8_t comparison_result;
@@ -93,6 +136,7 @@ typedef struct RemasterEmeraldScriptVm {
     uint8_t special_flags[REMASTER_EMERALD_SPECIAL_FLAG_BYTES];
 
     RemasterEmeraldScriptStatus status;
+    RemasterEmeraldScriptError error;
 } RemasterEmeraldScriptVm;
 
 void remaster_emerald_script_init(
@@ -101,6 +145,17 @@ void remaster_emerald_script_init(
     const RemasterEmeraldScriptInstruction *program,
     size_t program_count,
     uint32_t entry_pc);
+
+void remaster_emerald_script_init_program(
+    RemasterEmeraldScriptVm *vm,
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldScriptRegistry *registry,
+    uint32_t program_index,
+    uint32_t entry_pc);
+
+int remaster_emerald_script_error_get(
+    const RemasterEmeraldScriptVm *vm,
+    RemasterEmeraldScriptError *out_error);
 
 RemasterEmeraldScriptStatus remaster_emerald_script_run(
     RemasterEmeraldScriptVm *vm,
