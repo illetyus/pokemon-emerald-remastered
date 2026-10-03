@@ -841,7 +841,7 @@ def _normalize_script_command(
 
 def _extract_text_strings(lines: list[tuple[int, str]]) -> list[str]:
     result: list[str] = []
-    pattern = re.compile(r'^\\s*\\.string\\s+(.+?)\\s*$')
+    pattern = re.compile(r'^\s*\.string\s+(.+?)\s*$')
     for _line_no, raw in lines:
         match = pattern.match(raw)
         if not match:
