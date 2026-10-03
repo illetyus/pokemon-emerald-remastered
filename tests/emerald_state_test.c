@@ -19,9 +19,19 @@ int main(void)
     RemasterEmeraldOverworldState output;
     uint16_t value;
     int flag;
+    RemasterEmeraldWarpState continue_warp;
+    RemasterEmeraldWarpState dynamic_warp;
+    RemasterEmeraldWarpState heal_warp;
+    RemasterEmeraldWarpState escape_warp;
+    RemasterEmeraldWarpState observed_warp;
 
     memset(&save, 0, sizeof(save));
     memset(&input, 0, sizeof(input));
+    memset(&continue_warp, 0, sizeof(continue_warp));
+    memset(&dynamic_warp, 0, sizeof(dynamic_warp));
+    memset(&heal_warp, 0, sizeof(heal_warp));
+    memset(&escape_warp, 0, sizeof(escape_warp));
+    memset(&observed_warp, 0, sizeof(observed_warp));
 
     /* SaveBlock2 encryptionKey = 0x12345678. */
     save.save_block2[0xAC] = 0x78;
@@ -79,6 +89,79 @@ int main(void)
             && output.coins == 4321
             && output.registered_item == 77,
             "currency/item state mismatch"))
+        return 1;
+
+
+    continue_warp.map_group = 1;
+    continue_warp.map_num = 2;
+    continue_warp.warp_id = 3;
+    continue_warp.x = 4;
+    continue_warp.y = 5;
+
+    dynamic_warp.map_group = 6;
+    dynamic_warp.map_num = 7;
+    dynamic_warp.warp_id = 1;
+    dynamic_warp.x = 8;
+    dynamic_warp.y = 9;
+
+    heal_warp.map_group = 10;
+    heal_warp.map_num = 11;
+    heal_warp.warp_id = 2;
+    heal_warp.x = 12;
+    heal_warp.y = 13;
+
+    escape_warp.map_group = 14;
+    escape_warp.map_num = 15;
+    escape_warp.warp_id = -1;
+    escape_warp.x = 16;
+    escape_warp.y = 17;
+
+    if (!check(
+            remaster_emerald_continue_game_warp_set(&save, &continue_warp)
+            && remaster_emerald_dynamic_warp_set(&save, &dynamic_warp)
+            && remaster_emerald_last_heal_warp_set(&save, &heal_warp)
+            && remaster_emerald_escape_warp_set(&save, &escape_warp),
+            "persistent warp writes failed"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_continue_game_warp_get(&save, &observed_warp)
+            && observed_warp.map_group == 1
+            && observed_warp.map_num == 2
+            && observed_warp.warp_id == 3
+            && observed_warp.x == 4
+            && observed_warp.y == 5,
+            "continue-game warp mismatch"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_dynamic_warp_get(&save, &observed_warp)
+            && observed_warp.map_group == 6
+            && observed_warp.map_num == 7
+            && observed_warp.warp_id == 1
+            && observed_warp.x == 8
+            && observed_warp.y == 9,
+            "dynamic warp mismatch"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_last_heal_warp_get(&save, &observed_warp)
+            && observed_warp.map_group == 10
+            && observed_warp.map_num == 11
+            && observed_warp.warp_id == 2
+            && observed_warp.x == 12
+            && observed_warp.y == 13,
+            "last-heal warp mismatch"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_escape_warp_get(&save, &observed_warp)
+            && observed_warp.map_group == 14
+            && observed_warp.map_num == 15
+            && observed_warp.warp_id == -1
+            && observed_warp.x == 16
+            && observed_warp.y == 17,
+            "escape warp mismatch"))
         return 1;
 
     if (!check(remaster_emerald_flag_set(&save, 0x123, 1), "flag set failed"))
