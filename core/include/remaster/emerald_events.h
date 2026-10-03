@@ -16,6 +16,7 @@ typedef struct RemasterEmeraldObjectEventDef {
     int16_t y;
     uint8_t elevation;
     uint16_t flag_id;
+    const char *script_id;
 } RemasterEmeraldObjectEventDef;
 
 typedef struct RemasterEmeraldWarpEventDef {
@@ -44,6 +45,9 @@ typedef struct RemasterEmeraldCoordEventDef {
 
     /* Used only for REMASTER_EMERALD_COORD_WEATHER. */
     uint16_t weather;
+
+    /* Stable R2 script identity for trigger events; null for weather-only. */
+    const char *script_id;
 } RemasterEmeraldCoordEventDef;
 
 typedef enum RemasterEmeraldCoordMatchKind {
@@ -76,6 +80,7 @@ typedef struct RemasterEmeraldBackgroundEventDef {
     uint16_t item_id;
     uint16_t hidden_flag_id;
     uint16_t secret_base_id;
+    const char *script_id;
 } RemasterEmeraldBackgroundEventDef;
 
 typedef enum RemasterEmeraldBackgroundMatchKind {
