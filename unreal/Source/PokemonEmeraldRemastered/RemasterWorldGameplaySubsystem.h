@@ -58,6 +58,43 @@ struct FRemasterResolvedCoordEvent
     int32 WeatherId = -1;
 };
 
+UENUM(BlueprintType)
+enum class ERemasterResolvedBackgroundKind : uint8
+{
+    None,
+    Script,
+    HiddenItem,
+    SecretBase
+};
+
+USTRUCT(BlueprintType)
+struct FRemasterResolvedBackgroundEvent
+{
+    GENERATED_BODY()
+
+    UPROPERTY(BlueprintReadOnly)
+    ERemasterResolvedBackgroundKind Kind =
+        ERemasterResolvedBackgroundKind::None;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 SourceEventIndex = -1;
+
+    UPROPERTY(BlueprintReadOnly)
+    FString Script;
+
+    UPROPERTY(BlueprintReadOnly)
+    FString Item;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 ItemId = -1;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 FlagId = -1;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 SecretBaseId = -1;
+};
+
 UCLASS()
 class POKEMONEMERALDREMASTERED_API URemasterWorldGameplaySubsystem
     : public UGameInstanceSubsystem
@@ -114,6 +151,14 @@ public:
         int32 Y,
         int32 Elevation,
         FRemasterResolvedCoordEvent& OutEvent) const;
+
+    UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
+    bool ResolveBackgroundEventAt(
+        int32 X,
+        int32 Y,
+        int32 Elevation,
+        int32 FacingDirection,
+        FRemasterResolvedBackgroundEvent& OutEvent) const;
 
     UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
     bool ApplyResolvedWarp(const FRemasterResolvedWarp& Warp);
