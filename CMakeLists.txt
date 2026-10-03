@@ -273,3 +273,16 @@ else()
 endif()
 
 add_test(NAME r1_vanillaplus_integration COMMAND r1_vanillaplus_integration_test)
+
+
+add_executable(emerald_save_inspect
+    tools/emerald_save_inspect.c
+)
+
+target_link_libraries(emerald_save_inspect PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_save_inspect PRIVATE /W4)
+else()
+    target_compile_options(emerald_save_inspect PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
