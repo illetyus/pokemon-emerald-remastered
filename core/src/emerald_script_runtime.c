@@ -510,6 +510,87 @@ RemasterEmeraldScriptStatus remaster_emerald_script_runtime_run(
                 request->result_var = 0x800D;
                 break;
 
+            case REMASTER_EMERALD_SCRIPT_LOCK:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_WORLD;
+                request->action = REMASTER_EMERALD_SCRIPT_WORLD_LOCK;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_LOCK_ALL:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_WORLD;
+                request->action = REMASTER_EMERALD_SCRIPT_WORLD_LOCK_ALL;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_RELEASE:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_WORLD;
+                request->action = REMASTER_EMERALD_SCRIPT_WORLD_RELEASE;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_RELEASE_ALL:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_WORLD;
+                request->action = REMASTER_EMERALD_SCRIPT_WORLD_RELEASE_ALL;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_SET_METATILE:
+                if (!resolve_request_xy(
+                        runtime,
+                        ins,
+                        &request->x,
+                        &request->y))
+                {
+                    memset(request, 0, sizeof(*request));
+                    return fail_state_access(runtime, ins, yielded_pc);
+                }
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_WORLD;
+                request->action = REMASTER_EMERALD_SCRIPT_WORLD_SET_METATILE;
+                request->value_u16 = (uint16_t)ins->value_u32;
+                request->quantity = (uint16_t)ins->target;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_SET_FOLLOWER:
+                if (!resolve_request_local_id(
+                        runtime,
+                        ins,
+                        &request->local_id))
+                {
+                    memset(request, 0, sizeof(*request));
+                    return fail_state_access(runtime, ins, yielded_pc);
+                }
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_WORLD;
+                request->action = REMASTER_EMERALD_SCRIPT_WORLD_SET_FOLLOWER;
+                request->value_u16 = ins->b;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_FOLLOWER_INTO_POKEBALL:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_WORLD;
+                request->action =
+                    REMASTER_EMERALD_SCRIPT_WORLD_FOLLOWER_INTO_POKEBALL;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_UPDATE_FOLLOWER_POKEMON_GRAPHIC:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_WORLD;
+                request->action =
+                    REMASTER_EMERALD_SCRIPT_WORLD_UPDATE_FOLLOWER_GRAPHIC;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_INCREMENT_GAME_STAT:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN;
+                request->action =
+                    REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_INCREMENT_GAME_STAT;
+                request->value_u16 = ins->a;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_BUFFER_LEAD_MON_SPECIES_NAME:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN;
+                request->action =
+                    REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_BUFFER_LEAD_MON_SPECIES_NAME;
+                request->value_u16 = ins->a;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_FADE_DEFAULT_BGM:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_BGM;
+                request->action = REMASTER_EMERALD_SCRIPT_BGM_FADE_DEFAULT;
+                break;
+
             case REMASTER_EMERALD_SCRIPT_SPECIAL:
             case REMASTER_EMERALD_SCRIPT_SPECIAL_VAR:
             {
