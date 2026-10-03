@@ -94,7 +94,13 @@ typedef enum RemasterEmeraldScriptOpcode {
     REMASTER_EMERALD_SCRIPT_DOMAIN_PARTY_SIZE,
 
     REMASTER_EMERALD_SCRIPT_SPECIAL,
-    REMASTER_EMERALD_SCRIPT_SPECIAL_VAR
+    REMASTER_EMERALD_SCRIPT_SPECIAL_VAR,
+
+    /*
+     * Appended for R2 acceptance without renumbering existing checkpoint-visible
+     * opcode values.
+     */
+    REMASTER_EMERALD_SCRIPT_CHECK_PLAYER_GENDER
 } RemasterEmeraldScriptOpcode;
 
 typedef struct RemasterEmeraldScriptInstruction {
