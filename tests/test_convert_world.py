@@ -430,7 +430,11 @@ Test_SignScript::
             self.assertEqual(converted["map"]["connections"][0]["direction_id"], 2)
             self.assertEqual(
                 converted["map"]["script_ownership"],
-                {"kind": "none", "owner": None},
+                {
+                    "kind": "own",
+                    "owner": "TestTown",
+                    "source": "data/maps/TestTown/scripts.inc",
+                },
             )
 
             alias_converted = json.loads(
