@@ -344,6 +344,58 @@ int main(void)
             return 1;
     }
 
+    {
+        const RemasterEmeraldScriptInstruction gender_program[] = {
+            { .opcode = REMASTER_EMERALD_SCRIPT_CHECK_PLAYER_GENDER },
+            { .opcode = REMASTER_EMERALD_SCRIPT_END },
+        };
+        const RemasterEmeraldScriptProgram gender_programs[] = {
+            {
+                .script_id = "Check_Player_Gender",
+                .instructions = gender_program,
+                .instruction_count =
+                    sizeof(gender_program) / sizeof(gender_program[0]),
+            },
+        };
+        const RemasterEmeraldScriptRegistry gender_registry = {
+            gender_programs,
+            1,
+        };
+
+        memset(&save, 0, sizeof(save));
+        save.save_block2[0x08] = 0;
+        remaster_emerald_script_init_program(
+            &vm,
+            &save,
+            &gender_registry,
+            0,
+            0);
+
+        if (!check(
+                remaster_emerald_script_run(&vm, 10)
+                    == REMASTER_EMERALD_SCRIPT_HALTED
+                && remaster_emerald_script_var_get(&vm, 0x800D, &value)
+                && value == 0,
+                "checkplayergender did not report MALE"))
+            return 1;
+
+        save.save_block2[0x08] = 1;
+        remaster_emerald_script_init_program(
+            &vm,
+            &save,
+            &gender_registry,
+            0,
+            0);
+
+        if (!check(
+                remaster_emerald_script_run(&vm, 10)
+                    == REMASTER_EMERALD_SCRIPT_HALTED
+                && remaster_emerald_script_var_get(&vm, 0x800D, &value)
+                && value == 1,
+                "checkplayergender did not report FEMALE"))
+            return 1;
+    }
+
     puts("Emerald script VM core compatibility test passed.");
     return 0;
 }
