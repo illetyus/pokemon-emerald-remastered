@@ -64,7 +64,14 @@ struct FRemasterBackgroundEventIR
     int32 Y = 0;
     int32 Elevation = 0;
     FString Facing;
+    int32 FacingId = -1;
+    int32 KindId = -1;
     FString Script;
+    FString Item;
+    int32 ItemId = -1;
+    FString Flag;
+    int32 FlagId = -1;
+    int32 SecretBaseId = -1;
 };
 
 struct FRemasterMapIR
