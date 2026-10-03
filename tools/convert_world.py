@@ -264,6 +264,12 @@ def normalize_event(
     # Preserve symbolic names and add numeric identities next to them.
     result = dict(event)
 
+    script = result.get("script")
+    if isinstance(script, str) and script:
+        # R2 stable script identity is the canonical Vanilla+ script label.
+        # Keep the original symbolic field for audit/debug compatibility.
+        result["script_id"] = script
+
     for source_key, numeric_key in (
         ("flag", "flag_id"),
         ("var", "var_id"),
