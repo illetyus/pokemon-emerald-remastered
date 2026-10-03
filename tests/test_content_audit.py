@@ -701,5 +701,96 @@ class ContentAuditTests(unittest.TestCase):
             self.assertTrue(any("level range" in item for item in errors), errors)
 
 
+    def test_r3_provenance_and_map_fingerprint_tamper_are_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "maps").mkdir()
+
+            (root / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "map_count": 1,
+                        "maps": [
+                            {
+                                "id": "MAP_A",
+                                "name": "A",
+                                "file": "maps/A.json",
+                                "group_num": 0,
+                                "map_num": 0,
+                                "layout_num": 1,
+                            }
+                        ],
+                        "provenance_file": "provenance.json",
+                    }
+                )
+            )
+            (root / "maps/A.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "fingerprint_sha256": "bad",
+                        "map": {
+                            "id": "MAP_A",
+                            "name": "A",
+                            "group_num": 0,
+                            "map_num": 0,
+                            "layout_num": 1,
+                            "weather_id": 0,
+                            "map_type_id": 1,
+                            "connections": [],
+                            "object_events": [],
+                            "warp_events": [],
+                            "coord_events": [],
+                            "bg_events": [],
+                        },
+                        "layout": {
+                            "width": 1,
+                            "height": 1,
+                            "source_word_count": 1,
+                            "active_word_count": 1,
+                            "raw_blocks_u16": [0],
+                            "trailing_words_u16": [],
+                            "border_source_word_count": 4,
+                            "border_active_words_u16": [1, 2, 3, 4],
+                            "border_trailing_words_u16": [],
+                            "metatile_ids_u16": [0],
+                            "collision_u8": [0],
+                            "elevation_u8": [0],
+                            "primary_metatile_attributes_u16": [0],
+                            "secondary_metatile_attributes_u16": [0],
+                            "primary_metatile_behavior_u8": [0],
+                            "secondary_metatile_behavior_u8": [0],
+                            "primary_metatile_layer_u8": [0],
+                            "secondary_metatile_layer_u8": [0],
+                        },
+                    }
+                )
+            )
+            (root / "provenance.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "source_repository": "test/source",
+                        "source_commit": "abc123",
+                        "source_counts": {"map_count": 1},
+                        "package_sha256": "0" * 64,
+                        "file_sha256": {},
+                    }
+                )
+            )
+
+            errors = audit(root)
+
+            self.assertTrue(
+                any("map fingerprint" in item for item in errors),
+                errors,
+            )
+            self.assertTrue(
+                any("package fingerprint" in item for item in errors),
+                errors,
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
