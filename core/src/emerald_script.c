@@ -886,6 +886,8 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
         case REMASTER_EMERALD_SCRIPT_DOMAIN_GIVE_MON:
         case REMASTER_EMERALD_SCRIPT_DOMAIN_HEAL_PARTY:
         case REMASTER_EMERALD_SCRIPT_DOMAIN_PARTY_SIZE:
+        case REMASTER_EMERALD_SCRIPT_SPECIAL:
+        case REMASTER_EMERALD_SCRIPT_SPECIAL_VAR:
             vm->status = REMASTER_EMERALD_SCRIPT_YIELDED;
             return vm->status;
 
