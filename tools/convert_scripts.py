@@ -898,8 +898,20 @@ def convert_script_closure(
             "strings": _extract_text_strings(lines),
         })
 
+    special_manifest = [
+        {
+            "special_id": spec.name,
+            "special_index": spec.special_id,
+        }
+        for spec in sorted(
+            specials.values(),
+            key=lambda spec: spec.special_id,
+        )
+    ]
+
     return {
         "schema_version": 1,
+        "specials": special_manifest,
         "scripts": sorted(scripts, key=lambda item: item["script_id"]),
         "movements": sorted(
             movements, key=lambda item: item["movement_id"]
