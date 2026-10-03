@@ -144,6 +144,7 @@ def build_numeric_constant_index(source_root: Path) -> dict[str, int]:
         source_root / "include/constants/opponents.h",
         source_root / "include/constants/weather.h",
         source_root / "include/constants/maps.h",
+        source_root / "include/constants/layouts.h",
         source_root / "include/constants/items.h",
         source_root / "include/constants/event_bg.h",
         source_root / "include/constants/secret_bases.h",
@@ -541,15 +542,34 @@ def convert_map(
 
 def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
     layouts_doc = load_json(source_root / "data/layouts/layouts.json")
-    layouts = {
-        entry["id"]: {**entry, "_numeric_id": index + 1}
-        for index, entry in enumerate(layouts_doc["layouts"])
-    }
+    constants = build_numeric_constant_index(source_root)
+
+    layouts: dict[str, dict[str, Any]] = {}
+    for index, entry in enumerate(layouts_doc["layouts"]):
+        layout_id = entry["id"]
+        numeric_id = constants.get(layout_id)
+
+        if numeric_id is None:
+            raise KeyError(
+                f"include/constants/layouts.h has no numeric id for {layout_id}"
+            )
+
+        expected_from_order = index + 1
+        if numeric_id != expected_from_order:
+            raise ValueError(
+                f"{layout_id}: layouts.json index implies {expected_from_order}, "
+                f"but layouts.h defines {numeric_id}"
+            )
+
+        layouts[layout_id] = {
+            **entry,
+            "_numeric_id": numeric_id,
+        }
+
     tileset_attributes = build_tileset_attribute_index(source_root)
     map_locations = build_map_location_index(source_root)
 
     map_files = sorted((source_root / "data/maps").glob("*/map.json"))
-    constants = build_numeric_constant_index(source_root)
 
     map_id_locations: dict[str, tuple[int, int]] = {}
     for map_path in map_files:
@@ -590,6 +610,7 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
                 "file": f"maps/{map_name}.json",
                 "width": converted["layout"]["width"],
                 "height": converted["layout"]["height"],
+                "layout_num": converted["map"]["layout_num"],
                 "group_num": converted["map"]["group_num"],
                 "map_num": converted["map"]["map_num"],
             }
