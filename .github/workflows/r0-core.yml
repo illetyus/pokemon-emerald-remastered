@@ -51,7 +51,7 @@ jobs:
         run: python -m unittest tests/test_convert_world.py
 
       - name: Test script conversion pipeline
-        run: python -m unittest tests/test_convert_scripts.py tests/test_generate_script_c.py -v
+        run: python -m unittest tests/test_convert_scripts.py tests/test_generate_script_c.py tests/test_r2_real_opening_source.py -v
 
       - name: Test generated content audit
         run: python -m unittest tests/test_content_audit.py
