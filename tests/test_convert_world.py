@@ -450,7 +450,11 @@ Test_SignScript::
             )
             self.assertEqual(
                 alias_converted["map"]["script_ownership"],
-                {"kind": "shared", "owner": "TestTown"},
+                {
+                    "kind": "shared",
+                    "owner": "TestTown",
+                    "source": "data/maps/TestTown/scripts.inc",
+                },
             )
             self.assertEqual(alias_converted["map"]["weather_id"], 0)
             self.assertEqual(alias_converted["map"]["map_type_id"], 8)
