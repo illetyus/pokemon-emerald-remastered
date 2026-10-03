@@ -90,6 +90,8 @@ RemasterEmeraldScriptStatus remaster_emerald_script_runtime_run(
             request->x = ins->x;
             request->y = ins->y;
             request->value_u16 = ins->b;
+            request->value_u32 = ins->value_u32;
+            request->quantity = ins->b;
 
             switch (ins->opcode) {
             case REMASTER_EMERALD_SCRIPT_APPLY_MOVEMENT:
@@ -135,6 +137,137 @@ RemasterEmeraldScriptStatus remaster_emerald_script_runtime_run(
             case REMASTER_EMERALD_SCRIPT_FACE_PLAYER:
                 request->type = REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT;
                 request->action = REMASTER_EMERALD_SCRIPT_OBJECT_FACE_PLAYER;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_MESSAGE:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_MESSAGE;
+                request->action = REMASTER_EMERALD_SCRIPT_MESSAGE_SHOW;
+                request->value_u16 = ins->b;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_CLOSE_MESSAGE:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_MESSAGE;
+                request->action = REMASTER_EMERALD_SCRIPT_MESSAGE_CLOSE;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_WAIT_MESSAGE:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_MESSAGE;
+                request->action = REMASTER_EMERALD_SCRIPT_MESSAGE_WAIT;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_CHOICE:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_CHOICE;
+                request->result_var = 0x800D;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_DELAY:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DELAY;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_PLAY_SOUND:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_SOUND;
+                request->action = REMASTER_EMERALD_SCRIPT_ASYNC_START;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_WAIT_SOUND:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_SOUND;
+                request->action = REMASTER_EMERALD_SCRIPT_ASYNC_WAIT;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_PLAY_FANFARE:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_FANFARE;
+                request->action = REMASTER_EMERALD_SCRIPT_ASYNC_START;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_WAIT_FANFARE:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_FANFARE;
+                request->action = REMASTER_EMERALD_SCRIPT_ASYNC_WAIT;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_PLAY_BGM:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_BGM;
+                request->action = REMASTER_EMERALD_SCRIPT_ASYNC_START;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_FADE:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_FADE;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_OPEN_DOOR:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOOR;
+                request->action = REMASTER_EMERALD_SCRIPT_DOOR_OPEN;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_CLOSE_DOOR:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOOR;
+                request->action = REMASTER_EMERALD_SCRIPT_DOOR_CLOSE;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_WAIT_DOOR:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOOR;
+                request->action = REMASTER_EMERALD_SCRIPT_DOOR_WAIT;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_WARP:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_WARP;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_ADD:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN;
+                request->action =
+                    REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_ITEM_ADD;
+                request->value_u16 = ins->a;
+                request->quantity = ins->b;
+                request->result_var = 0x800D;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_REMOVE:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN;
+                request->action =
+                    REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_ITEM_REMOVE;
+                request->value_u16 = ins->a;
+                request->quantity = ins->b;
+                request->result_var = 0x800D;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_CHECK:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN;
+                request->action =
+                    REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_ITEM_CHECK;
+                request->value_u16 = ins->a;
+                request->quantity = ins->b;
+                request->result_var = 0x800D;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_DOMAIN_ITEM_SPACE:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN;
+                request->action =
+                    REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_ITEM_SPACE;
+                request->value_u16 = ins->a;
+                request->quantity = ins->b;
+                request->result_var = 0x800D;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_DOMAIN_GIVE_MON:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN;
+                request->action =
+                    REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_GIVE_MON;
+                request->value_u16 = ins->a;
+                request->quantity = ins->b;
+                request->result_var = 0x800D;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_DOMAIN_HEAL_PARTY:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN;
+                request->action =
+                    REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_HEAL_PARTY;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_DOMAIN_PARTY_SIZE:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN;
+                request->action =
+                    REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_PARTY_SIZE;
+                request->result_var = 0x800D;
                 break;
 
             default:
@@ -187,6 +320,15 @@ int remaster_emerald_script_runtime_complete(
             == REMASTER_EMERALD_SCRIPT_REQUEST_OBJECT)
         && (completion->local_id != runtime->pending_request.local_id
             || completion->map_id != runtime->pending_request.map_id))
+    {
+        return 0;
+    }
+
+    if (runtime->pending_request.result_var != 0u
+        && !remaster_emerald_script_var_set(
+            &runtime->vm,
+            runtime->pending_request.result_var,
+            completion->result_u16))
     {
         return 0;
     }
