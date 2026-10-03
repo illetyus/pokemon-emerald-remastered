@@ -43,7 +43,13 @@ struct FRemasterLegacyOverworldSnapshot
     int32 MapLayoutId = 0;
 
     UPROPERTY(BlueprintReadOnly)
+    int32 SavedMusic = 0;
+
+    UPROPERTY(BlueprintReadOnly)
     int32 Weather = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 WeatherCycleStage = 0;
 
     UPROPERTY(BlueprintReadOnly)
     int32 FlashLevel = 0;
