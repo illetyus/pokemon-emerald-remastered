@@ -107,7 +107,7 @@ Current evidence gates:
 - [x] one real Vanilla+ VP019 128 KiB save is decoded with both slots/checksums valid
 - [x] its Fiery Path map/object-template state is cross-checked against Vanilla+ source data
 - [x] that save is rewritten by the native layer and re-decoded with byte-identical gameplay payloads
-- [ ] the rewritten save is reopened successfully by the actual Vanilla+ ROM/emulator
+- [x] the rewritten save is reopened successfully by the actual Vanilla+ ROM/emulator
 
 The current GitHub Actions jobs are failing before their first workflow step
 (no Checkout/Configure/Test step is created), so they do not constitute a
@@ -144,6 +144,8 @@ python tools/scan_platform_coupling.py <pokezumrut-vanillaplus-root> --output bu
 ## Exit criterion
 
 R1 closes when the native layer can take an existing Vanilla+ save, reproduce its persistent overworld/map/event state, mutate that state through native APIs, write a valid Emerald-compatible save image, and load the result again without GBA hardware dependencies.
+
+**R1 status: COMPLETE.** The VP019 real-save round trip was reopened successfully in the actual Vanilla+ ROM/emulator on 2026-10-03.
 
 
 ## Real save verifier
