@@ -1,6 +1,6 @@
 # R1 Save / RTC Compatibility
 
-Status: native implementation corrected from real VP019 save evidence; Vanilla+ reopen validation pending.
+Status: R1 field validation complete.
 
 Authoritative source baseline:
 
@@ -117,8 +117,8 @@ template state matches the Vanilla+ source data. A no-gameplay-change rewrite
 also decodes back to byte-identical SaveBlock1, SaveBlock2 and PokemonStorage
 payloads in the native verifier.
 
-The remaining field acceptance step is reopening that rewritten save in the
-actual Vanilla+ ROM/emulator.
+The rewritten save was reopened successfully in the actual Vanilla+ ROM/emulator
+on 2026-10-03, completing the real-save field acceptance gate.
 
 Portable CTest execution remains an evidence gate while GitHub Actions is
 failing before the first job step. UE 5.8/Linux/Android compilation is tracked
