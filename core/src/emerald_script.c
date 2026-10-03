@@ -172,6 +172,130 @@ int remaster_emerald_script_flag_set(
     return 0;
 }
 
+static const char *current_script_id(
+    const RemasterEmeraldScriptVm *vm)
+{
+    if (vm == 0
+        || vm->registry == 0
+        || vm->registry->programs == 0
+        || vm->program_index >= vm->registry->program_count)
+    {
+        return 0;
+    }
+
+    return vm->registry->programs[vm->program_index].script_id;
+}
+
+static RemasterEmeraldScriptStatus script_fail(
+    RemasterEmeraldScriptVm *vm,
+    RemasterEmeraldScriptErrorCode code,
+    uint32_t pc,
+    RemasterEmeraldScriptOpcode opcode)
+{
+    if (vm == 0)
+        return REMASTER_EMERALD_SCRIPT_ERROR;
+
+    vm->error.code = code;
+    vm->error.script_id = current_script_id(vm);
+    vm->error.program_index = vm->program_index;
+    vm->error.pc = pc;
+    vm->error.opcode = opcode;
+    vm->status = REMASTER_EMERALD_SCRIPT_ERROR;
+    return vm->status;
+}
+
+static int select_registry_program(
+    RemasterEmeraldScriptVm *vm,
+    uint32_t program_index)
+{
+    const RemasterEmeraldScriptProgram *program;
+
+    if (vm == 0 || vm->registry == 0 || vm->registry->programs == 0)
+        return 0;
+    if (program_index >= vm->registry->program_count)
+        return 0;
+
+    program = &vm->registry->programs[program_index];
+    if (program->instructions == 0 || program->instruction_count == 0u)
+        return 0;
+
+    vm->program_index = program_index;
+    vm->program = program->instructions;
+    vm->program_count = program->instruction_count;
+    return 1;
+}
+
+static int resolve_target(
+    RemasterEmeraldScriptVm *vm,
+    const RemasterEmeraldScriptInstruction *ins,
+    uint32_t instruction_pc,
+    uint32_t *out_program_index)
+{
+    uint32_t target_program;
+
+    target_program = ins->target_program_valid
+        ? ins->target_program
+        : vm->program_index;
+
+    if (vm->registry == 0) {
+        if (target_program != 0u) {
+            script_fail(
+                vm,
+                REMASTER_EMERALD_SCRIPT_ERROR_INVALID_PROGRAM,
+                instruction_pc,
+                ins->opcode);
+            return 0;
+        }
+        if (ins->target >= vm->program_count) {
+            script_fail(
+                vm,
+                REMASTER_EMERALD_SCRIPT_ERROR_INVALID_PC,
+                instruction_pc,
+                ins->opcode);
+            return 0;
+        }
+    } else {
+        const RemasterEmeraldScriptProgram *program;
+
+        if (vm->registry->programs == 0
+            || target_program >= vm->registry->program_count)
+        {
+            script_fail(
+                vm,
+                REMASTER_EMERALD_SCRIPT_ERROR_INVALID_PROGRAM,
+                instruction_pc,
+                ins->opcode);
+            return 0;
+        }
+
+        program = &vm->registry->programs[target_program];
+        if (program->instructions == 0
+            || ins->target >= program->instruction_count)
+        {
+            script_fail(
+                vm,
+                REMASTER_EMERALD_SCRIPT_ERROR_INVALID_PC,
+                instruction_pc,
+                ins->opcode);
+            return 0;
+        }
+    }
+
+    *out_program_index = target_program;
+    return 1;
+}
+
+static void apply_target(
+    RemasterEmeraldScriptVm *vm,
+    uint32_t program_index,
+    uint32_t pc)
+{
+    if (vm->registry != 0)
+        (void)select_registry_program(vm, program_index);
+
+    vm->pc = pc;
+}
+
 void remaster_emerald_script_init(
     RemasterEmeraldScriptVm *vm,
     RemasterEmeraldSave *save,
@@ -185,20 +309,79 @@ void remaster_emerald_script_init(
     memset(vm, 0, sizeof(*vm));
 
     vm->save = save;
+    vm->program_index = 0;
     vm->program = program;
     vm->program_count = program_count;
     vm->pc = entry_pc;
 
-    if (program == 0
-        || program_count == 0u
-        || entry_pc >= program_count)
-    {
-        vm->status = REMASTER_EMERALD_SCRIPT_ERROR;
-    }
-    else
-    {
+    if (program == 0 || program_count == 0u) {
+        (void)script_fail(
+            vm,
+            REMASTER_EMERALD_SCRIPT_ERROR_INVALID_PROGRAM,
+            entry_pc,
+            REMASTER_EMERALD_SCRIPT_NOP);
+    } else if (entry_pc >= program_count) {
+        (void)script_fail(
+            vm,
+            REMASTER_EMERALD_SCRIPT_ERROR_INVALID_PC,
+            entry_pc,
+            REMASTER_EMERALD_SCRIPT_NOP);
+    } else {
         vm->status = REMASTER_EMERALD_SCRIPT_RUNNING;
     }
+}
+
+void remaster_emerald_script_init_program(
+    RemasterEmeraldScriptVm *vm,
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldScriptRegistry *registry,
+    uint32_t program_index,
+    uint32_t entry_pc)
+{
+    if (vm == 0)
+        return;
+
+    memset(vm, 0, sizeof(*vm));
+    vm->save = save;
+    vm->registry = registry;
+    vm->program_index = program_index;
+
+    if (!select_registry_program(vm, program_index)) {
+        vm->program_index = program_index;
+        (void)script_fail(
+            vm,
+            REMASTER_EMERALD_SCRIPT_ERROR_INVALID_PROGRAM,
+            entry_pc,
+            REMASTER_EMERALD_SCRIPT_NOP);
+        return;
+    }
+
+    vm->pc = entry_pc;
+    if (entry_pc >= vm->program_count) {
+        (void)script_fail(
+            vm,
+            REMASTER_EMERALD_SCRIPT_ERROR_INVALID_PC,
+            entry_pc,
+            REMASTER_EMERALD_SCRIPT_NOP);
+        return;
+    }
+
+    vm->status = REMASTER_EMERALD_SCRIPT_RUNNING;
+}
+
+int remaster_emerald_script_error_get(
+    const RemasterEmeraldScriptVm *vm,
+    RemasterEmeraldScriptError *out_error)
+{
+    if (vm == 0
+        || out_error == 0
+        || vm->error.code == REMASTER_EMERALD_SCRIPT_ERROR_NONE)
+    {
+        return 0;
+    }
+
+    *out_error = vm->error;
+    return 1;
 }
 
 static int set_saved_weather(
@@ -272,6 +455,8 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
 
     while (steps < max_steps) {
         const RemasterEmeraldScriptInstruction *ins;
+        uint32_t instruction_pc;
+        uint32_t target_program;
         uint16_t lhs;
         uint16_t rhs;
         int value;
@@ -282,6 +467,7 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
             return vm->status;
         }
 
+        instruction_pc = vm->pc;
         ins = &vm->program[vm->pc++];
         ++steps;
 
@@ -297,56 +483,129 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
             if (vm->stack_depth == 0u) {
                 vm->status = REMASTER_EMERALD_SCRIPT_HALTED;
                 return vm->status;
+            } else {
+                RemasterEmeraldScriptCallFrame frame =
+                    vm->stack[--vm->stack_depth];
+
+                if (vm->registry != 0) {
+                    if (!select_registry_program(vm, frame.program_index)) {
+                        return script_fail(
+                            vm,
+                            REMASTER_EMERALD_SCRIPT_ERROR_INVALID_PROGRAM,
+                            instruction_pc,
+                            ins->opcode);
+                    }
+                } else if (frame.program_index != 0u) {
+                    return script_fail(
+                        vm,
+                        REMASTER_EMERALD_SCRIPT_ERROR_INVALID_PROGRAM,
+                        instruction_pc,
+                        ins->opcode);
+                }
+
+                if (frame.return_pc > vm->program_count) {
+                    return script_fail(
+                        vm,
+                        REMASTER_EMERALD_SCRIPT_ERROR_INVALID_PC,
+                        instruction_pc,
+                        ins->opcode);
+                }
+
+                vm->pc = frame.return_pc;
             }
-            vm->pc = vm->stack[--vm->stack_depth];
             break;
 
         case REMASTER_EMERALD_SCRIPT_GOTO:
-            if (ins->target >= vm->program_count)
-                goto error;
-            vm->pc = ins->target;
+            if (!resolve_target(
+                    vm,
+                    ins,
+                    instruction_pc,
+                    &target_program))
+            {
+                return vm->status;
+            }
+            apply_target(vm, target_program, ins->target);
             break;
 
         case REMASTER_EMERALD_SCRIPT_CALL:
-            if (ins->target >= vm->program_count
-                || vm->stack_depth >= REMASTER_EMERALD_SCRIPT_STACK_DEPTH - 1u)
+            if (!resolve_target(
+                    vm,
+                    ins,
+                    instruction_pc,
+                    &target_program))
             {
-                goto error;
+                return vm->status;
             }
-            vm->stack[vm->stack_depth++] = vm->pc;
-            vm->pc = ins->target;
+            if (vm->stack_depth >= REMASTER_EMERALD_SCRIPT_STACK_DEPTH) {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STACK_OVERFLOW,
+                    instruction_pc,
+                    ins->opcode);
+            }
+            vm->stack[vm->stack_depth].program_index = vm->program_index;
+            vm->stack[vm->stack_depth].return_pc = vm->pc;
+            ++vm->stack_depth;
+            apply_target(vm, target_program, ins->target);
             break;
 
         case REMASTER_EMERALD_SCRIPT_GOTO_IF:
             if (condition_matches(ins->condition, vm->comparison_result)) {
-                if (ins->target >= vm->program_count)
-                    goto error;
-                vm->pc = ins->target;
+                if (!resolve_target(
+                        vm,
+                        ins,
+                        instruction_pc,
+                        &target_program))
+                {
+                    return vm->status;
+                }
+                apply_target(vm, target_program, ins->target);
             }
             break;
 
         case REMASTER_EMERALD_SCRIPT_CALL_IF:
             if (condition_matches(ins->condition, vm->comparison_result)) {
-                if (ins->target >= vm->program_count
-                    || vm->stack_depth >= REMASTER_EMERALD_SCRIPT_STACK_DEPTH - 1u)
+                if (!resolve_target(
+                        vm,
+                        ins,
+                        instruction_pc,
+                        &target_program))
                 {
-                    goto error;
+                    return vm->status;
                 }
-                vm->stack[vm->stack_depth++] = vm->pc;
-                vm->pc = ins->target;
+                if (vm->stack_depth >= REMASTER_EMERALD_SCRIPT_STACK_DEPTH) {
+                    return script_fail(
+                        vm,
+                        REMASTER_EMERALD_SCRIPT_ERROR_STACK_OVERFLOW,
+                        instruction_pc,
+                        ins->opcode);
+                }
+                vm->stack[vm->stack_depth].program_index = vm->program_index;
+                vm->stack[vm->stack_depth].return_pc = vm->pc;
+                ++vm->stack_depth;
+                apply_target(vm, target_program, ins->target);
             }
             break;
 
         case REMASTER_EMERALD_SCRIPT_SET_VAR:
-            if (!remaster_emerald_script_var_set(vm, ins->a, ins->b))
-                goto error;
+            if (!remaster_emerald_script_var_set(vm, ins->a, ins->b)) {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
             break;
 
         case REMASTER_EMERALD_SCRIPT_COPY_VAR:
             if (!remaster_emerald_script_var_get(vm, ins->b, &rhs)
                 || !remaster_emerald_script_var_set(vm, ins->a, rhs))
             {
-                goto error;
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
             }
             break;
 
@@ -355,13 +614,22 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
             if (!valid
                 || !remaster_emerald_script_var_set(vm, ins->a, rhs))
             {
-                goto error;
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
             }
             break;
 
         case REMASTER_EMERALD_SCRIPT_COMPARE_VAR_VALUE:
-            if (!remaster_emerald_script_var_get(vm, ins->a, &lhs))
-                goto error;
+            if (!remaster_emerald_script_var_get(vm, ins->a, &lhs)) {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
             vm->comparison_result = compare_u16(lhs, ins->b);
             break;
 
@@ -369,26 +637,38 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
             if (!remaster_emerald_script_var_get(vm, ins->a, &lhs)
                 || !remaster_emerald_script_var_get(vm, ins->b, &rhs))
             {
-                goto error;
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
             }
             vm->comparison_result = compare_u16(lhs, rhs);
             break;
 
         case REMASTER_EMERALD_SCRIPT_ADD_VAR:
-            if (!remaster_emerald_script_var_get(vm, ins->a, &lhs))
-                goto error;
-            if (!remaster_emerald_script_var_set(
+            if (!remaster_emerald_script_var_get(vm, ins->a, &lhs)
+                || !remaster_emerald_script_var_set(
                     vm,
                     ins->a,
                     (uint16_t)(lhs + ins->b)))
             {
-                goto error;
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
             }
             break;
 
         case REMASTER_EMERALD_SCRIPT_SUB_VAR:
-            if (!remaster_emerald_script_var_get(vm, ins->a, &lhs))
-                goto error;
+            if (!remaster_emerald_script_var_get(vm, ins->a, &lhs)) {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
 
             rhs = remaster_emerald_script_value_or_var(vm, ins->b, &valid);
             if (!valid
@@ -397,34 +677,63 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
                     ins->a,
                     (uint16_t)(lhs - rhs)))
             {
-                goto error;
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
             }
             break;
 
         case REMASTER_EMERALD_SCRIPT_SET_FLAG:
-            if (!remaster_emerald_script_flag_set(vm, ins->a, 1))
-                goto error;
+            if (!remaster_emerald_script_flag_set(vm, ins->a, 1)) {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
             break;
 
         case REMASTER_EMERALD_SCRIPT_CLEAR_FLAG:
-            if (!remaster_emerald_script_flag_set(vm, ins->a, 0))
-                goto error;
+            if (!remaster_emerald_script_flag_set(vm, ins->a, 0)) {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
             break;
 
         case REMASTER_EMERALD_SCRIPT_CHECK_FLAG:
-            if (!remaster_emerald_script_flag_get(vm, ins->a, &value))
-                goto error;
+            if (!remaster_emerald_script_flag_get(vm, ins->a, &value)) {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
             vm->comparison_result = (uint8_t)(value ? 1u : 0u);
             break;
 
         case REMASTER_EMERALD_SCRIPT_SET_WEATHER:
-            if (!set_saved_weather(vm, ins->a))
-                goto error;
+            if (!set_saved_weather(vm, ins->a)) {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
             break;
 
         case REMASTER_EMERALD_SCRIPT_SET_MAP_LAYOUT:
-            if (!set_map_layout(vm, ins->a))
-                goto error;
+            if (!set_map_layout(vm, ins->a)) {
+                return script_fail(
+                    vm,
+                    REMASTER_EMERALD_SCRIPT_ERROR_STATE_ACCESS,
+                    instruction_pc,
+                    ins->opcode);
+            }
             break;
 
         case REMASTER_EMERALD_SCRIPT_WAIT_STATE:
@@ -432,14 +741,15 @@ RemasterEmeraldScriptStatus remaster_emerald_script_run(
             return vm->status;
 
         default:
-            goto error;
+            return script_fail(
+                vm,
+                REMASTER_EMERALD_SCRIPT_ERROR_INVALID_OPCODE,
+                instruction_pc,
+                ins->opcode);
         }
     }
 
     vm->status = REMASTER_EMERALD_SCRIPT_STEP_LIMIT;
     return vm->status;
-
-error:
-    vm->status = REMASTER_EMERALD_SCRIPT_ERROR;
-    return vm->status;
 }
+
