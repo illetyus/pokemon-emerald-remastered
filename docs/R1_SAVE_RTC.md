@@ -1,6 +1,6 @@
 # R1 Save / RTC Compatibility
 
-Status: implementation complete, engine/device validation pending.
+Status: native implementation complete; real-save field validation pending.
 
 Authoritative source baseline:
 
@@ -103,10 +103,12 @@ Portable tests cover:
 
 ## Remaining validation
 
-R1 Save/RTC is not marked field-validated until:
+The Save/RTC implementation is complete at the native-code level. Field
+acceptance still requires a known real Vanilla+ 128 KiB save so that the
+observed map/player state can be compared with the original game and the
+native rewrite can be reopened by Vanilla+ without changing the legacy layout.
 
-- the portable test suite runs successfully on CI again;
-- Unreal 5.8 compiles the bridge;
-- a real existing Vanilla+ 128 KiB save is loaded;
-- the same map/player/party state is observed;
-- save/reload succeeds on Android without changing the legacy layout.
+Portable CTest execution remains an evidence gate while GitHub Actions is
+failing before the first job step. UE 5.8/Linux/Android compilation is tracked
+by the separate parallel Unreal-build line in the fixed roadmap, not as an R1
+core blocker.
