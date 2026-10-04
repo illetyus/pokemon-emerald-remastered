@@ -161,13 +161,40 @@ def main() -> int:
         "ChunkTileSize = 16" in world_actor_h
         and "ChunkVisualComponents" in world_actor_h
         and "ResolveMetatileVisual(MetatileId)" in world_actor
-        and "ComponentForMetatile(Visual, Chunk)" in world_actor,
-        "R5 renderer must partition tileset-aware map visuals into render chunks",
+        and "ComponentForMetatile(" in world_actor
+        and "RenderPlane" in world_actor,
+        "R5 renderer must partition tileset-aware render planes into chunks",
         errors,
     )
     require(
         "SetCollisionEnabled(ECollisionEnabled::NoCollision)" in world_actor,
         "R5 renderer must not duplicate authoritative gameplay collision",
+        errors,
+    )
+
+    require(
+        "RenderCatalog->ResolveMetatile(" in world_actor
+        and "Metatile->RenderPlanes[PlaneIndex]" in world_actor
+        and "Tile.SourceLayer != PlaneIndex" in world_actor,
+        "R5 chunk geometry must be driven by packaged metatile descriptors",
+        errors,
+    )
+    require(
+        "NumCustomDataFloats = 16" in world_actor
+        and "Tile.Quadrant * 4" in world_actor
+        and "Tile.TileIdRaw" in world_actor
+        and "Tile.Palette" in world_actor
+        and "Tile.bHFlip" in world_actor
+        and "Tile.bVFlip" in world_actor
+        and "SetCustomDataValue(" in world_actor,
+        "R5 render instances must preserve tile/palette/flip descriptor data",
+        errors,
+    )
+    require(
+        'TEXT("bottom")' in world_actor
+        or 'TEXT("middle")' in world_actor
+        and 'TEXT("top")' in world_actor,
+        "R5 descriptor geometry must preserve deterministic render-plane ordering",
         errors,
     )
 
