@@ -139,6 +139,41 @@ def main() -> int:
         errors,
     )
 
+    world_gameplay_h = (
+        MODULE / "RemasterWorldGameplaySubsystem.h"
+    ).read_text(encoding="utf-8")
+    require(
+        "bool StepPlayer(" in world_gameplay_h
+        and "FRemasterPlayerStepResult" in world_gameplay_h,
+        "R4 Unreal gameplay bridge must expose the authoritative player-step API",
+        errors,
+    )
+    require(
+        '#include "remaster/emerald_overworld.h"' in world_gameplay
+        and "remaster_emerald_player_step(" in world_gameplay,
+        "R4 Unreal gameplay bridge must call the portable player-step core",
+        errors,
+    )
+    require(
+        "MapView.blocks = CurrentMap.RawBlocks.GetData();" in world_gameplay
+        and "MapView.primary_attributes =" in world_gameplay
+        and "MapView.secondary_attributes =" in world_gameplay,
+        "R4 player movement must consume R3 decoded map data directly",
+        errors,
+    )
+    require(
+        "remaster_emerald_object_event_visible(" in world_gameplay
+        and "RemasterEmeraldObjectCollider" in world_gameplay,
+        "R4 player movement must feed visible world objects into collision",
+        errors,
+    )
+    require(
+        "ApplyResolvedWarp(Warp)" in world_gameplay
+        and "ApplyResolvedConnection(Connection)" in world_gameplay,
+        "R4 player-step adapter must reuse the production warp/connection paths",
+        errors,
+    )
+
     world_data_h = (MODULE / "RemasterWorldData.h").read_text(encoding="utf-8")
     world_data_cpp = (MODULE / "RemasterWorldData.cpp").read_text(encoding="utf-8")
     world_catalog_cpp = (
