@@ -285,6 +285,56 @@ int remaster_emerald_coord_weather_to_weather(
     return 1;
 }
 
+static int directional_warp_behavior_matches(
+    uint8_t behavior,
+    uint8_t direction)
+{
+    switch (direction) {
+    case REMASTER_EMERALD_DIR_SOUTH:
+        return behavior == UINT8_C(0x65) /* MB_SOUTH_ARROW_WARP */
+            || behavior == UINT8_C(0x6D) /* MB_WATER_SOUTH_ARROW_WARP */
+            || behavior == UINT8_C(0x1C); /* MB_SHOAL_CAVE_ENTRANCE */
+
+    case REMASTER_EMERALD_DIR_NORTH:
+        return behavior == UINT8_C(0x64) /* MB_NORTH_ARROW_WARP */
+            || behavior == UINT8_C(0x1B); /* abandoned ship stairs */
+
+    case REMASTER_EMERALD_DIR_WEST:
+        return behavior == UINT8_C(0x63); /* MB_WEST_ARROW_WARP */
+
+    case REMASTER_EMERALD_DIR_EAST:
+        return behavior == UINT8_C(0x62); /* MB_EAST_ARROW_WARP */
+
+    default:
+        return 0;
+    }
+}
+
+int remaster_emerald_find_directional_warp(
+    const RemasterEmeraldWarpEventDef *warps,
+    size_t warp_count,
+    int16_t x,
+    int16_t y,
+    uint8_t elevation,
+    uint8_t metatile_behavior,
+    uint8_t direction,
+    size_t *out_warp_index)
+{
+    if (out_warp_index == 0
+        || !directional_warp_behavior_matches(
+            metatile_behavior,
+            direction))
+        return 0;
+
+    return remaster_emerald_find_warp(
+        warps,
+        warp_count,
+        x,
+        y,
+        elevation,
+        out_warp_index);
+}
+
 static int step_event_is_warp_behavior(uint8_t behavior)
 {
     switch (behavior) {
