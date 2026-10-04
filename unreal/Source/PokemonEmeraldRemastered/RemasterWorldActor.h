@@ -6,14 +6,10 @@
 #include "RemasterWorldActor.generated.h"
 
 class UHierarchicalInstancedStaticMeshComponent;
-class URemasterRenderCatalogSubsystem;
 class URemasterVisualStyle;
 class USceneComponent;
 class UStaticMesh;
 struct FRemasterTileVisualRule;
-
-struct FRemasterMetatileRenderDescriptor;
-struct FRemasterTilesetRenderDescriptor;
 
 struct FRemasterChunkVisualKey
 {
@@ -47,17 +43,9 @@ public:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-    /*
-     * Production path: copy the authoritative map already loaded by the
-     * gameplay subsystem and rebuild renderer chunks from that exact IR.
-     */
     UFUNCTION(BlueprintCallable, Category="Remaster|World")
     bool LoadAuthoritativeMap();
 
-    /*
-     * Debug/preview path only. Production map transitions are driven by the
-     * gameplay subsystem's map-change event.
-     */
     UFUNCTION(BlueprintCallable, Category="Remaster|World|Debug")
     bool LoadMapFromGeneratedData(const FString& RelativeJsonPath);
 
@@ -94,17 +82,8 @@ protected:
     UPROPERTY(EditAnywhere, Category="Remaster|World")
     float TileWorldSize = 100.0f;
 
-    UPROPERTY(EditAnywhere, Category="Remaster|World")
-    float PreviewThickness = 10.0f;
-
-    UPROPERTY(EditAnywhere, Category="Remaster|World", meta=(ClampMin="0.01"))
-    float RenderPlaneSeparation = 2.0f;
-
-    UPROPERTY(EditAnywhere, Category="Remaster|World")
-    float RenderPlaneWorldSpacing = 2.0f;
-
     UPROPERTY(EditAnywhere, Category="Remaster|World", meta=(ClampMin="0.0"))
-    float RenderPlaneSpacing = 1.0f;
+    float RenderPlaneWorldSpacing = 2.0f;
 
     UPROPERTY(EditAnywhere, Category="Remaster|World|Debug")
     FString StartupMapJson;
@@ -129,7 +108,6 @@ private:
     {
         FString Tileset;
         int32 LocalMetatileId = 0;
-        const FRemasterMetatileRenderDescriptor* Descriptor = nullptr;
         const FRemasterTileVisualRule* Rule = nullptr;
     };
 
@@ -137,8 +115,8 @@ private:
 
     UHierarchicalInstancedStaticMeshComponent* ComponentForMetatile(
         const FResolvedMetatileVisual& Visual,
-        const FString& PlaneName,
-        int32 PlaneIndex,
+        const FString& RenderPlane,
+        int32 SourceLayer,
         const FIntPoint& Chunk);
 
     FRemasterMapIR LoadedMap;
