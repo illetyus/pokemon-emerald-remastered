@@ -10,6 +10,7 @@ class URemasterRenderCatalogSubsystem;
 class URemasterVisualStyle;
 class USceneComponent;
 class UStaticMesh;
+struct FRemasterTileVisualRule;
 
 struct FRemasterMetatileRenderDescriptor;
 struct FRemasterTilesetRenderDescriptor;
