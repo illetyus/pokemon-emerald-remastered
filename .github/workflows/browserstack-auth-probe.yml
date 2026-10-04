@@ -13,10 +13,10 @@ jobs:
   auth-probe:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
+    environment: browserstack-ci
     timeout-minutes: 5
 
     env:
-      DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
       BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
       BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
 
@@ -26,27 +26,17 @@ jobs:
         run: |
           set -euo pipefail
 
-          bs_user="${BROWSERSTACK_USERNAME:-}"
-          bs_key="${BROWSERSTACK_ACCESS_KEY:-}"
+          test -n "${BROWSERSTACK_USERNAME:-}" || {
+            echo "BROWSERSTACK_USERNAME is not available in browserstack-ci." >&2
+            exit 1
+          }
 
-          if [[ -z "$bs_user" || -z "$bs_key" ]]; then
-            if [[ -z "${DOPPLER_TOKEN:-}" ]]; then
-              echo "Neither BrowserStack secrets nor DOPPLER_TOKEN are available to this workflow." >&2
-              exit 1
-            fi
+          test -n "${BROWSERSTACK_ACCESS_KEY:-}" || {
+            echo "BROWSERSTACK_ACCESS_KEY is not available in browserstack-ci." >&2
+            exit 1
+          }
 
-            curl               --silent               --show-error               --fail-with-body               --max-time 30               --retry 2               --retry-all-errors               -H "Authorization: Bearer $DOPPLER_TOKEN"               "https://api.doppler.com/v3/configs/config/secrets/download?format=json&secrets=BROWSERSTACK_USERNAME,BROWSERSTACK_ACCESS_KEY"               -o /tmp/doppler-browserstack.json
-
-            bs_user="$(python3 -c 'import json; print(json.load(open("/tmp/doppler-browserstack.json")).get("BROWSERSTACK_USERNAME",""))')"
-            bs_key="$(python3 -c 'import json; print(json.load(open("/tmp/doppler-browserstack.json")).get("BROWSERSTACK_ACCESS_KEY",""))')"
-
-            if [[ -z "$bs_user" || -z "$bs_key" ]]; then
-              echo "Doppler is reachable, but the BrowserStack secrets were not returned." >&2
-              exit 1
-            fi
-          fi
-
-          curl             --silent             --show-error             --fail-with-body             --max-time 30             --retry 2             --retry-all-errors             -u "$bs_user:$bs_key"             "https://api-cloud.browserstack.com/app-automate/plan.json"             -o /tmp/browserstack-plan.json
+          curl             --silent             --show-error             --fail-with-body             --max-time 30             --retry 2             --retry-all-errors             -u "$BROWSERSTACK_USERNAME:$BROWSERSTACK_ACCESS_KEY"             "https://api-cloud.browserstack.com/app-automate/plan.json"             -o /tmp/browserstack-plan.json
 
           python3 - <<'PY'
           import json
