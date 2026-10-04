@@ -36,3 +36,6 @@ jobs:
           ctest --test-dir build -C Release
           -R "emerald_overworld_player_step|r4_littleroot_overworld"
           --output-on-failure
+
+      - name: Validate Unreal R4 adapter architecture
+        run: python tools/validate_unreal_source.py
