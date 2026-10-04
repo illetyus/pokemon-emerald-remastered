@@ -300,20 +300,50 @@ int remaster_emerald_player_step(
         &player,
         direction);
 
-    if (collision != REMASTER_EMERALD_COLLISION_NONE) {
-        out_result->kind = REMASTER_EMERALD_PLAYER_STEP_BLOCKED;
-        out_result->collision = collision;
-        return 1;
+    if (collision == REMASTER_EMERALD_COLLISION_LEDGE_JUMP) {
+        /*
+         * Vanilla PlayerJumpLedge uses the JUMP_2 movement action. The ledge
+         * behavior is on the adjacent tile; the authoritative destination is
+         * one additional tile in the same direction.
+         */
+        remaster_emerald_move_coords(
+            direction,
+            &target_x,
+            &target_y);
+
+        if (target_x < 0
+            || target_y < 0
+            || target_x >= movement->map->width
+            || target_y >= movement->map->height) {
+            out_result->kind = REMASTER_EMERALD_PLAYER_STEP_BLOCKED;
+            out_result->collision = REMASTER_EMERALD_COLLISION_IMPASSABLE;
+            return 1;
+        }
+
+        state.player_x = (int16_t)target_x;
+        state.player_y = (int16_t)target_y;
+
+        if (!remaster_emerald_overworld_set(save, &state))
+            return 0;
+
+        out_result->kind = REMASTER_EMERALD_PLAYER_STEP_LEDGE_JUMP;
+        out_result->collision = REMASTER_EMERALD_COLLISION_LEDGE_JUMP;
+    } else {
+        if (collision != REMASTER_EMERALD_COLLISION_NONE) {
+            out_result->kind = REMASTER_EMERALD_PLAYER_STEP_BLOCKED;
+            out_result->collision = collision;
+            return 1;
+        }
+
+        state.player_x = (int16_t)target_x;
+        state.player_y = (int16_t)target_y;
+
+        if (!remaster_emerald_overworld_set(save, &state))
+            return 0;
+
+        out_result->kind = REMASTER_EMERALD_PLAYER_STEP_MOVED;
+        out_result->collision = REMASTER_EMERALD_COLLISION_NONE;
     }
-
-    state.player_x = (int16_t)target_x;
-    state.player_y = (int16_t)target_y;
-
-    if (!remaster_emerald_overworld_set(save, &state))
-        return 0;
-
-    out_result->kind = REMASTER_EMERALD_PLAYER_STEP_MOVED;
-    out_result->collision = REMASTER_EMERALD_COLLISION_NONE;
     out_result->x = state.player_x;
     out_result->y = state.player_y;
     out_result->elevation = remaster_emerald_map_elevation_at(
