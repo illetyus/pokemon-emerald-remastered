@@ -189,6 +189,18 @@ def main() -> int:
         errors,
     )
 
+    require(
+        "remaster_emerald_process_step_events(" in world_gameplay
+        and "ContinuePlayerStepEvents(" in world_gameplay_h,
+        "R4 production movement must expose resumable coord-before-warp processing",
+        errors,
+    )
+    require(
+        "nullptr,\n            0u,\n            static_cast<uint8>(Direction)" in world_gameplay,
+        "R4 production player_step must not resolve warps before coord events",
+        errors,
+    )
+
     world_data_h = (MODULE / "RemasterWorldData.h").read_text(encoding="utf-8")
     world_data_cpp = (MODULE / "RemasterWorldData.cpp").read_text(encoding="utf-8")
     world_catalog_cpp = (
