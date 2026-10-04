@@ -3,8 +3,8 @@
 Date: 2026-10-04  
 Branch: `remaster/r4-overworld-runtime`  
 Acceptance implementation head: `d9c66ac5e459307d8b335edfe350a00727980e38`  
-R4 acceptance run: `37188813328`  
-R0/R1/R2/R3 regression run: `37188813321`
+R4 acceptance run: `37189007165`  
+R0/R1/R2/R3 regression run: `37188920857`
 
 ## Status
 
@@ -195,7 +195,7 @@ Acceptance implementation head:
 
 GitHub Actions run:
 
-`37188813328`
+`37189007165`
 
 Result: **SUCCESS**
 
@@ -211,7 +211,7 @@ Result: **SUCCESS**
 
 GitHub Actions run:
 
-`37188813321`
+`37188920857`
 
 Result: **SUCCESS**
 
