@@ -7,11 +7,29 @@
 #include "Materials/MaterialInterface.h"
 #include "Misc/Paths.h"
 #include "RemasterMetatileRenderMath.h"
-#include "RemasterVisualStyle.h"
 #include "RemasterRenderCatalogSubsystem.h"
+#include "RemasterVisualStyle.h"
 #include "RemasterWorldGameplaySubsystem.h"
 #include "RemasterWorldGridMath.h"
 #include "UObject/ConstructorHelpers.h"
+
+namespace
+{
+remaster::metatile_render::PlaneOrder PlaneOrderFromName(
+    const FString& Plane)
+{
+    using remaster::metatile_render::PlaneOrder;
+
+    if (Plane.Equals(TEXT("bottom"), ESearchCase::CaseSensitive))
+        return PlaneOrder::Bottom;
+    if (Plane.Equals(TEXT("middle"), ESearchCase::CaseSensitive))
+        return PlaneOrder::Middle;
+    if (Plane.Equals(TEXT("top"), ESearchCase::CaseSensitive))
+        return PlaneOrder::Top;
+
+    return PlaneOrder::Invalid;
+}
+}
 
 ARemasterWorldActor::ARemasterWorldActor()
 {
@@ -123,7 +141,7 @@ bool ARemasterWorldActor::LoadAuthoritativeMap()
         UE_LOG(
             LogTemp,
             Error,
-            TEXT("R5 authoritative render build failed: %s"),
+            TEXT("R5 failed to build authoritative render chunks for %s"),
             *LoadedMap.Id);
         ClearWorld();
         return false;
@@ -174,7 +192,7 @@ bool ARemasterWorldActor::LoadMapFromGeneratedData(
         UE_LOG(
             LogTemp,
             Error,
-            TEXT("R5 debug render build failed: %s"),
+            TEXT("R5 debug map render package unavailable for %s"),
             *LoadedMap.Id);
         ClearWorld();
         return false;
@@ -304,8 +322,8 @@ ARemasterWorldActor::ResolveMetatileVisual(uint16 MetatileId) const
 UHierarchicalInstancedStaticMeshComponent*
 ARemasterWorldActor::ComponentForMetatile(
     const FResolvedMetatileVisual& Visual,
-    const FString& PlaneName,
-    int32 PlaneIndex,
+    const FString& RenderPlane,
+    int32 SourceLayer,
     const FIntPoint& Chunk)
 {
     uint32 IdentityHash = GetTypeHash(Visual.Tileset);
@@ -314,10 +332,10 @@ ARemasterWorldActor::ComponentForMetatile(
         GetTypeHash(Visual.LocalMetatileId));
     IdentityHash = HashCombine(
         IdentityHash,
-        GetTypeHash(PlaneName));
+        GetTypeHash(RenderPlane));
     IdentityHash = HashCombine(
         IdentityHash,
-        GetTypeHash(PlaneIndex));
+        GetTypeHash(SourceLayer));
 
     const FRemasterChunkVisualKey Key{
         Chunk.X,
@@ -333,14 +351,17 @@ ARemasterWorldActor::ComponentForMetatile(
 
     UStaticMesh* Mesh = FallbackMesh;
     UMaterialInterface* Material = nullptr;
+    bool bCastShadow = false;
 
-    /*
-     * R5 descriptor geometry is always a tile-aligned plane. A VisualStyle
-     * may supply the material now; replacement 3D environment meshes remain
-     * an R6 concern.
-     */
     if (Visual.Rule)
     {
+        if (UStaticMesh* RuleMesh =
+                Visual.Rule->Mesh.LoadSynchronous())
+        {
+            Mesh = RuleMesh;
+            bCastShadow = true;
+        }
+
         Material = Visual.Rule->Material.LoadSynchronous();
     }
 
@@ -351,11 +372,10 @@ ARemasterWorldActor::ComponentForMetatile(
         NewObject<UHierarchicalInstancedStaticMeshComponent>(
             this,
             *FString::Printf(
-                TEXT("Chunk_%d_%d_Visual_%08X_%s"),
+                TEXT("Chunk_%d_%d_Visual_%08X"),
                 Chunk.X,
                 Chunk.Y,
-                IdentityHash,
-                *PlaneName));
+                IdentityHash));
 
     if (!Component)
         return nullptr;
@@ -363,7 +383,7 @@ ARemasterWorldActor::ComponentForMetatile(
     Component->SetupAttachment(SceneRoot);
     Component->SetStaticMesh(Mesh);
     Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    Component->SetCastShadow(false);
+    Component->SetCastShadow(bCastShadow);
     Component->NumCustomDataFloats =
         remaster::metatile_render::CustomDataFloats;
 
@@ -377,7 +397,6 @@ ARemasterWorldActor::ComponentForMetatile(
     return Component;
 }
 
-
 bool ARemasterWorldActor::BuildRenderChunks()
 {
     if (!LoadedMap.IsValid()
@@ -388,25 +407,26 @@ bool ARemasterWorldActor::BuildRenderChunks()
     }
 
     UGameInstance* GI = GetGameInstance();
+    if (!GI)
+        return false;
+
     URemasterRenderCatalogSubsystem* RenderCatalog =
-        GI ? GI->GetSubsystem<URemasterRenderCatalogSubsystem>() : nullptr;
+        GI->GetSubsystem<URemasterRenderCatalogSubsystem>();
 
     if (!RenderCatalog || !RenderCatalog->IsCatalogReady())
     {
         UE_LOG(
             LogTemp,
             Error,
-            TEXT("R5 render catalog is unavailable for map %s"),
-            *LoadedMap.Id);
+            TEXT("R5 packaged render catalog is not ready."));
         return false;
     }
 
     const float EnginePlaneSize = 100.0f;
-    const FVector PlaneScale(
+    const FVector FallbackScale(
         TileWorldSize / EnginePlaneSize,
         TileWorldSize / EnginePlaneSize,
         1.0f);
-    TSet<UHierarchicalInstancedStaticMeshComponent*> DirtyComponents;
 
     for (int32 Y = 0; Y < LoadedMap.Height; ++Y)
     {
@@ -423,126 +443,106 @@ bool ARemasterWorldActor::BuildRenderChunks()
 
             const FRemasterTilesetRenderDescriptor* Tileset = nullptr;
             const FRemasterMetatileRenderDescriptor* Metatile = nullptr;
-            FString Error;
+            FString DescriptorError;
 
             if (!RenderCatalog->ResolveMetatile(
                     Visual.Tileset,
                     Visual.LocalMetatileId,
                     Tileset,
                     Metatile,
-                    Error)
+                    DescriptorError)
                 || !Tileset
-                || !Metatile)
+                || !Metatile
+                || Metatile->RenderPlanes.Num() != 2)
             {
                 UE_LOG(
                     LogTemp,
                     Error,
-                    TEXT("R5 metatile resolve failed: map=%s tile=(%d,%d) global=%u tileset=%s local=%d error=%s"),
-                    *LoadedMap.Id,
-                    X,
-                    Y,
-                    static_cast<uint32>(MetatileId),
+                    TEXT("R5 descriptor resolution failed for %s:%d: %s"),
                     *Visual.Tileset,
                     Visual.LocalMetatileId,
-                    *Error);
+                    *DescriptorError);
                 return false;
             }
 
-            const bool bExpectedSecondary = MetatileId >= 512u;
-            if (Tileset->bIsSecondary != bExpectedSecondary
-                || Metatile->RenderPlanes.Num() != 2
-                || Metatile->Entries.Num() != 8)
+            FVector Scale = FallbackScale;
+            float RuleHeightOffset = 0.0f;
+
+            if (Visual.Rule)
             {
-                UE_LOG(
-                    LogTemp,
-                    Error,
-                    TEXT("R5 metatile descriptor identity mismatch: %s/%d"),
-                    *Visual.Tileset,
-                    Visual.LocalMetatileId);
-                return false;
+                Scale = Visual.Rule->Scale;
+                RuleHeightOffset = Visual.Rule->HeightOffset;
             }
 
-            for (int32 PlaneIndex = 0;
-                 PlaneIndex < Metatile->RenderPlanes.Num();
-                 ++PlaneIndex)
+            for (int32 SourceLayer = 0;
+                 SourceLayer < 2;
+                 ++SourceLayer)
             {
-                const FString& PlaneName =
-                    Metatile->RenderPlanes[PlaneIndex];
+                const FString& RenderPlane =
+                    Metatile->RenderPlanes[SourceLayer];
 
-                remaster::metatile_render::PlaneOrder PlaneOrder =
-                    remaster::metatile_render::PlaneOrder::Invalid;
+                const remaster::metatile_render::PlaneOrder PlaneOrder =
+                    PlaneOrderFromName(RenderPlane);
 
-                if (PlaneName.Equals(TEXT("bottom"), ESearchCase::CaseSensitive))
-                {
-                    PlaneOrder =
-                        remaster::metatile_render::PlaneOrder::Bottom;
-                }
-                else if (PlaneName.Equals(TEXT("middle"), ESearchCase::CaseSensitive))
-                {
-                    PlaneOrder =
-                        remaster::metatile_render::PlaneOrder::Middle;
-                }
-                else if (PlaneName.Equals(TEXT("top"), ESearchCase::CaseSensitive))
-                {
-                    PlaneOrder =
-                        remaster::metatile_render::PlaneOrder::Top;
-                }
-                else
+                if (PlaneOrder
+                    == remaster::metatile_render::PlaneOrder::Invalid)
                 {
                     UE_LOG(
                         LogTemp,
                         Error,
-                        TEXT("R5 metatile has unknown render plane: %s/%d/%s"),
+                        TEXT("R5 invalid render plane %s for %s:%d"),
+                        *RenderPlane,
                         *Visual.Tileset,
-                        Visual.LocalMetatileId,
-                        *PlaneName);
+                        Visual.LocalMetatileId);
                     return false;
                 }
 
                 UHierarchicalInstancedStaticMeshComponent* Target =
                     ComponentForMetatile(
                         Visual,
-                        PlaneName,
-                        PlaneIndex,
+                        RenderPlane,
+                        SourceLayer,
                         Chunk);
 
                 if (!Target)
                     return false;
 
-                float HeightOffset =
-                    static_cast<float>(
+                const float HeightOffset =
+                    RuleHeightOffset
+                    + static_cast<float>(
                         remaster::metatile_render::plane_height(
                             PlaneOrder,
-                            RenderPlaneSpacing));
+                            RenderPlaneWorldSpacing));
 
-                if (Visual.Rule)
+                const int32 InstanceIndex = Target->AddInstance(
+                    FTransform(
+                        FRotator::ZeroRotator,
+                        TileToLocalLocation(
+                            X,
+                            Y,
+                            HeightOffset),
+                        Scale));
+
+                bool SeenQuadrants[
+                    remaster::metatile_render::QuadrantsPerPlane] = {};
+
+                for (const FRemasterRenderTileEntry& Tile
+                     : Metatile->Entries)
                 {
-                    HeightOffset += Visual.Rule->HeightOffset;
-                }
-
-                const int32 InstanceIndex =
-                    Target->AddInstance(
-                        FTransform(
-                            FRotator::ZeroRotator,
-                            TileToLocalLocation(
-                                X,
-                                Y,
-                                HeightOffset),
-                            PlaneScale));
-
-                if (InstanceIndex < 0)
-                    return false;
-
-                int32 PlaneEntryCount = 0;
-
-                for (const FRemasterRenderTileEntry& Tile : Metatile->Entries)
-                {
-                    if (Tile.SourceLayer != PlaneIndex)
+                    if (Tile.SourceLayer != SourceLayer)
                         continue;
 
-                    ++PlaneEntryCount;
+                    if (Tile.Quadrant < 0
+                        || Tile.Quadrant
+                            >= remaster::metatile_render::QuadrantsPerPlane
+                        || SeenQuadrants[Tile.Quadrant])
+                    {
+                        return false;
+                    }
 
-                    const int32 TileIndex =
+                    SeenQuadrants[Tile.Quadrant] = true;
+
+                    const int32 TileIdIndex =
                         remaster::metatile_render::custom_data_index(
                             Tile.Quadrant,
                             remaster::metatile_render::CustomField::TileId);
@@ -559,7 +559,7 @@ bool ARemasterWorldActor::BuildRenderChunks()
                             Tile.Quadrant,
                             remaster::metatile_render::CustomField::VFlip);
 
-                    if (TileIndex < 0
+                    if (TileIdIndex < 0
                         || PaletteIndex < 0
                         || HFlipIndex < 0
                         || VFlipIndex < 0)
@@ -569,7 +569,7 @@ bool ARemasterWorldActor::BuildRenderChunks()
 
                     Target->SetCustomDataValue(
                         InstanceIndex,
-                        TileIndex,
+                        TileIdIndex,
                         static_cast<float>(Tile.TileIdRaw),
                         false);
                     Target->SetCustomDataValue(
@@ -589,29 +589,15 @@ bool ARemasterWorldActor::BuildRenderChunks()
                         false);
                 }
 
-                if (PlaneEntryCount
-                    != remaster::metatile_render::QuadrantsPerPlane)
+                for (bool bSeen : SeenQuadrants)
                 {
-                    UE_LOG(
-                        LogTemp,
-                        Error,
-                        TEXT("R5 plane does not contain four quadrants: %s/%d/%s"),
-                        *Visual.Tileset,
-                        Visual.LocalMetatileId,
-                        *PlaneName);
-                    return false;
+                    if (!bSeen)
+                        return false;
                 }
 
-                DirtyComponents.Add(Target);
+                Target->MarkRenderStateDirty();
             }
         }
-    }
-
-    for (UHierarchicalInstancedStaticMeshComponent* Component
-         : DirtyComponents)
-    {
-        if (Component)
-            Component->MarkRenderStateDirty();
     }
 
     return true;
