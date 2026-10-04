@@ -34,6 +34,7 @@ on:
 jobs:
   real-device-smoke:
     runs-on: [self-hosted, windows, unreal-5.8, android]
+    environment: browserstack-ci
     timeout-minutes: 30
 
     steps:
@@ -63,7 +64,6 @@ jobs:
       - name: Verify BrowserStack secret source
         shell: pwsh
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
         run: |
@@ -77,20 +77,11 @@ jobs:
             exit 0
           }
 
-          if ([string]::IsNullOrWhiteSpace($env:DOPPLER_TOKEN)) {
-            throw "No BrowserStack credentials and no DOPPLER_TOKEN are available."
-          }
-
-          if (-not (Get-Command doppler -ErrorAction SilentlyContinue)) {
-            throw "DOPPLER_TOKEN is available, but Doppler CLI is not installed on the runner."
-          }
-
-          Write-Host "BrowserStack credentials will be injected by Doppler CLI."
+          throw "BrowserStack credentials are not available in the browserstack-ci environment."
 
       - name: Run BrowserStack real-device smoke
         shell: pwsh
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
           GITHUB_RUN_ID: ${{ github.run_id }}
@@ -108,17 +99,7 @@ jobs:
             $args += "--skip-marker-check"
           }
 
-          $direct = (
-            -not [string]::IsNullOrWhiteSpace($env:BROWSERSTACK_USERNAME) -and
-            -not [string]::IsNullOrWhiteSpace($env:BROWSERSTACK_ACCESS_KEY)
-          )
-
-          if ($direct) {
-            python @args
-            exit $LASTEXITCODE
-          }
-
-          doppler run -- python @args
+          python @args
           exit $LASTEXITCODE
 
       - name: Publish BrowserStack smoke evidence
