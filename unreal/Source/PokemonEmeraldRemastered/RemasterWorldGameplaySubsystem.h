@@ -243,6 +243,7 @@ public:
     bool ContinuePlayerStepEvents(
         int32 CoordStartIndex,
         int32 StepDirection,
+        bool bLedgeJump,
         FRemasterPlayerStepResult& OutResult);
 
     // Internal world/script host bridge for transient runtime object state.
@@ -304,6 +305,7 @@ private:
     bool ProcessCurrentStepEvents(
         int32 CoordStartIndex,
         int32 StepDirection,
+        bool bLedgeJump,
         FRemasterPlayerStepResult& OutResult);
 
     FRemasterMapIR CurrentMap;
