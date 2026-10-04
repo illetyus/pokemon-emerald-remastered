@@ -8,6 +8,7 @@
 #include "Misc/Paths.h"
 #include "RemasterVisualStyle.h"
 #include "RemasterWorldGameplaySubsystem.h"
+#include "RemasterWorldGridMath.h"
 #include "UObject/ConstructorHelpers.h"
 
 ARemasterWorldActor::ARemasterWorldActor()
@@ -192,8 +193,12 @@ FVector ARemasterWorldActor::TileToLocalLocation(
     float HeightOffset) const
 {
     return FVector(
-        static_cast<double>(TileX) * TileWorldSize,
-        static_cast<double>(TileY) * TileWorldSize,
+        remaster::world_grid::tile_axis_to_local(
+            TileX,
+            TileWorldSize),
+        remaster::world_grid::tile_axis_to_local(
+            TileY,
+            TileWorldSize),
         HeightOffset);
 }
 
@@ -219,18 +224,25 @@ FIntPoint ARemasterWorldActor::WorldToTileLocation(
         GetActorTransform().InverseTransformPosition(WorldLocation);
 
     return FIntPoint(
-        FMath::RoundToInt(Local.X / TileWorldSize),
-        FMath::RoundToInt(Local.Y / TileWorldSize));
+        remaster::world_grid::local_axis_to_tile(
+            Local.X,
+            TileWorldSize),
+        remaster::world_grid::local_axis_to_tile(
+            Local.Y,
+            TileWorldSize));
 }
 
 FIntPoint ARemasterWorldActor::ChunkForTile(
     int32 TileX,
     int32 TileY) const
 {
-    const int32 SafeChunkSize = FMath::Max(1, ChunkTileSize);
-    return FIntPoint(
-        TileX / SafeChunkSize,
-        TileY / SafeChunkSize);
+    const remaster::world_grid::ChunkCoord Chunk =
+        remaster::world_grid::chunk_for_tile(
+            TileX,
+            TileY,
+            FMath::Max(1, ChunkTileSize));
+
+    return FIntPoint(Chunk.x, Chunk.y);
 }
 
 UHierarchicalInstancedStaticMeshComponent*
