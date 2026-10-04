@@ -36,8 +36,15 @@ def list_field(document: dict[str, Any], key: str) -> list[dict[str, Any]]:
     value = document.get(key)
     if value is None:
         return []
+
+    # Vanilla+ has a small set of maps whose mapjson source encodes a null
+    # connections pointer as the integer 0 instead of JSON null. Normalize
+    # only that exact scalar sentinel; other scalar values remain invalid.
+    if isinstance(value, int) and not isinstance(value, bool) and value == 0:
+        return []
+
     if not isinstance(value, list):
-        raise ValueError(f"{key} must be an array or null")
+        raise ValueError(f"{key} must be an array, null, or integer zero")
     return value
 
 
