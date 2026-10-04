@@ -188,8 +188,8 @@ R4 is **COMPLETE**.
 
 Acceptance implementation head: `d9c66ac5e459307d8b335edfe350a00727980e38`.
 
-Dedicated R4 run `37188813328` and R0/R1/R2/R3 regression run
-`37188813321` are green. Final evidence is recorded in
+Final R4 run `37189007165` and R0/R1/R2/R3 regression run
+`37188920857` are green. Final evidence is recorded in
 `docs/R4_OVERWORLD_RUNTIME.md`.
 
 The next phase is R5 — Unreal world renderer.
