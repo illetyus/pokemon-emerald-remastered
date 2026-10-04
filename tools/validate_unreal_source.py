@@ -230,6 +230,12 @@ def main() -> int:
         "R5 default game mode must bootstrap a playable renderer/pawn/camera scene",
         errors,
     )
+    require(
+        "HUDClass = nullptr;" in game_mode
+        and '#include "R0HUD.h"' not in game_mode,
+        "R5 playable scene must not be covered by the legacy full-screen R0 HUD",
+        errors,
+    )
 
     # Continue path must preserve TEMP flags/vars exactly as Vanilla does.
     world_gameplay = (
