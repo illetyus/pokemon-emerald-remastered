@@ -1,5 +1,8 @@
 name: R5 World Renderer
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -20,7 +23,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Checkout
+        with:
+
+      - name: Checkout
+          persist-credentials: false
 
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -47,7 +56,7 @@ jobs:
           /tmp/r5-tilesets.json
 
       - name: Upload R5 tileset source manifest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: r5-tileset-source-manifest
           path: /tmp/r5-tilesets.json
@@ -63,7 +72,7 @@ jobs:
           /tmp/r5-metatiles.json
 
       - name: Upload R5 metatile descriptors
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: r5-metatile-descriptors
           path: /tmp/r5-metatiles.json
@@ -79,7 +88,7 @@ jobs:
           /tmp/r5-render-package
 
       - name: Upload packaged R5 render payload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: r5-render-package
           path: /tmp/r5-render-package
@@ -95,7 +104,7 @@ jobs:
           /tmp/r5-scene-acceptance.json
 
       - name: Upload real R5 transition scene report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: r5-scene-acceptance
           path: /tmp/r5-scene-acceptance.json
