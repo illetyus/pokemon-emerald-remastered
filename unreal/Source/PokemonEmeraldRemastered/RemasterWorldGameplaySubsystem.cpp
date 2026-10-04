@@ -696,6 +696,7 @@ bool URemasterWorldGameplaySubsystem::SetRuntimeObjectPlayerCollisionExempt(
 bool URemasterWorldGameplaySubsystem::ProcessCurrentStepEvents(
     int32 CoordStartIndex,
     int32 StepDirection,
+    bool bLedgeJump,
     FRemasterPlayerStepResult& OutResult)
 {
     if (!bMapReady
@@ -721,18 +722,6 @@ bool URemasterWorldGameplaySubsystem::ProcessCurrentStepEvents(
     if (!Save)
         return false;
 
-    RemasterEmeraldOverworldState State{};
-    if (!remaster_emerald_overworld_get(Save, &State))
-        return false;
-
-    if (State.player_x < 0
-        || State.player_y < 0
-        || State.player_x >= CurrentMap.Width
-        || State.player_y >= CurrentMap.Height)
-    {
-        return false;
-    }
-
     RemasterEmeraldMapView MapView{};
     MapView.width = CurrentMap.Width;
     MapView.height = CurrentMap.Height;
@@ -752,196 +741,55 @@ bool URemasterWorldGameplaySubsystem::ProcessCurrentStepEvents(
         static_cast<size_t>(CurrentMap.SecondaryMetatileAttributes.Num());
 
     TArray<RemasterEmeraldCoordEventDef> NativeCoords;
-    NativeCoords.Reserve(CurrentMap.CoordEvents.Num());
-
-    for (const FRemasterCoordEventIR& Event : CurrentMap.CoordEvents)
-    {
-        if (!FitsInt16(Event.X)
-            || !FitsInt16(Event.Y)
-            || !FitsUInt8(Event.Elevation))
-        {
-            return false;
-        }
-
-        RemasterEmeraldCoordEventDef Native{};
-        Native.x = static_cast<int16>(Event.X);
-        Native.y = static_cast<int16>(Event.Y);
-        Native.elevation = static_cast<uint8>(Event.Elevation);
-
-        if (Event.Type.Equals(TEXT("weather"), ESearchCase::IgnoreCase))
-        {
-            if (!FitsUInt16(Event.WeatherId))
-                return false;
-
-            Native.kind = REMASTER_EMERALD_COORD_WEATHER;
-            Native.weather = static_cast<uint16>(Event.WeatherId);
-        }
-        else if (Event.Type.Equals(TEXT("trigger"), ESearchCase::IgnoreCase))
-        {
-            if (!FitsUInt16(Event.VarId)
-                || !FitsUInt16(Event.VarValueNum))
-            {
-                return false;
-            }
-
-            Native.kind = REMASTER_EMERALD_COORD_TRIGGER;
-            Native.trigger = static_cast<uint16>(Event.VarId);
-            Native.index = static_cast<uint16>(Event.VarValueNum);
-
-            /*
-             * The portable processor needs only null-vs-present script
-             * identity here. The authoritative FString identity is recovered
-             * from the same source index below; never retain a temporary UTF-8
-             * pointer across the call.
-             */
-            Native.script_id =
-                Event.ScriptId.IsEmpty() && Event.Script.IsEmpty()
-                    ? nullptr
-                    : "r4-generated-script";
-        }
-        else
-        {
-            return false;
-        }
-
-        NativeCoords.Add(Native);
-    }
-
-    if (CoordStartIndex > NativeCoords.Num())
-        return false;
-
     TArray<RemasterEmeraldWarpEventDef> NativeWarps;
-    NativeWarps.Reserve(CurrentMap.WarpEvents.Num());
 
-    for (const FRemasterWarpEventIR& Event : CurrentMap.WarpEvents)
+    if (!BuildNativeCoordEvents(CurrentMap, NativeCoords)
+        || !BuildNativeWarpEvents(CurrentMap, NativeWarps)
+        || CoordStartIndex > NativeCoords.Num())
     {
-        if (!FitsInt16(Event.X)
-            || !FitsInt16(Event.Y)
-            || !FitsUInt8(Event.Elevation)
-            || !FitsUInt8(Event.DestWarpIdNum))
-        {
-            return false;
-        }
-
-        if (!Event.bDynamicTarget
-            && (!FitsUInt8(Event.DestGroupNum)
-                || !FitsUInt8(Event.DestMapNum)))
-        {
-            return false;
-        }
-
-        RemasterEmeraldWarpEventDef Native{};
-        Native.x = static_cast<int16>(Event.X);
-        Native.y = static_cast<int16>(Event.Y);
-        Native.elevation = static_cast<uint8>(Event.Elevation);
-        Native.dest_warp_id =
-            static_cast<uint8>(Event.DestWarpIdNum);
-        Native.dest_map_group = Event.bDynamicTarget
-            ? 0u
-            : static_cast<uint8>(Event.DestGroupNum);
-        Native.dest_map_num = Event.bDynamicTarget
-            ? 0u
-            : static_cast<uint8>(Event.DestMapNum);
-        NativeWarps.Add(Native);
+        return false;
     }
 
-    RemasterEmeraldStepEventResult NativeResult{};
-    if (!remaster_emerald_process_step_events(
+    RemasterEmeraldOverworldActionResult NativeResult{};
+    if (!remaster_emerald_overworld_continue_action(
             Save,
+            &MapView,
             NativeCoords.IsEmpty() ? nullptr : NativeCoords.GetData(),
             static_cast<size_t>(NativeCoords.Num()),
             static_cast<size_t>(CoordStartIndex),
             NativeWarps.IsEmpty() ? nullptr : NativeWarps.GetData(),
             static_cast<size_t>(NativeWarps.Num()),
-            State.player_x,
-            State.player_y,
-            remaster_emerald_map_elevation_at(
-                &MapView,
-                State.player_x,
-                State.player_y),
-            remaster_emerald_map_behavior_at(
-                &MapView,
-                State.player_x,
-                State.player_y),
-            nullptr,
-            nullptr,
+            static_cast<uint8>(StepDirection),
+            bLedgeJump ? 1 : 0,
             &NativeResult))
     {
         return false;
     }
 
     OutResult.Direction = StepDirection;
+    OutResult.Collision = static_cast<int32>(NativeResult.collision);
     OutResult.ScriptId.Reset();
     OutResult.NextCoordEventIndex = -1;
     OutResult.bWeatherChanged = NativeResult.weather_changed != 0u;
+    OutResult.bLedgeJump =
+        NativeResult.kind == REMASTER_EMERALD_OVERWORLD_ACTION_LEDGE_JUMP
+        || NativeResult.ledge_jump != 0u;
     OutResult.WeatherId = NativeResult.weather_changed
         ? static_cast<int32>(NativeResult.weather)
         : -1;
 
     switch (NativeResult.kind)
     {
-    case REMASTER_EMERALD_STEP_EVENT_NONE:
-    {
-        size_t DirectionalWarpIndex = SIZE_MAX;
-        const uint8 CurrentElevation =
-            remaster_emerald_map_elevation_at(
-                &MapView,
-                State.player_x,
-                State.player_y);
-        const uint8 CurrentBehavior =
-            remaster_emerald_map_behavior_at(
-                &MapView,
-                State.player_x,
-                State.player_y);
-
-        if (remaster_emerald_find_directional_warp(
-                NativeWarps.IsEmpty() ? nullptr : NativeWarps.GetData(),
-                static_cast<size_t>(NativeWarps.Num()),
-                State.player_x,
-                State.player_y,
-                CurrentElevation,
-                CurrentBehavior,
-                static_cast<uint8>(StepDirection),
-                &DirectionalWarpIndex))
-        {
-            if (DirectionalWarpIndex
-                >= static_cast<size_t>(CurrentMap.WarpEvents.Num()))
-            {
-                return false;
-            }
-
-            const int32 SourceIndex =
-                static_cast<int32>(DirectionalWarpIndex);
-            const FRemasterWarpEventIR& Source =
-                CurrentMap.WarpEvents[SourceIndex];
-
-            FRemasterResolvedWarp Warp{};
-            Warp.SourceEventIndex = SourceIndex;
-            Warp.DestGroupNum = Source.DestGroupNum;
-            Warp.DestMapNum = Source.DestMapNum;
-            Warp.DestWarpId = Source.DestWarpIdNum;
-            Warp.DestMap = Source.DestMap;
-            Warp.bDynamicTarget = Source.bDynamicTarget;
-
-            if (!ApplyResolvedWarp(Warp))
-                return false;
-
-            OutResult.Kind = ERemasterPlayerStepKind::Warp;
-            return PopulatePlayerStepSnapshot(
-                Save,
-                CurrentMap,
-                OutResult);
-        }
-
+    case REMASTER_EMERALD_OVERWORLD_ACTION_MOVED:
+    case REMASTER_EMERALD_OVERWORLD_ACTION_LEDGE_JUMP:
         OutResult.Kind = ERemasterPlayerStepKind::Moved;
         return PopulatePlayerStepSnapshot(
             Save,
             CurrentMap,
             OutResult);
-    }
 
-    case REMASTER_EMERALD_STEP_EVENT_IMMEDIATE_SCRIPT:
-    case REMASTER_EMERALD_STEP_EVENT_COORD_SCRIPT:
+    case REMASTER_EMERALD_OVERWORLD_ACTION_IMMEDIATE_SCRIPT:
+    case REMASTER_EMERALD_OVERWORLD_ACTION_COORD_SCRIPT:
     {
         if (NativeResult.coord_event_index
             >= static_cast<size_t>(CurrentMap.CoordEvents.Num()))
@@ -964,7 +812,7 @@ bool URemasterWorldGameplaySubsystem::ProcessCurrentStepEvents(
             : -1;
         OutResult.Kind =
             NativeResult.kind
-                == REMASTER_EMERALD_STEP_EVENT_IMMEDIATE_SCRIPT
+                == REMASTER_EMERALD_OVERWORLD_ACTION_IMMEDIATE_SCRIPT
             ? ERemasterPlayerStepKind::ImmediateCoordScript
             : ERemasterPlayerStepKind::CoordScript;
 
@@ -974,7 +822,7 @@ bool URemasterWorldGameplaySubsystem::ProcessCurrentStepEvents(
             OutResult);
     }
 
-    case REMASTER_EMERALD_STEP_EVENT_WARP:
+    case REMASTER_EMERALD_OVERWORLD_ACTION_WARP:
     {
         if (NativeResult.warp_index
             >= static_cast<size_t>(CurrentMap.WarpEvents.Num()))
@@ -1009,6 +857,7 @@ bool URemasterWorldGameplaySubsystem::ProcessCurrentStepEvents(
         return false;
     }
 }
+
 
 bool URemasterWorldGameplaySubsystem::ContinuePlayerStepEvents(
     int32 CoordStartIndex,
