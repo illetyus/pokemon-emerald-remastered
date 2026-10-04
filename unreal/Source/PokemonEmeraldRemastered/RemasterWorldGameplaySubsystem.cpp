@@ -573,6 +573,11 @@ bool URemasterWorldGameplaySubsystem::LoadCurrentMapFromSave(
 
     bMapReady = true;
 
+    OnGameplayMapChanged.Broadcast(
+        CurrentMap.GroupNum,
+        CurrentMap.MapNum,
+        CurrentMap.Id);
+
     UE_LOG(
         LogTemp,
         Display,
