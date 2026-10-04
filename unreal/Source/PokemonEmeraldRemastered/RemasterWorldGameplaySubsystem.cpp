@@ -862,12 +862,14 @@ bool URemasterWorldGameplaySubsystem::ProcessCurrentStepEvents(
 bool URemasterWorldGameplaySubsystem::ContinuePlayerStepEvents(
     int32 CoordStartIndex,
     int32 StepDirection,
+    bool bLedgeJump,
     FRemasterPlayerStepResult& OutResult)
 {
     OutResult = FRemasterPlayerStepResult{};
     return ProcessCurrentStepEvents(
         CoordStartIndex,
         StepDirection,
+        bLedgeJump,
         OutResult);
 }
 
@@ -1006,6 +1008,14 @@ bool URemasterWorldGameplaySubsystem::StepPlayer(
         ConnectionSourceIndices.Add(Index);
     }
 
+    TArray<RemasterEmeraldCoordEventDef> NativeCoords;
+    TArray<RemasterEmeraldWarpEventDef> NativeWarps;
+    if (!BuildNativeCoordEvents(CurrentMap, NativeCoords)
+        || !BuildNativeWarpEvents(CurrentMap, NativeWarps))
+    {
+        return false;
+    }
+
     RemasterEmeraldMovementContext Movement{};
     Movement.map = &MapView;
     Movement.objects = ObjectColliders.IsEmpty()
@@ -1014,16 +1024,22 @@ bool URemasterWorldGameplaySubsystem::StepPlayer(
     Movement.object_count =
         static_cast<size_t>(ObjectColliders.Num());
 
-    RemasterEmeraldPlayerStepResult NativeResult{};
-    if (!remaster_emerald_player_step(
+    RemasterEmeraldOverworldActionResult NativeResult{};
+    if (!remaster_emerald_overworld_step_action(
             Save,
             &Movement,
             NativeConnections.IsEmpty()
                 ? nullptr
                 : NativeConnections.GetData(),
             static_cast<size_t>(NativeConnections.Num()),
-            nullptr,
-            0u,
+            NativeCoords.IsEmpty()
+                ? nullptr
+                : NativeCoords.GetData(),
+            static_cast<size_t>(NativeCoords.Num()),
+            NativeWarps.IsEmpty()
+                ? nullptr
+                : NativeWarps.GetData(),
+            static_cast<size_t>(NativeWarps.Num()),
             static_cast<uint8>(Direction),
             &NativeResult))
     {
@@ -1035,38 +1051,105 @@ bool URemasterWorldGameplaySubsystem::StepPlayer(
     OutResult.PlayerX = NativeResult.x;
     OutResult.PlayerY = NativeResult.y;
     OutResult.Elevation = NativeResult.elevation;
+    OutResult.Direction = NativeResult.direction;
+    OutResult.bLedgeJump =
+        NativeResult.kind == REMASTER_EMERALD_OVERWORLD_ACTION_LEDGE_JUMP
+        || NativeResult.ledge_jump != 0u;
+    OutResult.bWeatherChanged =
+        NativeResult.weather_changed != 0u;
+    OutResult.WeatherId = NativeResult.weather_changed
+        ? static_cast<int32>(NativeResult.weather)
+        : -1;
     OutResult.MapId = CurrentMap.Id;
     OutResult.MapGroup = CurrentMap.GroupNum;
     OutResult.MapNum = CurrentMap.MapNum;
 
     switch (NativeResult.kind)
     {
-    case REMASTER_EMERALD_PLAYER_STEP_BLOCKED:
+    case REMASTER_EMERALD_OVERWORLD_ACTION_BLOCKED:
         OutResult.Kind = ERemasterPlayerStepKind::Blocked;
-        return true;
-
-    case REMASTER_EMERALD_PLAYER_STEP_MOVED:
-        if (!SyncRuntimeObjectView())
-            return false;
-        return ProcessCurrentStepEvents(
-            0,
-            Direction,
+        return PopulatePlayerStepSnapshot(
+            Save,
+            CurrentMap,
             OutResult);
 
-    case REMASTER_EMERALD_PLAYER_STEP_LEDGE_JUMP:
+    case REMASTER_EMERALD_OVERWORLD_ACTION_MOVED:
+    case REMASTER_EMERALD_OVERWORLD_ACTION_LEDGE_JUMP:
         if (!SyncRuntimeObjectView())
             return false;
-        OutResult.bLedgeJump = true;
-        return ProcessCurrentStepEvents(
-            0,
-            Direction,
+        OutResult.Kind = ERemasterPlayerStepKind::Moved;
+        return PopulatePlayerStepSnapshot(
+            Save,
+            CurrentMap,
             OutResult);
 
-    case REMASTER_EMERALD_PLAYER_STEP_WARP:
-        /* Production passes no warps to player_step; step events own them. */
-        return false;
+    case REMASTER_EMERALD_OVERWORLD_ACTION_IMMEDIATE_SCRIPT:
+    case REMASTER_EMERALD_OVERWORLD_ACTION_COORD_SCRIPT:
+    {
+        if (!SyncRuntimeObjectView()
+            || NativeResult.coord_event_index
+                >= static_cast<size_t>(CurrentMap.CoordEvents.Num()))
+        {
+            return false;
+        }
 
-    case REMASTER_EMERALD_PLAYER_STEP_CONNECTION:
+        const FRemasterCoordEventIR& Source =
+            CurrentMap.CoordEvents[
+                static_cast<int32>(NativeResult.coord_event_index)];
+
+        OutResult.ScriptId = !Source.ScriptId.IsEmpty()
+            ? Source.ScriptId
+            : Source.Script;
+        OutResult.NextCoordEventIndex =
+            NativeResult.next_coord_event_index
+                <= static_cast<size_t>(MAX_int32)
+            ? static_cast<int32>(
+                NativeResult.next_coord_event_index)
+            : -1;
+        OutResult.Kind =
+            NativeResult.kind
+                == REMASTER_EMERALD_OVERWORLD_ACTION_IMMEDIATE_SCRIPT
+            ? ERemasterPlayerStepKind::ImmediateCoordScript
+            : ERemasterPlayerStepKind::CoordScript;
+
+        return PopulatePlayerStepSnapshot(
+            Save,
+            CurrentMap,
+            OutResult);
+    }
+
+    case REMASTER_EMERALD_OVERWORLD_ACTION_WARP:
+    {
+        if (NativeResult.warp_index
+            >= static_cast<size_t>(CurrentMap.WarpEvents.Num()))
+        {
+            return false;
+        }
+
+        const int32 SourceIndex =
+            static_cast<int32>(NativeResult.warp_index);
+        const FRemasterWarpEventIR& Source =
+            CurrentMap.WarpEvents[SourceIndex];
+
+        FRemasterResolvedWarp Warp{};
+        Warp.SourceEventIndex = SourceIndex;
+        Warp.DestGroupNum = Source.DestGroupNum;
+        Warp.DestMapNum = Source.DestMapNum;
+        Warp.DestWarpId = Source.DestWarpIdNum;
+        Warp.DestMap = Source.DestMap;
+        Warp.bDynamicTarget = Source.bDynamicTarget;
+
+        if (!ApplyResolvedWarp(Warp))
+            return false;
+
+        OutResult.Kind = ERemasterPlayerStepKind::Warp;
+        return PopulatePlayerStepSnapshot(
+            Save,
+            CurrentMap,
+            OutResult);
+    }
+
+    case REMASTER_EMERALD_OVERWORLD_ACTION_CONNECTION:
     {
         if (NativeResult.connection_index
                 >= static_cast<size_t>(
@@ -1104,7 +1187,6 @@ bool URemasterWorldGameplaySubsystem::StepPlayer(
             OutResult);
     }
 
-    case REMASTER_EMERALD_PLAYER_STEP_INVALID:
     default:
         return false;
     }
