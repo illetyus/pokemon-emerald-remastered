@@ -8,6 +8,28 @@
 class UHierarchicalInstancedStaticMeshComponent;
 class URemasterVisualStyle;
 class USceneComponent;
+class UStaticMesh;
+
+struct FRemasterChunkVisualKey
+{
+    int32 ChunkX = 0;
+    int32 ChunkY = 0;
+    int32 MetatileId = 0;
+
+    bool operator==(const FRemasterChunkVisualKey& Other) const
+    {
+        return ChunkX == Other.ChunkX
+            && ChunkY == Other.ChunkY
+            && MetatileId == Other.MetatileId;
+    }
+};
+
+FORCEINLINE uint32 GetTypeHash(const FRemasterChunkVisualKey& Key)
+{
+    uint32 Hash = GetTypeHash(Key.ChunkX);
+    Hash = HashCombine(Hash, GetTypeHash(Key.ChunkY));
+    return HashCombine(Hash, GetTypeHash(Key.MetatileId));
+}
 
 UCLASS()
 class POKEMONEMERALDREMASTERED_API ARemasterWorldActor : public AActor
@@ -18,12 +40,33 @@ public:
     ARemasterWorldActor();
 
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+    /*
+     * Production path: copy the authoritative map already loaded by the
+     * gameplay subsystem and rebuild renderer chunks from that exact IR.
+     */
     UFUNCTION(BlueprintCallable, Category="Remaster|World")
+    bool LoadAuthoritativeMap();
+
+    /*
+     * Debug/preview path only. Production map transitions are driven by the
+     * gameplay subsystem's map-change event.
+     */
+    UFUNCTION(BlueprintCallable, Category="Remaster|World|Debug")
     bool LoadMapFromGeneratedData(const FString& RelativeJsonPath);
 
     UFUNCTION(BlueprintCallable, Category="Remaster|World")
     void ClearWorld();
+
+    UFUNCTION(BlueprintPure, Category="Remaster|World")
+    FVector TileToWorldLocation(
+        int32 TileX,
+        int32 TileY,
+        float HeightOffset = 0.0f) const;
+
+    UFUNCTION(BlueprintPure, Category="Remaster|World")
+    FIntPoint WorldToTileLocation(const FVector& WorldLocation) const;
 
     const FRemasterMapIR& GetLoadedMap() const
     {
@@ -34,11 +77,14 @@ protected:
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<USceneComponent> SceneRoot;
 
-    UPROPERTY(VisibleAnywhere)
-    TObjectPtr<UHierarchicalInstancedStaticMeshComponent> BlockInstances;
+    UPROPERTY(Transient)
+    TObjectPtr<UStaticMesh> FallbackMesh;
 
     UPROPERTY(EditAnywhere, Category="Remaster|World")
     TObjectPtr<URemasterVisualStyle> VisualStyle;
+
+    UPROPERTY(EditAnywhere, Category="Remaster|World", meta=(ClampMin="1"))
+    int32 ChunkTileSize = 16;
 
     UPROPERTY(EditAnywhere, Category="Remaster|World")
     float TileWorldSize = 100.0f;
@@ -46,13 +92,32 @@ protected:
     UPROPERTY(EditAnywhere, Category="Remaster|World")
     float PreviewThickness = 10.0f;
 
-    UPROPERTY(EditAnywhere, Category="Remaster|World")
+    UPROPERTY(EditAnywhere, Category="Remaster|World|Debug")
     FString StartupMapJson;
 
 private:
-    void BuildPreviewInstances();
-    UHierarchicalInstancedStaticMeshComponent* ComponentForMetatile(uint16 MetatileId);
+    UFUNCTION()
+    void HandleGameplayMapChanged(
+        int32 MapGroup,
+        int32 MapNum,
+        FString MapId);
+
+    FVector TileToLocalLocation(
+        int32 TileX,
+        int32 TileY,
+        float HeightOffset) const;
+
+    FIntPoint ChunkForTile(int32 TileX, int32 TileY) const;
+
+    void BuildRenderChunks();
+
+    UHierarchicalInstancedStaticMeshComponent* ComponentForMetatile(
+        uint16 MetatileId,
+        const FIntPoint& Chunk);
 
     FRemasterMapIR LoadedMap;
-    TMap<int32, TObjectPtr<UHierarchicalInstancedStaticMeshComponent>> VisualComponents;
+    TMap<
+        FRemasterChunkVisualKey,
+        UHierarchicalInstancedStaticMeshComponent*>
+        ChunkVisualComponents;
 };
