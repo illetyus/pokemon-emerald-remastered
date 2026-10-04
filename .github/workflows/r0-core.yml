@@ -62,6 +62,9 @@ jobs:
       - name: Test R3 package fingerprints
         run: python -m unittest tests/test_world_fingerprint.py -v
 
+      - name: Test R4 runtime object capacity
+        run: python -m unittest tests/test_r4_runtime_object_capacity.py -v
+
       - name: Test script conversion pipeline
         run: python -m unittest tests/test_convert_scripts.py tests/test_generate_script_c.py tests/test_r2_real_opening_source.py -v
 
