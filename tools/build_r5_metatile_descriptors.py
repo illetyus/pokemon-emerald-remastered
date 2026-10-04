@@ -9,7 +9,11 @@ import struct
 from pathlib import Path
 from typing import Any
 
-from build_r5_tileset_manifest import build_manifest
+try:
+    from tools.build_r5_tileset_manifest import build_manifest
+except ModuleNotFoundError:
+    # Direct script execution sets sys.path[0] to tools/.
+    from build_r5_tileset_manifest import build_manifest
 
 SCHEMA_VERSION = 1
 
