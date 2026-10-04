@@ -158,13 +158,33 @@ def main() -> int:
     require(
         "ChunkTileSize = 16" in world_actor_h
         and "ChunkVisualComponents" in world_actor_h
-        and "ComponentForMetatile(MetatileId, Chunk)" in world_actor,
-        "R5 renderer must partition map visuals into render chunks",
+        and "ResolveMetatileVisual(MetatileId)" in world_actor
+        and "ComponentForMetatile(Visual, Chunk)" in world_actor,
+        "R5 renderer must partition tileset-aware map visuals into render chunks",
         errors,
     )
     require(
         "SetCollisionEnabled(ECollisionEnabled::NoCollision)" in world_actor,
         "R5 renderer must not duplicate authoritative gameplay collision",
+        errors,
+    )
+
+    visual_style_h = (
+        MODULE / "RemasterVisualStyle.h"
+    ).read_text(encoding="utf-8")
+    require(
+        "FString Tileset;" in visual_style_h
+        and "int32 LocalMetatileId = 0;" in visual_style_h
+        and "int32 MetatileId = 0;" not in visual_style_h,
+        "R5 visual rules must be keyed by tileset plus local metatile id",
+        errors,
+    )
+    require(
+        "MetatileId < 512u" in world_actor
+        and "MetatileId - 512u" in world_actor
+        and "LoadedMap.PrimaryTileset" in world_actor
+        and "LoadedMap.SecondaryTileset" in world_actor,
+        "R5 renderer must preserve Emerald primary/secondary metatile identity",
         errors,
     )
 
