@@ -291,7 +291,7 @@ def build_scene_acceptance(
             "status": "PASS",
             "source_repository": SOURCE_REPOSITORY,
             "source_commit": SOURCE_COMMIT,
-            "world_map_count": int(world_manifest["counts"]["map_count"]),
+            "world_map_count": int(world_manifest["map_count"]),
             "render_tileset_count": int(render_manifest["tileset_count"]),
             "render_content_sha256": render_manifest["content_sha256"],
             "acceptance_path": {
