@@ -20,6 +20,8 @@ typedef struct RemasterR4FixtureMap {
     RemasterEmeraldMapView view;
     const RemasterEmeraldWarpEventDef *warps;
     size_t warp_count;
+    const RemasterEmeraldCoordEventDef *coord_events;
+    size_t coord_event_count;
     const RemasterEmeraldConnectionDef *connections;
     size_t connection_count;
 } RemasterR4FixtureMap;
