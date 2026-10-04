@@ -6,9 +6,13 @@
 #include "RemasterWorldActor.generated.h"
 
 class UHierarchicalInstancedStaticMeshComponent;
+class URemasterRenderCatalogSubsystem;
 class URemasterVisualStyle;
 class USceneComponent;
 class UStaticMesh;
+
+struct FRemasterMetatileRenderDescriptor;
+struct FRemasterTilesetRenderDescriptor;
 
 struct FRemasterChunkVisualKey
 {
@@ -92,6 +96,9 @@ protected:
     UPROPERTY(EditAnywhere, Category="Remaster|World")
     float PreviewThickness = 10.0f;
 
+    UPROPERTY(EditAnywhere, Category="Remaster|World", meta=(ClampMin="0.01"))
+    float RenderPlaneSeparation = 2.0f;
+
     UPROPERTY(EditAnywhere, Category="Remaster|World")
     float RenderPlaneWorldSpacing = 2.0f;
 
@@ -121,6 +128,7 @@ private:
     {
         FString Tileset;
         int32 LocalMetatileId = 0;
+        const FRemasterMetatileRenderDescriptor* Descriptor = nullptr;
         const FRemasterTileVisualRule* Rule = nullptr;
     };
 
