@@ -6,6 +6,46 @@
 #include "RemasterWorldGameplaySubsystem.generated.h"
 
 
+UENUM(BlueprintType)
+enum class ERemasterPlayerStepKind : uint8
+{
+    Invalid,
+    Blocked,
+    Moved,
+    Warp,
+    Connection
+};
+
+USTRUCT(BlueprintType)
+struct FRemasterPlayerStepResult
+{
+    GENERATED_BODY()
+
+    UPROPERTY(BlueprintReadOnly)
+    ERemasterPlayerStepKind Kind = ERemasterPlayerStepKind::Invalid;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 Collision = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 PlayerX = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 PlayerY = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 Elevation = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    FString MapId;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 MapGroup = -1;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 MapNum = -1;
+};
+
 USTRUCT(BlueprintType)
 struct FRemasterResolvedConnection
 {
@@ -162,6 +202,17 @@ public:
 
     UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
     bool IsObjectVisible(int32 LocalId, bool& OutVisible) const;
+
+    /*
+     * Executes one authoritative free-roaming cardinal step through the
+     * portable Emerald core. Warp/connection outcomes are applied before the
+     * function returns, so OutResult always reflects the final save-backed
+     * map/position.
+     */
+    UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
+    bool StepPlayer(
+        int32 Direction,
+        FRemasterPlayerStepResult& OutResult);
 
     UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
     bool ResolveConnection(
