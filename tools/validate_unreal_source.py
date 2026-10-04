@@ -180,20 +180,27 @@ def main() -> int:
         errors,
     )
     require(
-        "NumCustomDataFloats = 16" in world_actor
-        and "Tile.Quadrant * 4" in world_actor
+        '#include "RemasterMetatileRenderMath.h"' in world_actor
+        and "NumCustomDataFloats =" in world_actor
+        and "metatile_render::CustomDataFloats" in world_actor
+        and "metatile_render::custom_data_index(" in world_actor
+        and "CustomField::TileId" in world_actor
+        and "CustomField::Palette" in world_actor
+        and "CustomField::HFlip" in world_actor
+        and "CustomField::VFlip" in world_actor
         and "Tile.TileIdRaw" in world_actor
         and "Tile.Palette" in world_actor
         and "Tile.bHFlip" in world_actor
         and "Tile.bVFlip" in world_actor
         and "SetCustomDataValue(" in world_actor,
-        "R5 render instances must preserve tile/palette/flip descriptor data",
+        "R5 render instances must preserve tile/palette/flip descriptor data through tested custom-data layout",
         errors,
     )
     require(
         'TEXT("bottom")' in world_actor
-        or 'TEXT("middle")' in world_actor
-        and 'TEXT("top")' in world_actor,
+        and 'TEXT("middle")' in world_actor
+        and 'TEXT("top")' in world_actor
+        and "metatile_render::plane_height(" in world_actor,
         "R5 descriptor geometry must preserve deterministic render-plane ordering",
         errors,
     )
