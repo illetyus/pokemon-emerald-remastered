@@ -30,14 +30,14 @@ class R5RenderPackageTests(unittest.TestCase):
             self.assertEqual(len(manifest["content_sha256"]), 64)
 
             for item in manifest["tilesets"]:
-                descriptor = out / item["descriptor_file"]
+                descriptor_path = out / item["descriptor_file"]
                 tiles_png = out / item["tiles_png_file"]
-                tile_indices = out / item["tile_indices_file"]
+                tiles_index8 = out / item["tiles_index8_file"]
                 palette_lut = out / item["palette_lut_file"]
 
-                self.assertTrue(descriptor.is_file(), item["id"])
+                self.assertTrue(descriptor_path.is_file(), item["id"])
                 self.assertTrue(tiles_png.is_file(), item["id"])
-                self.assertTrue(tile_indices.is_file(), item["id"])
+                self.assertTrue(tiles_index8.is_file(), item["id"])
                 self.assertTrue(palette_lut.is_file(), item["id"])
                 self.assertEqual(len(item["palette_files"]), 16)
 
@@ -45,8 +45,9 @@ class R5RenderPackageTests(unittest.TestCase):
                     self.assertTrue((out / palette).is_file(), item["id"])
 
                 document = json.loads(
-                    descriptor.read_text(encoding="utf-8")
+                    descriptor_path.read_text(encoding="utf-8")
                 )
+
                 self.assertEqual(document["id"], item["id"])
                 self.assertEqual(
                     document["tiles_png"],
@@ -56,6 +57,14 @@ class R5RenderPackageTests(unittest.TestCase):
                     document["tiles_index8"],
                     item["tiles_index8_file"],
                 )
+                self.assertEqual(
+                    document["palette_files"],
+                    item["palette_files"],
+                )
+                self.assertEqual(
+                    document["palette_lut_file"],
+                    item["palette_lut_file"],
+                )
 
                 indexed_pixels = tiles_index8.read_bytes()
                 self.assertEqual(
@@ -64,36 +73,20 @@ class R5RenderPackageTests(unittest.TestCase):
                     * document["tiles_png_height"],
                     item["id"],
                 )
-                if indexed_pixels:
-                    self.assertLessEqual(
-                        max(indexed_pixels),
-                        15,
-                        item["id"],
-                    )
-                self.assertEqual(
-                    document["palette_files"],
-                    item["palette_files"],
-                )
-                self.assertEqual(
-                    document["tile_indices_file"],
-                    item["tile_indices_file"],
-                )
-                self.assertEqual(
-                    document["palette_lut_file"],
-                    item["palette_lut_file"],
-                )
-
-                index_bytes = tile_indices.read_bytes()
-                self.assertEqual(
-                    len(index_bytes),
-                    document["tiles_png_width"]
-                    * document["tiles_png_height"],
+                self.assertLessEqual(
+                    max(indexed_pixels, default=0),
+                    15,
                     item["id"],
                 )
-                self.assertLess(max(index_bytes, default=0), 16, item["id"])
 
                 lut_bytes = palette_lut.read_bytes()
-                self.assertEqual(len(lut_bytes), 16 * 16 * 4, item["id"])
+                self.assertEqual(
+                    len(lut_bytes),
+                    16 * 16 * 4,
+                    item["id"],
+                )
+                self.assertEqual(document["palette_lut_width"], 16)
+                self.assertEqual(document["palette_lut_height"], 16)
 
                 self.assertEqual(
                     len(document["metatiles"]),
@@ -104,17 +97,41 @@ class R5RenderPackageTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             out = Path(temp) / "render"
             manifest = self.build(out)
-            by_id = {item["id"]: item for item in manifest["tilesets"]}
+            by_id = {
+                item["id"]: item
+                for item in manifest["tilesets"]
+            }
             general = by_id["gTileset_General"]
 
             lut = (out / general["palette_lut_file"]).read_bytes()
-            self.assertEqual(lut[:4], bytes((24, 41, 82, 255)))
+            self.assertEqual(
+                lut[:4],
+                bytes((24, 41, 82, 255)),
+            )
+
+    def test_four_bit_indexed_source_normalizes_to_index8(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            out = Path(temp) / "render"
+            manifest = self.build(out)
+            by_id = {
+                item["id"]: item
+                for item in manifest["tilesets"]
+            }
+            arena = by_id["gTileset_BattleArena"]
 
             descriptor = json.loads(
-                (out / general["descriptor_file"]).read_text(encoding="utf-8")
+                (out / arena["descriptor_file"]).read_text(
+                    encoding="utf-8"
+                )
             )
-            self.assertEqual(descriptor["palette_lut_width"], 16)
-            self.assertEqual(descriptor["palette_lut_height"], 16)
+            indices = (out / arena["tiles_index8_file"]).read_bytes()
+
+            self.assertEqual(
+                len(indices),
+                descriptor["tiles_png_width"]
+                * descriptor["tiles_png_height"],
+            )
+            self.assertLessEqual(max(indices, default=0), 15)
 
     def test_package_paths_do_not_escape_output_root(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -142,15 +159,26 @@ class R5RenderPackageTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             out = Path(temp) / "render"
             manifest = self.build(out)
-            by_id = {item["id"]: item for item in manifest["tilesets"]}
+            by_id = {
+                item["id"]: item
+                for item in manifest["tilesets"]
+            }
 
             brown = json.loads(
-                (out / by_id["gTileset_SecretBaseBrownCave"]["descriptor_file"])
-                .read_text(encoding="utf-8")
+                (
+                    out
+                    / by_id["gTileset_SecretBaseBrownCave"][
+                        "descriptor_file"
+                    ]
+                ).read_text(encoding="utf-8")
             )
             tree = json.loads(
-                (out / by_id["gTileset_SecretBaseTree"]["descriptor_file"])
-                .read_text(encoding="utf-8")
+                (
+                    out
+                    / by_id["gTileset_SecretBaseTree"][
+                        "descriptor_file"
+                    ]
+                ).read_text(encoding="utf-8")
             )
 
             self.assertEqual(
