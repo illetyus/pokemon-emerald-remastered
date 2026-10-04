@@ -59,7 +59,7 @@ Status: **DONE**
 
 ## Task 4 — Packaged render-source payload
 
-Status: **IN PROGRESS**
+Status: **DONE**
 
 Create a deterministic build artifact matching Unreal's existing generated-data
 contract:
@@ -84,7 +84,7 @@ Acceptance:
 
 ## Task 5 — Unreal render catalog
 
-Status: TODO
+Status: **DONE**
 
 Add a GameInstance render-catalog subsystem that:
 
@@ -97,7 +97,7 @@ Add a GameInstance render-catalog subsystem that:
 
 ## Task 6 — Descriptor-driven chunk geometry
 
-Status: TODO
+Status: **DONE**
 
 Replace fallback one-block-per-metatile placement with descriptor-driven
 render planes:
@@ -113,7 +113,7 @@ Gameplay collision remains exclusively R4.
 
 ## Task 7 — Runtime texture/material ingestion
 
-Status: TODO
+Status: **DONE**
 
 Turn packaged tile-sheet/palette data into Unreal render resources:
 
@@ -128,7 +128,7 @@ This task provides the R5 material pipeline; visual art replacement remains R6.
 
 ## Task 8 — Real transition scene acceptance
 
-Status: TODO
+Status: **DONE**
 
 Demonstrate the production scene path:
 
@@ -142,7 +142,7 @@ Demonstrate the production scene path:
 
 ## Task 9 — R5 exit gate
 
-Status: TODO
+Status: **PASSED**
 
 R5 closes only when:
 
@@ -152,3 +152,18 @@ R5 closes only when:
 - Unreal architecture validation is green;
 - real R4 accepted slice uses production renderer/pawn/input path;
 - final evidence is recorded in `docs/R5_WORLD_RENDERER.md`.
+
+
+## Current checkpoint
+
+R5 is **COMPLETE**.
+
+Acceptance implementation head:
+`df95ee5695e5dca42b87bdc81d741496fc2bafd6`.
+
+Dedicated R5 run `37207647696` and R0/R1/R2/R3/R4 regression run
+`37207647809` are green.
+
+Final evidence is recorded in `docs/R5_WORLD_RENDERER.md`.
+
+The next phase is R6 — visual system, camera and environment presentation.
