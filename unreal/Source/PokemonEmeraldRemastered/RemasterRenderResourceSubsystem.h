@@ -50,18 +50,14 @@ private:
 
     UTexture2D* CreatePaletteTexture(
         const FString& DebugName,
-        const TArray<FColor>& Colors,
+        const TArray<uint8>& RgbaPixels,
         FString& OutError);
-
-    bool LoadPaletteColors(
-        const TArray<FString>& RelativePaletteFiles,
-        TArray<FColor>& OutColors,
-        FString& OutError) const;
 
     FString MakeCacheKey(
         const FString& TilesetId,
         const FString& DescriptorSha256,
-        const FString& IndexSha256) const;
+        const FString& IndexSha256,
+        const FString& PaletteLutSha256) const;
 
     UPROPERTY(Transient)
     TMap<FString, TObjectPtr<UTexture2D>> IndexTextureCache;
