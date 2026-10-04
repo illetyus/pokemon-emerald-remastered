@@ -1,10 +1,16 @@
 name: R0 Core
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
       - main
       - remaster/**
+  pull_request:
+    branches:
+      - main
 
 concurrency:
   group: r0-core-${{ github.ref }}
@@ -17,7 +23,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -33,7 +41,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Validate JSON fixtures
         run: python -m json.tool shared/scenarios/r0_walk_event_encounter.json > /dev/null
@@ -45,7 +55,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Test world conversion pipeline
         run: python -m unittest tests/test_convert_world.py
@@ -72,7 +84,7 @@ jobs:
         run: python tools/build_r2_littleroot_fixture.py tests/fixtures/r2/vanillaplus_source /tmp/r2_littleroot_generated.c
 
       - name: Upload real R2 opening native fixture
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: r2-littleroot-native-fixture
           path: /tmp/r2_littleroot_generated.c
@@ -94,7 +106,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Run R3 full-Hoenn acceptance
         run: >-
@@ -106,7 +120,7 @@ jobs:
 
       - name: Upload R3 full-world evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: r3-full-world-evidence
           path: /tmp/r3-full-world-evidence

@@ -1,5 +1,8 @@
 name: R0 Godot Reimplementation
 
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
 
@@ -14,7 +17,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Download Godot 4.7.2
         shell: bash

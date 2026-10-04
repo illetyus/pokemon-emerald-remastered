@@ -33,3 +33,23 @@ unreal/Intermediate/
 unreal/Saved/
 unreal/.vs/
 unreal/*.sln
+
+# Credentials / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+credentials*.json
+service-account*.json
+service_account*.json
+google-credentials*.json
+.colab/
+.gcloud/
+
+# Local CI artifacts
+/artifacts/
