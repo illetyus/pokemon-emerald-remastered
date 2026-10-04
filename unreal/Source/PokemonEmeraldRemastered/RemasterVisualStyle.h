@@ -45,6 +45,15 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="World")
     TArray<FRemasterTileVisualRule> TileRules;
 
+    /*
+     * R5 indexed-metatile base material. It must consume the fixed parameters
+     * R5_TileIndexTexture, R5_PaletteTexture, R5_TileSheetWidth,
+     * R5_TileSheetHeight and R5_TilesPerRow plus the 16 per-instance custom
+     * data floats defined by RemasterMetatileRenderMath.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="World")
+    TSoftObjectPtr<UMaterialInterface> MetatileMaterial;
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="World")
     TSoftObjectPtr<UMaterialInterface> WaterMaterial;
 
