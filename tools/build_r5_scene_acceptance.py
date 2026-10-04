@@ -55,7 +55,7 @@ def _load_descriptor(
             f"got {descriptor.get('id')}"
         )
 
-    index_path = render_root / descriptor["tile_indices_file"]
+    index_path = render_root / descriptor["tiles_index8"]
     palette_path = render_root / descriptor["palette_lut_file"]
 
     expected_index_bytes = (
