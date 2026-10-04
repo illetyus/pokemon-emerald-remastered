@@ -7,6 +7,7 @@
 #include "Materials/MaterialInterface.h"
 #include "Misc/Paths.h"
 #include "RemasterVisualStyle.h"
+#include "RemasterRenderCatalogSubsystem.h"
 #include "RemasterWorldGameplaySubsystem.h"
 #include "RemasterWorldGridMath.h"
 #include "UObject/ConstructorHelpers.h"
@@ -282,12 +283,16 @@ ARemasterWorldActor::ResolveMetatileVisual(uint16 MetatileId) const
 UHierarchicalInstancedStaticMeshComponent*
 ARemasterWorldActor::ComponentForMetatile(
     const FResolvedMetatileVisual& Visual,
+    const FString& RenderPlane,
     const FIntPoint& Chunk)
 {
     uint32 IdentityHash = GetTypeHash(Visual.Tileset);
     IdentityHash = HashCombine(
         IdentityHash,
         GetTypeHash(Visual.LocalMetatileId));
+    IdentityHash = HashCombine(
+        IdentityHash,
+        GetTypeHash(RenderPlane));
 
     const FRemasterChunkVisualKey Key{
         Chunk.X,
@@ -336,6 +341,7 @@ ARemasterWorldActor::ComponentForMetatile(
     Component->SetStaticMesh(Mesh);
     Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Component->SetCastShadow(bCastShadow);
+    Component->NumCustomDataFloats = 16;
 
     if (Material)
     {
@@ -356,11 +362,20 @@ void ARemasterWorldActor::BuildRenderChunks()
         return;
     }
 
+    URemasterRenderCatalogSubsystem* RenderCatalog = nullptr;
+    if (UGameInstance* GI = GetGameInstance())
+    {
+        RenderCatalog =
+            GI->GetSubsystem<URemasterRenderCatalogSubsystem>();
+    }
+
     const float EngineCubeSize = 100.0f;
     const FVector FallbackScale(
         TileWorldSize / EngineCubeSize,
         TileWorldSize / EngineCubeSize,
         PreviewThickness / EngineCubeSize);
+
+    TSet<FString> ReportedDescriptorFailures;
 
     for (int32 Y = 0; Y < LoadedMap.Height; ++Y)
     {
@@ -368,38 +383,155 @@ void ARemasterWorldActor::BuildRenderChunks()
         {
             const int32 Index = Y * LoadedMap.Width + X;
             if (!LoadedMap.MetatileIds.IsValidIndex(Index))
-            {
                 continue;
-            }
 
             const uint16 MetatileId = LoadedMap.MetatileIds[Index];
             const FResolvedMetatileVisual Visual =
                 ResolveMetatileVisual(MetatileId);
             const FIntPoint Chunk = ChunkForTile(X, Y);
 
-            UHierarchicalInstancedStaticMeshComponent* Target =
-                ComponentForMetatile(Visual, Chunk);
-
-            if (!Target)
-                continue;
-
             FVector Scale = FallbackScale;
-            float HeightOffset = -PreviewThickness * 0.5f;
+            float BaseHeightOffset = -PreviewThickness * 0.5f;
 
             if (Visual.Rule)
             {
                 Scale = Visual.Rule->Scale;
-                HeightOffset = Visual.Rule->HeightOffset;
+                BaseHeightOffset = Visual.Rule->HeightOffset;
             }
 
-            Target->AddInstance(
-                FTransform(
-                    FRotator::ZeroRotator,
-                    TileToLocalLocation(
-                        X,
-                        Y,
-                        HeightOffset),
-                    Scale));
+            const FRemasterTilesetRenderDescriptor* Tileset = nullptr;
+            const FRemasterMetatileRenderDescriptor* Metatile = nullptr;
+            FString DescriptorError;
+
+            const bool bHasDescriptor =
+                RenderCatalog
+                && RenderCatalog->IsCatalogReady()
+                && RenderCatalog->ResolveMetatile(
+                    Visual.Tileset,
+                    Visual.LocalMetatileId,
+                    Tileset,
+                    Metatile,
+                    DescriptorError)
+                && Tileset
+                && Metatile;
+
+            if (!bHasDescriptor)
+            {
+                const FString FailureKey = FString::Printf(
+                    TEXT("%s:%d"),
+                    *Visual.Tileset,
+                    Visual.LocalMetatileId);
+
+                if (!ReportedDescriptorFailures.Contains(FailureKey))
+                {
+                    ReportedDescriptorFailures.Add(FailureKey);
+                    UE_LOG(
+                        LogTemp,
+                        Error,
+                        TEXT("R5 descriptor unavailable for %s: %s"),
+                        *FailureKey,
+                        DescriptorError.IsEmpty()
+                            ? TEXT("render catalog unavailable")
+                            : *DescriptorError);
+                }
+
+                UHierarchicalInstancedStaticMeshComponent* Fallback =
+                    ComponentForMetatile(
+                        Visual,
+                        TEXT("fallback"),
+                        Chunk);
+
+                if (Fallback)
+                {
+                    Fallback->AddInstance(
+                        FTransform(
+                            FRotator::ZeroRotator,
+                            TileToLocalLocation(
+                                X,
+                                Y,
+                                BaseHeightOffset),
+                            Scale));
+                }
+                continue;
+            }
+
+            for (int32 PlaneIndex = 0; PlaneIndex < 2; ++PlaneIndex)
+            {
+                if (!Metatile->RenderPlanes.IsValidIndex(PlaneIndex))
+                    continue;
+
+                const FString& RenderPlane =
+                    Metatile->RenderPlanes[PlaneIndex];
+
+                UHierarchicalInstancedStaticMeshComponent* Target =
+                    ComponentForMetatile(
+                        Visual,
+                        RenderPlane,
+                        Chunk);
+
+                if (!Target)
+                    continue;
+
+                float PlaneOrder = 0.0f;
+                if (RenderPlane.Equals(
+                        TEXT("middle"),
+                        ESearchCase::CaseSensitive))
+                {
+                    PlaneOrder = 1.0f;
+                }
+                else if (RenderPlane.Equals(
+                             TEXT("top"),
+                             ESearchCase::CaseSensitive))
+                {
+                    PlaneOrder = 2.0f;
+                }
+
+                const int32 InstanceIndex = Target->AddInstance(
+                    FTransform(
+                        FRotator::ZeroRotator,
+                        TileToLocalLocation(
+                            X,
+                            Y,
+                            BaseHeightOffset
+                                + PlaneOrder * RenderPlaneWorldSpacing),
+                        Scale));
+
+                for (const FRemasterRenderTileEntry& Tile
+                     : Metatile->Entries)
+                {
+                    if (Tile.SourceLayer != PlaneIndex
+                        || Tile.Quadrant < 0
+                        || Tile.Quadrant > 3)
+                    {
+                        continue;
+                    }
+
+                    const int32 CustomBase = Tile.Quadrant * 4;
+                    Target->SetCustomDataValue(
+                        InstanceIndex,
+                        CustomBase + 0,
+                        static_cast<float>(Tile.TileIdRaw),
+                        false);
+                    Target->SetCustomDataValue(
+                        InstanceIndex,
+                        CustomBase + 1,
+                        static_cast<float>(Tile.Palette),
+                        false);
+                    Target->SetCustomDataValue(
+                        InstanceIndex,
+                        CustomBase + 2,
+                        Tile.bHFlip ? 1.0f : 0.0f,
+                        false);
+                    Target->SetCustomDataValue(
+                        InstanceIndex,
+                        CustomBase + 3,
+                        Tile.bVFlip ? 1.0f : 0.0f,
+                        false);
+                }
+
+                Target->MarkRenderStateDirty();
+            }
         }
     }
 }
+
