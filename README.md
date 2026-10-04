@@ -1,47 +1,124 @@
 # Pokémon Emerald Remastered
 
-Android-first technical remaster project built around preserving Pokémon Emerald gameplay behavior while replacing platform, rendering, UI, input, audio, and presentation layers with modern equivalents.
+Android-first technical remaster of Pokémon Emerald/Vanilla+.
+
+The project preserves authoritative Emerald gameplay behavior in a portable,
+deterministic C/C++ core while Unreal Engine owns presentation, UI, audio,
+input and platform integration.
 
 ## Project status
 
-The project is in **R0 — Architecture Prototype**.
+**R0-R5 are complete.**
 
-R0 exists to prove the technical direction before production art or large-scale gameplay work begins.
+Completed foundation:
+
+- R0 — production architecture / portable authoritative core;
+- R1 — save, state, RTC and event foundation;
+- R2 — script engine;
+- R3 — complete Hoenn world-data conversion;
+- R4 — authoritative overworld runtime;
+- R5 — Unreal world-renderer source/data bridge.
+
+The next implementation phase is:
+
+**R10 — Map + quest guidance**
+
+The phase numbers are intentionally preserved even though the remaining
+implementation order is non-numeric.
+
+## Canonical roadmap
+
+The current and authoritative development plan is:
+
+**[docs/ROADMAP.md](docs/ROADMAP.md)**
+
+Older R0-R5 plan/evidence documents are historical records. They do not define
+the current remaining-phase order.
+
+Current remaining order:
+
+1. R10 — Map + quest guidance
+2. R11 — Pokémon / party / item core
+3. R12 — Encounter system
+4. R13 — Battle core
+5. R16 — Vanilla+ QoL
+6. R17 — Save compatibility / migration
+7. R6 — Character / NPC presentation + asset pipeline
+8. R7 — Camera / environment presentation + asset pipeline
+9. R9 — UI / HUD / menu infrastructure
+10. R14 — Battle presentation + Pokémon asset pipeline
+11. R15 — Audio
+12. R8 — Android input infrastructure
+13. R19 — Regression / test infrastructure expansion
+14. R20 — Code / package polish
+15. R18 — Real UE 5.8.3 / Android production build on the project PC
+16. Real Unreal runtime validation
+17. BrowserStack real Android smoke
+18. R19 final Android device matrix
+19. R21 — Release Candidate
+20. R22 — Final Release
 
 ## Core principles
 
-- Preserve proven Emerald gameplay behavior wherever practical.
-- Separate gameplay truth from presentation and platform code.
-- Treat Android as a first-class target, not an emulator wrapper.
-- Keep game data portable and machine-convertible.
-- Replace presentation progressively instead of rewriting the entire game at once.
-- Require regression tests before replacing legacy behavior.
-- Do not commit copyrighted commercial game assets or ROM images to this repository.
+- Portable core owns gameplay truth.
+- Unreal is presentation/input/audio/platform host only.
+- Emerald/Vanilla+ source behavior is the primary gameplay specification.
+- Same initial state + data + RNG seed + ordered inputs must produce the same
+  gameplay-state sequence.
+- Regression-first development.
+- Each phase uses branch + PR and merges only after required CI is green.
+- No direct commits to `main`.
+- Android is the primary runtime target.
+- Real Unreal compilation, APK production and BrowserStack real-device testing
+  are deliberately deferred until the final PC stage.
+- Do not commit ROMs, extracted Nintendo/Game Freak/Creatures commercial
+  assets, credentials or secrets.
 
-## Development track
+## Architecture
 
-- R0 — Architecture prototype
-- R1 — Core/platform separation
-- R2 — Android runtime
-- R3 — Data conversion pipeline
-- R4 — Modern overworld renderer
-- R5 — Visual art system
-- R6 — Camera, lighting and world presentation
-- R7 — Modern UI/UX
-- R8 — Android input
-- R9 — Battle presentation
-- R10 — Mechanical modernization
-- R11 — Game feel
-- R12 — Audio remaster
-- R13 — Performance and device scaling
-- R14 — Regression and compatibility
-- R15 — Full content conversion and final polish
+See:
 
-Current Unreal migration work lives on `remaster/r0-unreal`. The architecture branch remains the comparison/evidence base.
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- [docs/adr/0001-unreal-engine-production-runtime.md](docs/adr/0001-unreal-engine-production-runtime.md)
 
+Production architecture:
 
-## Linux-first Unreal build
+```text
+Emerald / pinned Vanilla+ source truth
+        ↓
+portable deterministic gameplay core
+        ↓
+state snapshots + presentation events
+        ↓
+Unreal Engine
+        ↓
+Android
+```
 
-Unreal Engine 5.8 builds are now designed to run on Linux. The engine-side workflow expects a Linux runner labeled `unreal-5.8`, builds the native Linux Development target, then cooks and packages the Android ARM64 Development APK with `RunUAT.sh`.
+## Asset policy
 
-Portable core, conversion, replay and architecture checks continue to run independently on ordinary GitHub-hosted Linux CI.
+Character, Pokémon, environment and audio preparation use a local asset
+pipeline.
+
+The public repository may contain:
+
+- extraction/conversion tools;
+- mappings;
+- manifests;
+- hashes/provenance;
+- validation rules;
+- redistributable test/placeholder assets.
+
+It must not contain extracted commercial game models, textures, audio or ROM
+images.
+
+## Unreal / Android build policy
+
+Source/data architecture checks continue in ordinary CI.
+
+The real licensed Unreal Engine 5.8.3 compile/cook/package step is intentionally
+scheduled for R18 on the project PC. A real Android APK is required before the
+BrowserStack real-device smoke stage.
+
+A future self-hosted runner, if used at all, must never execute untrusted public
+fork PR code with host or secret access.
