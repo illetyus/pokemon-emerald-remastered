@@ -92,6 +92,9 @@ protected:
     UPROPERTY(EditAnywhere, Category="Remaster|World")
     float PreviewThickness = 10.0f;
 
+    UPROPERTY(EditAnywhere, Category="Remaster|World")
+    float RenderPlaneWorldSpacing = 2.0f;
+
     UPROPERTY(EditAnywhere, Category="Remaster|World", meta=(ClampMin="0.0"))
     float RenderPlaneSpacing = 1.0f;
 
