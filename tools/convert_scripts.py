@@ -301,6 +301,72 @@ def _parse_args(text: str) -> tuple[str, ...]:
     return tuple(part.strip() for part in text.split(",") if part.strip())
 
 
+def _is_script_source_path(relative: Path) -> bool:
+    posix = relative.as_posix()
+    return (
+        (posix.startswith("data/maps/") and posix.endswith("/scripts.inc"))
+        or (posix.startswith("data/scripts/") and posix.endswith(".inc"))
+        or (posix.startswith("data/text/") and posix.endswith(".inc"))
+    )
+
+
+def _script_source_candidates(
+    source_root: Path,
+    roots: list[Path],
+) -> set[Path]:
+    candidates: set[Path] = set()
+    event_scripts = source_root / "data/event_scripts.s"
+
+    if event_scripts.is_file():
+        candidates.add(event_scripts)
+        pending = [event_scripts]
+        visited: set[Path] = set()
+        include_pattern = re.compile(r'^\s*\.include\s+"([^"]+)"')
+
+        while pending:
+            current = pending.pop()
+            if current in visited:
+                continue
+            visited.add(current)
+
+            for raw in current.read_text(encoding="utf-8").splitlines():
+                match = include_pattern.match(raw)
+                if not match:
+                    continue
+                relative = Path(match.group(1))
+                if not _is_script_source_path(relative):
+                    continue
+                target = source_root / relative
+                if not target.is_file():
+                    raise ScriptConversionError(
+                        f"{current.relative_to(source_root)}: "
+                        f"missing included script source {relative.as_posix()}"
+                    )
+                if target not in candidates:
+                    candidates.add(target)
+                    pending.append(target)
+    else:
+        # Minimal unit fixtures and focused conversion roots may not model the
+        # top-level assembly manifest. Preserve the legacy discovery fallback
+        # only for those trees.
+        for path in (source_root / "data/maps").glob("**/scripts.inc"):
+            if path.is_file():
+                candidates.add(path)
+        for path in (source_root / "data/scripts").glob("**/*.inc"):
+            if path.is_file():
+                candidates.add(path)
+        for path in (source_root / "data/text").glob("**/*.inc"):
+            if path.is_file():
+                candidates.add(path)
+
+    for relative in roots:
+        path = source_root / relative
+        if path.is_file():
+            candidates.add(path)
+
+    return candidates
+
+
 def _index_script_sources(
     source_root: Path,
     roots: list[Path],
@@ -308,24 +374,7 @@ def _index_script_sources(
     dict[str, tuple[Path, int, list[SourceCommand]]],
     dict[Path, list[str]],
 ]:
-    candidates: set[Path] = set()
-
-    for path in (source_root / "data/maps").glob("**/scripts.inc"):
-        if path.is_file():
-            candidates.add(path)
-    for path in (source_root / "data/scripts").glob("**/*.inc"):
-        if path.is_file():
-            candidates.add(path)
-    for path in (source_root / "data/text").glob("**/*.inc"):
-        if path.is_file():
-            candidates.add(path)
-    event_scripts = source_root / "data/event_scripts.s"
-    if event_scripts.is_file():
-        candidates.add(event_scripts)
-    for relative in roots:
-        path = source_root / relative
-        if path.is_file():
-            candidates.add(path)
+    candidates = _script_source_candidates(source_root, roots)
 
     labels: dict[str, tuple[Path, int, list[SourceCommand]]] = {}
     labels_by_file: dict[Path, list[str]] = {}
@@ -494,23 +543,7 @@ def _script_source_sections(
     source_root: Path,
     roots: list[Path],
 ) -> dict[str, tuple[Path, int, list[tuple[int, str]]]]:
-    candidates: set[Path] = set()
-    for path in (source_root / "data/maps").glob("**/scripts.inc"):
-        if path.is_file():
-            candidates.add(path)
-    for path in (source_root / "data/scripts").glob("**/*.inc"):
-        if path.is_file():
-            candidates.add(path)
-    for path in (source_root / "data/text").glob("**/*.inc"):
-        if path.is_file():
-            candidates.add(path)
-    event_scripts = source_root / "data/event_scripts.s"
-    if event_scripts.is_file():
-        candidates.add(event_scripts)
-    for relative in roots:
-        path = source_root / relative
-        if path.is_file():
-            candidates.add(path)
+    candidates = _script_source_candidates(source_root, roots)
 
     sections: dict[str, tuple[Path, int, list[tuple[int, str]]]] = {}
     label_pattern = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)(?:::|:)$")
