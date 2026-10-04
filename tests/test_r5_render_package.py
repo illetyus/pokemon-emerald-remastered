@@ -53,6 +53,24 @@ class R5RenderPackageTests(unittest.TestCase):
                     item["tiles_png_file"],
                 )
                 self.assertEqual(
+                    document["tiles_index8"],
+                    item["tiles_index8_file"],
+                )
+
+                indexed_pixels = tiles_index8.read_bytes()
+                self.assertEqual(
+                    len(indexed_pixels),
+                    document["tiles_png_width"]
+                    * document["tiles_png_height"],
+                    item["id"],
+                )
+                if indexed_pixels:
+                    self.assertLessEqual(
+                        max(indexed_pixels),
+                        15,
+                        item["id"],
+                    )
+                self.assertEqual(
                     document["palette_files"],
                     item["palette_files"],
                 )
@@ -103,6 +121,13 @@ class R5RenderPackageTests(unittest.TestCase):
             out = Path(temp) / "render"
             manifest = self.build(out)
             resolved_root = out.resolve()
+
+            self.assertTrue(
+                all(
+                    "tiles.index8" in entry["tiles_index8_file"]
+                    for entry in manifest["tilesets"]
+                )
+            )
 
             for relative in manifest["files_sha256"]:
                 candidate = (out / relative).resolve()
