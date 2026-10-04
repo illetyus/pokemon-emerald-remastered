@@ -270,6 +270,7 @@ private:
     bool RefreshSavedObjectTemplateCache(
         const FRemasterMapIR& Map);
     bool RebuildRuntimeObjectState();
+    bool SyncRuntimeObjectView();
 
     FRemasterMapIR CurrentMap;
     void* NativeObjectRuntime = nullptr;
