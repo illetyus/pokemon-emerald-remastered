@@ -357,6 +357,8 @@ CONNECTION_DIRECTION_IDS = {
     "up": 2,
     "left": 3,
     "right": 4,
+    "dive": 5,
+    "emerge": 6,
 }
 
 
