@@ -50,5 +50,21 @@ jobs:
           path: /tmp/r5-tilesets.json
           if-no-files-found: error
 
+      - name: Decode real R5 metatile descriptors
+        run: python -m unittest tests/test_r5_metatile_descriptors.py -v
+
+      - name: Build R5 metatile descriptor artifact
+        run: >-
+          python tools/build_r5_metatile_descriptors.py
+          vendor/vanillaplus
+          /tmp/r5-metatiles.json
+
+      - name: Upload R5 metatile descriptors
+        uses: actions/upload-artifact@v4
+        with:
+          name: r5-metatile-descriptors
+          path: /tmp/r5-metatiles.json
+          if-no-files-found: error
+
       - name: Validate Unreal R5 renderer architecture
         run: python tools/validate_unreal_source.py
