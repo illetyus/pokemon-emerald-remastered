@@ -96,7 +96,7 @@ Result:
 
 ## Task 3 — Unreal gameplay subsystem player-step adapter
 
-Status: TODO
+Status: **DONE**
 
 Add a single gameplay call that:
 
@@ -111,7 +111,7 @@ Do not duplicate collision logic in Blueprint/C++.
 
 ## Task 4 — Runtime object collision state
 
-Status: TODO
+Status: **DONE**
 
 Move from template-only object coordinates to runtime collider coordinates.
 
@@ -127,7 +127,7 @@ Requirements:
 
 ## Task 5 — Step-completion event ordering
 
-Status: TODO
+Status: **DONE**
 
 After a successful local step, preserve Emerald field ordering for the subset
 owned by R4/R2:
@@ -142,7 +142,7 @@ A blocked step must not trigger a tile-entry event.
 
 ## Task 6 — Special walking movement semantics
 
-Status: TODO
+Status: **DONE FOR R4 WALKING SCOPE**
 
 Promote currently reported special collisions into authoritative behavior where
 they belong in R4:
@@ -157,7 +157,7 @@ acceptance map.
 
 ## Task 7 — Save/reload continuity
 
-Status: TODO
+Status: **DONE**
 
 Acceptance must prove:
 
@@ -169,7 +169,7 @@ Acceptance must prove:
 
 ## Task 8 — R4 completion gate
 
-Status: TODO
+Status: **PASSED**
 
 R4 closes only when:
 
@@ -184,7 +184,12 @@ R4 closes only when:
 
 ## Current checkpoint
 
-R4 is **IN PROGRESS**.
+R4 is **COMPLETE**.
 
-Tasks 1 and 2 are complete. The next executable task is Task 3: wire the
-authoritative player-step API into `URemasterWorldGameplaySubsystem`.
+Acceptance implementation head: `d9c66ac5e459307d8b335edfe350a00727980e38`.
+
+Dedicated R4 run `37188813328` and R0/R1/R2/R3 regression run
+`37188813321` are green. Final evidence is recorded in
+`docs/R4_OVERWORLD_RUNTIME.md`.
+
+The next phase is R5 — Unreal world renderer.
