@@ -1,0 +1,38 @@
+name: R5 World Renderer
+
+on:
+  push:
+    branches:
+      - main
+      - remaster/r5-**
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: r5-world-renderer-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  renderer-contract:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build R5 world-grid target
+        run: cmake --build build --config Release --target r5_world_grid_test
+
+      - name: Run R5 world-grid test
+        run: >-
+          ctest --test-dir build -C Release
+          -R "r5_world_grid_math"
+          --output-on-failure
+
+      - name: Validate Unreal R5 renderer architecture
+        run: python tools/validate_unreal_source.py
