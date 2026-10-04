@@ -6,6 +6,7 @@
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInterface.h"
 #include "Misc/Paths.h"
+#include "RemasterMetatileRenderMath.h"
 #include "RemasterVisualStyle.h"
 #include "RemasterRenderCatalogSubsystem.h"
 #include "RemasterWorldGameplaySubsystem.h"
