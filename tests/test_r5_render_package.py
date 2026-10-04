@@ -65,6 +65,10 @@ class R5RenderPackageTests(unittest.TestCase):
                     document["palette_lut_file"],
                     item["palette_lut_file"],
                 )
+                self.assertEqual(
+                    document["palette_lut_sha256"],
+                    item["palette_lut_sha256"],
+                )
 
                 indexed_pixels = tiles_index8.read_bytes()
                 self.assertEqual(
