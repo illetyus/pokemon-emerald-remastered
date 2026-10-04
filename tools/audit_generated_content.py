@@ -633,7 +633,7 @@ def audit(root: Path) -> list[str]:
             target = connection.get("map")
             if "direction" in connection:
                 direction_id = connection.get("direction_id")
-                if not isinstance(direction_id, int) or direction_id not in {1, 2, 3, 4}:
+                if not isinstance(direction_id, int) or direction_id not in {1, 2, 3, 4, 5, 6}:
                     errors.append(
                         f"{rel}: connection {target!r} is missing valid direction_id"
                     )
