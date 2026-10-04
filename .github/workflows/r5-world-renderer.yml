@@ -85,5 +85,21 @@ jobs:
           path: /tmp/r5-render-package
           if-no-files-found: error
 
+      - name: Validate real R5 transition scene
+        run: python -m unittest tests/test_r5_scene_acceptance.py -v
+
+      - name: Build real R5 transition scene report
+        run: >-
+          python tools/build_r5_scene_acceptance.py
+          vendor/vanillaplus
+          /tmp/r5-scene-acceptance.json
+
+      - name: Upload real R5 transition scene report
+        uses: actions/upload-artifact@v4
+        with:
+          name: r5-scene-acceptance
+          path: /tmp/r5-scene-acceptance.json
+          if-no-files-found: error
+
       - name: Validate Unreal R5 renderer architecture
         run: python tools/validate_unreal_source.py
