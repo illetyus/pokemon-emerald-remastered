@@ -116,7 +116,7 @@ private:
     UHierarchicalInstancedStaticMeshComponent* ComponentForMetatile(
         const FResolvedMetatileVisual& Visual,
         const FString& RenderPlane,
-        int32 SourceLayer,
+        int32 PlaneIndex,
         const FIntPoint& Chunk);
 
     FRemasterMapIR LoadedMap;
