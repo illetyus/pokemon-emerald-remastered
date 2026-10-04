@@ -79,6 +79,110 @@ bool BuildRuntimeObjectEvents(
     return true;
 }
 
+bool BuildNativeCoordEvents(
+    const FRemasterMapIR& Map,
+    TArray<RemasterEmeraldCoordEventDef>& OutEvents)
+{
+    OutEvents.Reset();
+    OutEvents.Reserve(Map.CoordEvents.Num());
+
+    for (const FRemasterCoordEventIR& Event : Map.CoordEvents)
+    {
+        if (!FitsInt16(Event.X)
+            || !FitsInt16(Event.Y)
+            || !FitsUInt8(Event.Elevation))
+        {
+            return false;
+        }
+
+        RemasterEmeraldCoordEventDef Native{};
+        Native.x = static_cast<int16>(Event.X);
+        Native.y = static_cast<int16>(Event.Y);
+        Native.elevation = static_cast<uint8>(Event.Elevation);
+
+        if (Event.Type.Equals(TEXT("weather"), ESearchCase::IgnoreCase))
+        {
+            if (!FitsUInt16(Event.WeatherId))
+                return false;
+
+            Native.kind = REMASTER_EMERALD_COORD_WEATHER;
+            Native.weather = static_cast<uint16>(Event.WeatherId);
+        }
+        else if (Event.Type.Equals(TEXT("trigger"), ESearchCase::IgnoreCase))
+        {
+            if (!FitsUInt16(Event.VarId)
+                || !FitsUInt16(Event.VarValueNum))
+            {
+                return false;
+            }
+
+            Native.kind = REMASTER_EMERALD_COORD_TRIGGER;
+            Native.trigger = static_cast<uint16>(Event.VarId);
+            Native.index = static_cast<uint16>(Event.VarValueNum);
+
+            /*
+             * The portable action layer needs only null-vs-present identity.
+             * Unreal recovers the authoritative FString from the source index.
+             */
+            Native.script_id =
+                Event.ScriptId.IsEmpty() && Event.Script.IsEmpty()
+                    ? nullptr
+                    : "r4-generated-script";
+        }
+        else
+        {
+            return false;
+        }
+
+        OutEvents.Add(Native);
+    }
+
+    return true;
+}
+
+bool BuildNativeWarpEvents(
+    const FRemasterMapIR& Map,
+    TArray<RemasterEmeraldWarpEventDef>& OutEvents)
+{
+    OutEvents.Reset();
+    OutEvents.Reserve(Map.WarpEvents.Num());
+
+    for (const FRemasterWarpEventIR& Event : Map.WarpEvents)
+    {
+        if (!FitsInt16(Event.X)
+            || !FitsInt16(Event.Y)
+            || !FitsUInt8(Event.Elevation)
+            || !FitsUInt8(Event.DestWarpIdNum))
+        {
+            return false;
+        }
+
+        if (!Event.bDynamicTarget
+            && (!FitsUInt8(Event.DestGroupNum)
+                || !FitsUInt8(Event.DestMapNum)))
+        {
+            return false;
+        }
+
+        RemasterEmeraldWarpEventDef Native{};
+        Native.x = static_cast<int16>(Event.X);
+        Native.y = static_cast<int16>(Event.Y);
+        Native.elevation = static_cast<uint8>(Event.Elevation);
+        Native.dest_warp_id =
+            static_cast<uint8>(Event.DestWarpIdNum);
+        Native.dest_map_group = Event.bDynamicTarget
+            ? 0u
+            : static_cast<uint8>(Event.DestGroupNum);
+        Native.dest_map_num = Event.bDynamicTarget
+            ? 0u
+            : static_cast<uint8>(Event.DestMapNum);
+
+        OutEvents.Add(Native);
+    }
+
+    return true;
+}
+
 bool PopulatePlayerStepSnapshot(
     const RemasterEmeraldSave* Save,
     const FRemasterMapIR& Map,
