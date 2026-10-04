@@ -395,13 +395,21 @@ def convert_layout_document(
 
     if primary_tileset not in tileset_attributes:
         raise KeyError(f"{layout_id}: unknown primary tileset {primary_tileset}")
-    if secondary_tileset not in tileset_attributes:
-        raise KeyError(f"{layout_id}: unknown secondary tileset {secondary_tileset}")
 
     primary_attributes_path = tileset_attributes[primary_tileset]
-    secondary_attributes_path = tileset_attributes[secondary_tileset]
     primary_attributes = read_u16_le(primary_attributes_path)
-    secondary_attributes = read_u16_le(secondary_attributes_path)
+
+    secondary_tileset_missing = secondary_tileset in (None, 0, "0", "")
+    if secondary_tileset_missing:
+        secondary_attributes_path: Path | None = None
+        secondary_attributes: list[int] = []
+    else:
+        if secondary_tileset not in tileset_attributes:
+            raise KeyError(
+                f"{layout_id}: unknown secondary tileset {secondary_tileset}"
+            )
+        secondary_attributes_path = tileset_attributes[secondary_tileset]
+        secondary_attributes = read_u16_le(secondary_attributes_path)
 
     if len(primary_attributes) > 512:
         raise ValueError(
@@ -443,9 +451,13 @@ def convert_layout_document(
             "primary_metatile_attributes": str(
                 primary_attributes_path.relative_to(source_root)
             ).replace("\\", "/"),
-            "secondary_metatile_attributes": str(
-                secondary_attributes_path.relative_to(source_root)
-            ).replace("\\", "/"),
+            "secondary_metatile_attributes": (
+                str(secondary_attributes_path.relative_to(source_root)).replace(
+                    "\\", "/"
+                )
+                if secondary_attributes_path is not None
+                else None
+            ),
         },
         "layout": {
             "id": layout_id,
