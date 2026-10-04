@@ -104,6 +104,7 @@ def main() -> int:
         "RemasterPerformanceSubsystem.cpp",
         "RemasterVanillaPlusSaveSubsystem.cpp",
         "RemasterWorldGameplaySubsystem.cpp",
+        "RemasterRenderCatalogSubsystem.cpp",
         "RemasterOverworldPawn.cpp",
     ]
     for filename in required_runtime_files:
@@ -192,6 +193,49 @@ def main() -> int:
         "FRemasterGameplayMapChanged OnGameplayMapChanged" in world_gameplay_h
         and "OnGameplayMapChanged.Broadcast(" in world_gameplay,
         "R5 gameplay bridge must publish authoritative map changes",
+        errors,
+    )
+
+    render_catalog_h = (
+        MODULE / "RemasterRenderCatalogSubsystem.h"
+    ).read_text(encoding="utf-8")
+    render_catalog_cpp = (
+        MODULE / "RemasterRenderCatalogSubsystem.cpp"
+    ).read_text(encoding="utf-8")
+    require(
+        'TEXT("Generated")' in render_catalog_cpp
+        and 'TEXT("Render")' in render_catalog_cpp
+        and 'TEXT("manifest.json")' in render_catalog_cpp
+        and "vendor/vanillaplus" not in render_catalog_cpp,
+        "R5 render catalog must load only the packaged Content/Generated/Render payload",
+        errors,
+    )
+    require(
+        "FindTileset(" in render_catalog_h
+        and "LoadTileset(" in render_catalog_h
+        and "ResolveMetatile(" in render_catalog_h
+        and "Entries.Find(TilesetId)" in render_catalog_cpp,
+        "R5 render catalog must resolve exact source tileset identities",
+        errors,
+    )
+    require(
+        "DescriptorCache.Find(TilesetId)" in render_catalog_cpp
+        and "DescriptorCache.Add(TilesetId, Descriptor)" in render_catalog_cpp,
+        "R5 render catalog must lazy-cache decoded tileset descriptors",
+        errors,
+    )
+    require(
+        "Entries.Num() == MetatileCount" not in render_catalog_cpp
+        and "Metatile.Entries.Num() == 8" in render_catalog_h
+        and "Reconstructed != Tile.RawU16" in render_catalog_cpp,
+        "R5 render catalog must validate decoded metatile/tile integrity",
+        errors,
+    )
+    require(
+        "ResolvePackageFile(" in render_catalog_h
+        and "IsSafePackageRelative(" in render_catalog_cpp
+        and "FPaths::FileExists(Candidate)" in render_catalog_cpp,
+        "R5 render catalog must reject package-path escapes and missing payload files",
         errors,
     )
 
