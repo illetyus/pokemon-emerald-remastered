@@ -94,7 +94,10 @@ def decode_tileset(
     return {
         "id": source_record["id"],
         "is_secondary": source_record["is_secondary"],
-        "asset_root": source_record["asset_root"],
+        "metatile_asset_root": source_record["metatile_asset_root"],
+        "visual_asset_root": source_record["visual_asset_root"],
+        "tile_symbol": source_record["tile_symbol"],
+        "palette_symbol": source_record["palette_symbol"],
         "tiles_png": source_record["tiles_png"],
         "tiles_png_width": source_record["tiles_png_width"],
         "tiles_png_height": source_record["tiles_png_height"],
