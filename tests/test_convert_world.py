@@ -8,7 +8,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
-from convert_world import convert_world, list_field  # noqa: E402
+from convert_world import add_numeric_map_targets, convert_world, list_field  # noqa: E402
 
 
 class ConvertWorldTests(unittest.TestCase):
@@ -24,6 +24,40 @@ class ConvertWorldTests(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             list_field({"connections": 1}, "connections")
+
+    def test_real_vanillaplus_dive_and_emerge_connection_ids(self):
+        surface = json.loads(
+            (
+                ROOT
+                / "vendor/vanillaplus/data/maps/Route105/map.json"
+            ).read_text(encoding="utf-8")
+        )
+        underwater = json.loads(
+            (
+                ROOT
+                / "vendor/vanillaplus/data/maps/Underwater_Route105/map.json"
+            ).read_text(encoding="utf-8")
+        )
+
+        dive = next(
+            connection
+            for connection in surface["connections"]
+            if connection["direction"] == "dive"
+        )
+        emerge = next(
+            connection
+            for connection in underwater["connections"]
+            if connection["direction"] == "emerge"
+        )
+
+        targets = {
+            dive["map"]: (24, 0),
+            emerge["map"]: (0, 1),
+        }
+        converted = add_numeric_map_targets([dive, emerge], targets)
+
+        self.assertEqual(converted[0]["direction_id"], 5)
+        self.assertEqual(converted[1]["direction_id"], 6)
 
     def test_lossless_map_conversion(self):
         with tempfile.TemporaryDirectory() as temp:
