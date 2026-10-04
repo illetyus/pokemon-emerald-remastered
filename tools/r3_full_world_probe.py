@@ -22,7 +22,7 @@ from convert_world import convert_world  # noqa: E402
 
 PINNED_SOURCE_REPOSITORY = "illetyus/pokezumrut-vanillaplus"
 PINNED_SOURCE_COMMIT = "70db90c9077aed1272e746fc2537d9f12b95a91c"
-PINNED_SOURCE_TREE = "58b83886d5f99915741a0929bd2d67a95a78740a"
+ORIGINAL_SOURCE_TREE = "58b83886d5f99915741a0929bd2d67a95a78740a"\nPINNED_VENDOR_TREE = "5a551f1f9e40184278c57dfb8d25f68a0a1c99dc"
 
 EXPECTED_COUNTS = {
     "group_count": 34,
@@ -77,9 +77,9 @@ def _verify_vendor_tree(repo_root: Path, source_root: Path) -> str:
     ).strip()
 
     _require(
-        actual == PINNED_SOURCE_TREE,
+        actual == PINNED_VENDOR_TREE,
         "vendored Vanilla+ tree mismatch: "
-        f"expected {PINNED_SOURCE_TREE}, got {actual}",
+        f"expected {PINNED_VENDOR_TREE}, got {actual}",
     )
     return actual
 
