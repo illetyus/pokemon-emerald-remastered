@@ -4,10 +4,13 @@
 #include "Components/SceneComponent.h"
 #include "Engine/GameInstance.h"
 #include "Engine/StaticMesh.h"
+#include "Materials/Material.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 #include "Misc/Paths.h"
 #include "RemasterMetatileRenderMath.h"
 #include "RemasterRenderCatalogSubsystem.h"
+#include "RemasterRenderResourceSubsystem.h"
 #include "RemasterVisualStyle.h"
 #include "RemasterWorldGameplaySubsystem.h"
 #include "RemasterWorldGridMath.h"
@@ -349,23 +352,67 @@ ARemasterWorldActor::ComponentForMetatile(
         return *Existing;
     }
 
+    UGameInstance* GI = GetGameInstance();
+    URemasterRenderResourceSubsystem* ResourceSubsystem =
+        GI
+            ? GI->GetSubsystem<URemasterRenderResourceSubsystem>()
+            : nullptr;
+
+    if (!ResourceSubsystem)
+    {
+        UE_LOG(
+            LogTemp,
+            Error,
+            TEXT("R5 render resource subsystem is unavailable."));
+        return nullptr;
+    }
+
+    FRemasterTilesetRenderResources Resources;
+    FString ResourceError;
+
+    if (!ResourceSubsystem->LoadTilesetResources(
+            Visual.Tileset,
+            Resources,
+            ResourceError))
+    {
+        UE_LOG(
+            LogTemp,
+            Error,
+            TEXT("R5 render resource load failed for %s: %s"),
+            *Visual.Tileset,
+            *ResourceError);
+        return nullptr;
+    }
+
     UStaticMesh* Mesh = FallbackMesh;
-    UMaterialInterface* Material = nullptr;
-    bool bCastShadow = false;
+    if (!Mesh)
+        return nullptr;
+
+    UMaterialInterface* BaseMaterial = nullptr;
 
     if (Visual.Rule)
     {
-        if (UStaticMesh* RuleMesh =
-                Visual.Rule->Mesh.LoadSynchronous())
-        {
-            Mesh = RuleMesh;
-            bCastShadow = true;
-        }
-
-        Material = Visual.Rule->Material.LoadSynchronous();
+        BaseMaterial = Visual.Rule->Material.LoadSynchronous();
     }
 
-    if (!Mesh)
+    if (!BaseMaterial && VisualStyle)
+    {
+        BaseMaterial =
+            VisualStyle->MetatileMaterial.LoadSynchronous();
+    }
+
+    if (!BaseMaterial)
+    {
+        UE_LOG(
+            LogTemp,
+            Error,
+            TEXT("R5 indexed metatile material is not configured; using visible default material for %s."),
+            *Visual.Tileset);
+        BaseMaterial =
+            UMaterial::GetDefaultMaterial(MD_Surface);
+    }
+
+    if (!BaseMaterial)
         return nullptr;
 
     UHierarchicalInstancedStaticMeshComponent* Component =
@@ -383,19 +430,47 @@ ARemasterWorldActor::ComponentForMetatile(
     Component->SetupAttachment(SceneRoot);
     Component->SetStaticMesh(Mesh);
     Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    Component->SetCastShadow(bCastShadow);
+    Component->SetCastShadow(false);
     Component->NumCustomDataFloats =
         remaster::metatile_render::CustomDataFloats;
 
-    if (Material)
+    UMaterialInstanceDynamic* Material =
+        UMaterialInstanceDynamic::Create(
+            BaseMaterial,
+            Component);
+
+    if (!Material)
     {
-        Component->SetMaterial(0, Material);
+        Component->DestroyComponent();
+        return nullptr;
     }
 
+    Material->SetTextureParameterValue(
+        TEXT("R5_TileIndexTexture"),
+        Resources.TileIndexTexture);
+    Material->SetTextureParameterValue(
+        TEXT("R5_PaletteTexture"),
+        Resources.PaletteTexture);
+    Material->SetScalarParameterValue(
+        TEXT("R5_TileSheetWidth"),
+        static_cast<float>(Resources.TileSheetWidth));
+    Material->SetScalarParameterValue(
+        TEXT("R5_TileSheetHeight"),
+        static_cast<float>(Resources.TileSheetHeight));
+    Material->SetScalarParameterValue(
+        TEXT("R5_TilesPerRow"),
+        static_cast<float>(Resources.TilesPerRow));
+    Material->SetScalarParameterValue(
+        TEXT("R5_SourceTilePixels"),
+        8.0f);
+
+    Component->SetMaterial(0, Material);
     Component->RegisterComponent();
+
     ChunkVisualComponents.Add(Key, Component);
     return Component;
 }
+
 
 bool ARemasterWorldActor::BuildRenderChunks()
 {
