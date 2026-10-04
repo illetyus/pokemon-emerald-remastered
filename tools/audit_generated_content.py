@@ -423,6 +423,8 @@ def audit(root: Path) -> list[str]:
         secondary_behavior = layout.get("secondary_metatile_behavior_u8", [])
         primary_layer = layout.get("primary_metatile_layer_u8", [])
         secondary_layer = layout.get("secondary_metatile_layer_u8", [])
+        secondary_tileset = layout.get("secondary_tileset")
+        secondary_tileset_missing = secondary_tileset in (None, 0, "0", "")
 
         if width <= 0 or height <= 0:
             errors.append(f"{rel}: invalid dimensions")
@@ -465,7 +467,8 @@ def audit(root: Path) -> list[str]:
             ("primary", primary_attrs, primary_behavior, primary_layer),
             ("secondary", secondary_attrs, secondary_behavior, secondary_layer),
         ):
-            if not attrs:
+            attributes_optional = side == "secondary" and secondary_tileset_missing
+            if not attrs and not attributes_optional:
                 errors.append(f"{rel}: {side} metatile attributes are empty")
             if len(attrs) > 512:
                 errors.append(
