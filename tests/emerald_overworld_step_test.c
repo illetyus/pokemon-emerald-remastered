@@ -200,6 +200,66 @@ int main(void)
             "connection request must not mutate source map state"))
         return 1;
 
+    {
+        const uint16_t ledge_blocks[4] = {
+            0x0000,
+            0x0001,
+            0x0000,
+            0x0000
+        };
+        const uint16_t ledge_attrs[2] = {
+            0x0000,
+            0x003B
+        };
+        RemasterEmeraldMapView ledge_map;
+        RemasterEmeraldMovementContext ledge_movement;
+
+        memset(&ledge_map, 0, sizeof(ledge_map));
+        memset(&ledge_movement, 0, sizeof(ledge_movement));
+
+        ledge_map.width = 1;
+        ledge_map.height = 4;
+        ledge_map.blocks = ledge_blocks;
+        ledge_map.block_count = 4;
+        ledge_map.border = border;
+        ledge_map.border_count = 4;
+        ledge_map.primary_attributes = ledge_attrs;
+        ledge_map.primary_attribute_count = 2;
+
+        ledge_movement.map = &ledge_map;
+
+        if (!check(seed_state(&save, 0, 0), "seed ledge step failed"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_player_step(
+                    &save,
+                    &ledge_movement,
+                    0,
+                    0,
+                    0,
+                    0,
+                    REMASTER_EMERALD_DIR_SOUTH,
+                    &result),
+                "ledge player step call failed"))
+            return 1;
+
+        if (!check(
+                result.kind == REMASTER_EMERALD_PLAYER_STEP_LEDGE_JUMP
+                && result.collision == REMASTER_EMERALD_COLLISION_LEDGE_JUMP
+                && result.x == 0
+                && result.y == 2,
+                "ledge jump must land two tiles away"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_overworld_get(&save, &state)
+                && state.player_x == 0
+                && state.player_y == 2,
+                "ledge jump did not persist landing coordinates"))
+            return 1;
+    }
+
     puts("Emerald overworld player-step test passed.");
     return 0;
 }
