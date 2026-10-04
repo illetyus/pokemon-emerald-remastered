@@ -29,11 +29,13 @@ typedef enum RemasterEmeraldCollision {
 
 typedef struct RemasterEmeraldObjectCollider {
     uint8_t active;
+    uint16_t local_id;
     int32_t current_x;
     int32_t current_y;
     int32_t previous_x;
     int32_t previous_y;
     uint8_t elevation;
+    uint8_t player_collision_exempt;
 } RemasterEmeraldObjectCollider;
 
 typedef struct RemasterEmeraldMover {
