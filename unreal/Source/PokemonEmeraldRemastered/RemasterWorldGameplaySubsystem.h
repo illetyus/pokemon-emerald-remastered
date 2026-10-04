@@ -168,6 +168,7 @@ class POKEMONEMERALDREMASTERED_API URemasterWorldGameplaySubsystem
 
 public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+    virtual void Deinitialize() override;
 
     /*
      * Loads the map addressed by the legacy save. When bResetTemporaryState is
@@ -214,6 +215,17 @@ public:
         int32 Direction,
         FRemasterPlayerStepResult& OutResult);
 
+    // Internal world/script host bridge for transient runtime object state.
+    bool SetRuntimeObjectActive(int32 LocalId, bool bActive);
+    bool SetRuntimeObjectPosition(
+        int32 LocalId,
+        int32 X,
+        int32 Y,
+        int32 Elevation);
+    bool SetRuntimeObjectPlayerCollisionExempt(
+        int32 LocalId,
+        bool bExempt);
+
     UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
     bool ResolveConnection(
         int32 Direction,
@@ -257,7 +269,9 @@ private:
     bool ApplySavedObjectTemplateOverrides();
     bool RefreshSavedObjectTemplateCache(
         const FRemasterMapIR& Map);
+    bool RebuildRuntimeObjectState();
 
     FRemasterMapIR CurrentMap;
+    void* NativeObjectRuntime = nullptr;
     bool bMapReady = false;
 };
