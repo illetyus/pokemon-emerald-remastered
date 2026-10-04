@@ -32,6 +32,34 @@ typedef struct RemasterEmeraldPlayerStepResult {
     size_t connection_index;
 } RemasterEmeraldPlayerStepResult;
 
+typedef enum RemasterEmeraldOverworldActionKind {
+    REMASTER_EMERALD_OVERWORLD_ACTION_INVALID = 0,
+    REMASTER_EMERALD_OVERWORLD_ACTION_BLOCKED = 1,
+    REMASTER_EMERALD_OVERWORLD_ACTION_MOVED = 2,
+    REMASTER_EMERALD_OVERWORLD_ACTION_LEDGE_JUMP = 3,
+    REMASTER_EMERALD_OVERWORLD_ACTION_IMMEDIATE_SCRIPT = 4,
+    REMASTER_EMERALD_OVERWORLD_ACTION_COORD_SCRIPT = 5,
+    REMASTER_EMERALD_OVERWORLD_ACTION_WARP = 6,
+    REMASTER_EMERALD_OVERWORLD_ACTION_CONNECTION = 7
+} RemasterEmeraldOverworldActionKind;
+
+typedef struct RemasterEmeraldOverworldActionResult {
+    RemasterEmeraldOverworldActionKind kind;
+    RemasterEmeraldCollision collision;
+    int16_t x;
+    int16_t y;
+    uint8_t elevation;
+    uint8_t direction;
+    uint8_t ledge_jump;
+    size_t connection_index;
+    size_t warp_index;
+    size_t coord_event_index;
+    size_t next_coord_event_index;
+    const char *script_id;
+    uint8_t weather_changed;
+    uint8_t weather;
+} RemasterEmeraldOverworldActionResult;
+
 typedef enum RemasterEmeraldStepEventKind {
     REMASTER_EMERALD_STEP_EVENT_NONE = 0,
     REMASTER_EMERALD_STEP_EVENT_IMMEDIATE_SCRIPT = 1,
@@ -100,6 +128,30 @@ int remaster_emerald_process_step_events(
  *   1 -> the input was valid and OutResult describes the step outcome.
  *   0 -> invalid input or save state; no step was performed.
  */
+int remaster_emerald_overworld_step_action(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldMovementContext *movement,
+    const RemasterEmeraldConnectionDef *connections,
+    size_t connection_count,
+    const RemasterEmeraldCoordEventDef *coord_events,
+    size_t coord_event_count,
+    const RemasterEmeraldWarpEventDef *warps,
+    size_t warp_count,
+    uint8_t direction,
+    RemasterEmeraldOverworldActionResult *out_result);
+
+int remaster_emerald_overworld_continue_action(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldMapView *map,
+    const RemasterEmeraldCoordEventDef *coord_events,
+    size_t coord_event_count,
+    size_t coord_start_index,
+    const RemasterEmeraldWarpEventDef *warps,
+    size_t warp_count,
+    uint8_t direction,
+    int ledge_jump,
+    RemasterEmeraldOverworldActionResult *out_result);
+
 int remaster_emerald_player_step(
     RemasterEmeraldSave *save,
     const RemasterEmeraldMovementContext *movement,
