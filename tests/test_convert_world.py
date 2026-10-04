@@ -137,7 +137,7 @@ class ConvertWorldTests(unittest.TestCase):
                                 "width": 1,
                                 "height": 1,
                                 "primary_tileset": "gTileset_TestPrimary",
-                                "secondary_tileset": "gTileset_TestSecondary",
+                                "secondary_tileset": "0",
                                 "border_filepath": "data/layouts/Unused/border.bin",
                                 "blockdata_filepath": "data/layouts/Unused/map.bin",
                             }
@@ -381,6 +381,17 @@ Test_SignScript::
 
             self.assertEqual(manifest["map_count"], 2)
             self.assertEqual(manifest["layout_count"], 2)
+            unused_layout = json.loads(
+                (out / "layouts/LAYOUT_UNUSED.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(unused_layout["layout"]["secondary_tileset"], "0")
+            self.assertIsNone(
+                unused_layout["source"]["secondary_metatile_attributes"]
+            )
+            self.assertEqual(
+                unused_layout["layout"]["secondary_metatile_attributes_u16"],
+                [],
+            )
             self.assertEqual(manifest["layouts_file"], "layouts.json")
             self.assertEqual(manifest["scripts_file"], "scripts/manifest.json")
             self.assertGreaterEqual(manifest["script_label_count"], 4)
