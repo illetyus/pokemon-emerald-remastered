@@ -73,7 +73,9 @@ int main(void)
                 &runtime,
                 &save,
                 events,
-                3),
+                3,
+                1,
+                1),
             "runtime object load failed"))
         return 1;
 
@@ -91,21 +93,18 @@ int main(void)
             && observed.current_y == 1
             && observed.previous_x == 1
             && observed.previous_y == 1
+            && observed.initial_x == 1
+            && observed.initial_y == 1
             && observed.elevation == 1,
             "visible runtime object seed mismatch"))
         return 1;
 
     if (!check(
-            remaster_emerald_object_runtime_find(
+            !remaster_emerald_object_runtime_find(
                 &runtime,
                 2,
-                &index)
-            && remaster_emerald_object_runtime_get(
-                &runtime,
-                index,
-                &observed)
-            && observed.active == 0,
-            "hidden object must remain inactive in runtime state"))
+                &index),
+            "hidden object must not consume an active runtime slot"))
         return 1;
 
     if (!check(
@@ -136,7 +135,7 @@ int main(void)
                 colliders,
                 REMASTER_EMERALD_RUNTIME_OBJECT_COUNT,
                 &collider_count)
-            && collider_count == 3,
+            && collider_count == 2,
             "runtime collider build failed"))
         return 1;
 
@@ -270,6 +269,48 @@ int main(void)
             collision == REMASTER_EMERALD_COLLISION_NONE,
             "inactive runtime object must not collide"))
         return 1;
+
+    {
+        RemasterEmeraldObjectEventDef many_events[20];
+        size_t active_count = 0;
+
+        memset(many_events, 0, sizeof(many_events));
+        remaster_emerald_object_runtime_reset(&runtime);
+
+        for (index = 0; index < 20; ++index) {
+            many_events[index].local_id = (uint16_t)(index + 1u);
+            many_events[index].x = 1;
+            many_events[index].y = 1;
+            many_events[index].elevation = 1;
+            many_events[index].flag_id = 0;
+        }
+
+        if (!check(
+                remaster_emerald_object_runtime_load(
+                    &runtime,
+                    &save,
+                    many_events,
+                    20,
+                    1,
+                    1)
+                && runtime.count == REMASTER_EMERALD_RUNTIME_OBJECT_COUNT,
+                "visible template overflow must cap at 16 runtime slots"))
+            return 1;
+
+        for (index = 0; index < runtime.count; ++index) {
+            if (runtime.objects[index].active)
+                ++active_count;
+        }
+
+        if (!check(
+                active_count == REMASTER_EMERALD_RUNTIME_OBJECT_COUNT
+                && runtime.objects[0].local_id == 1
+                && runtime.objects[
+                    REMASTER_EMERALD_RUNTIME_OBJECT_COUNT - 1u
+                ].local_id == REMASTER_EMERALD_RUNTIME_OBJECT_COUNT,
+                "runtime slot ordering must follow Vanilla template scan order"))
+            return 1;
+    }
 
     puts("Emerald runtime object collision test passed.");
     return 0;
