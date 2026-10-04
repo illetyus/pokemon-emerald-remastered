@@ -44,7 +44,12 @@ class R5TilesetManifestTests(unittest.TestCase):
             general["tiles_png"],
             "data/tilesets/primary/general/tiles.png",
         )
+        self.assertEqual(general["palette_format"], "JASC-PAL-0100")
+        self.assertEqual(general["palette_color_count"], 16)
         self.assertEqual(len(general["palette_files"]), 16)
+        self.assertTrue(
+            all(path.endswith(".pal") for path in general["palette_files"])
+        )
 
     def test_brendans_house_secondary_tileset_geometry(self) -> None:
         house = self.by_id["gTileset_BrendansMaysHouse"]
@@ -54,7 +59,12 @@ class R5TilesetManifestTests(unittest.TestCase):
             house["asset_root"],
             "data/tilesets/secondary/brendans_mays_house",
         )
+        self.assertEqual(house["palette_format"], "JASC-PAL-0100")
+        self.assertEqual(house["palette_color_count"], 16)
         self.assertEqual(len(house["palette_files"]), 16)
+        self.assertTrue(
+            all(path.endswith(".pal") for path in house["palette_files"])
+        )
 
     def test_all_source_assets_and_fingerprints_are_present(self) -> None:
         for item in self.manifest["tilesets"]:
