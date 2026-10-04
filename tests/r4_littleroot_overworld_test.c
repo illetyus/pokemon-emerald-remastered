@@ -258,10 +258,37 @@ int main(void)
                 0,
                 0,
                 &step_event_result)
-            && step_event_result.kind == REMASTER_EMERALD_STEP_EVENT_WARP
-            && step_event_result.warp_index < house->warp_count,
-            "real Brendan house coord-before-warp resolution failed"))
+            && step_event_result.kind == REMASTER_EMERALD_STEP_EVENT_NONE,
+            "real Brendan house coord scan should not consume exit input"))
         return 1;
+
+    {
+        size_t directional_warp_index = SIZE_MAX;
+        const uint8_t behavior = remaster_emerald_map_behavior_at(
+            &house->view,
+            result.x,
+            result.y);
+        const uint8_t elevation = remaster_emerald_map_elevation_at(
+            &house->view,
+            result.x,
+            result.y);
+
+        if (!check(
+                remaster_emerald_find_directional_warp(
+                    house->warps,
+                    house->warp_count,
+                    result.x,
+                    result.y,
+                    elevation,
+                    behavior,
+                    REMASTER_EMERALD_DIR_SOUTH,
+                    &directional_warp_index)
+                && directional_warp_index < house->warp_count,
+                "real Brendan house south directional warp failed"))
+            return 1;
+
+        step_event_result.warp_index = directional_warp_index;
+    }
 
     {
         const RemasterEmeraldWarpEventDef *warp =
