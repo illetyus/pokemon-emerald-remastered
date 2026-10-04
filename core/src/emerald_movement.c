@@ -2,6 +2,7 @@
 #include "remaster/emerald_overworld.h"
 
 #include <limits.h>
+#include <string.h>
 
 static int outside_movement_range(
     const RemasterEmeraldMover *mover,
