@@ -205,6 +205,14 @@ def main() -> int:
         errors,
     )
 
+    require(
+        "R5 packaged render catalog is not ready." in world_actor
+        and "R5 descriptor resolution failed" in world_actor
+        and "Fallback->AddInstance" not in world_actor,
+        "R5 production renderer must fail visibly instead of inventing geometry when descriptors are missing",
+        errors,
+    )
+
     visual_style_h = (
         MODULE / "RemasterVisualStyle.h"
     ).read_text(encoding="utf-8")
