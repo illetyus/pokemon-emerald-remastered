@@ -3,7 +3,6 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
-#include "R0HUD.h"
 #include "RemasterCameraRig.h"
 #include "RemasterOverworldPawn.h"
 #include "RemasterPlayerController.h"
@@ -11,7 +10,7 @@
 
 AR0GameMode::AR0GameMode()
 {
-    HUDClass = AR0HUD::StaticClass();
+    HUDClass = nullptr;
     PlayerControllerClass = ARemasterPlayerController::StaticClass();
     DefaultPawnClass = ARemasterOverworldPawn::StaticClass();
 }
