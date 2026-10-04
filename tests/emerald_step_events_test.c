@@ -233,6 +233,51 @@ int main(void)
             "missing immediate-script host must yield explicit handoff"))
         return 1;
 
+    {
+        size_t directional_index = SIZE_MAX;
+
+        if (!check(
+                remaster_emerald_find_directional_warp(
+                    warps,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0x65,
+                    REMASTER_EMERALD_DIR_SOUTH,
+                    &directional_index)
+                && directional_index == 0,
+                "south arrow warp did not match south movement"))
+            return 1;
+
+        directional_index = SIZE_MAX;
+        if (!check(
+                !remaster_emerald_find_directional_warp(
+                    warps,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0x65,
+                    REMASTER_EMERALD_DIR_NORTH,
+                    &directional_index),
+                "south arrow warp must reject north movement"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_find_directional_warp(
+                    warps,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0x1B,
+                    REMASTER_EMERALD_DIR_NORTH,
+                    &directional_index),
+                "abandoned-ship north stairs must use north arrow semantics"))
+            return 1;
+    }
+
     puts("Emerald step-event ordering test passed.");
     return 0;
 }
