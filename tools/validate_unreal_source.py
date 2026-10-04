@@ -105,6 +105,7 @@ def main() -> int:
         "RemasterVanillaPlusSaveSubsystem.cpp",
         "RemasterWorldGameplaySubsystem.cpp",
         "RemasterRenderCatalogSubsystem.cpp",
+        "RemasterRenderCatalogSubsystem.cpp",
         "RemasterOverworldPawn.cpp",
     ]
     for filename in required_runtime_files:
@@ -193,6 +194,44 @@ def main() -> int:
         "FRemasterGameplayMapChanged OnGameplayMapChanged" in world_gameplay_h
         and "OnGameplayMapChanged.Broadcast(" in world_gameplay,
         "R5 gameplay bridge must publish authoritative map changes",
+        errors,
+    )
+
+    render_catalog_h = (
+        MODULE / "RemasterRenderCatalogSubsystem.h"
+    ).read_text(encoding="utf-8")
+    render_catalog_cpp = (
+        MODULE / "RemasterRenderCatalogSubsystem.cpp"
+    ).read_text(encoding="utf-8")
+    require(
+        "URemasterRenderCatalogSubsystem" in render_catalog_h
+        and 'TEXT("Generated")' in render_catalog_cpp
+        and 'TEXT("Render")' in render_catalog_cpp
+        and 'TEXT("manifest.json")' in render_catalog_cpp,
+        "R5 render catalog must load Content/Generated/Render/manifest.json",
+        errors,
+    )
+    require(
+        "FindTileset(" in render_catalog_h
+        and "LoadTileset(" in render_catalog_h
+        and "ResolveMetatile(" in render_catalog_h
+        and "DescriptorCache" in render_catalog_h,
+        "R5 render catalog must provide exact lazy tileset/metatile resolution",
+        errors,
+    )
+    require(
+        "IsSafePackageRelative(" in render_catalog_cpp
+        and "ResolvePackageFile(" in render_catalog_cpp
+        and "FPaths::IsRelative" in render_catalog_cpp
+        and 'Contains(TEXT("/../"))' in render_catalog_cpp,
+        "R5 render catalog must reject package-path traversal",
+        errors,
+    )
+    require(
+        'Entries.Find(TilesetId)' in render_catalog_cpp
+        and "LocalMetatileId" in render_catalog_cpp
+        and "Metatiles.IsValidIndex(LocalMetatileId)" in render_catalog_cpp,
+        "R5 render catalog must resolve exact tileset identity and local metatile id",
         errors,
     )
 
