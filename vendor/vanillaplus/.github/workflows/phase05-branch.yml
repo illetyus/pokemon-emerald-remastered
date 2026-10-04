@@ -1,0 +1,141 @@
+name: Phase 5 Item Management Branch
+
+on:
+  push:
+    branches:
+      - phase5-item-management
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Apply Phase 5 source transformation
+        run: python3 tools/phase05_apply.py
+
+      - name: Verify phase version ownership contract
+        run: python3 tools/phase_version_contract_test.py
+
+      - name: Verify Vanilla+ Phase 0-1 invariants
+        run: python3 tools/vanillaplus_phase01_verify.py
+
+      - name: Verify Vanilla+ Phase 2 invariants
+        run: python3 tools/vanillaplus_phase02_verify.py
+
+      - name: Verify Vanilla+ Phase 3 invariants
+        run: python3 tools/vanillaplus_phase03_verify.py
+
+      - name: Verify Vanilla+ Phase 4 invariants
+        run: python3 tools/vanillaplus_phase04_verify.py
+
+      - name: Verify Vanilla+ Phase 5 item management invariants
+        run: python3 tools/vanillaplus_phase05_verify.py
+
+      - name: Verify Vanilla+ Phase 8 RTC invariants
+        run: python3 tools/vanillaplus_phase08_verify.py
+
+      - name: Checkout agbcc
+        uses: actions/checkout@v4
+        with:
+          repository: pret/agbcc
+          path: agbcc
+
+      - name: Install ARM toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libpng-dev
+
+      - name: Install agbcc
+        working-directory: agbcc
+        run: |
+          ./build.sh
+          ./install.sh ../
+
+      - name: Build release ROM
+        shell: bash
+        run: |
+          set -o pipefail
+          make -j$(nproc) all 2>&1 | tee phase05-build.log
+          cp pokeemerald.gba pokemon-emerald-vp007-release.gba
+
+      - name: Summarize compiler failure
+        if: failure()
+        shell: bash
+        run: |
+          {
+            grep -n -B 5 -A 12 -E 'error:|fatal error:|undefined reference|collect2:|make(\[[0-9]+\])?: \*\*\*' phase05-build.log || true
+            echo
+            echo '--- tail ---'
+            tail -n 250 phase05-build.log || true
+          } > phase05-compiler-error.txt
+          cat phase05-compiler-error.txt
+
+      - name: Upload compiler diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase05-compiler-diagnostics
+          path: |
+            phase05-build.log
+            phase05-compiler-error.txt
+          if-no-files-found: error
+
+      - name: Hash release ROM
+        run: |
+          sha1sum pokemon-emerald-vp007-release.gba | tee phase05-release.sha1
+          sha256sum pokemon-emerald-vp007-release.gba | tee phase05-release.sha256
+          stat -c '%n %s bytes' pokemon-emerald-vp007-release.gba
+
+      - name: Clean release outputs
+        run: make mostlyclean
+
+      - name: Build test ROM
+        shell: bash
+        run: |
+          set -o pipefail
+          make -j$(nproc) VANILLAPLUS_TEST=1 all 2>&1 | tee phase05-test-build.log
+          cp pokeemerald.gba pokemon-emerald-vp007-test.gba
+
+      - name: Upload test compiler diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase05-test-compiler-diagnostics
+          path: phase05-test-build.log
+          if-no-files-found: ignore
+
+      - name: Hash test ROM
+        run: |
+          sha1sum pokemon-emerald-vp007-test.gba | tee phase05-test.sha1
+          sha256sum pokemon-emerald-vp007-test.gba | tee phase05-test.sha256
+          stat -c '%n %s bytes' pokemon-emerald-vp007-test.gba
+
+      - name: Upload Phase 5 ROMs
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase05-vp007-roms
+          path: |
+            pokemon-emerald-vp007-release.gba
+            pokemon-emerald-vp007-test.gba
+            phase05-release.sha1
+            phase05-release.sha256
+            phase05-test.sha1
+            phase05-test.sha256
+          if-no-files-found: error
+
+      - name: Commit generated Phase 5 sources
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Makefile include src tools/phase_version_contract_test.py tools/vanillaplus_phase08_verify.py
+          if ! git diff --cached --quiet; then
+            git commit -m "feat: implement Vanilla+ phase 5 item management"
+            git push origin HEAD:phase5-item-management
+          fi
