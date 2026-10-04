@@ -104,6 +104,7 @@ def main() -> int:
         "RemasterPerformanceSubsystem.cpp",
         "RemasterVanillaPlusSaveSubsystem.cpp",
         "RemasterWorldGameplaySubsystem.cpp",
+        "RemasterOverworldPawn.cpp",
     ]
     for filename in required_runtime_files:
         require((MODULE / filename).is_file(), f"missing runtime layer: {filename}", errors)
@@ -171,6 +172,42 @@ def main() -> int:
         "FRemasterGameplayMapChanged OnGameplayMapChanged" in world_gameplay_h
         and "OnGameplayMapChanged.Broadcast(" in world_gameplay,
         "R5 gameplay bridge must publish authoritative map changes",
+        errors,
+    )
+
+    r5_pawn_h = (
+        MODULE / "RemasterOverworldPawn.h"
+    ).read_text(encoding="utf-8")
+    r5_pawn_cpp = (
+        MODULE / "RemasterOverworldPawn.cpp"
+    ).read_text(encoding="utf-8")
+    player_controller = (
+        MODULE / "RemasterPlayerController.cpp"
+    ).read_text(encoding="utf-8")
+    game_mode = (
+        MODULE / "R0GameMode.cpp"
+    ).read_text(encoding="utf-8")
+
+    require(
+        "ApplyAuthoritativeStep(" in r5_pawn_h
+        and "TileToWorldLocation(" in r5_pawn_cpp
+        and "SetCollisionEnabled(ECollisionEnabled::NoCollision)" in r5_pawn_cpp,
+        "R5 player pawn must be presentation-only and follow authoritative tile state",
+        errors,
+    )
+    require(
+        "Gameplay->StepPlayer(Direction, Result)" in player_controller
+        and "OverworldPawn->ApplyAuthoritativeStep(Result)" in player_controller
+        and "URemasterCoreSubsystem" not in player_controller,
+        "R5 movement input must drive the authoritative R4 runtime, not the R0 prototype",
+        errors,
+    )
+    require(
+        "PlayerControllerClass = ARemasterPlayerController::StaticClass()" in game_mode
+        and "DefaultPawnClass = ARemasterOverworldPawn::StaticClass()" in game_mode
+        and "SpawnActor<ARemasterWorldActor>" in game_mode
+        and "SpawnActor<ARemasterCameraRig>" in game_mode,
+        "R5 default game mode must bootstrap a playable renderer/pawn/camera scene",
         errors,
     )
 
