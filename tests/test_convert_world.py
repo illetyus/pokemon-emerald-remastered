@@ -8,10 +8,23 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
-from convert_world import convert_world  # noqa: E402
+from convert_world import convert_world, list_field  # noqa: E402
 
 
 class ConvertWorldTests(unittest.TestCase):
+    def test_real_vanillaplus_zero_connections_variant(self):
+        source_path = (
+            ROOT
+            / "vendor/vanillaplus/data/maps/AlteringCave/map.json"
+        )
+        source = json.loads(source_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(source["connections"], 0)
+        self.assertEqual(list_field(source, "connections"), [])
+
+        with self.assertRaises(ValueError):
+            list_field({"connections": 1}, "connections")
+
     def test_lossless_map_conversion(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp) / "source"
