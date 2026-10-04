@@ -123,6 +123,51 @@ def main() -> int:
         errors,
     )
 
+    # R5 renderer must consume the authoritative gameplay map and keep
+    # presentation coordinates/chunking separate from gameplay collision.
+    world_actor_h = (
+        MODULE / "RemasterWorldActor.h"
+    ).read_text(encoding="utf-8")
+    require(
+        "bool LoadAuthoritativeMap()" in world_actor_h
+        and "GetCurrentMapForPresentation()" in world_actor,
+        "R5 world renderer must consume the authoritative gameplay map",
+        errors,
+    )
+    require(
+        "OnGameplayMapChanged.AddDynamic(" in world_actor
+        and "HandleGameplayMapChanged(" in world_actor,
+        "R5 renderer must rebuild from authoritative map-transition events",
+        errors,
+    )
+    require(
+        '#include "RemasterWorldGridMath.h"' in world_actor
+        and "remaster::world_grid::chunk_for_tile(" in world_actor
+        and "remaster::world_grid::tile_axis_to_local(" in world_actor
+        and "remaster::world_grid::local_axis_to_tile(" in world_actor,
+        "R5 renderer must use the tested shared tile/chunk coordinate math",
+        errors,
+    )
+    require(
+        "ChunkTileSize = 16" in world_actor_h
+        and "ChunkVisualComponents" in world_actor_h
+        and "ComponentForMetatile(MetatileId, Chunk)" in world_actor,
+        "R5 renderer must partition map visuals into render chunks",
+        errors,
+    )
+    require(
+        "SetCollisionEnabled(ECollisionEnabled::NoCollision)" in world_actor,
+        "R5 renderer must not duplicate authoritative gameplay collision",
+        errors,
+    )
+
+    require(
+        "FRemasterGameplayMapChanged OnGameplayMapChanged" in world_gameplay_h
+        and "OnGameplayMapChanged.Broadcast(" in world_gameplay,
+        "R5 gameplay bridge must publish authoritative map changes",
+        errors,
+    )
+
     # Continue path must preserve TEMP flags/vars exactly as Vanilla does.
     world_gameplay = (
         MODULE / "RemasterWorldGameplaySubsystem.cpp"
