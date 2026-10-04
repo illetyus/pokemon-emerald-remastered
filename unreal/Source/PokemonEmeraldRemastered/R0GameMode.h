@@ -11,4 +11,5 @@ class POKEMONEMERALDREMASTERED_API AR0GameMode : public AGameModeBase
 
 public:
     AR0GameMode();
+    virtual void StartPlay() override;
 };

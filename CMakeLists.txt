@@ -100,6 +100,46 @@ endif()
 add_test(NAME unreal_cpp_embed COMMAND unreal_cpp_embed_smoke)
 
 
+add_executable(r5_metatile_render_test
+    tests/r5_metatile_render_test.cpp
+)
+
+target_include_directories(r5_metatile_render_test
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered
+)
+
+target_compile_features(r5_metatile_render_test PRIVATE cxx_std_17)
+
+if(MSVC)
+    target_compile_options(r5_metatile_render_test PRIVATE /W4)
+else()
+    target_compile_options(r5_metatile_render_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME r5_metatile_render_math COMMAND r5_metatile_render_test)
+
+
+add_executable(r5_world_grid_test
+    tests/r5_world_grid_test.cpp
+)
+
+target_include_directories(r5_world_grid_test
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered
+)
+
+target_compile_features(r5_world_grid_test PRIVATE cxx_std_17)
+
+if(MSVC)
+    target_compile_options(r5_world_grid_test PRIVATE /W4)
+else()
+    target_compile_options(r5_world_grid_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME r5_world_grid_math COMMAND r5_world_grid_test)
+
+
 add_executable(core_replay_test
     tests/core_replay.c
 )

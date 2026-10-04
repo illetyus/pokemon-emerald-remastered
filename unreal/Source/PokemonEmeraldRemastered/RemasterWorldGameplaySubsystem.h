@@ -180,6 +180,15 @@ struct FRemasterResolvedBackgroundEvent
     int32 SecretBaseId = -1;
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+    FRemasterGameplayMapChanged,
+    int32,
+    MapGroup,
+    int32,
+    MapNum,
+    FString,
+    MapId);
+
 UCLASS()
 class POKEMONEMERALDREMASTERED_API URemasterWorldGameplaySubsystem
     : public UGameInstanceSubsystem
@@ -189,6 +198,9 @@ class POKEMONEMERALDREMASTERED_API URemasterWorldGameplaySubsystem
 public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
+
+    UPROPERTY(BlueprintAssignable, Category="Remaster|World|Gameplay")
+    FRemasterGameplayMapChanged OnGameplayMapChanged;
 
     /*
      * Loads the map addressed by the legacy save. When bResetTemporaryState is

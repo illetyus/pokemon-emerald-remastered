@@ -13,8 +13,15 @@ struct FRemasterTileVisualRule
 {
     GENERATED_BODY()
 
+    /*
+     * Canonical R5 visual identity. Metatile IDs 0..511 are local to the
+     * primary tileset; 512..1023 are local to the active secondary tileset.
+     */
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    int32 MetatileId = 0;
+    FString Tileset;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    int32 LocalMetatileId = 0;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UStaticMesh> Mesh;
@@ -37,6 +44,15 @@ class POKEMONEMERALDREMASTERED_API URemasterVisualStyle : public UPrimaryDataAss
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="World")
     TArray<FRemasterTileVisualRule> TileRules;
+
+    /*
+     * R5 indexed-metatile base material. It must consume the fixed parameters
+     * R5_TileIndexTexture, R5_PaletteTexture, R5_TileSheetWidth,
+     * R5_TileSheetHeight and R5_TilesPerRow plus the 16 per-instance custom
+     * data floats defined by RemasterMetatileRenderMath.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="World")
+    TSoftObjectPtr<UMaterialInterface> MetatileMaterial;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="World")
     TSoftObjectPtr<UMaterialInterface> WaterMaterial;

@@ -104,6 +104,10 @@ def main() -> int:
         "RemasterPerformanceSubsystem.cpp",
         "RemasterVanillaPlusSaveSubsystem.cpp",
         "RemasterWorldGameplaySubsystem.cpp",
+        "RemasterRenderCatalogSubsystem.cpp",
+        "RemasterRenderCatalogSubsystem.cpp",
+        "RemasterRenderResourceSubsystem.cpp",
+        "RemasterOverworldPawn.cpp",
     ]
     for filename in required_runtime_files:
         require((MODULE / filename).is_file(), f"missing runtime layer: {filename}", errors)
@@ -112,6 +116,12 @@ def main() -> int:
     # selection must use decoded metatile IDs while collision/elevation remain
     # gameplay/domain data.
     world_actor = (MODULE / "RemasterWorldActor.cpp").read_text(encoding="utf-8")
+    world_gameplay = (
+        MODULE / "RemasterWorldGameplaySubsystem.cpp"
+    ).read_text(encoding="utf-8")
+    world_gameplay_h = (
+        MODULE / "RemasterWorldGameplaySubsystem.h"
+    ).read_text(encoding="utf-8")
     require(
         "LoadedMap.MetatileIds[Index]" in world_actor,
         "world renderer must select visuals by decoded metatile id",
@@ -120,6 +130,300 @@ def main() -> int:
     require(
         "LoadedMap.RawBlocks[Index]" not in world_actor,
         "world renderer must not use raw map words as visual IDs",
+        errors,
+    )
+
+    # R5 renderer must consume the authoritative gameplay map and keep
+    # presentation coordinates/chunking separate from gameplay collision.
+    world_actor_h = (
+        MODULE / "RemasterWorldActor.h"
+    ).read_text(encoding="utf-8")
+    require(
+        "bool LoadAuthoritativeMap()" in world_actor_h
+        and "GetCurrentMapForPresentation()" in world_actor,
+        "R5 world renderer must consume the authoritative gameplay map",
+        errors,
+    )
+    require(
+        "OnGameplayMapChanged.AddDynamic(" in world_actor
+        and "HandleGameplayMapChanged(" in world_actor,
+        "R5 renderer must rebuild from authoritative map-transition events",
+        errors,
+    )
+    require(
+        '#include "RemasterWorldGridMath.h"' in world_actor
+        and "remaster::world_grid::chunk_for_tile(" in world_actor
+        and "remaster::world_grid::tile_axis_to_local(" in world_actor
+        and "remaster::world_grid::local_axis_to_tile(" in world_actor,
+        "R5 renderer must use the tested shared tile/chunk coordinate math",
+        errors,
+    )
+    require(
+        "ChunkTileSize = 16" in world_actor_h
+        and "ChunkVisualComponents" in world_actor_h
+        and "ResolveMetatileVisual(MetatileId)" in world_actor
+        and "ComponentForMetatile(" in world_actor
+        and "RenderPlane" in world_actor,
+        "R5 renderer must partition tileset-aware render planes into chunks",
+        errors,
+    )
+    require(
+        "SetCollisionEnabled(ECollisionEnabled::NoCollision)" in world_actor,
+        "R5 renderer must not duplicate authoritative gameplay collision",
+        errors,
+    )
+
+    require(
+        "RenderCatalog->ResolveMetatile(" in world_actor
+        and "Metatile->RenderPlanes[PlaneIndex]" in world_actor
+        and "Tile.SourceLayer != PlaneIndex" in world_actor,
+        "R5 chunk geometry must be driven by packaged metatile descriptors",
+        errors,
+    )
+    require(
+        '#include "RemasterMetatileRenderMath.h"' in world_actor
+        and "NumCustomDataFloats =" in world_actor
+        and "metatile_render::CustomDataFloats" in world_actor
+        and "metatile_render::custom_data_index(" in world_actor
+        and "CustomField::TileId" in world_actor
+        and "CustomField::Palette" in world_actor
+        and "CustomField::HFlip" in world_actor
+        and "CustomField::VFlip" in world_actor
+        and "Tile.TileIdRaw" in world_actor
+        and "Tile.Palette" in world_actor
+        and "Tile.bHFlip" in world_actor
+        and "Tile.bVFlip" in world_actor
+        and "SetCustomDataValue(" in world_actor,
+        "R5 render instances must preserve tile/palette/flip descriptor data through tested custom-data layout",
+        errors,
+    )
+    require(
+        'TEXT("bottom")' in world_actor
+        and 'TEXT("middle")' in world_actor
+        and 'TEXT("top")' in world_actor
+        and "metatile_render::plane_height(" in world_actor,
+        "R5 descriptor geometry must preserve deterministic render-plane ordering",
+        errors,
+    )
+
+    require(
+        "R5 packaged render catalog is not ready." in world_actor
+        and "R5 descriptor resolution failed" in world_actor
+        and "Fallback->AddInstance" not in world_actor,
+        "R5 production renderer must fail visibly instead of inventing geometry when descriptors are missing",
+        errors,
+    )
+
+    visual_style_h = (
+        MODULE / "RemasterVisualStyle.h"
+    ).read_text(encoding="utf-8")
+    require(
+        "FString Tileset;" in visual_style_h
+        and "int32 LocalMetatileId = 0;" in visual_style_h
+        and "int32 MetatileId = 0;" not in visual_style_h,
+        "R5 visual rules must be keyed by tileset plus local metatile id",
+        errors,
+    )
+    require(
+        "MetatileId < 512u" in world_actor
+        and "MetatileId - 512u" in world_actor
+        and "LoadedMap.PrimaryTileset" in world_actor
+        and "LoadedMap.SecondaryTileset" in world_actor,
+        "R5 renderer must preserve Emerald primary/secondary metatile identity",
+        errors,
+    )
+
+    require(
+        "FRemasterGameplayMapChanged OnGameplayMapChanged" in world_gameplay_h
+        and "OnGameplayMapChanged.Broadcast(" in world_gameplay,
+        "R5 gameplay bridge must publish authoritative map changes",
+        errors,
+    )
+
+    render_catalog_h = (
+        MODULE / "RemasterRenderCatalogSubsystem.h"
+    ).read_text(encoding="utf-8")
+    render_catalog_cpp = (
+        MODULE / "RemasterRenderCatalogSubsystem.cpp"
+    ).read_text(encoding="utf-8")
+    require(
+        "URemasterRenderCatalogSubsystem" in render_catalog_h
+        and 'TEXT("Generated")' in render_catalog_cpp
+        and 'TEXT("Render")' in render_catalog_cpp
+        and 'TEXT("manifest.json")' in render_catalog_cpp,
+        "R5 render catalog must load Content/Generated/Render/manifest.json",
+        errors,
+    )
+    require(
+        "FindTileset(" in render_catalog_h
+        and "LoadTileset(" in render_catalog_h
+        and "ResolveMetatile(" in render_catalog_h
+        and "DescriptorCache" in render_catalog_h,
+        "R5 render catalog must provide exact lazy tileset/metatile resolution",
+        errors,
+    )
+    require(
+        "IsSafePackageRelative(" in render_catalog_cpp
+        and "ResolvePackageFile(" in render_catalog_cpp
+        and "FPaths::IsRelative" in render_catalog_cpp
+        and 'Contains(TEXT("/../"))' in render_catalog_cpp,
+        "R5 render catalog must reject package-path traversal",
+        errors,
+    )
+    require(
+        'Entries.Find(TilesetId)' in render_catalog_cpp
+        and "LocalMetatileId" in render_catalog_cpp
+        and "Metatiles.IsValidIndex(LocalMetatileId)" in render_catalog_cpp,
+        "R5 render catalog must resolve exact tileset identity and local metatile id",
+        errors,
+    )
+
+    render_catalog_h = (
+        MODULE / "RemasterRenderCatalogSubsystem.h"
+    ).read_text(encoding="utf-8")
+    render_catalog_cpp = (
+        MODULE / "RemasterRenderCatalogSubsystem.cpp"
+    ).read_text(encoding="utf-8")
+    require(
+        'TEXT("Generated")' in render_catalog_cpp
+        and 'TEXT("Render")' in render_catalog_cpp
+        and 'TEXT("manifest.json")' in render_catalog_cpp
+        and "vendor/vanillaplus" not in render_catalog_cpp,
+        "R5 render catalog must load only the packaged Content/Generated/Render payload",
+        errors,
+    )
+    require(
+        "FindTileset(" in render_catalog_h
+        and "LoadTileset(" in render_catalog_h
+        and "ResolveMetatile(" in render_catalog_h
+        and "Entries.Find(TilesetId)" in render_catalog_cpp,
+        "R5 render catalog must resolve exact source tileset identities",
+        errors,
+    )
+    require(
+        "DescriptorCache.Find(TilesetId)" in render_catalog_cpp
+        and "DescriptorCache.Add(TilesetId, Descriptor)" in render_catalog_cpp,
+        "R5 render catalog must lazy-cache decoded tileset descriptors",
+        errors,
+    )
+    require(
+        "Entries.Num() == MetatileCount" not in render_catalog_cpp
+        and "Entries.Num() == 8" in render_catalog_h
+        and "Metatile.IsValid()" in render_catalog_cpp
+        and "Reconstructed != Tile.RawU16" in render_catalog_cpp,
+        "R5 render catalog must validate decoded metatile/tile integrity",
+        errors,
+    )
+    require(
+        "ResolvePackageFile(" in render_catalog_h
+        and "IsSafePackageRelative(" in render_catalog_cpp
+        and "FPaths::FileExists(Candidate)" in render_catalog_cpp,
+        "R5 render catalog must reject package-path escapes and missing payload files",
+        errors,
+    )
+
+    require(
+        "TilesIndex8File" in render_catalog_h
+        and "TilesIndex8Sha256" in render_catalog_h
+        and "PaletteLutFile" in render_catalog_h
+        and "PaletteLutSha256" in render_catalog_h
+        and 'TEXT("tiles_index8_file")' in render_catalog_cpp
+        and 'TEXT("palette_lut_file")' in render_catalog_cpp,
+        "R5 render catalog must validate indexed tile and palette LUT payloads",
+        errors,
+    )
+
+    render_resources_h = (
+        MODULE / "RemasterRenderResourceSubsystem.h"
+    ).read_text(encoding="utf-8")
+    render_resources_cpp = (
+        MODULE / "RemasterRenderResourceSubsystem.cpp"
+    ).read_text(encoding="utf-8")
+    require(
+        "URemasterRenderResourceSubsystem" in render_resources_h
+        and "LoadTilesetResources(" in render_resources_h
+        and "ResourceCache" in render_resources_h,
+        "R5 must expose a cached runtime render-resource subsystem",
+        errors,
+    )
+    require(
+        "PF_G8" in render_resources_cpp
+        and "PF_B8G8R8A8" in render_resources_cpp
+        and "TF_Nearest" in render_resources_cpp
+        and "FFileHelper::LoadFileToArray(" in render_resources_cpp,
+        "R5 runtime must upload packaged index/palette bytes as nearest-filter textures",
+        errors,
+    )
+    require(
+        "Entry->DescriptorSha256" in render_resources_cpp
+        and "Entry->TilesIndex8Sha256" in render_resources_cpp
+        and "Entry->PaletteLutSha256" in render_resources_cpp
+        and "ResourceCache.Find(CacheKey)" in render_resources_cpp
+        and "ResourceCache.Add(CacheKey, Resources)" in render_resources_cpp,
+        "R5 render resources must be cached by tileset payload fingerprints",
+        errors,
+    )
+    require(
+        "ParseJascPalette" not in render_resources_cpp
+        and "LoadFileToString" not in render_resources_cpp,
+        "R5 runtime must consume prebuilt binary render payloads rather than decode source palettes per load",
+        errors,
+    )
+    require(
+        '#include "RemasterRenderResourceSubsystem.h"' in world_actor
+        and "LoadTilesetResources(" in world_actor
+        and "UMaterialInstanceDynamic::Create(" in world_actor
+        and 'TEXT("R5_TileIndexTexture")' in world_actor
+        and 'TEXT("R5_PaletteTexture")' in world_actor
+        and 'TEXT("R5_TilesPerRow")' in world_actor,
+        "R5 world renderer must bind cached index/palette resources into the material path",
+        errors,
+    )
+    require(
+        "TSoftObjectPtr<UMaterialInterface> MetatileMaterial;" in visual_style_h,
+        "R5 visual style must expose the indexed metatile base-material contract",
+        errors,
+    )
+
+    r5_pawn_h = (
+        MODULE / "RemasterOverworldPawn.h"
+    ).read_text(encoding="utf-8")
+    r5_pawn_cpp = (
+        MODULE / "RemasterOverworldPawn.cpp"
+    ).read_text(encoding="utf-8")
+    player_controller = (
+        MODULE / "RemasterPlayerController.cpp"
+    ).read_text(encoding="utf-8")
+    game_mode = (
+        MODULE / "R0GameMode.cpp"
+    ).read_text(encoding="utf-8")
+
+    require(
+        "ApplyAuthoritativeStep(" in r5_pawn_h
+        and "TileToWorldLocation(" in r5_pawn_cpp
+        and "SetCollisionEnabled(ECollisionEnabled::NoCollision)" in r5_pawn_cpp,
+        "R5 player pawn must be presentation-only and follow authoritative tile state",
+        errors,
+    )
+    require(
+        "Gameplay->StepPlayer(Direction, Result)" in player_controller
+        and "OverworldPawn->ApplyAuthoritativeStep(Result)" in player_controller
+        and "URemasterCoreSubsystem" not in player_controller,
+        "R5 movement input must drive the authoritative R4 runtime, not the R0 prototype",
+        errors,
+    )
+    require(
+        "PlayerControllerClass = ARemasterPlayerController::StaticClass()" in game_mode
+        and "DefaultPawnClass = ARemasterOverworldPawn::StaticClass()" in game_mode
+        and "SpawnActor<ARemasterWorldActor>" in game_mode
+        and "SpawnActor<ARemasterCameraRig>" in game_mode,
+        "R5 default game mode must bootstrap a playable renderer/pawn/camera scene",
+        errors,
+    )
+    require(
+        "HUDClass = nullptr;" in game_mode
+        and '#include "R0HUD.h"' not in game_mode,
+        "R5 playable scene must not be covered by the legacy full-screen R0 HUD",
         errors,
     )
 

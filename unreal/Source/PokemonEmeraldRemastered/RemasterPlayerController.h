@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
-#include "RemasterCoreAdapter.h"
+#include "RemasterWorldGameplaySubsystem.h"
 #include "RemasterPlayerController.generated.h"
 
 class URemasterInputConfig;
@@ -21,6 +21,12 @@ public:
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Remaster|Input")
     TObjectPtr<URemasterInputConfig> InputConfig;
+
+    UFUNCTION(BlueprintImplementableEvent, Category="Remaster|Input")
+    void BP_OnWorldStep(const FRemasterPlayerStepResult& Result);
+
+    UFUNCTION(BlueprintImplementableEvent, Category="Remaster|Input")
+    void BP_OnInteract();
 
     UFUNCTION(BlueprintImplementableEvent, Category="Remaster|Input")
     void BP_OnCancel();
@@ -46,5 +52,10 @@ private:
     void HandleQuest(const FInputActionValue& Value);
     void HandleQuickItem(const FInputActionValue& Value);
 
-    void Step(ERemasterAction Action);
+    void StepDirection(int32 Direction);
+    void StepUp();
+    void StepDown();
+    void StepLeft();
+    void StepRight();
+    void InteractFallback();
 };
