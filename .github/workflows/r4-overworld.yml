@@ -38,5 +38,8 @@ jobs:
           -R "emerald_overworld_player_step|emerald_runtime_object_collision|r4_littleroot_overworld"
           --output-on-failure
 
+      - name: Validate full-world runtime object capacity
+        run: python -m unittest tests/test_r4_runtime_object_capacity.py -v
+
       - name: Validate Unreal R4 adapter architecture
         run: python tools/validate_unreal_source.py
