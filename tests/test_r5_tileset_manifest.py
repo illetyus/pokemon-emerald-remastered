@@ -37,7 +37,11 @@ class R5TilesetManifestTests(unittest.TestCase):
         self.assertFalse(general["is_secondary"])
         self.assertEqual(general["metatile_count"], 512)
         self.assertEqual(
-            general["asset_root"],
+            general["metatile_asset_root"],
+            "data/tilesets/primary/general",
+        )
+        self.assertEqual(
+            general["visual_asset_root"],
             "data/tilesets/primary/general",
         )
         self.assertEqual(
@@ -56,7 +60,11 @@ class R5TilesetManifestTests(unittest.TestCase):
         self.assertTrue(house["is_secondary"])
         self.assertEqual(house["metatile_count"], 196)
         self.assertEqual(
-            house["asset_root"],
+            house["metatile_asset_root"],
+            "data/tilesets/secondary/brendans_mays_house",
+        )
+        self.assertEqual(
+            house["visual_asset_root"],
             "data/tilesets/secondary/brendans_mays_house",
         )
         self.assertEqual(house["palette_format"], "JASC-PAL-0100")
@@ -64,6 +72,36 @@ class R5TilesetManifestTests(unittest.TestCase):
         self.assertEqual(len(house["palette_files"]), 16)
         self.assertTrue(
             all(path.endswith(".pal") for path in house["palette_files"])
+        )
+
+    def test_secret_base_variants_share_metatiles_but_not_visual_roots(self) -> None:
+        brown = self.by_id["gTileset_SecretBaseBrownCave"]
+        tree = self.by_id["gTileset_SecretBaseTree"]
+
+        self.assertEqual(
+            brown["metatile_asset_root"],
+            "data/tilesets/secondary/secret_base",
+        )
+        self.assertEqual(
+            tree["metatile_asset_root"],
+            "data/tilesets/secondary/secret_base",
+        )
+        self.assertEqual(
+            brown["visual_asset_root"],
+            "data/tilesets/secondary/secret_base/brown_cave",
+        )
+        self.assertEqual(
+            tree["visual_asset_root"],
+            "data/tilesets/secondary/secret_base/tree",
+        )
+        self.assertNotEqual(brown["tiles_png"], tree["tiles_png"])
+        self.assertEqual(
+            brown["tile_symbol"],
+            "gTilesetTiles_SecretBaseBrownCave",
+        )
+        self.assertEqual(
+            tree["tile_symbol"],
+            "gTilesetTiles_SecretBaseTree",
         )
 
     def test_all_source_assets_and_fingerprints_are_present(self) -> None:
