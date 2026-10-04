@@ -245,15 +245,54 @@ FIntPoint ARemasterWorldActor::ChunkForTile(
     return FIntPoint(Chunk.x, Chunk.y);
 }
 
+ARemasterWorldActor::FResolvedMetatileVisual
+ARemasterWorldActor::ResolveMetatileVisual(uint16 MetatileId) const
+{
+    FResolvedMetatileVisual Visual;
+
+    if (MetatileId < 512u)
+    {
+        Visual.Tileset = LoadedMap.PrimaryTileset;
+        Visual.LocalMetatileId = static_cast<int32>(MetatileId);
+    }
+    else
+    {
+        Visual.Tileset = LoadedMap.SecondaryTileset;
+        Visual.LocalMetatileId =
+            static_cast<int32>(MetatileId - 512u);
+    }
+
+    if (VisualStyle)
+    {
+        Visual.Rule =
+            VisualStyle->TileRules.FindByPredicate(
+                [&Visual](const FRemasterTileVisualRule& Candidate)
+                {
+                    return Candidate.LocalMetatileId
+                            == Visual.LocalMetatileId
+                        && Candidate.Tileset.Equals(
+                            Visual.Tileset,
+                            ESearchCase::CaseSensitive);
+                });
+    }
+
+    return Visual;
+}
+
 UHierarchicalInstancedStaticMeshComponent*
 ARemasterWorldActor::ComponentForMetatile(
-    uint16 MetatileId,
+    const FResolvedMetatileVisual& Visual,
     const FIntPoint& Chunk)
 {
+    uint32 IdentityHash = GetTypeHash(Visual.Tileset);
+    IdentityHash = HashCombine(
+        IdentityHash,
+        GetTypeHash(Visual.LocalMetatileId));
+
     const FRemasterChunkVisualKey Key{
         Chunk.X,
         Chunk.Y,
-        static_cast<int32>(MetatileId)
+        IdentityHash
     };
 
     if (UHierarchicalInstancedStaticMeshComponent** Existing =
@@ -266,24 +305,16 @@ ARemasterWorldActor::ComponentForMetatile(
     UMaterialInterface* Material = nullptr;
     bool bCastShadow = false;
 
-    if (VisualStyle)
+    if (Visual.Rule)
     {
-        if (const FRemasterTileVisualRule* Rule =
-                VisualStyle->TileRules.FindByPredicate(
-                    [MetatileId](const FRemasterTileVisualRule& Candidate)
-                    {
-                        return Candidate.MetatileId
-                            == static_cast<int32>(MetatileId);
-                    }))
+        if (UStaticMesh* RuleMesh =
+                Visual.Rule->Mesh.LoadSynchronous())
         {
-            if (UStaticMesh* RuleMesh = Rule->Mesh.LoadSynchronous())
-            {
-                Mesh = RuleMesh;
-                bCastShadow = true;
-            }
-
-            Material = Rule->Material.LoadSynchronous();
+            Mesh = RuleMesh;
+            bCastShadow = true;
         }
+
+        Material = Visual.Rule->Material.LoadSynchronous();
     }
 
     if (!Mesh)
@@ -293,10 +324,10 @@ ARemasterWorldActor::ComponentForMetatile(
         NewObject<UHierarchicalInstancedStaticMeshComponent>(
             this,
             *FString::Printf(
-                TEXT("Chunk_%d_%d_Metatile_%u"),
+                TEXT("Chunk_%d_%d_Visual_%08X"),
                 Chunk.X,
                 Chunk.Y,
-                static_cast<uint32>(MetatileId)));
+                IdentityHash));
 
     if (!Component)
         return nullptr;
@@ -342,10 +373,12 @@ void ARemasterWorldActor::BuildRenderChunks()
             }
 
             const uint16 MetatileId = LoadedMap.MetatileIds[Index];
+            const FResolvedMetatileVisual Visual =
+                ResolveMetatileVisual(MetatileId);
             const FIntPoint Chunk = ChunkForTile(X, Y);
 
             UHierarchicalInstancedStaticMeshComponent* Target =
-                ComponentForMetatile(MetatileId, Chunk);
+                ComponentForMetatile(Visual, Chunk);
 
             if (!Target)
                 continue;
@@ -353,19 +386,10 @@ void ARemasterWorldActor::BuildRenderChunks()
             FVector Scale = FallbackScale;
             float HeightOffset = -PreviewThickness * 0.5f;
 
-            if (VisualStyle)
+            if (Visual.Rule)
             {
-                if (const FRemasterTileVisualRule* Rule =
-                        VisualStyle->TileRules.FindByPredicate(
-                            [MetatileId](const FRemasterTileVisualRule& Candidate)
-                            {
-                                return Candidate.MetatileId
-                                    == static_cast<int32>(MetatileId);
-                            }))
-                {
-                    Scale = Rule->Scale;
-                    HeightOffset = Rule->HeightOffset;
-                }
+                Scale = Visual.Rule->Scale;
+                HeightOffset = Visual.Rule->HeightOffset;
             }
 
             Target->AddInstance(
