@@ -1,5 +1,6 @@
 #include "RemasterWorldGameplaySubsystem.h"
 
+#include "HAL/UnrealMemory.h"
 #include "RemasterVanillaPlusSaveSubsystem.h"
 #include "RemasterWorldCatalogSubsystem.h"
 
@@ -105,7 +106,32 @@ void URemasterWorldGameplaySubsystem::Initialize(
 
     Super::Initialize(Collection);
 
+    NativeObjectRuntime = FMemory::Malloc(
+        sizeof(RemasterEmeraldObjectRuntime),
+        alignof(RemasterEmeraldObjectRuntime));
+
+    if (NativeObjectRuntime)
+    {
+        remaster_emerald_object_runtime_reset(
+            static_cast<RemasterEmeraldObjectRuntime*>(
+                NativeObjectRuntime));
+    }
+
     LoadCurrentMapFromSave(false);
+}
+
+void URemasterWorldGameplaySubsystem::Deinitialize()
+{
+    if (NativeObjectRuntime)
+    {
+        FMemory::Free(NativeObjectRuntime);
+        NativeObjectRuntime = nullptr;
+    }
+
+    CurrentMap = FRemasterMapIR{};
+    bMapReady = false;
+
+    Super::Deinitialize();
 }
 
 
@@ -249,6 +275,68 @@ bool URemasterWorldGameplaySubsystem::RefreshSavedObjectTemplateCache(
         static_cast<size_t>(Templates.Num())) != 0;
 }
 
+bool URemasterWorldGameplaySubsystem::RebuildRuntimeObjectState()
+{
+    if (!NativeObjectRuntime
+        || !GetGameInstance()
+        || CurrentMap.ObjectEvents.Num()
+            > REMASTER_EMERALD_RUNTIME_OBJECT_COUNT)
+    {
+        return false;
+    }
+
+    const URemasterVanillaPlusSaveSubsystem* SaveSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
+
+    if (!SaveSubsystem || !SaveSubsystem->HasUsableSave())
+        return false;
+
+    const RemasterEmeraldSave* Save =
+        static_cast<const RemasterEmeraldSave*>(
+            SaveSubsystem->GetNativeSaveHandle());
+
+    if (!Save)
+        return false;
+
+    TArray<RemasterEmeraldObjectEventDef> Events;
+    Events.Reserve(CurrentMap.ObjectEvents.Num());
+
+    for (const FRemasterObjectEventIR& Source : CurrentMap.ObjectEvents)
+    {
+        if (Source.LocalId <= 0
+            || Source.LocalId > MAX_uint16
+            || !FitsInt16(Source.X)
+            || !FitsInt16(Source.Y)
+            || !FitsUInt8(Source.Elevation)
+            || !FitsUInt16(Source.FlagId))
+        {
+            UE_LOG(
+                LogTemp,
+                Error,
+                TEXT("Runtime object has unresolved collision identity: map=%s localId=%d"),
+                *CurrentMap.Id,
+                Source.LocalId);
+            return false;
+        }
+
+        RemasterEmeraldObjectEventDef Native{};
+        Native.local_id = static_cast<uint16>(Source.LocalId);
+        Native.x = static_cast<int16>(Source.X);
+        Native.y = static_cast<int16>(Source.Y);
+        Native.elevation = static_cast<uint8>(Source.Elevation);
+        Native.flag_id = static_cast<uint16>(Source.FlagId);
+        Native.script_id = nullptr;
+        Events.Add(Native);
+    }
+
+    return remaster_emerald_object_runtime_load(
+        static_cast<RemasterEmeraldObjectRuntime*>(
+            NativeObjectRuntime),
+        Save,
+        Events.IsEmpty() ? nullptr : Events.GetData(),
+        static_cast<size_t>(Events.Num())) != 0;
+}
+
 bool URemasterWorldGameplaySubsystem::LoadCurrentMapFromSave(
     bool bResetTemporaryState)
 {
@@ -316,6 +404,17 @@ bool URemasterWorldGameplaySubsystem::LoadCurrentMapFromSave(
             *CurrentMap.Id);
     }
 
+    if (!RebuildRuntimeObjectState())
+    {
+        UE_LOG(
+            LogTemp,
+            Error,
+            TEXT("Failed to build runtime object state for %s"),
+            *CurrentMap.Id);
+        CurrentMap = FRemasterMapIR{};
+        return false;
+    }
+
     bMapReady = true;
 
     UE_LOG(
@@ -378,6 +477,66 @@ bool URemasterWorldGameplaySubsystem::IsObjectVisible(
 }
 
 
+bool URemasterWorldGameplaySubsystem::SetRuntimeObjectActive(
+    int32 LocalId,
+    bool bActive)
+{
+    if (!NativeObjectRuntime
+        || LocalId <= 0
+        || LocalId > MAX_uint16)
+    {
+        return false;
+    }
+
+    return remaster_emerald_object_runtime_set_active(
+        static_cast<RemasterEmeraldObjectRuntime*>(
+            NativeObjectRuntime),
+        static_cast<uint16>(LocalId),
+        bActive ? 1 : 0) != 0;
+}
+
+bool URemasterWorldGameplaySubsystem::SetRuntimeObjectPosition(
+    int32 LocalId,
+    int32 X,
+    int32 Y,
+    int32 Elevation)
+{
+    if (!NativeObjectRuntime
+        || LocalId <= 0
+        || LocalId > MAX_uint16
+        || !FitsUInt8(Elevation))
+    {
+        return false;
+    }
+
+    return remaster_emerald_object_runtime_set_position(
+        static_cast<RemasterEmeraldObjectRuntime*>(
+            NativeObjectRuntime),
+        static_cast<uint16>(LocalId),
+        X,
+        Y,
+        static_cast<uint8>(Elevation)) != 0;
+}
+
+bool URemasterWorldGameplaySubsystem::SetRuntimeObjectPlayerCollisionExempt(
+    int32 LocalId,
+    bool bExempt)
+{
+    if (!NativeObjectRuntime
+        || LocalId <= 0
+        || LocalId > MAX_uint16)
+    {
+        return false;
+    }
+
+    return remaster_emerald_object_runtime_set_player_collision_exempt(
+        static_cast<RemasterEmeraldObjectRuntime*>(
+            NativeObjectRuntime),
+        static_cast<uint16>(LocalId),
+        bExempt ? 1 : 0) != 0;
+}
+
+
 bool URemasterWorldGameplaySubsystem::StepPlayer(
     int32 Direction,
     FRemasterPlayerStepResult& OutResult)
@@ -430,45 +589,27 @@ bool URemasterWorldGameplaySubsystem::StepPlayer(
     MapView.secondary_attribute_count =
         static_cast<size_t>(CurrentMap.SecondaryMetatileAttributes.Num());
 
+    if (!NativeObjectRuntime)
+        return false;
+
     TArray<RemasterEmeraldObjectCollider> ObjectColliders;
-    ObjectColliders.Reserve(CurrentMap.ObjectEvents.Num());
+    ObjectColliders.SetNumUninitialized(
+        REMASTER_EMERALD_RUNTIME_OBJECT_COUNT);
 
-    for (const FRemasterObjectEventIR& Event : CurrentMap.ObjectEvents)
+    size_t RuntimeColliderCount = 0;
+    if (!remaster_emerald_object_runtime_build_colliders(
+            static_cast<const RemasterEmeraldObjectRuntime*>(
+                NativeObjectRuntime),
+            ObjectColliders.GetData(),
+            static_cast<size_t>(ObjectColliders.Num()),
+            &RuntimeColliderCount))
     {
-        if (!FitsInt16(Event.X)
-            || !FitsInt16(Event.Y)
-            || !FitsUInt8(Event.Elevation)
-            || !FitsUInt16(Event.FlagId))
-        {
-            continue;
-        }
-
-        RemasterEmeraldObjectEventDef VisibilityDef{};
-        VisibilityDef.local_id =
-            Event.LocalId > 0 && Event.LocalId <= MAX_uint16
-                ? static_cast<uint16>(Event.LocalId)
-                : 0u;
-        VisibilityDef.x = static_cast<int16>(Event.X);
-        VisibilityDef.y = static_cast<int16>(Event.Y);
-        VisibilityDef.elevation = static_cast<uint8>(Event.Elevation);
-        VisibilityDef.flag_id = static_cast<uint16>(Event.FlagId);
-
-        if (!remaster_emerald_object_event_visible(
-                Save,
-                &VisibilityDef))
-        {
-            continue;
-        }
-
-        RemasterEmeraldObjectCollider Collider{};
-        Collider.active = 1u;
-        Collider.current_x = Event.X;
-        Collider.current_y = Event.Y;
-        Collider.previous_x = Event.X;
-        Collider.previous_y = Event.Y;
-        Collider.elevation = static_cast<uint8>(Event.Elevation);
-        ObjectColliders.Add(Collider);
+        return false;
     }
+
+    ObjectColliders.SetNum(
+        static_cast<int32>(RuntimeColliderCount),
+        EAllowShrinking::No);
 
     TArray<RemasterEmeraldWarpEventDef> NativeWarps;
     TArray<int32> WarpSourceIndices;
@@ -928,6 +1069,18 @@ bool URemasterWorldGameplaySubsystem::ApplyResolvedConnection(
     }
 
     CurrentMap = MoveTemp(TargetMap);
+
+    if (!RebuildRuntimeObjectState())
+    {
+        UE_LOG(
+            LogTemp,
+            Error,
+            TEXT("Failed to rebuild runtime objects after connection: %s"),
+            *CurrentMap.Id);
+        bMapReady = false;
+        return false;
+    }
+
     bMapReady = true;
 
     UE_LOG(
@@ -1439,6 +1592,18 @@ bool URemasterWorldGameplaySubsystem::ApplyResolvedWarp(
     }
 
     CurrentMap = MoveTemp(TargetMap);
+
+    if (!RebuildRuntimeObjectState())
+    {
+        UE_LOG(
+            LogTemp,
+            Error,
+            TEXT("Failed to rebuild runtime objects after warp: %s"),
+            *CurrentMap.Id);
+        bMapReady = false;
+        return false;
+    }
+
     bMapReady = true;
 
     UE_LOG(
