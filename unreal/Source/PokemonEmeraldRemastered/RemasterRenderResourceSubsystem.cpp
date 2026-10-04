@@ -6,77 +6,6 @@
 
 namespace
 {
-bool ParseJascPalette(
-    const FString& Text,
-    TArray<FColor>& OutColors,
-    FString& OutError)
-{
-    TArray<FString> Lines;
-    Text.ParseIntoArrayLines(Lines, true);
-
-    TArray<FString> Clean;
-    for (FString Line : Lines)
-    {
-        Line.TrimStartAndEndInline();
-        if (!Line.IsEmpty())
-            Clean.Add(MoveTemp(Line));
-    }
-
-    if (Clean.Num() != 19
-        || Clean[0] != TEXT("JASC-PAL")
-        || Clean[1] != TEXT("0100")
-        || Clean[2] != TEXT("16"))
-    {
-        OutError = TEXT("R5 palette is not JASC-PAL 0100 with 16 colors.");
-        return false;
-    }
-
-    OutColors.Reset();
-    OutColors.Reserve(16);
-
-    for (int32 Index = 3; Index < 19; ++Index)
-    {
-        TArray<FString> Parts;
-        Clean[Index].ParseIntoArrayWS(Parts);
-
-        if (Parts.Num() != 3)
-        {
-            OutError = FString::Printf(
-                TEXT("R5 palette row %d does not contain RGB."),
-                Index - 3);
-            OutColors.Reset();
-            return false;
-        }
-
-        int32 R = 0;
-        int32 G = 0;
-        int32 B = 0;
-
-        if (!LexTryParseString(R, *Parts[0])
-            || !LexTryParseString(G, *Parts[1])
-            || !LexTryParseString(B, *Parts[2])
-            || R < 0 || R > 255
-            || G < 0 || G > 255
-            || B < 0 || B > 255)
-        {
-            OutError = FString::Printf(
-                TEXT("R5 palette row %d has invalid RGB."),
-                Index - 3);
-            OutColors.Reset();
-            return false;
-        }
-
-        OutColors.Add(
-            FColor(
-                static_cast<uint8>(R),
-                static_cast<uint8>(G),
-                static_cast<uint8>(B),
-                255));
-    }
-
-    return OutColors.Num() == 16;
-}
-
 bool CopyTextureBytes(
     UTexture2D* Texture,
     const void* Source,
@@ -141,13 +70,15 @@ void URemasterRenderResourceSubsystem::Deinitialize()
 FString URemasterRenderResourceSubsystem::MakeCacheKey(
     const FString& TilesetId,
     const FString& DescriptorSha256,
-    const FString& IndexSha256) const
+    const FString& IndexSha256,
+    const FString& PaletteLutSha256) const
 {
     return FString::Printf(
-        TEXT("%s:%s:%s"),
+        TEXT("%s:%s:%s:%s"),
         *TilesetId,
         *DescriptorSha256,
-        *IndexSha256);
+        *IndexSha256,
+        *PaletteLutSha256);
 }
 
 UTexture2D*
@@ -215,18 +146,35 @@ URemasterRenderResourceSubsystem::CreateIndexTexture(
 UTexture2D*
 URemasterRenderResourceSubsystem::CreatePaletteTexture(
     const FString& DebugName,
-    const TArray<FColor>& Colors,
+    const TArray<uint8>& RgbaPixels,
     FString& OutError)
 {
     constexpr int32 PaletteWidth = 16;
     constexpr int32 PaletteHeight = 16;
+    constexpr int32 Channels = 4;
+    constexpr int32 ExpectedBytes =
+        PaletteWidth * PaletteHeight * Channels;
 
-    if (Colors.Num() != PaletteWidth * PaletteHeight)
+    if (RgbaPixels.Num() != ExpectedBytes)
     {
         OutError = FString::Printf(
-            TEXT("R5 palette texture requires 256 colors: %s"),
+            TEXT("R5 palette LUT requires %d RGBA bytes: %s"),
+            ExpectedBytes,
             *DebugName);
         return nullptr;
+    }
+
+    TArray<FColor> Colors;
+    Colors.SetNumUninitialized(PaletteWidth * PaletteHeight);
+
+    for (int32 Index = 0; Index < Colors.Num(); ++Index)
+    {
+        const int32 Source = Index * Channels;
+        Colors[Index] = FColor(
+            RgbaPixels[Source + 0],
+            RgbaPixels[Source + 1],
+            RgbaPixels[Source + 2],
+            RgbaPixels[Source + 3]);
     }
 
     UTexture2D* Texture =
@@ -250,104 +198,16 @@ URemasterRenderResourceSubsystem::CreatePaletteTexture(
     Texture->AddressX = TA_Clamp;
     Texture->AddressY = TA_Clamp;
 
-    TArray<FColor> BgraColors;
-    BgraColors.Reserve(Colors.Num());
-
-    for (const FColor& Color : Colors)
-    {
-        /*
-         * PF_B8G8R8A8 consumes FColor's native BGRA byte layout.
-         */
-        BgraColors.Add(Color);
-    }
-
     if (!CopyTextureBytes(
             Texture,
-            BgraColors.GetData(),
-            static_cast<int64>(BgraColors.Num())
-                * sizeof(FColor),
+            Colors.GetData(),
+            static_cast<int64>(Colors.Num()) * sizeof(FColor),
             OutError))
     {
         return nullptr;
     }
 
     return Texture;
-}
-
-bool URemasterRenderResourceSubsystem::LoadPaletteColors(
-    const TArray<FString>& RelativePaletteFiles,
-    TArray<FColor>& OutColors,
-    FString& OutError) const
-{
-    OutColors.Reset();
-    OutError.Reset();
-
-    if (RelativePaletteFiles.Num() != 16)
-    {
-        OutError = TEXT("R5 tileset does not reference 16 palettes.");
-        return false;
-    }
-
-    UGameInstance* GI = GetGameInstance();
-    URemasterRenderCatalogSubsystem* Catalog =
-        GI
-            ? GI->GetSubsystem<URemasterRenderCatalogSubsystem>()
-            : nullptr;
-
-    if (!Catalog || !Catalog->IsCatalogReady())
-    {
-        OutError = TEXT("R5 render catalog is unavailable.");
-        return false;
-    }
-
-    OutColors.Reserve(256);
-
-    for (int32 PaletteIndex = 0;
-         PaletteIndex < RelativePaletteFiles.Num();
-         ++PaletteIndex)
-    {
-        FString AbsolutePath;
-        if (!Catalog->ResolvePackageFile(
-                RelativePaletteFiles[PaletteIndex],
-                AbsolutePath))
-        {
-            OutError = FString::Printf(
-                TEXT("R5 palette payload is unavailable: %s"),
-                *RelativePaletteFiles[PaletteIndex]);
-            OutColors.Reset();
-            return false;
-        }
-
-        FString Text;
-        if (!FFileHelper::LoadFileToString(
-                Text,
-                *AbsolutePath))
-        {
-            OutError = FString::Printf(
-                TEXT("Unable to read R5 palette: %s"),
-                *AbsolutePath);
-            OutColors.Reset();
-            return false;
-        }
-
-        TArray<FColor> PaletteColors;
-        if (!ParseJascPalette(
-                Text,
-                PaletteColors,
-                OutError))
-        {
-            OutError = FString::Printf(
-                TEXT("%s (%s)"),
-                *OutError,
-                *AbsolutePath);
-            OutColors.Reset();
-            return false;
-        }
-
-        OutColors.Append(PaletteColors);
-    }
-
-    return OutColors.Num() == 256;
 }
 
 bool URemasterRenderResourceSubsystem::LoadTilesetResources(
@@ -394,7 +254,8 @@ bool URemasterRenderResourceSubsystem::LoadTilesetResources(
         MakeCacheKey(
             TilesetId,
             Entry->DescriptorSha256,
-            Entry->TilesIndex8Sha256);
+            Entry->TilesIndex8Sha256,
+            Entry->PaletteLutSha256);
 
     if (const FRemasterTilesetRenderResources* Cached =
             ResourceCache.Find(CacheKey))
@@ -407,12 +268,17 @@ bool URemasterRenderResourceSubsystem::LoadTilesetResources(
     }
 
     FString AbsoluteIndex;
+    FString AbsolutePaletteLut;
+
     if (!Catalog->ResolvePackageFile(
             Descriptor->TilesIndex8Relative,
-            AbsoluteIndex))
+            AbsoluteIndex)
+        || !Catalog->ResolvePackageFile(
+            Descriptor->PaletteLutRelative,
+            AbsolutePaletteLut))
     {
         OutError = FString::Printf(
-            TEXT("R5 index texture payload is missing: %s"),
+            TEXT("R5 indexed render payload is missing: %s"),
             *TilesetId);
         return false;
     }
@@ -431,12 +297,15 @@ bool URemasterRenderResourceSubsystem::LoadTilesetResources(
         return false;
     }
 
-    TArray<FColor> PaletteColors;
-    if (!LoadPaletteColors(
-            Descriptor->PaletteFilesRelative,
-            PaletteColors,
-            OutError))
+    TArray<uint8> PaletteBytes;
+    if (!FFileHelper::LoadFileToArray(
+            PaletteBytes,
+            *AbsolutePaletteLut)
+        || PaletteBytes.Num() != 16 * 16 * 4)
     {
+        OutError = FString::Printf(
+            TEXT("R5 palette LUT byte count mismatch: %s"),
+            *TilesetId);
         return false;
     }
 
@@ -458,7 +327,7 @@ bool URemasterRenderResourceSubsystem::LoadTilesetResources(
             FString::Printf(
                 TEXT("R5_Palettes_%s"),
                 *TilesetId),
-            PaletteColors,
+            PaletteBytes,
             OutError);
 
     if (!PaletteTexture)
