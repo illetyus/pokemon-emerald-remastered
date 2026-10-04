@@ -60,6 +60,9 @@ def build_script_catalog(source_root: Path) -> dict[str, Any]:
 
     macro_names = _macro_names(source_root)
     maps_by_name = {item["name"]: item for item in source_catalog["maps"]}
+    global_shared_script_sources = source_catalog.get(
+        "global_shared_script_sources", {}
+    )
 
     resolved_ownership: dict[str, dict[str, Any]] = {}
 
@@ -82,20 +85,28 @@ def build_script_catalog(source_root: Path) -> dict[str, Any]:
             }
         elif kind == "shared":
             owner = ownership["owner"]
-            if owner not in maps_by_name:
+            if owner in maps_by_name:
+                terminal = resolve_ownership(owner, (*stack, map_name))
+                if terminal["kind"] == "none" or terminal["source"] is None:
+                    raise R3ScriptCatalogError(
+                        f"{map_name}: shared script owner {owner!r} "
+                        "has no script source"
+                    )
+                result = {
+                    "kind": "shared",
+                    "owner": terminal["owner"],
+                    "source": terminal["source"],
+                }
+            elif owner in global_shared_script_sources:
+                result = {
+                    "kind": "shared",
+                    "owner": owner,
+                    "source": global_shared_script_sources[owner],
+                }
+            else:
                 raise R3ScriptCatalogError(
                     f"{map_name}: unknown shared script owner {owner!r}"
                 )
-            terminal = resolve_ownership(owner, (*stack, map_name))
-            if terminal["kind"] == "none" or terminal["source"] is None:
-                raise R3ScriptCatalogError(
-                    f"{map_name}: shared script owner {owner!r} has no script source"
-                )
-            result = {
-                "kind": "shared",
-                "owner": terminal["owner"],
-                "source": terminal["source"],
-            }
         else:
             result = {
                 "kind": "none",
