@@ -44,6 +44,41 @@ int32 ConnectionDirectionFromString(const FString& Value)
     return REMASTER_EMERALD_DIR_NONE;
 }
 
+bool BuildRuntimeObjectEvents(
+    const FRemasterMapIR& Map,
+    TArray<RemasterEmeraldObjectEventDef>& OutEvents)
+{
+    if (Map.ObjectEvents.Num() > REMASTER_EMERALD_OBJECT_TEMPLATE_COUNT)
+        return false;
+
+    OutEvents.Reset();
+    OutEvents.Reserve(Map.ObjectEvents.Num());
+
+    for (const FRemasterObjectEventIR& Source : Map.ObjectEvents)
+    {
+        if (Source.LocalId <= 0
+            || Source.LocalId > MAX_uint16
+            || !FitsInt16(Source.X)
+            || !FitsInt16(Source.Y)
+            || !FitsUInt8(Source.Elevation)
+            || !FitsUInt16(Source.FlagId))
+        {
+            return false;
+        }
+
+        RemasterEmeraldObjectEventDef Native{};
+        Native.local_id = static_cast<uint16>(Source.LocalId);
+        Native.x = static_cast<int16>(Source.X);
+        Native.y = static_cast<int16>(Source.Y);
+        Native.elevation = static_cast<uint8>(Source.Elevation);
+        Native.flag_id = static_cast<uint16>(Source.FlagId);
+        Native.script_id = nullptr;
+        OutEvents.Add(Native);
+    }
+
+    return true;
+}
+
 bool PopulatePlayerStepSnapshot(
     const RemasterEmeraldSave* Save,
     const FRemasterMapIR& Map,
@@ -277,13 +312,8 @@ bool URemasterWorldGameplaySubsystem::RefreshSavedObjectTemplateCache(
 
 bool URemasterWorldGameplaySubsystem::RebuildRuntimeObjectState()
 {
-    if (!NativeObjectRuntime
-        || !GetGameInstance()
-        || CurrentMap.ObjectEvents.Num()
-            > REMASTER_EMERALD_RUNTIME_OBJECT_COUNT)
-    {
+    if (!NativeObjectRuntime || !GetGameInstance())
         return false;
-    }
 
     const URemasterVanillaPlusSaveSubsystem* SaveSubsystem =
         GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
@@ -298,35 +328,19 @@ bool URemasterWorldGameplaySubsystem::RebuildRuntimeObjectState()
     if (!Save)
         return false;
 
+    RemasterEmeraldOverworldState State{};
+    if (!remaster_emerald_overworld_get(Save, &State))
+        return false;
+
     TArray<RemasterEmeraldObjectEventDef> Events;
-    Events.Reserve(CurrentMap.ObjectEvents.Num());
-
-    for (const FRemasterObjectEventIR& Source : CurrentMap.ObjectEvents)
+    if (!BuildRuntimeObjectEvents(CurrentMap, Events))
     {
-        if (Source.LocalId <= 0
-            || Source.LocalId > MAX_uint16
-            || !FitsInt16(Source.X)
-            || !FitsInt16(Source.Y)
-            || !FitsUInt8(Source.Elevation)
-            || !FitsUInt16(Source.FlagId))
-        {
-            UE_LOG(
-                LogTemp,
-                Error,
-                TEXT("Runtime object has unresolved collision identity: map=%s localId=%d"),
-                *CurrentMap.Id,
-                Source.LocalId);
-            return false;
-        }
-
-        RemasterEmeraldObjectEventDef Native{};
-        Native.local_id = static_cast<uint16>(Source.LocalId);
-        Native.x = static_cast<int16>(Source.X);
-        Native.y = static_cast<int16>(Source.Y);
-        Native.elevation = static_cast<uint8>(Source.Elevation);
-        Native.flag_id = static_cast<uint16>(Source.FlagId);
-        Native.script_id = nullptr;
-        Events.Add(Native);
+        UE_LOG(
+            LogTemp,
+            Error,
+            TEXT("Runtime object templates are invalid: %s"),
+            *CurrentMap.Id);
+        return false;
     }
 
     return remaster_emerald_object_runtime_load(
@@ -334,7 +348,45 @@ bool URemasterWorldGameplaySubsystem::RebuildRuntimeObjectState()
             NativeObjectRuntime),
         Save,
         Events.IsEmpty() ? nullptr : Events.GetData(),
-        static_cast<size_t>(Events.Num())) != 0;
+        static_cast<size_t>(Events.Num()),
+        State.player_x,
+        State.player_y) != 0;
+}
+
+bool URemasterWorldGameplaySubsystem::SyncRuntimeObjectView()
+{
+    if (!NativeObjectRuntime || !GetGameInstance())
+        return false;
+
+    const URemasterVanillaPlusSaveSubsystem* SaveSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
+
+    if (!SaveSubsystem || !SaveSubsystem->HasUsableSave())
+        return false;
+
+    const RemasterEmeraldSave* Save =
+        static_cast<const RemasterEmeraldSave*>(
+            SaveSubsystem->GetNativeSaveHandle());
+
+    if (!Save)
+        return false;
+
+    RemasterEmeraldOverworldState State{};
+    if (!remaster_emerald_overworld_get(Save, &State))
+        return false;
+
+    TArray<RemasterEmeraldObjectEventDef> Events;
+    if (!BuildRuntimeObjectEvents(CurrentMap, Events))
+        return false;
+
+    return remaster_emerald_object_runtime_sync_view(
+        static_cast<RemasterEmeraldObjectRuntime*>(
+            NativeObjectRuntime),
+        Save,
+        Events.IsEmpty() ? nullptr : Events.GetData(),
+        static_cast<size_t>(Events.Num()),
+        State.player_x,
+        State.player_y) != 0;
 }
 
 bool URemasterWorldGameplaySubsystem::LoadCurrentMapFromSave(
@@ -589,7 +641,7 @@ bool URemasterWorldGameplaySubsystem::StepPlayer(
     MapView.secondary_attribute_count =
         static_cast<size_t>(CurrentMap.SecondaryMetatileAttributes.Num());
 
-    if (!NativeObjectRuntime)
+    if (!NativeObjectRuntime || !SyncRuntimeObjectView())
         return false;
 
     TArray<RemasterEmeraldObjectCollider> ObjectColliders;
@@ -754,6 +806,8 @@ bool URemasterWorldGameplaySubsystem::StepPlayer(
         return true;
 
     case REMASTER_EMERALD_PLAYER_STEP_MOVED:
+        if (!SyncRuntimeObjectView())
+            return false;
         OutResult.Kind = ERemasterPlayerStepKind::Moved;
         return PopulatePlayerStepSnapshot(
             Save,
