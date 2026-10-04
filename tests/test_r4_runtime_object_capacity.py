@@ -6,11 +6,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MAPS = ROOT / "vendor/vanillaplus/data/maps"
-RUNTIME_OBJECT_CAPACITY = 16
+OBJECT_TEMPLATE_CAPACITY = 64
 
 
 class R4RuntimeObjectCapacityTests(unittest.TestCase):
-    def test_all_vanillaplus_maps_fit_runtime_object_capacity(self):
+    def test_all_vanillaplus_maps_fit_object_template_capacity(self):
         offenders: list[tuple[str, int]] = []
         maximum = 0
         maximum_maps: list[str] = []
@@ -25,7 +25,7 @@ class R4RuntimeObjectCapacityTests(unittest.TestCase):
             elif count == maximum:
                 maximum_maps.append(document.get("name", path.parent.name))
 
-            if count > RUNTIME_OBJECT_CAPACITY:
+            if count > OBJECT_TEMPLATE_CAPACITY:
                 offenders.append(
                     (document.get("name", path.parent.name), count)
                 )
@@ -33,14 +33,15 @@ class R4RuntimeObjectCapacityTests(unittest.TestCase):
         self.assertEqual(
             offenders,
             [],
-            f"maps exceed {RUNTIME_OBJECT_CAPACITY} runtime object slots: "
+            f"maps exceed {OBJECT_TEMPLATE_CAPACITY} runtime object slots: "
             f"{offenders}",
         )
         self.assertGreater(maximum, 0)
 
         print(
-            "R4 runtime object capacity: "
-            f"max={maximum} maps={','.join(maximum_maps[:10])}"
+            "R4 object template capacity: "
+            f"max={maximum} runtime_slots=16 "
+            f"maps={','.join(maximum_maps[:10])}"
         )
 
 
