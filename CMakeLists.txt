@@ -235,6 +235,21 @@ endif()
 
 add_test(NAME emerald_overworld_player_step COMMAND emerald_overworld_step_test)
 
+add_executable(emerald_step_events_test
+    tests/emerald_step_events_test.c
+)
+
+target_link_libraries(emerald_step_events_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_step_events_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_step_events_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME emerald_step_event_ordering COMMAND emerald_step_events_test)
+
+
 add_executable(emerald_events_test
     tests/emerald_events_test.c
 )
