@@ -265,7 +265,8 @@ def main() -> int:
     )
     require(
         "Entries.Num() == MetatileCount" not in render_catalog_cpp
-        and "Metatile.Entries.Num() == 8" in render_catalog_h
+        and "Entries.Num() == 8" in render_catalog_h
+        and "Metatile.IsValid()" in render_catalog_cpp
         and "Reconstructed != Tile.RawU16" in render_catalog_cpp,
         "R5 render catalog must validate decoded metatile/tile integrity",
         errors,
