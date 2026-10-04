@@ -39,6 +39,9 @@ struct FRemasterPlayerStepResult
     int32 Elevation = 0;
 
     UPROPERTY(BlueprintReadOnly)
+    int32 Direction = 0;
+
+    UPROPERTY(BlueprintReadOnly)
     FString ScriptId;
 
     UPROPERTY(BlueprintReadOnly)
@@ -236,6 +239,7 @@ public:
     UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
     bool ContinuePlayerStepEvents(
         int32 CoordStartIndex,
+        int32 StepDirection,
         FRemasterPlayerStepResult& OutResult);
 
     // Internal world/script host bridge for transient runtime object state.
@@ -296,6 +300,7 @@ private:
     bool SyncRuntimeObjectView();
     bool ProcessCurrentStepEvents(
         int32 CoordStartIndex,
+        int32 StepDirection,
         FRemasterPlayerStepResult& OutResult);
 
     FRemasterMapIR CurrentMap;
