@@ -144,6 +144,41 @@ Shared_EventScript_Global::
             self.assertIn(("MapB", "Shared_EventScript_Global"), refs)
             self.assertFalse(any(script_id == "0x0" for _, script_id in refs))
 
+
+    def test_global_shared_script_owner_resolves_to_global_source(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source(root)
+
+            path = root / "data/maps/MapB/map.json"
+            doc = json.loads(path.read_text(encoding="utf-8"))
+            doc["shared_scripts_map"] = "SharedHub"
+            write_json(path, doc)
+
+            (root / "data/scripts/shared_hub.inc").write_text(
+                """
+SharedHub_MapScripts::
+    map_script MAP_SCRIPT_ON_LOAD, SharedHub_OnLoad
+    .byte 0
+
+SharedHub_OnLoad::
+    end
+""".lstrip(),
+                encoding="utf-8",
+            )
+
+            catalog = build_script_catalog(root)
+            by_map = {item["map"]: item for item in catalog["maps"]}
+
+            self.assertEqual(
+                by_map["MapB"]["script_ownership"],
+                {
+                    "kind": "shared",
+                    "owner": "SharedHub",
+                    "source": "data/scripts/shared_hub.inc",
+                },
+            )
+
     def test_command_classification_reports_deferred_separately(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
