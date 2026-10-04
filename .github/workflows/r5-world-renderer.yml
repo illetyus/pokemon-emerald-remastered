@@ -66,5 +66,21 @@ jobs:
           path: /tmp/r5-metatiles.json
           if-no-files-found: error
 
+      - name: Validate package-safe R5 render payload
+        run: python -m unittest tests/test_r5_render_package.py -v
+
+      - name: Build packaged R5 render payload
+        run: >-
+          python tools/build_r5_render_package.py
+          vendor/vanillaplus
+          /tmp/r5-render-package
+
+      - name: Upload packaged R5 render payload
+        uses: actions/upload-artifact@v4
+        with:
+          name: r5-render-package
+          path: /tmp/r5-render-package
+          if-no-files-found: error
+
       - name: Validate Unreal R5 renderer architecture
         run: python tools/validate_unreal_source.py
