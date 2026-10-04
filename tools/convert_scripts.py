@@ -313,11 +313,18 @@ def _is_script_source_path(relative: Path) -> bool:
 def _script_source_candidates(
     source_root: Path,
     roots: list[Path],
+    *,
+    active_manifest_only: bool = False,
 ) -> set[Path]:
     candidates: set[Path] = set()
     event_scripts = source_root / "data/event_scripts.s"
 
-    if event_scripts.is_file():
+    if active_manifest_only:
+        if not event_scripts.is_file():
+            raise ScriptConversionError(
+                f"missing active script manifest: {event_scripts}"
+            )
+
         candidates.add(event_scripts)
         pending = [event_scripts]
         visited: set[Path] = set()
@@ -346,9 +353,8 @@ def _script_source_candidates(
                     candidates.add(target)
                     pending.append(target)
     else:
-        # Minimal unit fixtures and focused conversion roots may not model the
-        # top-level assembly manifest. Preserve the legacy discovery fallback
-        # only for those trees.
+        # R2 focused closures and unit fixtures intentionally discover the
+        # available subset instead of requiring the full event_scripts.s tree.
         for path in (source_root / "data/maps").glob("**/scripts.inc"):
             if path.is_file():
                 candidates.add(path)
@@ -358,6 +364,8 @@ def _script_source_candidates(
         for path in (source_root / "data/text").glob("**/*.inc"):
             if path.is_file():
                 candidates.add(path)
+        if event_scripts.is_file():
+            candidates.add(event_scripts)
 
     for relative in roots:
         path = source_root / relative
@@ -370,11 +378,17 @@ def _script_source_candidates(
 def _index_script_sources(
     source_root: Path,
     roots: list[Path],
+    *,
+    active_manifest_only: bool = False,
 ) -> tuple[
     dict[str, tuple[Path, int, list[SourceCommand]]],
     dict[Path, list[str]],
 ]:
-    candidates = _script_source_candidates(source_root, roots)
+    candidates = _script_source_candidates(
+        source_root,
+        roots,
+        active_manifest_only=active_manifest_only,
+    )
 
     labels: dict[str, tuple[Path, int, list[SourceCommand]]] = {}
     labels_by_file: dict[Path, list[str]] = {}
