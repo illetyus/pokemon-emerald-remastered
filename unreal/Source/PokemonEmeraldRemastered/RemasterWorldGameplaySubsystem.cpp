@@ -7,6 +7,7 @@ extern "C"
 {
 #include "remaster/emerald_events.h"
 #include "remaster/emerald_object_state.h"
+#include "remaster/emerald_overworld.h"
 #include "remaster/emerald_save.h"
 #include "remaster/emerald_state.h"
 #include "remaster/emerald_transition.h"
@@ -40,6 +41,59 @@ int32 ConnectionDirectionFromString(const FString& Value)
     if (Value.Equals(TEXT("right"), ESearchCase::IgnoreCase))
         return REMASTER_EMERALD_DIR_EAST;
     return REMASTER_EMERALD_DIR_NONE;
+}
+
+bool PopulatePlayerStepSnapshot(
+    const RemasterEmeraldSave* Save,
+    const FRemasterMapIR& Map,
+    FRemasterPlayerStepResult& OutResult)
+{
+    if (!Save)
+        return false;
+
+    RemasterEmeraldOverworldState State{};
+    if (!remaster_emerald_overworld_get(Save, &State))
+        return false;
+
+    OutResult.PlayerX = State.player_x;
+    OutResult.PlayerY = State.player_y;
+    OutResult.MapId = Map.Id;
+    OutResult.MapGroup = State.map_group;
+    OutResult.MapNum = State.map_num;
+
+    if (State.player_x >= 0
+        && State.player_y >= 0
+        && State.player_x < Map.Width
+        && State.player_y < Map.Height
+        && Map.RawBlocks.Num() == Map.Width * Map.Height
+        && !Map.PrimaryMetatileAttributes.IsEmpty()
+        && !Map.SecondaryMetatileAttributes.IsEmpty())
+    {
+        RemasterEmeraldMapView View{};
+        View.width = Map.Width;
+        View.height = Map.Height;
+        View.blocks = Map.RawBlocks.GetData();
+        View.block_count = static_cast<size_t>(Map.RawBlocks.Num());
+        View.border = Map.BorderActiveWords.GetData();
+        View.border_count = static_cast<size_t>(Map.BorderActiveWords.Num());
+        View.primary_attributes = Map.PrimaryMetatileAttributes.GetData();
+        View.primary_attribute_count =
+            static_cast<size_t>(Map.PrimaryMetatileAttributes.Num());
+        View.secondary_attributes = Map.SecondaryMetatileAttributes.GetData();
+        View.secondary_attribute_count =
+            static_cast<size_t>(Map.SecondaryMetatileAttributes.Num());
+
+        OutResult.Elevation = remaster_emerald_map_elevation_at(
+            &View,
+            State.player_x,
+            State.player_y);
+    }
+    else
+    {
+        OutResult.Elevation = 0;
+    }
+
+    return true;
 }
 }
 
@@ -321,6 +375,328 @@ bool URemasterWorldGameplaySubsystem::IsObjectVisible(
         remaster_emerald_object_event_visible(Save, &Native) != 0;
 
     return true;
+}
+
+
+bool URemasterWorldGameplaySubsystem::StepPlayer(
+    int32 Direction,
+    FRemasterPlayerStepResult& OutResult)
+{
+    OutResult = FRemasterPlayerStepResult{};
+
+    if (!bMapReady
+        || !CurrentMap.IsValid()
+        || Direction < REMASTER_EMERALD_DIR_SOUTH
+        || Direction > REMASTER_EMERALD_DIR_EAST
+        || !GetGameInstance())
+    {
+        return false;
+    }
+
+    URemasterVanillaPlusSaveSubsystem* SaveSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
+    URemasterWorldCatalogSubsystem* CatalogSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterWorldCatalogSubsystem>();
+
+    if (!SaveSubsystem
+        || !CatalogSubsystem
+        || !SaveSubsystem->HasUsableSave())
+    {
+        return false;
+    }
+
+    RemasterEmeraldSave* Save =
+        static_cast<RemasterEmeraldSave*>(
+            SaveSubsystem->GetMutableNativeSaveHandle());
+
+    if (!Save)
+        return false;
+
+    RemasterEmeraldMapView MapView{};
+    MapView.width = CurrentMap.Width;
+    MapView.height = CurrentMap.Height;
+    MapView.blocks = CurrentMap.RawBlocks.GetData();
+    MapView.block_count =
+        static_cast<size_t>(CurrentMap.RawBlocks.Num());
+    MapView.border = CurrentMap.BorderActiveWords.GetData();
+    MapView.border_count =
+        static_cast<size_t>(CurrentMap.BorderActiveWords.Num());
+    MapView.primary_attributes =
+        CurrentMap.PrimaryMetatileAttributes.GetData();
+    MapView.primary_attribute_count =
+        static_cast<size_t>(CurrentMap.PrimaryMetatileAttributes.Num());
+    MapView.secondary_attributes =
+        CurrentMap.SecondaryMetatileAttributes.GetData();
+    MapView.secondary_attribute_count =
+        static_cast<size_t>(CurrentMap.SecondaryMetatileAttributes.Num());
+
+    TArray<RemasterEmeraldObjectCollider> ObjectColliders;
+    ObjectColliders.Reserve(CurrentMap.ObjectEvents.Num());
+
+    for (const FRemasterObjectEventIR& Event : CurrentMap.ObjectEvents)
+    {
+        if (!FitsInt16(Event.X)
+            || !FitsInt16(Event.Y)
+            || !FitsUInt8(Event.Elevation)
+            || !FitsUInt16(Event.FlagId))
+        {
+            continue;
+        }
+
+        RemasterEmeraldObjectEventDef VisibilityDef{};
+        VisibilityDef.local_id =
+            Event.LocalId > 0 && Event.LocalId <= MAX_uint16
+                ? static_cast<uint16>(Event.LocalId)
+                : 0u;
+        VisibilityDef.x = static_cast<int16>(Event.X);
+        VisibilityDef.y = static_cast<int16>(Event.Y);
+        VisibilityDef.elevation = static_cast<uint8>(Event.Elevation);
+        VisibilityDef.flag_id = static_cast<uint16>(Event.FlagId);
+
+        if (!remaster_emerald_object_event_visible(
+                Save,
+                &VisibilityDef))
+        {
+            continue;
+        }
+
+        RemasterEmeraldObjectCollider Collider{};
+        Collider.active = 1u;
+        Collider.current_x = Event.X;
+        Collider.current_y = Event.Y;
+        Collider.previous_x = Event.X;
+        Collider.previous_y = Event.Y;
+        Collider.elevation = static_cast<uint8>(Event.Elevation);
+        ObjectColliders.Add(Collider);
+    }
+
+    TArray<RemasterEmeraldWarpEventDef> NativeWarps;
+    TArray<int32> WarpSourceIndices;
+    NativeWarps.Reserve(CurrentMap.WarpEvents.Num());
+    WarpSourceIndices.Reserve(CurrentMap.WarpEvents.Num());
+
+    for (int32 Index = 0; Index < CurrentMap.WarpEvents.Num(); ++Index)
+    {
+        const FRemasterWarpEventIR& Event = CurrentMap.WarpEvents[Index];
+
+        if (!FitsInt16(Event.X)
+            || !FitsInt16(Event.Y)
+            || !FitsUInt8(Event.Elevation)
+            || !FitsUInt8(Event.DestWarpIdNum))
+        {
+            continue;
+        }
+
+        if (!Event.bDynamicTarget
+            && (!FitsUInt8(Event.DestGroupNum)
+                || !FitsUInt8(Event.DestMapNum)))
+        {
+            continue;
+        }
+
+        RemasterEmeraldWarpEventDef Native{};
+        Native.x = static_cast<int16>(Event.X);
+        Native.y = static_cast<int16>(Event.Y);
+        Native.elevation = static_cast<uint8>(Event.Elevation);
+        Native.dest_warp_id =
+            static_cast<uint8>(Event.DestWarpIdNum);
+        Native.dest_map_group = Event.bDynamicTarget
+            ? 0u
+            : static_cast<uint8>(Event.DestGroupNum);
+        Native.dest_map_num = Event.bDynamicTarget
+            ? 0u
+            : static_cast<uint8>(Event.DestMapNum);
+
+        NativeWarps.Add(Native);
+        WarpSourceIndices.Add(Index);
+    }
+
+    TArray<RemasterEmeraldConnectionDef> NativeConnections;
+    TArray<int32> ConnectionSourceIndices;
+    NativeConnections.Reserve(CurrentMap.Connections.Num());
+    ConnectionSourceIndices.Reserve(CurrentMap.Connections.Num());
+
+    for (int32 Index = 0; Index < CurrentMap.Connections.Num(); ++Index)
+    {
+        const FRemasterConnectionIR& Source =
+            CurrentMap.Connections[Index];
+        const int32 NativeDirection =
+            ConnectionDirectionFromString(Source.Direction);
+
+        if (NativeDirection < REMASTER_EMERALD_DIR_SOUTH
+            || NativeDirection > REMASTER_EMERALD_DIR_EAST
+            || !FitsUInt8(Source.DestGroupNum)
+            || !FitsUInt8(Source.DestMapNum))
+        {
+            continue;
+        }
+
+        FRemasterMapIR Target;
+        FString Error;
+        if (!CatalogSubsystem->LoadMap(
+                Source.DestGroupNum,
+                Source.DestMapNum,
+                Target,
+                Error))
+        {
+            UE_LOG(
+                LogTemp,
+                Warning,
+                TEXT("Player-step connection target load failed for %d,%d: %s"),
+                Source.DestGroupNum,
+                Source.DestMapNum,
+                *Error);
+            continue;
+        }
+
+        if (Target.Width <= 0
+            || Target.Width > MAX_int16
+            || Target.Height <= 0
+            || Target.Height > MAX_int16)
+        {
+            continue;
+        }
+
+        RemasterEmeraldConnectionDef Native{};
+        Native.direction = static_cast<uint8>(NativeDirection);
+        Native.offset = Source.Offset;
+        Native.dest_map_group =
+            static_cast<uint8>(Source.DestGroupNum);
+        Native.dest_map_num =
+            static_cast<uint8>(Source.DestMapNum);
+        Native.dest_width = static_cast<int16>(Target.Width);
+        Native.dest_height = static_cast<int16>(Target.Height);
+
+        NativeConnections.Add(Native);
+        ConnectionSourceIndices.Add(Index);
+    }
+
+    RemasterEmeraldMovementContext Movement{};
+    Movement.map = &MapView;
+    Movement.objects = ObjectColliders.IsEmpty()
+        ? nullptr
+        : ObjectColliders.GetData();
+    Movement.object_count =
+        static_cast<size_t>(ObjectColliders.Num());
+
+    RemasterEmeraldPlayerStepResult NativeResult{};
+    if (!remaster_emerald_player_step(
+            Save,
+            &Movement,
+            NativeConnections.IsEmpty()
+                ? nullptr
+                : NativeConnections.GetData(),
+            static_cast<size_t>(NativeConnections.Num()),
+            NativeWarps.IsEmpty()
+                ? nullptr
+                : NativeWarps.GetData(),
+            static_cast<size_t>(NativeWarps.Num()),
+            static_cast<uint8>(Direction),
+            &NativeResult))
+    {
+        return false;
+    }
+
+    OutResult.Collision =
+        static_cast<int32>(NativeResult.collision);
+    OutResult.PlayerX = NativeResult.x;
+    OutResult.PlayerY = NativeResult.y;
+    OutResult.Elevation = NativeResult.elevation;
+    OutResult.MapId = CurrentMap.Id;
+    OutResult.MapGroup = CurrentMap.GroupNum;
+    OutResult.MapNum = CurrentMap.MapNum;
+
+    switch (NativeResult.kind)
+    {
+    case REMASTER_EMERALD_PLAYER_STEP_BLOCKED:
+        OutResult.Kind = ERemasterPlayerStepKind::Blocked;
+        return true;
+
+    case REMASTER_EMERALD_PLAYER_STEP_MOVED:
+        OutResult.Kind = ERemasterPlayerStepKind::Moved;
+        return PopulatePlayerStepSnapshot(
+            Save,
+            CurrentMap,
+            OutResult);
+
+    case REMASTER_EMERALD_PLAYER_STEP_WARP:
+    {
+        if (NativeResult.warp_index
+                >= static_cast<size_t>(WarpSourceIndices.Num()))
+        {
+            return false;
+        }
+
+        const int32 SourceIndex =
+            WarpSourceIndices[
+                static_cast<int32>(NativeResult.warp_index)];
+
+        if (!CurrentMap.WarpEvents.IsValidIndex(SourceIndex))
+            return false;
+
+        const FRemasterWarpEventIR& Source =
+            CurrentMap.WarpEvents[SourceIndex];
+
+        FRemasterResolvedWarp Warp{};
+        Warp.SourceEventIndex = SourceIndex;
+        Warp.DestGroupNum = Source.DestGroupNum;
+        Warp.DestMapNum = Source.DestMapNum;
+        Warp.DestWarpId = Source.DestWarpIdNum;
+        Warp.DestMap = Source.DestMap;
+        Warp.bDynamicTarget = Source.bDynamicTarget;
+
+        if (!ApplyResolvedWarp(Warp))
+            return false;
+
+        OutResult.Kind = ERemasterPlayerStepKind::Warp;
+        return PopulatePlayerStepSnapshot(
+            Save,
+            CurrentMap,
+            OutResult);
+    }
+
+    case REMASTER_EMERALD_PLAYER_STEP_CONNECTION:
+    {
+        if (NativeResult.connection_index
+                >= static_cast<size_t>(
+                    ConnectionSourceIndices.Num()))
+        {
+            return false;
+        }
+
+        const int32 SourceIndex =
+            ConnectionSourceIndices[
+                static_cast<int32>(
+                    NativeResult.connection_index)];
+
+        if (!CurrentMap.Connections.IsValidIndex(SourceIndex))
+            return false;
+
+        const FRemasterConnectionIR& Source =
+            CurrentMap.Connections[SourceIndex];
+
+        FRemasterResolvedConnection Connection{};
+        Connection.SourceConnectionIndex = SourceIndex;
+        Connection.Direction = Direction;
+        Connection.Offset = Source.Offset;
+        Connection.DestGroupNum = Source.DestGroupNum;
+        Connection.DestMapNum = Source.DestMapNum;
+        Connection.DestMap = Source.Map;
+
+        if (!ApplyResolvedConnection(Connection))
+            return false;
+
+        OutResult.Kind = ERemasterPlayerStepKind::Connection;
+        return PopulatePlayerStepSnapshot(
+            Save,
+            CurrentMap,
+            OutResult);
+    }
+
+    case REMASTER_EMERALD_PLAYER_STEP_INVALID:
+    default:
+        return false;
+    }
 }
 
 
