@@ -15,6 +15,14 @@ import struct
 from pathlib import Path
 from typing import Any
 
+from r3_script_catalog import build_script_catalog
+from r3_source_catalog import build_source_catalog
+from convert_encounters import convert_encounters
+from world_fingerprint import (
+    fingerprint_document_content,
+    fingerprint_world_package,
+)
+
 
 SCHEMA_VERSION = 1
 
@@ -28,8 +36,15 @@ def list_field(document: dict[str, Any], key: str) -> list[dict[str, Any]]:
     value = document.get(key)
     if value is None:
         return []
+
+    # Vanilla+ has a small set of maps whose mapjson source encodes a null
+    # connections pointer as the integer 0 instead of JSON null. Normalize
+    # only that exact scalar sentinel; other scalar values remain invalid.
+    if isinstance(value, int) and not isinstance(value, bool) and value == 0:
+        return []
+
     if not isinstance(value, list):
-        raise ValueError(f"{key} must be an array or null")
+        raise ValueError(f"{key} must be an array, null, or integer zero")
     return value
 
 
@@ -153,6 +168,8 @@ def build_numeric_constant_index(source_root: Path) -> dict[str, int]:
         source_root / "include/constants/event_objects.h",
         source_root / "include/constants/event_object_movement.h",
         source_root / "include/constants/trainer_types.h",
+        source_root / "include/constants/songs.h",
+        source_root / "include/constants/region_map_sections.h",
     ]
 
     expressions: dict[str, str] = {}
@@ -265,10 +282,16 @@ def normalize_event(
     result = dict(event)
 
     script = result.get("script")
-    if isinstance(script, str) and script:
-        # R2 stable script identity is the canonical Vanilla+ script label.
-        # Keep the original symbolic field for audit/debug compatibility.
-        result["script_id"] = script
+    if isinstance(script, str):
+        token = script.strip()
+        if token in {"", "0", "0x0", "0X0", "NULL", "null"}:
+            result["script_id"] = None
+        else:
+            # R2 stable script identity is the canonical Vanilla+ script label.
+            # Keep the original symbolic field for audit/debug compatibility.
+            result["script_id"] = token
+    elif script == 0:
+        result["script_id"] = None
 
     for source_key, numeric_key in (
         ("flag", "flag_id"),
@@ -329,6 +352,16 @@ def normalize_object_events(
     return result
 
 
+CONNECTION_DIRECTION_IDS = {
+    "down": 1,
+    "up": 2,
+    "left": 3,
+    "right": 4,
+    "dive": 5,
+    "emerge": 6,
+}
+
+
 def add_numeric_map_targets(
     events: list[dict[str, Any]],
     map_id_locations: dict[str, tuple[int, int]],
@@ -338,6 +371,12 @@ def add_numeric_map_targets(
     for event in events:
         item = dict(event)
         target = item.get("dest_map", item.get("map"))
+
+        direction = item.get("direction")
+        if direction is not None:
+            if direction not in CONNECTION_DIRECTION_IDS:
+                raise ValueError(f"unknown map connection direction {direction!r}")
+            item["direction_id"] = CONNECTION_DIRECTION_IDS[direction]
 
         if target == "MAP_DYNAMIC":
             item["dynamic_target"] = True
@@ -350,6 +389,119 @@ def add_numeric_map_targets(
         result.append(item)
 
     return result
+
+
+def convert_layout_document(
+    source_root: Path,
+    layout: dict[str, Any],
+    tileset_attributes: dict[str, Path],
+) -> dict[str, Any]:
+    layout_id = layout["id"]
+    width = int(layout["width"])
+    height = int(layout["height"])
+    primary_tileset = layout["primary_tileset"]
+    secondary_tileset = layout["secondary_tileset"]
+
+    if primary_tileset not in tileset_attributes:
+        raise KeyError(f"{layout_id}: unknown primary tileset {primary_tileset}")
+
+    primary_attributes_path = tileset_attributes[primary_tileset]
+    primary_attributes = read_u16_le(primary_attributes_path)
+
+    secondary_tileset_missing = secondary_tileset in (None, 0, "0", "")
+    if secondary_tileset_missing:
+        secondary_attributes_path: Path | None = None
+        secondary_attributes: list[int] = []
+    else:
+        if secondary_tileset not in tileset_attributes:
+            raise KeyError(
+                f"{layout_id}: unknown secondary tileset {secondary_tileset}"
+            )
+        secondary_attributes_path = tileset_attributes[secondary_tileset]
+        secondary_attributes = read_u16_le(secondary_attributes_path)
+
+    if len(primary_attributes) > 512:
+        raise ValueError(
+            f"{primary_attributes_path}: primary attributes exceed 512 entries"
+        )
+    if len(secondary_attributes) > 512:
+        raise ValueError(
+            f"{secondary_attributes_path}: secondary attributes exceed 512 entries"
+        )
+
+    block_path = source_root / layout["blockdata_filepath"]
+    source_words = read_u16_le(block_path)
+    active_word_count = width * height
+
+    border_path = source_root / layout["border_filepath"]
+    border_source_words = read_u16_le(border_path)
+    if len(border_source_words) < 4:
+        raise ValueError(
+            f"{border_path}: expected at least 4 Emerald border words, "
+            f"got {len(border_source_words)}"
+        )
+
+    if len(source_words) < active_word_count:
+        raise ValueError(
+            f"{block_path}: expected at least {active_word_count} blocks, "
+            f"got {len(source_words)}"
+        )
+
+    blocks = source_words[:active_word_count]
+    trailing_words = source_words[active_word_count:]
+    border_words = border_source_words[:4]
+    border_trailing_words = border_source_words[4:]
+
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "source": {
+            "blockdata": str(block_path.relative_to(source_root)).replace("\\", "/"),
+            "border": str(border_path.relative_to(source_root)).replace("\\", "/"),
+            "primary_metatile_attributes": str(
+                primary_attributes_path.relative_to(source_root)
+            ).replace("\\", "/"),
+            "secondary_metatile_attributes": (
+                str(secondary_attributes_path.relative_to(source_root)).replace(
+                    "\\", "/"
+                )
+                if secondary_attributes_path is not None
+                else None
+            ),
+        },
+        "layout": {
+            "id": layout_id,
+            "name": layout.get("name"),
+            "layout_num": int(layout["_numeric_id"]),
+            "width": width,
+            "height": height,
+            "primary_tileset": primary_tileset,
+            "secondary_tileset": secondary_tileset,
+            "primary_metatile_attributes_u16": primary_attributes,
+            "secondary_metatile_attributes_u16": secondary_attributes,
+            "primary_metatile_behavior_u8": [
+                value & 0x00FF for value in primary_attributes
+            ],
+            "secondary_metatile_behavior_u8": [
+                value & 0x00FF for value in secondary_attributes
+            ],
+            "primary_metatile_layer_u8": [
+                (value & 0xF000) >> 12 for value in primary_attributes
+            ],
+            "secondary_metatile_layer_u8": [
+                (value & 0xF000) >> 12 for value in secondary_attributes
+            ],
+            "source_word_count": len(source_words),
+            "active_word_count": active_word_count,
+            "border_source_word_count": len(border_source_words),
+            "border_active_words_u16": border_words,
+            "border_trailing_words_u16": border_trailing_words,
+            "raw_blocks_u16": blocks,
+            "trailing_words_u16": trailing_words,
+            "metatile_ids_u16": [word & 0x03FF for word in blocks],
+            "collision_u8": [(word & 0x0C00) >> 10 for word in blocks],
+            "elevation_u8": [(word & 0xF000) >> 12 for word in blocks],
+        },
+    }
 
 
 def convert_map(
@@ -396,65 +548,20 @@ def convert_map(
     if layout_id not in layouts:
         raise KeyError(f"{map_path}: unknown layout {layout_id}")
 
-    layout = layouts[layout_id]
+    layout_document = layouts[layout_id]
+    layout = layout_document["layout"]
+    layout_source = layout_document["source"]
     width = int(layout["width"])
     height = int(layout["height"])
 
-    primary_tileset = layout["primary_tileset"]
-    secondary_tileset = layout["secondary_tileset"]
-
-    if primary_tileset not in tileset_attributes:
-        raise KeyError(
-            f"{map_path}: unknown primary tileset {primary_tileset}"
-        )
-    if secondary_tileset not in tileset_attributes:
-        raise KeyError(
-            f"{map_path}: unknown secondary tileset {secondary_tileset}"
-        )
-
-    primary_attributes_path = tileset_attributes[primary_tileset]
-    secondary_attributes_path = tileset_attributes[secondary_tileset]
-    primary_attributes = read_u16_le(primary_attributes_path)
-    secondary_attributes = read_u16_le(secondary_attributes_path)
-
-    if len(primary_attributes) > 512:
-        raise ValueError(
-            f"{primary_attributes_path}: primary attributes exceed 512 entries"
-        )
-    if len(secondary_attributes) > 512:
-        raise ValueError(
-            f"{secondary_attributes_path}: secondary attributes exceed 512 entries"
-        )
-
-    block_path = source_root / layout["blockdata_filepath"]
-    source_words = read_u16_le(block_path)
-    active_word_count = width * height
-
-    border_path = source_root / layout["border_filepath"]
-    border_source_words = read_u16_le(border_path)
-    if len(border_source_words) < 4:
-        raise ValueError(
-            f"{border_path}: expected at least 4 Emerald border words, "
-            f"got {len(border_source_words)}"
-        )
-    border_words = border_source_words[:4]
-    border_trailing_words = border_source_words[4:]
-
-    if len(source_words) < active_word_count:
-        raise ValueError(
-            f"{block_path}: expected at least {active_word_count} blocks, "
-            f"got {len(source_words)}"
-        )
-
-    blocks = source_words[:active_word_count]
-    trailing_words = source_words[active_word_count:]
-
-    metatile_ids = [word & 0x03FF for word in blocks]
-    collision = [(word & 0x0C00) >> 10 for word in blocks]
-    elevation = [(word & 0xF000) >> 12 for word in blocks]
-
     map_weather_id = resolve_numeric(source.get("weather"), constants)
     map_type_id = resolve_numeric(source.get("map_type"), constants)
+    music_id = resolve_numeric(source.get("music"), constants)
+    region_map_section_id = resolve_numeric(
+        source.get("region_map_section"),
+        constants,
+    )
+    battle_scene_id = resolve_numeric(source.get("battle_scene"), constants)
 
     if map_weather_id is None:
         raise ValueError(
@@ -464,19 +571,46 @@ def convert_map(
         raise ValueError(
             f"{map_path}: unresolved map type {source.get('map_type')!r}"
         )
+    if music_id is None:
+        raise ValueError(
+            f"{map_path}: unresolved map music {source.get('music')!r}"
+        )
+    if region_map_section_id is None:
+        raise ValueError(
+            f"{map_path}: unresolved region map section "
+            f"{source.get('region_map_section')!r}"
+        )
+    if battle_scene_id is None:
+        raise ValueError(
+            f"{map_path}: unresolved battle scene {source.get('battle_scene')!r}"
+        )
+
+    shared_scripts_map = source.get("shared_scripts_map")
+    own_scripts_path = source_root / "data/maps" / map_name / "scripts.inc"
+    if shared_scripts_map is not None:
+        script_ownership = {
+            "kind": "shared",
+            "owner": shared_scripts_map,
+        }
+    elif own_scripts_path.is_file():
+        script_ownership = {
+            "kind": "own",
+            "owner": map_name,
+        }
+    else:
+        script_ownership = {
+            "kind": "none",
+            "owner": None,
+        }
 
     return {
         "schema_version": SCHEMA_VERSION,
         "source": {
             "map_json": str(map_path.relative_to(source_root)).replace("\\", "/"),
-            "blockdata": str(block_path.relative_to(source_root)).replace("\\", "/"),
-            "border": str(border_path.relative_to(source_root)).replace("\\", "/"),
-            "primary_metatile_attributes": str(
-                primary_attributes_path.relative_to(source_root)
-            ).replace("\\", "/"),
-            "secondary_metatile_attributes": str(
-                secondary_attributes_path.relative_to(source_root)
-            ).replace("\\", "/"),
+            "blockdata": layout_source["blockdata"],
+            "border": layout_source["border"],
+            "primary_metatile_attributes": layout_source["primary_metatile_attributes"],
+            "secondary_metatile_attributes": layout_source["secondary_metatile_attributes"],
             "shared_events_json": (
                 str(shared_events_json.relative_to(source_root)).replace("\\", "/")
                 if shared_events_json is not None
@@ -490,9 +624,11 @@ def convert_map(
             "group_num": map_group,
             "map_num": map_num,
             "layout": layout_id,
-            "layout_num": int(layout["_numeric_id"]),
+            "layout_num": int(layout["layout_num"]),
             "music": source.get("music"),
+            "music_id": music_id,
             "region_map_section": source.get("region_map_section"),
+            "region_map_section_id": region_map_section_id,
             "requires_flash": bool(source.get("requires_flash", False)),
             "weather": source.get("weather"),
             "weather_id": map_weather_id,
@@ -503,8 +639,10 @@ def convert_map(
             "allow_running": bool(source.get("allow_running", False)),
             "show_map_name": bool(source.get("show_map_name", False)),
             "battle_scene": source.get("battle_scene"),
+            "battle_scene_id": battle_scene_id,
             "shared_events_map": shared_events_map,
-            "shared_scripts_map": source.get("shared_scripts_map"),
+            "shared_scripts_map": shared_scripts_map,
+            "script_ownership": script_ownership,
             "connections": add_numeric_map_targets(
                 [
                     normalize_event(x, constants)
@@ -532,46 +670,30 @@ def convert_map(
                 for x in list_field(event_source, "bg_events")
             ],
         },
-        "layout": {
-            "id": layout_id,
-            "name": layout.get("name"),
-            "width": width,
-            "height": height,
-            "primary_tileset": primary_tileset,
-            "secondary_tileset": secondary_tileset,
-            "primary_metatile_attributes_u16": primary_attributes,
-            "secondary_metatile_attributes_u16": secondary_attributes,
-            "primary_metatile_behavior_u8": [
-                value & 0x00FF for value in primary_attributes
-            ],
-            "secondary_metatile_behavior_u8": [
-                value & 0x00FF for value in secondary_attributes
-            ],
-            "primary_metatile_layer_u8": [
-                (value & 0xF000) >> 12 for value in primary_attributes
-            ],
-            "secondary_metatile_layer_u8": [
-                (value & 0xF000) >> 12 for value in secondary_attributes
-            ],
-            "source_word_count": len(source_words),
-            "active_word_count": active_word_count,
-            "border_source_word_count": len(border_source_words),
-            "border_active_words_u16": border_words,
-            "border_trailing_words_u16": border_trailing_words,
-            "raw_blocks_u16": blocks,
-            "trailing_words_u16": trailing_words,
-            "metatile_ids_u16": metatile_ids,
-            "collision_u8": collision,
-            "elevation_u8": elevation,
-        },
+        "layout": dict(layout),
     }
 
 
-def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
+def convert_world(
+    source_root: Path,
+    output_root: Path,
+    *,
+    source_commit: str | None = None,
+    source_repository: str | None = None,
+) -> dict[str, Any]:
     layouts_doc = load_json(source_root / "data/layouts/layouts.json")
     constants = build_numeric_constant_index(source_root)
+    source_catalog = build_source_catalog(
+        source_root,
+        source_commit=source_commit,
+    )
+    script_catalog = build_script_catalog(source_root)
+    script_ownership_by_map = {
+        item["map"]: item["script_ownership"]
+        for item in script_catalog["maps"]
+    }
 
-    layouts: dict[str, dict[str, Any]] = {}
+    layout_specs: dict[str, dict[str, Any]] = {}
     for index, entry in enumerate(layouts_doc["layouts"]):
         layout_id = entry["id"]
         numeric_id = constants.get(layout_id)
@@ -587,17 +709,30 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
                 f"{layout_id}: layouts.json index implies {expected_from_order}, "
                 f"but layouts.h defines {numeric_id}"
             )
+        if layout_id in layout_specs:
+            raise ValueError(f"duplicate layout id {layout_id}")
 
-        layouts[layout_id] = {
+        layout_specs[layout_id] = {
             **entry,
             "_numeric_id": numeric_id,
         }
 
     tileset_attributes = build_tileset_attribute_index(source_root)
+    layouts = {
+        layout_id: convert_layout_document(
+            source_root,
+            layout,
+            tileset_attributes,
+        )
+        for layout_id, layout in layout_specs.items()
+    }
     map_locations = build_map_location_index(source_root)
 
     map_files = sorted((source_root / "data/maps").glob("*/map.json"))
 
+    layout_usage: dict[str, list[str]] = {
+        layout_id: [] for layout_id in layouts
+    }
     map_id_locations: dict[str, tuple[int, int]] = {}
     for map_path in map_files:
         source = load_json(map_path)
@@ -608,6 +743,68 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
             )
         group_num, map_num, _ = map_locations[map_name]
         map_id_locations[source["id"]] = (group_num, map_num)
+        layout_id = source["layout"]
+        if layout_id not in layout_usage:
+            raise KeyError(f"{map_path}: unknown layout {layout_id}")
+        layout_usage[layout_id].append(map_name)
+
+    output_layouts = output_root / "layouts"
+    output_layouts.mkdir(parents=True, exist_ok=True)
+    layout_manifest_entries: list[dict[str, Any]] = []
+    for layout_id, document in sorted(
+        layouts.items(),
+        key=lambda item: item[1]["layout"]["layout_num"],
+    ):
+        used_by = sorted(layout_usage[layout_id])
+        relative_file = f"layouts/{layout_id}.json"
+        out_path = output_root / relative_file
+        out_path.write_text(
+            json.dumps(
+                {**document, "used_by_maps": used_by},
+                indent=2,
+                ensure_ascii=False,
+            ) + "\n",
+            encoding="utf-8",
+        )
+        layout_manifest_entries.append(
+            {
+                "id": layout_id,
+                "layout_num": document["layout"]["layout_num"],
+                "file": relative_file,
+                "used_by_maps": used_by,
+            }
+        )
+
+    layout_manifest = {
+        "schema_version": SCHEMA_VERSION,
+        "layout_count": len(layout_manifest_entries),
+        "layouts": layout_manifest_entries,
+    }
+    (output_root / "layouts.json").write_text(
+        json.dumps(layout_manifest, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+    output_scripts = output_root / "scripts"
+    output_scripts.mkdir(parents=True, exist_ok=True)
+    (output_scripts / "manifest.json").write_text(
+        json.dumps(script_catalog, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    encounter_catalog = None
+    encounter_source = source_root / "src/data/wild_encounters.json"
+    if encounter_source.is_file():
+        encounter_catalog = convert_encounters(source_root)
+        (output_root / "encounters.json").write_text(
+            json.dumps(
+                encounter_catalog,
+                indent=2,
+                ensure_ascii=False,
+                sort_keys=True,
+            ) + "\n",
+            encoding="utf-8",
+        )
 
     output_maps = output_root / "maps"
     output_maps.mkdir(parents=True, exist_ok=True)
@@ -625,6 +822,10 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
             map_id_locations,
         )
         map_name = converted["map"]["name"]
+        if map_name not in script_ownership_by_map:
+            raise KeyError(f"{map_name}: missing from R3 script catalog")
+        converted["map"]["script_ownership"] = script_ownership_by_map[map_name]
+        converted["fingerprint_sha256"] = fingerprint_document_content(converted)
         out_path = output_maps / f"{map_name}.json"
         out_path.write_text(
             json.dumps(converted, indent=2, ensure_ascii=False) + "\n",
@@ -637,21 +838,57 @@ def convert_world(source_root: Path, output_root: Path) -> dict[str, Any]:
                 "file": f"maps/{map_name}.json",
                 "width": converted["layout"]["width"],
                 "height": converted["layout"]["height"],
+                "layout": converted["map"]["layout"],
                 "layout_num": converted["map"]["layout_num"],
                 "group_num": converted["map"]["group_num"],
                 "map_num": converted["map"]["map_num"],
+                "script_ownership": converted["map"]["script_ownership"],
             }
         )
 
     manifest = {
         "schema_version": SCHEMA_VERSION,
         "map_count": len(manifest_maps),
+        "layout_count": len(layout_manifest_entries),
+        "layouts_file": "layouts.json",
+        "scripts_file": "scripts/manifest.json",
+        "script_label_count": script_catalog["script_label_count"],
+        "script_source_file_count": script_catalog["script_source_file_count"],
+        "provenance_file": "provenance.json",
         "maps": manifest_maps,
     }
+    if encounter_catalog is not None:
+        manifest["encounters_file"] = "encounters.json"
+        manifest["encounter_group_count"] = encounter_catalog["group_count"]
+        manifest["map_encounter_count"] = encounter_catalog["map_encounter_count"]
     (output_root / "manifest.json").write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
+
+    provenance = {
+        "schema_version": SCHEMA_VERSION,
+        "source_repository": source_repository,
+        "source_commit": source_commit,
+        "source_counts": {
+            "group_count": source_catalog["group_count"],
+            "map_count": source_catalog["map_count"],
+            "layout_count": source_catalog["layout_count"],
+            "map_script_file_count": source_catalog["map_script_file_count"],
+        },
+    }
+    provenance_path = output_root / "provenance.json"
+    provenance_path.write_text(
+        json.dumps(provenance, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    package_fingerprint = fingerprint_world_package(output_root)
+    provenance.update(package_fingerprint)
+    provenance_path.write_text(
+        json.dumps(provenance, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
     return manifest
 
 
@@ -659,9 +896,16 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("source_root", type=Path)
     parser.add_argument("output_root", type=Path)
+    parser.add_argument("--source-commit")
+    parser.add_argument("--source-repository")
     args = parser.parse_args()
 
-    manifest = convert_world(args.source_root.resolve(), args.output_root.resolve())
+    manifest = convert_world(
+        args.source_root.resolve(),
+        args.output_root.resolve(),
+        source_commit=args.source_commit,
+        source_repository=args.source_repository,
+    )
     print(f"Converted {manifest['map_count']} maps.")
     return 0
 

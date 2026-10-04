@@ -1,0 +1,7 @@
+#ifndef GUARD_RESET_RTC_SCREEN_H
+#define GUARD_RESET_RTC_SCREEN_H
+
+void CB2_InitResetRtcScreen(void);
+void CB2_InitRtcSettingsScreen(void);
+
+#endif // GUARD_RESET_RTC_SCREEN_H

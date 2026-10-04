@@ -1,0 +1,114 @@
+name: Phase 9 Wild Ecosystem Branch
+
+on:
+  push:
+    branches:
+      - phase9-wild-ecosystem
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Verify phase version ownership contract
+        run: python3 tools/phase_version_contract_test.py
+
+      - name: Verify Vanilla+ Phase 0-1 invariants
+        run: python3 tools/vanillaplus_phase01_verify.py
+
+      - name: Verify Vanilla+ Phase 2 invariants
+        run: python3 tools/vanillaplus_phase02_verify.py
+
+      - name: Verify Vanilla+ Phase 3 invariants
+        run: python3 tools/vanillaplus_phase03_verify.py
+
+      - name: Verify Vanilla+ Phase 4 invariants
+        run: python3 tools/vanillaplus_phase04_verify.py
+
+      - name: Verify Vanilla+ Phase 5 item management invariants
+        run: python3 tools/vanillaplus_phase05_verify.py
+
+      - name: Verify Vanilla+ Phase 6 Pokemon info invariants
+        run: python3 tools/vanillaplus_phase06_verify.py
+
+      - name: Verify Vanilla+ Phase 7 speed QoL invariants
+        run: python3 tools/vanillaplus_phase07_verify.py
+
+      - name: Verify Vanilla+ Phase 8 RTC invariants
+        run: python3 tools/vanillaplus_phase08_verify.py
+
+      - name: Verify Vanilla+ Phase 9 wild ecosystem invariants
+        run: python3 tools/vanillaplus_phase09_verify.py
+
+      - name: Checkout agbcc
+        uses: actions/checkout@v4
+        with:
+          repository: pret/agbcc
+          path: agbcc
+
+      - name: Install ARM toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libpng-dev
+
+      - name: Install agbcc
+        working-directory: agbcc
+        run: |
+          ./build.sh
+          ./install.sh ../
+
+      - name: Build release ROM
+        shell: bash
+        run: |
+          set -o pipefail
+          make -j$(nproc) all 2>&1 | tee phase09-release-build.log
+          cp pokeemerald.gba pokemon-emerald-vp017-release.gba
+
+      - name: Hash release ROM
+        run: |
+          sha1sum pokemon-emerald-vp017-release.gba | tee phase09-release.sha1
+          sha256sum pokemon-emerald-vp017-release.gba | tee phase09-release.sha256
+
+      - name: Clean release outputs
+        run: make mostlyclean
+
+      - name: Build test ROM
+        shell: bash
+        run: |
+          set -o pipefail
+          make -j$(nproc) VANILLAPLUS_TEST=1 all 2>&1 | tee phase09-test-build.log
+          cp pokeemerald.gba pokemon-emerald-vp017-test.gba
+
+      - name: Hash test ROM
+        run: |
+          sha1sum pokemon-emerald-vp017-test.gba | tee phase09-test.sha1
+          sha256sum pokemon-emerald-vp017-test.gba | tee phase09-test.sha256
+
+      - name: Upload Phase 9 ROMs
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase09-vp017-roms
+          path: |
+            pokemon-emerald-vp017-release.gba
+            pokemon-emerald-vp017-test.gba
+            phase09-release.sha1
+            phase09-release.sha256
+            phase09-test.sha1
+            phase09-test.sha256
+          if-no-files-found: error
+
+      - name: Upload compiler diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase09-compiler-diagnostics
+          path: |
+            phase09-release-build.log
+            phase09-test-build.log
+          if-no-files-found: ignore

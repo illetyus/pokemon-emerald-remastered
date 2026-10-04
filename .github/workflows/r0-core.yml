@@ -50,6 +50,18 @@ jobs:
       - name: Test world conversion pipeline
         run: python -m unittest tests/test_convert_world.py
 
+      - name: Test R3 source catalog
+        run: python -m unittest tests/test_r3_source_catalog.py -v
+
+      - name: Test R3 script catalog
+        run: python -m unittest tests/test_r3_script_catalog.py -v
+
+      - name: Test R3 encounter conversion
+        run: python -m unittest tests/test_convert_encounters.py -v
+
+      - name: Test R3 package fingerprints
+        run: python -m unittest tests/test_world_fingerprint.py -v
+
       - name: Test script conversion pipeline
         run: python -m unittest tests/test_convert_scripts.py tests/test_generate_script_c.py tests/test_r2_real_opening_source.py -v
 
@@ -71,3 +83,28 @@ jobs:
 
       - name: Validate Unreal source architecture
         run: python tools/validate_unreal_source.py
+
+
+  r3-full-world:
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run R3 full-Hoenn acceptance
+        run: >-
+          python tools/r3_full_world_probe.py
+          --repo-root .
+          --source-root vendor/vanillaplus
+          --work-root /tmp/r3-full-world
+          --evidence-root /tmp/r3-full-world-evidence
+
+      - name: Upload R3 full-world evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r3-full-world-evidence
+          path: /tmp/r3-full-world-evidence
+          if-no-files-found: error

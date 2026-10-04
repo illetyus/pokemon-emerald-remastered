@@ -19,7 +19,6 @@
 export_presets.cfg
 
 # Local dependencies / generated assets
-/vendor/
 /generated/
 /local/
 

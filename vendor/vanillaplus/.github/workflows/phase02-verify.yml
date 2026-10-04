@@ -1,0 +1,23 @@
+name: Phase 2 Source Verification
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Verify Vanilla+ Phase 0-1 invariants
+        run: python3 tools/vanillaplus_phase01_verify.py
+
+      - name: Verify Vanilla+ Phase 2 invariants
+        run: python3 tools/vanillaplus_phase02_verify.py

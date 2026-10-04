@@ -139,6 +139,55 @@ def main() -> int:
         errors,
     )
 
+    world_data_h = (MODULE / "RemasterWorldData.h").read_text(encoding="utf-8")
+    world_data_cpp = (MODULE / "RemasterWorldData.cpp").read_text(encoding="utf-8")
+    world_catalog_cpp = (
+        MODULE / "RemasterWorldCatalog.cpp"
+    ).read_text(encoding="utf-8")
+
+    for field in (
+        "MusicId",
+        "RegionMapSectionId",
+        "BattleSceneId",
+        "DirectionId",
+        "ScriptId",
+        "FingerprintSha256",
+    ):
+        require(
+            field in world_data_h,
+            f"R3 Unreal world data contract missing {field}",
+            errors,
+        )
+
+    for json_field in (
+        'TEXT("music_id")',
+        'TEXT("region_map_section_id")',
+        'TEXT("battle_scene_id")',
+        'TEXT("direction_id")',
+        'TEXT("script_id")',
+        'TEXT("fingerprint_sha256")',
+    ):
+        require(
+            json_field in world_data_cpp,
+            f"R3 Unreal map parser missing {json_field}",
+            errors,
+        )
+
+    require(
+        'TryGetArrayField(TEXT("maps")' in world_catalog_cpp,
+        "world catalog must continue loading maps from the R3 manifest",
+        errors,
+    )
+    require(
+        "layouts_file" not in world_catalog_cpp
+        and "scripts_file" not in world_catalog_cpp
+        and "encounters_file" not in world_catalog_cpp
+        and "provenance_file" not in world_catalog_cpp,
+        "world catalog must tolerate R3 auxiliary manifest fields "
+        "without coupling gameplay loading to them",
+        errors,
+    )
+
     # No production Unreal code should include Godot/SDL presentation APIs.
     forbidden = re.compile(r"\b(?:Godot|SDL3?|GDExtension)\b")
     for path in MODULE.glob("*.[ch]pp"):

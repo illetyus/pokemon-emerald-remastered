@@ -1,0 +1,1715 @@
+{
+  "map_sections": [
+    {
+      "map_section": "MAPSEC_LITTLEROOT_TOWN",
+      "name": "LITTLEROOT KÖYÜ",
+      "x": 4,
+      "y": 11,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_OLDALE_TOWN",
+      "name": "OLDALE KASABASI",
+      "x": 4,
+      "y": 9,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_DEWFORD_TOWN",
+      "name": "DEWFORD KASABASI",
+      "x": 2,
+      "y": 14,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_LAVARIDGE_TOWN",
+      "name": "LAVARIDGE KÖYÜ",
+      "x": 5,
+      "y": 3,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_FALLARBOR_TOWN",
+      "name": "FALLARBOR KÖYÜ",
+      "x": 3,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_VERDANTURF_TOWN",
+      "name": "VERDANTURF KÖYÜ",
+      "x": 4,
+      "y": 6,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_PACIFIDLOG_TOWN",
+      "name": "PACIFIDLOG KÖYÜ",
+      "x": 17,
+      "y": 10,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_PETALBURG_CITY",
+      "name": "PETALBURG ŞEHRİ",
+      "x": 1,
+      "y": 9,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SLATEPORT_CITY",
+      "name": "SLATEPORT ŞEHRİ",
+      "x": 8,
+      "y": 10,
+      "width": 1,
+      "height": 2
+    },
+    {
+      "map_section": "MAPSEC_MAUVILLE_CITY",
+      "name": "MAUVILLE ŞEHRİ",
+      "x": 8,
+      "y": 6,
+      "width": 2,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_RUSTBORO_CITY",
+      "name": "RUSTBORO ŞEHRİ",
+      "x": 0,
+      "y": 5,
+      "width": 1,
+      "height": 2
+    },
+    {
+      "map_section": "MAPSEC_FORTREE_CITY",
+      "name": "FORTREE ŞEHRİ",
+      "x": 12,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_LILYCOVE_CITY",
+      "name": "LILYCOVE ŞEHRİ",
+      "x": 18,
+      "y": 3,
+      "width": 2,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_MOSSDEEP_CITY",
+      "name": "MOSSDEEP ŞEHRİ",
+      "x": 24,
+      "y": 5,
+      "width": 2,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SOOTOPOLIS_CITY",
+      "name": "SOOTOPOLIS ŞEHRİ",
+      "x": 21,
+      "y": 7,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_EVER_GRANDE_CITY",
+      "name": "EVER GRANDE ŞEHRİ",
+      "x": 27,
+      "y": 8,
+      "width": 1,
+      "height": 2
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_101",
+      "name": "ROTA 101",
+      "x": 4,
+      "y": 10,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_102",
+      "name": "ROTA 102",
+      "x": 2,
+      "y": 9,
+      "width": 2,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_103",
+      "name": "ROTA 103",
+      "x": 4,
+      "y": 8,
+      "width": 4,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_104",
+      "name": "ROTA 104",
+      "x": 0,
+      "y": 7,
+      "width": 1,
+      "height": 3
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_105",
+      "name": "ROTA 105",
+      "x": 0,
+      "y": 10,
+      "width": 1,
+      "height": 3
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_106",
+      "name": "ROTA 106",
+      "x": 0,
+      "y": 13,
+      "width": 2,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_107",
+      "name": "ROTA 107",
+      "x": 3,
+      "y": 14,
+      "width": 3,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_108",
+      "name": "ROTA 108",
+      "x": 6,
+      "y": 14,
+      "width": 2,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_109",
+      "name": "ROTA 109",
+      "x": 8,
+      "y": 12,
+      "width": 1,
+      "height": 3
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_110",
+      "name": "ROTA 110",
+      "x": 8,
+      "y": 7,
+      "width": 1,
+      "height": 3
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_111",
+      "name": "ROTA 111",
+      "x": 8,
+      "y": 0,
+      "width": 1,
+      "height": 6
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_112",
+      "name": "ROTA 112",
+      "x": 6,
+      "y": 3,
+      "width": 2,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_113",
+      "name": "ROTA 113",
+      "x": 4,
+      "y": 0,
+      "width": 4,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_114",
+      "name": "ROTA 114",
+      "x": 1,
+      "y": 0,
+      "width": 2,
+      "height": 3
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_115",
+      "name": "ROTA 115",
+      "x": 0,
+      "y": 2,
+      "width": 1,
+      "height": 3
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_116",
+      "name": "ROTA 116",
+      "x": 1,
+      "y": 5,
+      "width": 4,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_117",
+      "name": "ROTA 117",
+      "x": 5,
+      "y": 6,
+      "width": 3,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_118",
+      "name": "ROTA 118",
+      "x": 10,
+      "y": 6,
+      "width": 2,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_119",
+      "name": "ROTA 119",
+      "x": 11,
+      "y": 0,
+      "width": 1,
+      "height": 6
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_120",
+      "name": "ROTA 120",
+      "x": 13,
+      "y": 0,
+      "width": 1,
+      "height": 4
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_121",
+      "name": "ROTA 121",
+      "x": 14,
+      "y": 3,
+      "width": 4,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_122",
+      "name": "ROTA 122",
+      "x": 16,
+      "y": 4,
+      "width": 1,
+      "height": 2
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_123",
+      "name": "ROTA 123",
+      "x": 12,
+      "y": 6,
+      "width": 5,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_124",
+      "name": "ROTA 124",
+      "x": 20,
+      "y": 3,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_125",
+      "name": "ROTA 125",
+      "x": 24,
+      "y": 3,
+      "width": 2,
+      "height": 2
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_126",
+      "name": "ROTA 126",
+      "x": 20,
+      "y": 6,
+      "width": 3,
+      "height": 3
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_127",
+      "name": "ROTA 127",
+      "x": 23,
+      "y": 6,
+      "width": 3,
+      "height": 3
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_128",
+      "name": "ROTA 128",
+      "x": 23,
+      "y": 9,
+      "width": 4,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_129",
+      "name": "ROTA 129",
+      "x": 24,
+      "y": 10,
+      "width": 2,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_130",
+      "name": "ROTA 130",
+      "x": 21,
+      "y": 10,
+      "width": 3,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_131",
+      "name": "ROTA 131",
+      "x": 18,
+      "y": 10,
+      "width": 3,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_132",
+      "name": "ROTA 132",
+      "x": 15,
+      "y": 10,
+      "width": 2,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_133",
+      "name": "ROTA 133",
+      "x": 12,
+      "y": 10,
+      "width": 3,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_134",
+      "name": "ROTA 134",
+      "x": 9,
+      "y": 10,
+      "width": 3,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_UNDERWATER_124",
+      "name": "SU ALTI",
+      "x": 20,
+      "y": 3,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "map_section": "MAPSEC_UNDERWATER_126",
+      "name": "SU ALTI",
+      "x": 20,
+      "y": 6,
+      "width": 3,
+      "height": 3
+    },
+    {
+      "map_section": "MAPSEC_UNDERWATER_127",
+      "name": "SU ALTI",
+      "x": 23,
+      "y": 6,
+      "width": 3,
+      "height": 3
+    },
+    {
+      "map_section": "MAPSEC_UNDERWATER_128",
+      "name": "SU ALTI",
+      "x": 23,
+      "y": 9,
+      "width": 4,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_UNDERWATER_SOOTOPOLIS",
+      "name": "SU ALTI",
+      "x": 21,
+      "y": 7,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_GRANITE_CAVE",
+      "name": "GRANİT MAĞARASI",
+      "x": 1,
+      "y": 13,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_MT_CHIMNEY",
+      "name": "CHIMNEY DAĞI",
+      "x": 6,
+      "y": 2,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SAFARI_ZONE",
+      "name": "SAFARI BÖLGESİ",
+      "x": 16,
+      "y": 2,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_BATTLE_FRONTIER",
+      "name": "SAVAŞ SINIRI",
+      "x": 22,
+      "y": 12,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_PETALBURG_WOODS",
+      "name": "PETALBURG ORMANI",
+      "x": 0,
+      "y": 8,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_RUSTURF_TUNNEL",
+      "name": "RUSTURF TÜNELİ",
+      "x": 2,
+      "y": 5,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ABANDONED_SHIP",
+      "name": "TERK EDİLMİŞ GEMİ",
+      "x": 6,
+      "y": 14,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_NEW_MAUVILLE",
+      "name": "YENİ MAUVILLE",
+      "x": 8,
+      "y": 7,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_METEOR_FALLS",
+      "name": "METEOR ŞELALESİ",
+      "x": 0,
+      "y": 3,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_METEOR_FALLS2",
+      "name": "METEOR ŞELALESİ",
+      "x": 1,
+      "y": 2,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_MT_PYRE",
+      "name": "PYRE DAĞI",
+      "x": 16,
+      "y": 4,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_AQUA_HIDEOUT_OLD",
+      "name": "{AQUA} SIĞINAĞI",
+      "name_clone": true,
+      "x": 19,
+      "y": 3,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SHOAL_CAVE",
+      "name": "SHOAL MAĞARASI",
+      "x": 24,
+      "y": 4,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SEAFLOOR_CAVERN",
+      "name": "SU ALTI MAĞARASI",
+      "x": 24,
+      "y": 9,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_UNDERWATER_SEAFLOOR_CAVERN",
+      "name": "SU ALTI",
+      "x": 24,
+      "y": 9,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_VICTORY_ROAD",
+      "name": "ZAFER YOLU",
+      "x": 27,
+      "y": 9,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_MIRAGE_ISLAND",
+      "name": "MIRAGE ADASI",
+      "x": 17,
+      "y": 10,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_CAVE_OF_ORIGIN",
+      "name": "KÖKEN MAĞARASI",
+      "x": 21,
+      "y": 7,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SOUTHERN_ISLAND",
+      "name": "GÜNEY ADA",
+      "x": 12,
+      "y": 14,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_FIERY_PATH",
+      "name": "ATEŞLİ YOL",
+      "x": 6,
+      "y": 3,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_FIERY_PATH2",
+      "name": "ATEŞLİ YOL",
+      "x": 7,
+      "y": 3,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_JAGGED_PASS",
+      "name": "ENGEBELİ YOL",
+      "x": 6,
+      "y": 3,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_JAGGED_PASS2",
+      "name": "ENGEBELİ YOL",
+      "x": 7,
+      "y": 2,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SEALED_CHAMBER",
+      "name": "MÜHÜRLÜ ODA",
+      "x": 11,
+      "y": 10,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_UNDERWATER_SEALED_CHAMBER",
+      "name": "SU ALTI",
+      "x": 11,
+      "y": 10,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SCORCHED_SLAB",
+      "name": "KURAK MAĞARA",
+      "x": 13,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ISLAND_CAVE",
+      "name": "ADA MAĞARASI",
+      "x": 0,
+      "y": 10,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_DESERT_RUINS",
+      "name": "ÇÖL HARABELERİ",
+      "x": 8,
+      "y": 3,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ANCIENT_TOMB",
+      "name": "ANTİK MEZAR",
+      "x": 13,
+      "y": 2,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_INSIDE_OF_TRUCK",
+      "name": "KAMYON İÇİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SKY_PILLAR",
+      "name": "GÖK SÜTUNU",
+      "x": 19,
+      "y": 10,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SECRET_BASE",
+      "name": "GİZLİ ÜS",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_DYNAMIC",
+      "name": "",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_PALLET_TOWN",
+      "name": "PALLET ŞEHRİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_VIRIDIAN_CITY",
+      "name": "VIRIDIAN ŞEHRİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_PEWTER_CITY",
+      "name": "PEWTER ŞEHRİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_CERULEAN_CITY",
+      "name": "CERULEAN ŞEHRİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_LAVENDER_TOWN",
+      "name": "LAVENDER KASABASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_VERMILION_CITY",
+      "name": "VERMILION ŞEHRİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_CELADON_CITY",
+      "name": "CELADON ŞEHRİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_FUCHSIA_CITY",
+      "name": "FUCHSIA ŞEHRİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_CINNABAR_ISLAND",
+      "name": "CINNABAR ADASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_INDIGO_PLATEAU",
+      "name": "INDIGO TEPESİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SAFFRON_CITY",
+      "name": "SAFFRON ŞEHRİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_4_POKECENTER",
+      "name": "ROTA 4",
+      "name_clone": true,
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_10_POKECENTER",
+      "name": "ROTA 10",
+      "name_clone": true,
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_1",
+      "name": "ROTA 1",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_2",
+      "name": "ROTA 2",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_3",
+      "name": "ROTA 3",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_4",
+      "name": "ROTA 4",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_5",
+      "name": "ROTA 5",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_6",
+      "name": "ROTA 6",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_7",
+      "name": "ROTA 7",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_8",
+      "name": "ROTA 8",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_9",
+      "name": "ROTA 9",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_10",
+      "name": "ROTA 10",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_11",
+      "name": "ROTA 11",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_12",
+      "name": "ROTA 12",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_13",
+      "name": "ROTA 13",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_14",
+      "name": "ROTA 14",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_15",
+      "name": "ROTA 15",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_16",
+      "name": "ROTA 16",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_17",
+      "name": "ROTA 17",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_18",
+      "name": "ROTA 18",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_19",
+      "name": "ROTA 19",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_20",
+      "name": "ROTA 20",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_21",
+      "name": "ROTA 21",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_22",
+      "name": "ROTA 22",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_23",
+      "name": "ROTA 23",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_24",
+      "name": "ROTA 24",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROUTE_25",
+      "name": "ROTA 25",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_VIRIDIAN_FOREST",
+      "name": "VIRIDIAN ORMANI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_MT_MOON",
+      "name": "AY DAĞI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_S_S_ANNE",
+      "name": "S.S. ANNE",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_UNDERGROUND_PATH",
+      "name": "YER ALTI YOLU",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_UNDERGROUND_PATH_2",
+      "name": "YER ALTI YOLU",
+      "name_clone": true,
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_DIGLETTS_CAVE",
+      "name": "DIGLETT MAĞARASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_KANTO_VICTORY_ROAD",
+      "name": "ZAFER YOLU",
+      "name_clone": true,
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROCKET_HIDEOUT",
+      "name": "ROKET SIĞINAĞI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SILPH_CO",
+      "name": "SILPH ŞTİ.",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_POKEMON_MANSION",
+      "name": "POKéMON KONAĞI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_KANTO_SAFARI_ZONE",
+      "name": "SAFARİ ALANI",
+      "name_clone": true,
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_POKEMON_LEAGUE",
+      "name": "POKéMON LİGİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROCK_TUNNEL",
+      "name": "KAYA TÜNELİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SEAFOAM_ISLANDS",
+      "name": "SEAFOAM ADALARI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_POKEMON_TOWER",
+      "name": "POKéMON KULESİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_CERULEAN_CAVE",
+      "name": "CERULEAN MAĞARASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_POWER_PLANT",
+      "name": "GÜÇ SANTRALİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ONE_ISLAND",
+      "name": "ADA BİR",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_TWO_ISLAND",
+      "name": "ADA İKİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_THREE_ISLAND",
+      "name": "ADA ÜÇ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_FOUR_ISLAND",
+      "name": "ADA DÖRT",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_FIVE_ISLAND",
+      "name": "ADA BEŞ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SEVEN_ISLAND",
+      "name": "ADA YEDİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SIX_ISLAND",
+      "name": "ADA ALTI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_KINDLE_ROAD",
+      "name": "KINDLE YOLU",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_TREASURE_BEACH",
+      "name": "HAZİNE SAHİLİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_CAPE_BRINK",
+      "name": "CAPE EŞİĞİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_BOND_BRIDGE",
+      "name": "BAĞ KÖPRÜSÜ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_THREE_ISLE_PORT",
+      "name": "ADA ÜÇ LİMANI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SEVII_ISLE_6",
+      "name": "SEVII ADASI 6",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SEVII_ISLE_7",
+      "name": "SEVII ADASI 7",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SEVII_ISLE_8",
+      "name": "SEVII ADASI 8",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SEVII_ISLE_9",
+      "name": "SEVII ADASI 9",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_RESORT_GORGEOUS",
+      "name": "GORGEOUS OTELİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_WATER_LABYRINTH",
+      "name": "SU LABİRENTİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_FIVE_ISLE_MEADOW",
+      "name": "ADA BEŞ ÇAYIRI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_MEMORIAL_PILLAR",
+      "name": "ANIT SÜTUN",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_OUTCAST_ISLAND",
+      "name": "OUTCAST ADASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_GREEN_PATH",
+      "name": "YEŞİL YOL",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_WATER_PATH",
+      "name": "SU YOLU",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_RUIN_VALLEY",
+      "name": "HARABE VADİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_TRAINER_TOWER",
+      "name": "EĞİTMEN KULESİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_CANYON_ENTRANCE",
+      "name": "VADİ GİRİŞİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SEVAULT_CANYON",
+      "name": "SEVAULT VADİSİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_TANOBY_RUINS",
+      "name": "TANOBY HARABESİ",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SEVII_ISLE_22",
+      "name": "SEVII ADASI 22",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SEVII_ISLE_23",
+      "name": "SEVII ADASI 23",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SEVII_ISLE_24",
+      "name": "SEVII ADASI 24",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_NAVEL_ROCK_FRLG",
+      "name": "NAVEL KAYASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_MT_EMBER",
+      "name": "EMBER DAĞI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_BERRY_FOREST",
+      "name": "MEYVE ORMANI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ICEFALL_CAVE",
+      "name": "ICEFALL MAĞARASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ROCKET_WAREHOUSE",
+      "name": "ROKET DEPOSU",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_TRAINER_TOWER_2",
+      "name": "EĞİTMEN KULESİ",
+      "name_clone": true,
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_DOTTED_HOLE",
+      "name": "NOKTALI DELİK",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_LOST_CAVE",
+      "name": "LOST MAĞARASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_PATTERN_BUSH",
+      "name": "DESEN ÇALILIK",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ALTERING_CAVE_FRLG",
+      "name": "ALTERING MAĞARASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_TANOBY_CHAMBERS",
+      "name": "TANOBY ODASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_THREE_ISLE_PATH",
+      "name": "ADA ÜÇ YOLU",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_TANOBY_KEY",
+      "name": "TANOBY ANAHTARI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_BIRTH_ISLAND_FRLG",
+      "name": "BIRTH ADASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_MONEAN_CHAMBER",
+      "name": "MONEAN ODASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_LIPTOO_CHAMBER",
+      "name": "LIPTOO ODASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_WEEPTH_CHAMBER",
+      "name": "WEEPTH ODASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_DILFORD_CHAMBER",
+      "name": "DILFORD ODASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SCUFIB_CHAMBER",
+      "name": "SCUFIB ODASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_RIXY_CHAMBER",
+      "name": "RIXY ODASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_VIAPOIS_CHAMBER",
+      "name": "VIAPOIS ODASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_EMBER_SPA",
+      "name": "EMBER SPA",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_SPECIAL_AREA",
+      "name": "ÖZEL BÖLGE",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_AQUA_HIDEOUT",
+      "name": "AQUA SIĞINAĞI",
+      "x": 19,
+      "y": 3,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_MAGMA_HIDEOUT",
+      "name": "MAGMA SIĞINAĞI",
+      "x": 6,
+      "y": 3,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_MIRAGE_TOWER",
+      "name": "MIRAGE KULESİ",
+      "x": 8,
+      "y": 2,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_BIRTH_ISLAND",
+      "name": "BIRTH ADASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_FARAWAY_ISLAND",
+      "name": "FARAWAY ADASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ARTISAN_CAVE",
+      "name": "ARTISAN MAĞARASI",
+      "x": 22,
+      "y": 12,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_MARINE_CAVE",
+      "name": "MARINE MAĞARASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_UNDERWATER_MARINE_CAVE",
+      "name": "SU ALTI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_TERRA_CAVE",
+      "name": "TERRA MAĞARASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_UNDERWATER_105",
+      "name": "SU ALTI",
+      "x": 0,
+      "y": 10,
+      "width": 1,
+      "height": 3
+    },
+    {
+      "map_section": "MAPSEC_UNDERWATER_125",
+      "name": "SU ALTI",
+      "x": 24,
+      "y": 3,
+      "width": 2,
+      "height": 2
+    },
+    {
+      "map_section": "MAPSEC_UNDERWATER_129",
+      "name": "SU ALTI",
+      "x": 24,
+      "y": 10,
+      "width": 2,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_DESERT_UNDERPASS",
+      "name": "ÇÖL TÜNELİ",
+      "x": 2,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_ALTERING_CAVE",
+      "name": "ALTERING MAĞARASI",
+      "x": 6,
+      "y": 8,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_NAVEL_ROCK",
+      "name": "NAVEL KAYASI",
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "map_section": "MAPSEC_TRAINER_HILL",
+      "name": "EĞİTMEN UÇURUMU",
+      "x": 8,
+      "y": 4,
+      "width": 1,
+      "height": 1
+    }
+  ]
+}

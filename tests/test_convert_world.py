@@ -8,16 +8,64 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
-from convert_world import convert_world  # noqa: E402
+from convert_world import add_numeric_map_targets, convert_world, list_field  # noqa: E402
 
 
 class ConvertWorldTests(unittest.TestCase):
+    def test_real_vanillaplus_zero_connections_variant(self):
+        source_path = (
+            ROOT
+            / "vendor/vanillaplus/data/maps/AlteringCave/map.json"
+        )
+        source = json.loads(source_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(source["connections"], 0)
+        self.assertEqual(list_field(source, "connections"), [])
+
+        with self.assertRaises(ValueError):
+            list_field({"connections": 1}, "connections")
+
+    def test_real_vanillaplus_dive_and_emerge_connection_ids(self):
+        surface = json.loads(
+            (
+                ROOT
+                / "vendor/vanillaplus/data/maps/Route105/map.json"
+            ).read_text(encoding="utf-8")
+        )
+        underwater = json.loads(
+            (
+                ROOT
+                / "vendor/vanillaplus/data/maps/Underwater_Route105/map.json"
+            ).read_text(encoding="utf-8")
+        )
+
+        dive = next(
+            connection
+            for connection in surface["connections"]
+            if connection["direction"] == "dive"
+        )
+        emerge = next(
+            connection
+            for connection in underwater["connections"]
+            if connection["direction"] == "emerge"
+        )
+
+        targets = {
+            dive["map"]: (24, 0),
+            emerge["map"]: (0, 1),
+        }
+        converted = add_numeric_map_targets([dive, emerge], targets)
+
+        self.assertEqual(converted[0]["direction_id"], 5)
+        self.assertEqual(converted[1]["direction_id"], 6)
+
     def test_lossless_map_conversion(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp) / "source"
             out = Path(temp) / "out"
 
             (root / "data/layouts/TestTown").mkdir(parents=True)
+            (root / "data/layouts/Unused").mkdir(parents=True)
             (root / "data/maps/TestTown").mkdir(parents=True)
             (root / "data/maps/AliasTown").mkdir(parents=True)
             (root / "src/data/tilesets").mkdir(parents=True)
@@ -68,7 +116,17 @@ class ConvertWorldTests(unittest.TestCase):
             )
             (root / "include/constants/map_types.h").write_text(
                 "#define MAP_TYPE_TOWN 1\n"
-                "#define MAP_TYPE_INDOOR 8\n",
+                "#define MAP_TYPE_INDOOR 8\n"
+                "#define MAP_BATTLE_SCENE_NORMAL 0\n"
+                "#define MAP_BATTLE_SCENE_GYM 1\n",
+                encoding="utf-8",
+            )
+            (root / "include/constants/songs.h").write_text(
+                "#define MUS_TEST 301\n",
+                encoding="utf-8",
+            )
+            (root / "include/constants/region_map_sections.h").write_text(
+                "#define MAPSEC_TEST 7\n",
                 encoding="utf-8",
             )
             (root / "include/constants/items.h").write_text(
@@ -88,7 +146,8 @@ class ConvertWorldTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (root / "include/constants/layouts.h").write_text(
-                "#define LAYOUT_TEST_TOWN 1\n",
+                "#define LAYOUT_TEST_TOWN 1\n"
+                "#define LAYOUT_UNUSED 2\n",
                 encoding="utf-8",
             )
             (root / "include/constants/secret_bases.h").write_text(
@@ -97,6 +156,11 @@ class ConvertWorldTests(unittest.TestCase):
             )
             (root / "include/constants/berry.h").write_text(
                 "#define BERRY_TREE_TEST 52\n",
+                encoding="utf-8",
+            )
+            (root / "include/constants/species.h").write_text(
+                "#define SPECIES_NONE 0\n"
+                "#define SPECIES_TESTMON 25\n",
                 encoding="utf-8",
             )
 
@@ -113,6 +177,16 @@ class ConvertWorldTests(unittest.TestCase):
                                 "secondary_tileset": "gTileset_TestSecondary",
                                 "border_filepath": "data/layouts/TestTown/border.bin",
                                 "blockdata_filepath": "data/layouts/TestTown/map.bin",
+                            },
+                            {
+                                "id": "LAYOUT_UNUSED",
+                                "name": "Unused_Layout",
+                                "width": 1,
+                                "height": 1,
+                                "primary_tileset": "gTileset_TestPrimary",
+                                "secondary_tileset": "0",
+                                "border_filepath": "data/layouts/Unused/border.bin",
+                                "blockdata_filepath": "data/layouts/Unused/map.bin",
                             }
                         ]
                     }
@@ -156,6 +230,12 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             (root / "data/layouts/TestTown/border.bin").write_bytes(
                 struct.pack("<6H", 0x000A, 0x000B, 0x000C, 0x000D, 0xAAAA, 0xBBBB)
             )
+            (root / "data/layouts/Unused/map.bin").write_bytes(
+                struct.pack("<1H", 3)
+            )
+            (root / "data/layouts/Unused/border.bin").write_bytes(
+                struct.pack("<4H", 1, 2, 3, 4)
+            )
 
             (root / "data/maps/TestTown/map.json").write_text(
                 json.dumps(
@@ -164,8 +244,10 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                         "name": "TestTown",
                         "layout": "LAYOUT_TEST_TOWN",
                         "music": "MUS_TEST",
+                        "region_map_section": "MAPSEC_TEST",
                         "weather": "WEATHER_NONE",
                         "map_type": "MAP_TYPE_TOWN",
+                        "battle_scene": "MAP_BATTLE_SCENE_NORMAL",
                         "allow_running": True,
                         "connections": [
                             {"map": "MAP_TEST_ROUTE", "offset": 0, "direction": "up"}
@@ -189,7 +271,7 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                                 "x": 0,
                                 "y": 1,
                                 "trainer_sight_or_berry_tree_id": "BERRY_TREE_TEST",
-                                "script": "BerryTreeScript",
+                                "script": "0x0",
                                 "flag": "0",
                             },
                         ],
@@ -274,8 +356,10 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                         "name": "AliasTown",
                         "layout": "LAYOUT_TEST_TOWN",
                         "music": "MUS_TEST",
+                        "region_map_section": "MAPSEC_TEST",
                         "weather": "WEATHER_NONE",
                         "map_type": "MAP_TYPE_INDOOR",
+                        "battle_scene": "MAP_BATTLE_SCENE_GYM",
                         "allow_running": False,
                         "connections": None,
                         "shared_events_map": "TestTown",
@@ -284,10 +368,84 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                 ),
                 encoding="utf-8",
             )
+            (root / "data/maps/TestTown/scripts.inc").write_text(
+                """
+Test_EventScript::
+    end
+Test_CoordScript::
+    end
+Test_ImmediateScript::
+    end
+Test_SignScript::
+    end
+""".lstrip(),
+                encoding="utf-8",
+            )
 
-            manifest = convert_world(root, out)
+            (root / "src/data").mkdir(parents=True, exist_ok=True)
+            (root / "src/data/wild_encounters.json").write_text(
+                json.dumps(
+                    {
+                        "wild_encounter_groups": [
+                            {
+                                "label": "gWildMonHeaders",
+                                "for_maps": True,
+                                "fields": [
+                                    {
+                                        "type": "land_mons",
+                                        "encounter_rates": [100],
+                                    }
+                                ],
+                                "encounters": [
+                                    {
+                                        "map": "MAP_TEST_TOWN",
+                                        "base_label": "gTestTown",
+                                        "land_mons": {
+                                            "encounter_rate": 20,
+                                            "mons": [
+                                                {
+                                                    "min_level": 2,
+                                                    "max_level": 3,
+                                                    "species": "SPECIES_TESTMON",
+                                                }
+                                            ],
+                                        },
+                                    }
+                                ],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            manifest = convert_world(
+                root,
+                out,
+                source_commit="abc123",
+                source_repository="test/vanillaplus",
+            )
 
             self.assertEqual(manifest["map_count"], 2)
+            self.assertEqual(manifest["layout_count"], 2)
+            unused_layout = json.loads(
+                (out / "layouts/LAYOUT_UNUSED.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(unused_layout["layout"]["secondary_tileset"], "0")
+            self.assertIsNone(
+                unused_layout["source"]["secondary_metatile_attributes"]
+            )
+            self.assertEqual(
+                unused_layout["layout"]["secondary_metatile_attributes_u16"],
+                [],
+            )
+            self.assertEqual(manifest["layouts_file"], "layouts.json")
+            self.assertEqual(manifest["scripts_file"], "scripts/manifest.json")
+            self.assertGreaterEqual(manifest["script_label_count"], 4)
+            self.assertEqual(manifest["encounters_file"], "encounters.json")
+            self.assertEqual(manifest["encounter_group_count"], 1)
+            self.assertEqual(manifest["map_encounter_count"], 1)
+            self.assertEqual(manifest["provenance_file"], "provenance.json")
             self.assertEqual(manifest["maps"][0]["group_num"], 0)
             self.assertEqual(manifest["maps"][0]["map_num"], 1)
             self.assertEqual(manifest["maps"][0]["layout_num"], 1)
@@ -295,12 +453,16 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(manifest["maps"][1]["map_num"], 0)
             self.assertEqual(manifest["maps"][1]["layout_num"], 1)
             converted = json.loads((out / "maps/TestTown.json").read_text())
+            self.assertEqual(len(converted["fingerprint_sha256"]), 64)
             self.assertEqual(converted["map"]["group_name"], "gMapGroup_Test")
             self.assertEqual(converted["map"]["group_num"], 0)
             self.assertEqual(converted["map"]["map_num"], 0)
             self.assertEqual(converted["map"]["layout_num"], 1)
             self.assertEqual(converted["map"]["weather_id"], 0)
             self.assertEqual(converted["map"]["map_type_id"], 1)
+            self.assertEqual(converted["map"]["music_id"], 301)
+            self.assertEqual(converted["map"]["region_map_section_id"], 7)
+            self.assertEqual(converted["map"]["battle_scene_id"], 0)
             self.assertEqual(converted["layout"]["source_word_count"], 6)
             self.assertEqual(converted["layout"]["active_word_count"], 4)
             self.assertEqual(converted["layout"]["border_source_word_count"], 6)
@@ -347,6 +509,7 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                 4,
             )
             self.assertEqual(converted["map"]["object_events"][1]["local_id"], 2)
+            self.assertIsNone(converted["map"]["object_events"][1]["script_id"])
             self.assertEqual(
                 converted["map"]["object_events"][1]["trainer_sight_or_berry_tree_id_u16"],
                 52,
@@ -374,6 +537,15 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(converted["map"]["bg_events"][2]["kind_id"], 8)
             self.assertEqual(converted["map"]["bg_events"][2]["secret_base_id_u16"], 33)
             self.assertEqual(converted["map"]["connections"][0]["direction"], "up")
+            self.assertEqual(converted["map"]["connections"][0]["direction_id"], 2)
+            self.assertEqual(
+                converted["map"]["script_ownership"],
+                {
+                    "kind": "own",
+                    "owner": "TestTown",
+                    "source": "data/maps/TestTown/scripts.inc",
+                },
+            )
 
             alias_converted = json.loads(
                 (out / "maps/AliasTown.json").read_text()
@@ -385,6 +557,14 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
             self.assertEqual(
                 alias_converted["map"]["shared_scripts_map"],
                 "TestTown",
+            )
+            self.assertEqual(
+                alias_converted["map"]["script_ownership"],
+                {
+                    "kind": "shared",
+                    "owner": "TestTown",
+                    "source": "data/maps/TestTown/scripts.inc",
+                },
             )
             self.assertEqual(alias_converted["map"]["weather_id"], 0)
             self.assertEqual(alias_converted["map"]["map_type_id"], 8)
@@ -409,6 +589,79 @@ const u16 gMetatileAttributes_SecondaryStorageName[] = INCBIN_U16("data/tilesets
                 alias_converted["map"]["bg_events"],
                 converted["map"]["bg_events"],
             )
+
+            layout_catalog = json.loads((out / "layouts.json").read_text())
+            self.assertEqual(layout_catalog["layout_count"], 2)
+            by_id = {item["id"]: item for item in layout_catalog["layouts"]}
+            self.assertEqual(
+                by_id["LAYOUT_TEST_TOWN"]["used_by_maps"],
+                ["AliasTown", "TestTown"],
+            )
+            self.assertEqual(by_id["LAYOUT_UNUSED"]["used_by_maps"], [])
+            unused_layout = json.loads(
+                (out / "layouts/LAYOUT_UNUSED.json").read_text()
+            )
+            self.assertEqual(unused_layout["layout"]["layout_num"], 2)
+            self.assertEqual(unused_layout["layout"]["raw_blocks_u16"], [3])
+            self.assertEqual(
+                unused_layout["layout"]["border_active_words_u16"],
+                [1, 2, 3, 4],
+            )
+
+            script_catalog = json.loads(
+                (out / "scripts/manifest.json").read_text()
+            )
+            self.assertEqual(script_catalog["map_count"], 2)
+            script_maps = {
+                item["map"]: item["script_ownership"]
+                for item in script_catalog["maps"]
+            }
+            self.assertEqual(
+                script_maps["TestTown"],
+                {
+                    "kind": "own",
+                    "owner": "TestTown",
+                    "source": "data/maps/TestTown/scripts.inc",
+                },
+            )
+            self.assertEqual(
+                script_maps["AliasTown"],
+                {
+                    "kind": "shared",
+                    "owner": "TestTown",
+                    "source": "data/maps/TestTown/scripts.inc",
+                },
+            )
+            refs = {
+                item["script_id"]
+                for item in script_catalog["event_script_references"]
+            }
+            self.assertTrue(
+                {
+                    "Test_EventScript",
+                    "Test_CoordScript",
+                    "Test_ImmediateScript",
+                    "Test_SignScript",
+                }.issubset(refs)
+            )
+
+            encounters = json.loads((out / "encounters.json").read_text())
+            self.assertEqual(encounters["group_count"], 1)
+            self.assertEqual(encounters["map_encounter_count"], 1)
+            encounter = encounters["groups"][0]["encounters"][0]
+            self.assertEqual(encounter["map_name"], "TestTown")
+            self.assertEqual(
+                encounter["land_mons"]["mons"][0]["species_id"],
+                25,
+            )
+
+            provenance = json.loads((out / "provenance.json").read_text())
+            self.assertEqual(provenance["source_repository"], "test/vanillaplus")
+            self.assertEqual(provenance["source_commit"], "abc123")
+            self.assertEqual(provenance["source_counts"]["map_count"], 2)
+            self.assertEqual(provenance["source_counts"]["layout_count"], 2)
+            self.assertEqual(len(provenance["package_sha256"]), 64)
+            self.assertIn("maps/TestTown.json", provenance["file_sha256"])
 
 
 if __name__ == "__main__":

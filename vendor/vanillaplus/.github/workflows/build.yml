@@ -1,0 +1,113 @@
+name: Vanilla Plus ROM Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Verify phase version ownership contract
+        run: python3 tools/phase_version_contract_test.py
+
+      - name: Verify Vanilla+ Phase 0-1 invariants
+        run: python3 tools/vanillaplus_phase01_verify.py
+
+      - name: Verify Vanilla+ Phase 2 invariants
+        run: python3 tools/vanillaplus_phase02_verify.py
+
+      - name: Verify Vanilla+ Phase 3 invariants
+        run: python3 tools/vanillaplus_phase03_verify.py
+
+      - name: Verify Vanilla+ Phase 4 invariants
+        run: python3 tools/vanillaplus_phase04_verify.py
+
+      - name: Verify Vanilla+ Phase 5 item management invariants
+        run: python3 tools/vanillaplus_phase05_verify.py
+
+      - name: Verify Vanilla+ Phase 6 Pokemon info invariants
+        run: python3 tools/vanillaplus_phase06_verify.py
+
+      - name: Verify Vanilla+ Phase 7 speed QoL invariants
+        run: python3 tools/vanillaplus_phase07_verify.py
+
+      - name: Verify Vanilla+ Phase 8 RTC invariants
+        run: python3 tools/vanillaplus_phase08_verify.py
+
+      - name: Verify Vanilla+ Phase 9 wild ecosystem invariants
+        run: python3 tools/vanillaplus_phase09_verify.py
+
+      - name: Verify Vanilla+ Phase 10A quest navigation invariants
+        run: python3 tools/vanillaplus_phase10a_verify.py
+
+      - name: Verify PC management QoL invariants
+        run: python3 tools/vanillaplus_pc_management_verify.py
+
+      - name: Checkout agbcc
+        uses: actions/checkout@v4
+        with:
+          repository: pret/agbcc
+          path: agbcc
+
+      - name: Install ARM toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libpng-dev
+
+      - name: Install agbcc
+        working-directory: agbcc
+        run: |
+          ./build.sh
+          ./install.sh ../
+
+      - name: Build release ROM
+        run: make -j$(nproc) all
+
+      - name: Prepare release artifact
+        run: |
+          cp pokeemerald.gba pokemon-emerald_v1.gba
+          sha1sum pokemon-emerald_v1.gba
+          sha256sum pokemon-emerald_v1.gba
+          python3 - <<'PYHASH'
+          from pathlib import Path
+          import zlib
+          p = Path('pokemon-emerald_v1.gba')
+          print(f'{p.name} CRC32 {zlib.crc32(p.read_bytes()) & 0xffffffff:08X}')
+          PYHASH
+          stat -c '%n %s bytes' pokemon-emerald_v1.gba
+
+      - name: Clean release outputs
+        run: make mostlyclean
+
+      - name: Build test ROM
+        run: make -j$(nproc) VANILLAPLUS_TEST=1 all
+
+      - name: Prepare test artifact
+        run: |
+          cp pokeemerald.gba pokemon-emerald_v1-test.gba
+          sha1sum pokemon-emerald_v1-test.gba
+          sha256sum pokemon-emerald_v1-test.gba
+          stat -c '%n %s bytes' pokemon-emerald_v1-test.gba
+
+      - name: Upload release ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-emerald_v1
+          path: pokemon-emerald_v1.gba
+          if-no-files-found: error
+
+      - name: Upload test ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-emerald_v1-test
+          path: pokemon-emerald_v1-test.gba
+          if-no-files-found: error

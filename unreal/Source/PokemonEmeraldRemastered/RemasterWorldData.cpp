@@ -72,6 +72,8 @@ bool FRemasterWorldData::LoadMapJson(
 
     OutMap = FRemasterMapIR{};
     OutMap.SchemaVersion = IntField(Root, TEXT("schema_version"));
+    OutMap.FingerprintSha256 =
+        StringField(Root, TEXT("fingerprint_sha256"));
 
     const TSharedPtr<FJsonObject>* MapPtr = nullptr;
     const TSharedPtr<FJsonObject>* LayoutPtr = nullptr;
@@ -96,12 +98,17 @@ bool FRemasterWorldData::LoadMapJson(
     OutMap.LayoutId = StringField(Map, TEXT("layout"));
     OutMap.LayoutNum = IntFieldDefault(Map, TEXT("layout_num"), -1);
     OutMap.Music = StringField(Map, TEXT("music"));
+    OutMap.MusicId = IntFieldDefault(Map, TEXT("music_id"), -1);
     OutMap.RegionMapSection = StringField(Map, TEXT("region_map_section"));
+    OutMap.RegionMapSectionId =
+        IntFieldDefault(Map, TEXT("region_map_section_id"), -1);
     OutMap.Weather = StringField(Map, TEXT("weather"));
     OutMap.WeatherId = IntFieldDefault(Map, TEXT("weather_id"), -1);
     OutMap.MapType = StringField(Map, TEXT("map_type"));
     OutMap.MapTypeId = IntFieldDefault(Map, TEXT("map_type_id"), -1);
     OutMap.BattleScene = StringField(Map, TEXT("battle_scene"));
+    OutMap.BattleSceneId =
+        IntFieldDefault(Map, TEXT("battle_scene_id"), -1);
 
     OutMap.bRequiresFlash = BoolField(Map, TEXT("requires_flash"));
     OutMap.bAllowCycling = BoolField(Map, TEXT("allow_cycling"));
@@ -269,6 +276,8 @@ bool FRemasterWorldData::LoadMapJson(
             FRemasterConnectionIR Item;
             Item.Map = StringField(Object, TEXT("map"));
             Item.Direction = StringField(Object, TEXT("direction"));
+            Item.DirectionId =
+                IntFieldDefault(Object, TEXT("direction_id"), -1);
             Item.Offset = IntField(Object, TEXT("offset"));
             Item.DestGroupNum =
                 IntFieldDefault(Object, TEXT("dest_group_num"), -1);
@@ -312,6 +321,7 @@ bool FRemasterWorldData::LoadMapJson(
                 TEXT("trainer_sight_or_berry_tree_id_u16"),
                 -1);
             Item.Script = StringField(Object, TEXT("script"));
+            Item.ScriptId = StringField(Object, TEXT("script_id"));
             Item.Flag = StringField(Object, TEXT("flag"));
             Item.FlagId = IntFieldDefault(Object, TEXT("flag_id"), -1);
             OutMap.ObjectEvents.Add(MoveTemp(Item));
@@ -370,6 +380,7 @@ bool FRemasterWorldData::LoadMapJson(
             Item.WeatherId =
                 IntFieldDefault(Object, TEXT("weather_id"), -1);
             Item.Script = StringField(Object, TEXT("script"));
+            Item.ScriptId = StringField(Object, TEXT("script_id"));
             OutMap.CoordEvents.Add(MoveTemp(Item));
         }
     }
@@ -399,6 +410,7 @@ bool FRemasterWorldData::LoadMapJson(
                 TEXT("kind_id"),
                 -1);
             Item.Script = StringField(Object, TEXT("script"));
+            Item.ScriptId = StringField(Object, TEXT("script_id"));
             Item.Item = StringField(Object, TEXT("item"));
             Item.ItemId = IntFieldDefault(
                 Object,
