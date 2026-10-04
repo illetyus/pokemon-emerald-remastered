@@ -213,6 +213,150 @@ def _build_palette_lut(source_root: Path, palette_files: list[str]) -> bytes:
     return bytes(rgba)
 
 
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+
+
+def _paeth_predictor(a: int, b: int, c: int) -> int:
+    p = a + b - c
+    pa = abs(p - a)
+    pb = abs(p - b)
+    pc = abs(p - c)
+    if pa <= pb and pa <= pc:
+        return a
+    if pb <= pc:
+        return b
+    return c
+
+
+def decode_indexed_png(path: Path) -> tuple[int, int, bytes]:
+    data = path.read_bytes()
+    if not data.startswith(PNG_SIGNATURE):
+        raise ValueError(f"{path}: not a PNG")
+
+    offset = len(PNG_SIGNATURE)
+    width = height = bit_depth = color_type = None
+    compression = filter_method = interlace = None
+    idat = bytearray()
+
+    while offset + 12 <= len(data):
+        length = struct.unpack(">I", data[offset:offset + 4])[0]
+        chunk_type = data[offset + 4:offset + 8]
+        start = offset + 8
+        end = start + length
+        if end + 4 > len(data):
+            raise ValueError(f"{path}: truncated PNG chunk")
+
+        payload = data[start:end]
+        offset = end + 4
+
+        if chunk_type == b"IHDR":
+            (
+                width,
+                height,
+                bit_depth,
+                color_type,
+                compression,
+                filter_method,
+                interlace,
+            ) = struct.unpack(">IIBBBBB", payload)
+        elif chunk_type == b"IDAT":
+            idat.extend(payload)
+        elif chunk_type == b"IEND":
+            break
+
+    if width is None or height is None:
+        raise ValueError(f"{path}: missing IHDR")
+    if color_type != 3:
+        raise ValueError(
+            f"{path}: expected indexed PNG color type 3, got {color_type}"
+        )
+    if bit_depth not in {1, 2, 4, 8}:
+        raise ValueError(
+            f"{path}: unsupported indexed PNG bit depth {bit_depth}"
+        )
+    if compression != 0 or filter_method != 0 or interlace != 0:
+        raise ValueError(
+            f"{path}: unsupported PNG compression/filter/interlace"
+        )
+
+    packed_stride = (width * bit_depth + 7) // 8
+    raw = zlib.decompress(bytes(idat))
+    expected = height * (packed_stride + 1)
+    if len(raw) != expected:
+        raise ValueError(
+            f"{path}: decoded scanline bytes {len(raw)} != {expected}"
+        )
+
+    result = bytearray()
+    previous = bytearray(packed_stride)
+    cursor = 0
+
+    for _ in range(height):
+        filter_type = raw[cursor]
+        cursor += 1
+        scanline = bytearray(raw[cursor:cursor + packed_stride])
+        cursor += packed_stride
+
+        for x in range(packed_stride):
+            left = scanline[x - 1] if x > 0 else 0
+            up = previous[x]
+            up_left = previous[x - 1] if x > 0 else 0
+
+            if filter_type == 0:
+                value = scanline[x]
+            elif filter_type == 1:
+                value = (scanline[x] + left) & 0xFF
+            elif filter_type == 2:
+                value = (scanline[x] + up) & 0xFF
+            elif filter_type == 3:
+                value = (
+                    scanline[x] + ((left + up) // 2)
+                ) & 0xFF
+            elif filter_type == 4:
+                value = (
+                    scanline[x]
+                    + _paeth_predictor(left, up, up_left)
+                ) & 0xFF
+            else:
+                raise ValueError(
+                    f"{path}: unsupported PNG filter {filter_type}"
+                )
+
+            scanline[x] = value
+
+        if bit_depth == 8:
+            result.extend(scanline[:width])
+        else:
+            mask = (1 << bit_depth) - 1
+            pixels_per_byte = 8 // bit_depth
+            row_pixels = 0
+
+            for packed in scanline:
+                for slot in range(pixels_per_byte):
+                    shift = 8 - bit_depth * (slot + 1)
+                    result.append((packed >> shift) & mask)
+                    row_pixels += 1
+                    if row_pixels == width:
+                        break
+                if row_pixels == width:
+                    break
+
+        previous = scanline
+
+    if len(result) != width * height:
+        raise ValueError(
+            f"{path}: indexed pixel count {len(result)} "
+            f"!= {width * height}"
+        )
+
+    if result and max(result) > 15:
+        raise ValueError(
+            f"{path}: palette index exceeds Vanilla 0..15 range"
+        )
+
+    return width, height, bytes(result)
+
+
 def _safe_tileset_dir(tileset_id: str) -> str:
     if not tileset_id.startswith("gTileset_"):
         raise ValueError(f"unexpected tileset id {tileset_id!r}")
@@ -279,6 +423,24 @@ def build_render_package(
         )
         file_hashes[packaged_indices.as_posix()] = indices_sha
 
+        index_width, index_height, index_pixels = decode_indexed_png(
+            source_root / source["tiles_png"]
+        )
+        if (
+            index_width != source["tiles_png_width"]
+            or index_height != source["tiles_png_height"]
+        ):
+            raise ValueError(
+                f"{tileset_id}: indexed PNG dimensions changed during decode"
+            )
+
+        packaged_index = tileset_dir / "tiles.index8"
+        index_sha = _write_bytes(
+            output_root / packaged_index,
+            index_pixels,
+        )
+        file_hashes[packaged_index.as_posix()] = index_sha
+
         packaged_palettes: list[str] = []
         for index, palette_rel in enumerate(source["palette_files"]):
             packaged = tileset_dir / "palettes" / f"{index:02d}.pal"
@@ -309,6 +471,7 @@ def build_render_package(
             "tile_symbol": source["tile_symbol"],
             "palette_symbol": source["palette_symbol"],
             "tiles_png": packaged_tiles.as_posix(),
+            "tiles_index8": packaged_index.as_posix(),
             "tiles_png_width": source["tiles_png_width"],
             "tiles_png_height": source["tiles_png_height"],
             "tile_count": source["tile_count"],
