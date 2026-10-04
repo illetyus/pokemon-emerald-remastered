@@ -2,10 +2,12 @@
 
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "Components/SceneComponent.h"
+#include "Engine/GameInstance.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInterface.h"
 #include "Misc/Paths.h"
 #include "RemasterVisualStyle.h"
+#include "RemasterWorldGameplaySubsystem.h"
 #include "UObject/ConstructorHelpers.h"
 
 ARemasterWorldActor::ARemasterWorldActor()
@@ -15,19 +17,12 @@ ARemasterWorldActor::ARemasterWorldActor()
     SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
     RootComponent = SceneRoot;
 
-    BlockInstances =
-        CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(
-            TEXT("FallbackBlockInstances"));
-    BlockInstances->SetupAttachment(SceneRoot);
-    BlockInstances->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    BlockInstances->SetCastShadow(false);
-
     static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(
         TEXT("/Engine/BasicShapes/Cube.Cube"));
 
     if (CubeMesh.Succeeded())
     {
-        BlockInstances->SetStaticMesh(CubeMesh.Object);
+        FallbackMesh = CubeMesh.Object;
     }
 }
 
@@ -35,18 +30,59 @@ void ARemasterWorldActor::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (!StartupMapJson.IsEmpty())
+    bool bLoadedAuthoritative = false;
+
+    if (UGameInstance* GI = GetGameInstance())
     {
+        if (URemasterWorldGameplaySubsystem* Gameplay =
+                GI->GetSubsystem<URemasterWorldGameplaySubsystem>())
+        {
+            Gameplay->OnGameplayMapChanged.AddDynamic(
+                this,
+                &ARemasterWorldActor::HandleGameplayMapChanged);
+
+            if (Gameplay->IsMapReady())
+            {
+                bLoadedAuthoritative = LoadAuthoritativeMap();
+            }
+        }
+    }
+
+    if (!bLoadedAuthoritative && !StartupMapJson.IsEmpty())
+    {
+        UE_LOG(
+            LogTemp,
+            Warning,
+            TEXT("R5 world renderer is using debug JSON startup path: %s"),
+            *StartupMapJson);
         LoadMapFromGeneratedData(StartupMapJson);
     }
 }
 
+void ARemasterWorldActor::EndPlay(
+    const EEndPlayReason::Type EndPlayReason)
+{
+    if (UGameInstance* GI = GetGameInstance())
+    {
+        if (URemasterWorldGameplaySubsystem* Gameplay =
+                GI->GetSubsystem<URemasterWorldGameplaySubsystem>())
+        {
+            Gameplay->OnGameplayMapChanged.RemoveDynamic(
+                this,
+                &ARemasterWorldActor::HandleGameplayMapChanged);
+        }
+    }
+
+    ClearWorld();
+    Super::EndPlay(EndPlayReason);
+}
+
 void ARemasterWorldActor::ClearWorld()
 {
-    BlockInstances->ClearInstances();
-
-    for (TPair<int32, TObjectPtr<UHierarchicalInstancedStaticMeshComponent>>& Pair
-         : VisualComponents)
+    for (TPair<
+            FRemasterChunkVisualKey,
+            UHierarchicalInstancedStaticMeshComponent*>& Pair
+         : ChunkVisualComponents)
     {
         if (Pair.Value)
         {
@@ -54,8 +90,42 @@ void ARemasterWorldActor::ClearWorld()
         }
     }
 
-    VisualComponents.Reset();
+    ChunkVisualComponents.Reset();
     LoadedMap = FRemasterMapIR{};
+}
+
+bool ARemasterWorldActor::LoadAuthoritativeMap()
+{
+    UGameInstance* GI = GetGameInstance();
+    if (!GI)
+        return false;
+
+    URemasterWorldGameplaySubsystem* Gameplay =
+        GI->GetSubsystem<URemasterWorldGameplaySubsystem>();
+
+    if (!Gameplay || !Gameplay->IsMapReady())
+        return false;
+
+    const FRemasterMapIR* Source =
+        Gameplay->GetCurrentMapForPresentation();
+
+    if (!Source || !Source->IsValid())
+        return false;
+
+    ClearWorld();
+    LoadedMap = *Source;
+    BuildRenderChunks();
+
+    UE_LOG(
+        LogTemp,
+        Display,
+        TEXT("R5 authoritative map rendered: %s (%dx%d, chunk=%d)"),
+        *LoadedMap.Id,
+        LoadedMap.Width,
+        LoadedMap.Height,
+        ChunkTileSize);
+
+    return true;
 }
 
 bool ARemasterWorldActor::LoadMapFromGeneratedData(
@@ -78,19 +148,19 @@ bool ARemasterWorldActor::LoadMapFromGeneratedData(
         UE_LOG(
             LogTemp,
             Error,
-            TEXT("Remaster world load failed: %s"),
+            TEXT("Remaster world debug load failed: %s"),
             *Error);
         return false;
     }
 
     ClearWorld();
     LoadedMap = MoveTemp(Candidate);
-    BuildPreviewInstances();
+    BuildRenderChunks();
 
     UE_LOG(
         LogTemp,
         Display,
-        TEXT("Loaded remaster map %s (%dx%d, %d raw blocks)"),
+        TEXT("Loaded debug remaster map %s (%dx%d, %d raw blocks)"),
         *LoadedMap.Id,
         LoadedMap.Width,
         LoadedMap.Height,
@@ -99,65 +169,146 @@ bool ARemasterWorldActor::LoadMapFromGeneratedData(
     return true;
 }
 
-UHierarchicalInstancedStaticMeshComponent*
-ARemasterWorldActor::ComponentForMetatile(uint16 MetatileId)
+void ARemasterWorldActor::HandleGameplayMapChanged(
+    int32 MapGroup,
+    int32 MapNum,
+    FString MapId)
 {
-    if (!VisualStyle)
+    if (!LoadAuthoritativeMap())
     {
-        return BlockInstances;
+        UE_LOG(
+            LogTemp,
+            Error,
+            TEXT("R5 renderer failed authoritative map refresh: %s (%d,%d)"),
+            *MapId,
+            MapGroup,
+            MapNum);
+    }
+}
+
+FVector ARemasterWorldActor::TileToLocalLocation(
+    int32 TileX,
+    int32 TileY,
+    float HeightOffset) const
+{
+    return FVector(
+        static_cast<double>(TileX) * TileWorldSize,
+        static_cast<double>(TileY) * TileWorldSize,
+        HeightOffset);
+}
+
+FVector ARemasterWorldActor::TileToWorldLocation(
+    int32 TileX,
+    int32 TileY,
+    float HeightOffset) const
+{
+    return GetActorTransform().TransformPosition(
+        TileToLocalLocation(
+            TileX,
+            TileY,
+            HeightOffset));
+}
+
+FIntPoint ARemasterWorldActor::WorldToTileLocation(
+    const FVector& WorldLocation) const
+{
+    if (TileWorldSize <= 0.0f)
+        return FIntPoint::ZeroValue;
+
+    const FVector Local =
+        GetActorTransform().InverseTransformPosition(WorldLocation);
+
+    return FIntPoint(
+        FMath::RoundToInt(Local.X / TileWorldSize),
+        FMath::RoundToInt(Local.Y / TileWorldSize));
+}
+
+FIntPoint ARemasterWorldActor::ChunkForTile(
+    int32 TileX,
+    int32 TileY) const
+{
+    const int32 SafeChunkSize = FMath::Max(1, ChunkTileSize);
+    return FIntPoint(
+        TileX / SafeChunkSize,
+        TileY / SafeChunkSize);
+}
+
+UHierarchicalInstancedStaticMeshComponent*
+ARemasterWorldActor::ComponentForMetatile(
+    uint16 MetatileId,
+    const FIntPoint& Chunk)
+{
+    const FRemasterChunkVisualKey Key{
+        Chunk.X,
+        Chunk.Y,
+        static_cast<int32>(MetatileId)
+    };
+
+    if (UHierarchicalInstancedStaticMeshComponent** Existing =
+            ChunkVisualComponents.Find(Key))
+    {
+        return *Existing;
     }
 
-    const FRemasterTileVisualRule* Rule =
-        VisualStyle->TileRules.FindByPredicate(
-            [MetatileId](const FRemasterTileVisualRule& Candidate)
+    UStaticMesh* Mesh = FallbackMesh;
+    UMaterialInterface* Material = nullptr;
+    bool bCastShadow = false;
+
+    if (VisualStyle)
+    {
+        if (const FRemasterTileVisualRule* Rule =
+                VisualStyle->TileRules.FindByPredicate(
+                    [MetatileId](const FRemasterTileVisualRule& Candidate)
+                    {
+                        return Candidate.MetatileId
+                            == static_cast<int32>(MetatileId);
+                    }))
+        {
+            if (UStaticMesh* RuleMesh = Rule->Mesh.LoadSynchronous())
             {
-                return Candidate.MetatileId == static_cast<int32>(MetatileId);
-            });
+                Mesh = RuleMesh;
+                bCastShadow = true;
+            }
 
-    if (!Rule)
-    {
-        return BlockInstances;
+            Material = Rule->Material.LoadSynchronous();
+        }
     }
 
-    const int32 Key = Rule->MetatileId;
-
-    if (TObjectPtr<UHierarchicalInstancedStaticMeshComponent>* Existing =
-            VisualComponents.Find(Key))
-    {
-        return Existing->Get();
-    }
-
-    UStaticMesh* Mesh = Rule->Mesh.LoadSynchronous();
     if (!Mesh)
-    {
-        return BlockInstances;
-    }
+        return nullptr;
 
     UHierarchicalInstancedStaticMeshComponent* Component =
         NewObject<UHierarchicalInstancedStaticMeshComponent>(
             this,
-            *FString::Printf(TEXT("TileRule_%d"), Key));
+            *FString::Printf(
+                TEXT("Chunk_%d_%d_Metatile_%u"),
+                Chunk.X,
+                Chunk.Y,
+                static_cast<uint32>(MetatileId)));
+
+    if (!Component)
+        return nullptr;
 
     Component->SetupAttachment(SceneRoot);
     Component->SetStaticMesh(Mesh);
     Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    Component->SetCastShadow(true);
+    Component->SetCastShadow(bCastShadow);
 
-    if (UMaterialInterface* Material = Rule->Material.LoadSynchronous())
+    if (Material)
     {
         Component->SetMaterial(0, Material);
     }
 
     Component->RegisterComponent();
-    VisualComponents.Add(Key, Component);
+    ChunkVisualComponents.Add(Key, Component);
     return Component;
 }
 
-void ARemasterWorldActor::BuildPreviewInstances()
+void ARemasterWorldActor::BuildRenderChunks()
 {
-    BlockInstances->ClearInstances();
-
-    if (!LoadedMap.IsValid() || TileWorldSize <= 0.0f)
+    if (!LoadedMap.IsValid()
+        || TileWorldSize <= 0.0f
+        || ChunkTileSize <= 0)
     {
         return;
     }
@@ -179,8 +330,13 @@ void ARemasterWorldActor::BuildPreviewInstances()
             }
 
             const uint16 MetatileId = LoadedMap.MetatileIds[Index];
+            const FIntPoint Chunk = ChunkForTile(X, Y);
+
             UHierarchicalInstancedStaticMeshComponent* Target =
-                ComponentForMetatile(MetatileId);
+                ComponentForMetatile(MetatileId, Chunk);
+
+            if (!Target)
+                continue;
 
             FVector Scale = FallbackScale;
             float HeightOffset = -PreviewThickness * 0.5f;
@@ -191,8 +347,8 @@ void ARemasterWorldActor::BuildPreviewInstances()
                         VisualStyle->TileRules.FindByPredicate(
                             [MetatileId](const FRemasterTileVisualRule& Candidate)
                             {
-                                return Candidate.MetatileId ==
-                                    static_cast<int32>(MetatileId);
+                                return Candidate.MetatileId
+                                    == static_cast<int32>(MetatileId);
                             }))
                 {
                     Scale = Rule->Scale;
@@ -200,15 +356,13 @@ void ARemasterWorldActor::BuildPreviewInstances()
                 }
             }
 
-            const FVector Location(
-                static_cast<float>(X) * TileWorldSize,
-                static_cast<float>(Y) * TileWorldSize,
-                HeightOffset);
-
             Target->AddInstance(
                 FTransform(
                     FRotator::ZeroRotator,
-                    Location,
+                    TileToLocalLocation(
+                        X,
+                        Y,
+                        HeightOffset),
                     Scale));
         }
     }
