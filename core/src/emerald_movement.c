@@ -49,6 +49,10 @@ static int object_collision(
         if (!object->active || i == mover->self_object_index)
             continue;
 
+        if (mover->self_object_index == SIZE_MAX
+            && object->player_collision_exempt)
+            continue;
+
         if (context->object_collision_exempt != 0
             && context->object_collision_exempt(
                 context->userdata,
