@@ -167,8 +167,7 @@ int main(void)
     const RemasterR4FixtureMap *route101;
     const RemasterR4FixtureMap *target;
     RemasterEmeraldMovementContext movement;
-    RemasterEmeraldPlayerStepResult result;
-    RemasterEmeraldStepEventResult step_event_result;
+    RemasterEmeraldOverworldActionResult action;
     RemasterEmeraldOverworldState state;
     RemasterEmeraldOverworldState reloaded_state;
     RemasterEmeraldWarpState destination;
@@ -203,8 +202,7 @@ int main(void)
     memset(&save, 0, sizeof(save));
     memset(&state, 0, sizeof(state));
     memset(&movement, 0, sizeof(movement));
-    memset(&result, 0, sizeof(result));
-    memset(&step_event_result, 0, sizeof(step_event_result));
+    memset(&action, 0, sizeof(action));
     memset(&destination, 0, sizeof(destination));
     memset(&reloaded_state, 0, sizeof(reloaded_state));
     memset(&reloaded_save, 0, sizeof(reloaded_save));
@@ -226,81 +224,31 @@ int main(void)
     movement.map = &house->view;
 
     if (!check(
-            remaster_emerald_player_step(
+            remaster_emerald_overworld_step_action(
                 &save,
                 &movement,
                 house->connections,
                 house->connection_count,
-                0,
-                0,
-                REMASTER_EMERALD_DIR_SOUTH,
-                &result),
-            "house exit step failed"))
-        return 1;
-
-    if (!check(
-            result.kind == REMASTER_EMERALD_PLAYER_STEP_MOVED
-            && result.x == 8
-            && result.y == 8,
-            "house door step must commit local movement before events"))
-        return 1;
-
-    if (!check(
-            remaster_emerald_process_step_events(
-                &save,
                 house->coord_events,
                 house->coord_event_count,
-                0,
                 house->warps,
                 house->warp_count,
-                result.x,
-                result.y,
-                remaster_emerald_map_elevation_at(
-                    &house->view,
-                    result.x,
-                    result.y),
-                remaster_emerald_map_behavior_at(
-                    &house->view,
-                    result.x,
-                    result.y),
-                0,
-                0,
-                &step_event_result)
-            && step_event_result.kind == REMASTER_EMERALD_STEP_EVENT_NONE,
-            "real Brendan house coord scan should not consume exit input"))
+                REMASTER_EMERALD_DIR_SOUTH,
+                &action),
+            "house exit action failed"))
         return 1;
 
-    {
-        size_t directional_warp_index = SIZE_MAX;
-        const uint8_t behavior = remaster_emerald_map_behavior_at(
-            &house->view,
-            result.x,
-            result.y);
-        const uint8_t elevation = remaster_emerald_map_elevation_at(
-            &house->view,
-            result.x,
-            result.y);
-
-        if (!check(
-                remaster_emerald_find_directional_warp(
-                    house->warps,
-                    house->warp_count,
-                    result.x,
-                    result.y,
-                    elevation,
-                    behavior,
-                    REMASTER_EMERALD_DIR_SOUTH,
-                    &directional_warp_index)
-                && directional_warp_index < house->warp_count,
-                "real Brendan house south directional warp failed"))
-            return 1;
-
-        step_event_result.warp_index = directional_warp_index;
-    }
+    if (!check(
+            action.kind == REMASTER_EMERALD_OVERWORLD_ACTION_WARP
+            && action.x == 8
+            && action.y == 8
+            && action.warp_index < house->warp_count,
+            "real Brendan house production action did not resolve exit warp"))
+        return 1;
 
     {
         const RemasterEmeraldWarpEventDef *warp =
-            &house->warps[step_event_result.warp_index];
+            &house->warps[action.warp_index];
 
         destination.map_group = (int8_t)warp->dest_map_group;
         destination.map_num = (int8_t)warp->dest_map_num;
@@ -376,47 +324,23 @@ int main(void)
 
     for (i = 0; i < path_count; ++i) {
         if (!check(
-                remaster_emerald_player_step(
+                remaster_emerald_overworld_step_action(
                     &save,
                     &movement,
                     town->connections,
                     town->connection_count,
-                    0,
-                    0,
-                    path[i],
-                    &result),
-                "Littleroot path step call failed"))
-            return 1;
-
-        if (!check(
-                result.kind == REMASTER_EMERALD_PLAYER_STEP_MOVED,
-                "Littleroot BFS path produced non-movement outcome"))
-            return 1;
-
-        if (!check(
-                remaster_emerald_process_step_events(
-                    &save,
                     town->coord_events,
                     town->coord_event_count,
-                    0,
                     town->warps,
                     town->warp_count,
-                    result.x,
-                    result.y,
-                    remaster_emerald_map_elevation_at(
-                        &town->view,
-                        result.x,
-                        result.y),
-                    remaster_emerald_map_behavior_at(
-                        &town->view,
-                        result.x,
-                        result.y),
-                    0,
-                    0,
-                    &step_event_result)
-                && step_event_result.kind
-                    == REMASTER_EMERALD_STEP_EVENT_NONE,
-                "Littleroot path unexpectedly triggered a step event"))
+                    path[i],
+                    &action),
+                "Littleroot production path action failed"))
+            return 1;
+
+        if (!check(
+                action.kind == REMASTER_EMERALD_OVERWORLD_ACTION_MOVED,
+                "Littleroot production path produced non-movement action"))
             return 1;
     }
 
@@ -429,27 +353,29 @@ int main(void)
     connection_x = state.player_x;
 
     if (!check(
-            remaster_emerald_player_step(
+            remaster_emerald_overworld_step_action(
                 &save,
                 &movement,
                 town->connections,
                 town->connection_count,
-                0,
-                0,
+                town->coord_events,
+                town->coord_event_count,
+                town->warps,
+                town->warp_count,
                 REMASTER_EMERALD_DIR_NORTH,
-                &result),
-            "north connection step call failed"))
+                &action),
+            "north connection production action failed"))
         return 1;
 
     if (!check(
-            result.kind == REMASTER_EMERALD_PLAYER_STEP_CONNECTION
-            && result.connection_index < town->connection_count,
+            action.kind == REMASTER_EMERALD_OVERWORLD_ACTION_CONNECTION
+            && action.connection_index < town->connection_count,
             "Littleroot north edge did not request Route 101 connection"))
         return 1;
 
     {
         const RemasterEmeraldConnectionDef *connection =
-            &town->connections[result.connection_index];
+            &town->connections[action.connection_index];
 
         target = remaster_r4_fixture_find_map(
             connection->dest_map_group,
