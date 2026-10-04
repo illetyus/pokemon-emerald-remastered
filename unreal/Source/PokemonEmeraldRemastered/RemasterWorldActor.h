@@ -14,13 +14,13 @@ struct FRemasterChunkVisualKey
 {
     int32 ChunkX = 0;
     int32 ChunkY = 0;
-    int32 MetatileId = 0;
+    uint32 VisualIdentityHash = 0;
 
     bool operator==(const FRemasterChunkVisualKey& Other) const
     {
         return ChunkX == Other.ChunkX
             && ChunkY == Other.ChunkY
-            && MetatileId == Other.MetatileId;
+            && VisualIdentityHash == Other.VisualIdentityHash;
     }
 };
 
@@ -28,7 +28,7 @@ FORCEINLINE uint32 GetTypeHash(const FRemasterChunkVisualKey& Key)
 {
     uint32 Hash = GetTypeHash(Key.ChunkX);
     Hash = HashCombine(Hash, GetTypeHash(Key.ChunkY));
-    return HashCombine(Hash, GetTypeHash(Key.MetatileId));
+    return HashCombine(Hash, GetTypeHash(Key.VisualIdentityHash));
 }
 
 UCLASS()
@@ -111,8 +111,17 @@ private:
 
     void BuildRenderChunks();
 
+    struct FResolvedMetatileVisual
+    {
+        FString Tileset;
+        int32 LocalMetatileId = 0;
+        const FRemasterTileVisualRule* Rule = nullptr;
+    };
+
+    FResolvedMetatileVisual ResolveMetatileVisual(uint16 MetatileId) const;
+
     UHierarchicalInstancedStaticMeshComponent* ComponentForMetatile(
-        uint16 MetatileId,
+        const FResolvedMetatileVisual& Visual,
         const FIntPoint& Chunk);
 
     FRemasterMapIR LoadedMap;
