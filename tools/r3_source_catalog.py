@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -39,6 +40,31 @@ def _script_files(source_root: Path) -> set[str]:
         for path in (source_root / "data/maps").glob("*/scripts.inc")
         if path.is_file()
     }
+
+
+def _global_shared_script_sources(source_root: Path) -> dict[str, str]:
+    owners: dict[str, str] = {}
+    pattern = re.compile(
+        r"^([A-Za-z_][A-Za-z0-9_]*)_MapScripts(?:::|:)$",
+        re.MULTILINE,
+    )
+
+    for path in sorted((source_root / "data/scripts").glob("**/*.inc")):
+        if not path.is_file():
+            continue
+        relative = path.relative_to(source_root).as_posix()
+        text = path.read_text(encoding="utf-8")
+        for match in pattern.finditer(text):
+            owner = match.group(1)
+            previous = owners.get(owner)
+            if previous is not None and previous != relative:
+                raise SourceCatalogError(
+                    f"duplicate global shared script owner {owner}: "
+                    f"{previous} and {relative}"
+                )
+            owners[owner] = relative
+
+    return owners
 
 
 def build_source_catalog(
@@ -76,6 +102,7 @@ def build_source_catalog(
 
     files_by_name = _map_files(source_root)
     script_names = _script_files(source_root)
+    global_shared_script_sources = _global_shared_script_sources(source_root)
 
     ordered_names: list[str] = []
     seen_names: set[str] = set()
@@ -138,9 +165,13 @@ def build_source_catalog(
 
             shared_scripts_map = doc.get("shared_scripts_map")
             if shared_scripts_map is not None:
+                if not isinstance(shared_scripts_map, str):
+                    raise SourceCatalogError(
+                        f"{path}: invalid shared_scripts_map {shared_scripts_map!r}"
+                    )
                 if (
-                    not isinstance(shared_scripts_map, str)
-                    or shared_scripts_map not in seen_names
+                    shared_scripts_map not in seen_names
+                    and shared_scripts_map not in global_shared_script_sources
                 ):
                     raise SourceCatalogError(
                         f"{path}: invalid shared_scripts_map {shared_scripts_map!r}"
@@ -178,6 +209,9 @@ def build_source_catalog(
         "map_count": len(maps),
         "layout_count": len(layout_ids),
         "map_script_file_count": len(script_names),
+        "global_shared_script_sources": dict(
+            sorted(global_shared_script_sources.items())
+        ),
         "group_order": list(group_order),
         "layout_ids": layout_ids,
         "maps": maps,
