@@ -1,0 +1,38 @@
+name: R4 Overworld
+
+on:
+  push:
+    branches:
+      - main
+      - remaster/r4-**
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: r4-overworld-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  portable-overworld:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build R4 acceptance targets
+        run: >-
+          cmake --build build --config Release --target
+          emerald_overworld_step_test
+          r4_littleroot_overworld_test
+
+      - name: Run R4 acceptance
+        run: >-
+          ctest --test-dir build -C Release
+          -R "emerald_overworld_player_step|r4_littleroot_overworld"
+          --output-on-failure
