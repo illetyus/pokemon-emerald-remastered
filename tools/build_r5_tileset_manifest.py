@@ -35,6 +35,43 @@ def png_dimensions(path: Path) -> tuple[int, int]:
     return width, height
 
 
+def validate_jasc_palette(path: Path) -> None:
+    lines = [
+        line.strip()
+        for line in path.read_text(encoding="ascii").splitlines()
+        if line.strip()
+    ]
+
+    if len(lines) != 19:
+        raise ValueError(
+            f"{path}: expected JASC-PAL header plus 16 RGB rows, "
+            f"got {len(lines)} non-empty lines"
+        )
+    if lines[0] != "JASC-PAL":
+        raise ValueError(f"{path}: palette is not JASC-PAL")
+    if lines[1] != "0100":
+        raise ValueError(f"{path}: unsupported JASC-PAL version {lines[1]!r}")
+    if lines[2] != "16":
+        raise ValueError(f"{path}: expected 16 palette colors, got {lines[2]!r}")
+
+    for index, line in enumerate(lines[3:]):
+        parts = line.split()
+        if len(parts) != 3:
+            raise ValueError(
+                f"{path}: RGB row {index} must have exactly 3 channels"
+            )
+        try:
+            channels = [int(part, 10) for part in parts]
+        except ValueError as exc:
+            raise ValueError(
+                f"{path}: RGB row {index} contains a non-integer channel"
+            ) from exc
+        if any(channel < 0 or channel > 255 for channel in channels):
+            raise ValueError(
+                f"{path}: RGB row {index} channel outside 0..255"
+            )
+
+
 def symbol_path_index(text: str, c_type: str, prefix: str) -> dict[str, str]:
     pattern = re.compile(
         rf"const\s+{re.escape(c_type)}\s+"
@@ -162,12 +199,22 @@ def parse_tileset_headers(source_root: Path) -> list[dict[str, Any]]:
 
         palettes = sorted(
             path for path in palettes_dir.iterdir()
-            if path.is_file() and path.suffix == ".gbapal"
+            if path.is_file() and path.suffix == ".pal"
         )
-        if not palettes:
+        expected_palette_names = [
+            f"{index:02d}.pal"
+            for index in range(16)
+        ]
+        palette_names = [path.name for path in palettes]
+
+        if palette_names != expected_palette_names:
             raise ValueError(
-                f"{tileset}: no .gbapal palettes in {palettes_dir}"
+                f"{tileset}: expected source palettes 00.pal..15.pal, "
+                f"got {palette_names}"
             )
+
+        for palette in palettes:
+            validate_jasc_palette(palette)
 
         records.append(
             {
@@ -183,6 +230,8 @@ def parse_tileset_headers(source_root: Path) -> list[dict[str, Any]]:
                 "metatiles_bin": metatile_rel.as_posix(),
                 "metatile_attributes_bin": attribute_rel.as_posix(),
                 "metatile_count": metatile_count,
+                "palette_format": "JASC-PAL-0100",
+                "palette_color_count": 16,
                 "palette_files": [
                     path.relative_to(source_root).as_posix()
                     for path in palettes
