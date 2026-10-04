@@ -25,13 +25,16 @@ jobs:
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build R5 world-grid target
-        run: cmake --build build --config Release --target r5_world_grid_test
+      - name: Build R5 renderer math targets
+        run: >-
+          cmake --build build --config Release --target
+          r5_world_grid_test
+          r5_metatile_render_test
 
-      - name: Run R5 world-grid test
+      - name: Run R5 renderer math tests
         run: >-
           ctest --test-dir build -C Release
-          -R "r5_world_grid_math"
+          -R "r5_world_grid_math|r5_metatile_render_math"
           --output-on-failure
 
       - name: Validate real R5 tileset source manifest
