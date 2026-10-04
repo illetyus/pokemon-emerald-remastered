@@ -323,7 +323,7 @@ UHierarchicalInstancedStaticMeshComponent*
 ARemasterWorldActor::ComponentForMetatile(
     const FResolvedMetatileVisual& Visual,
     const FString& RenderPlane,
-    int32 SourceLayer,
+    int32 PlaneIndex,
     const FIntPoint& Chunk)
 {
     uint32 IdentityHash = GetTypeHash(Visual.Tileset);
@@ -335,7 +335,7 @@ ARemasterWorldActor::ComponentForMetatile(
         GetTypeHash(RenderPlane));
     IdentityHash = HashCombine(
         IdentityHash,
-        GetTypeHash(SourceLayer));
+        GetTypeHash(PlaneIndex));
 
     const FRemasterChunkVisualKey Key{
         Chunk.X,
@@ -474,12 +474,12 @@ bool ARemasterWorldActor::BuildRenderChunks()
                 RuleHeightOffset = Visual.Rule->HeightOffset;
             }
 
-            for (int32 SourceLayer = 0;
-                 SourceLayer < 2;
-                 ++SourceLayer)
+            for (int32 PlaneIndex = 0;
+                 PlaneIndex < 2;
+                 ++PlaneIndex)
             {
                 const FString& RenderPlane =
-                    Metatile->RenderPlanes[SourceLayer];
+                    Metatile->RenderPlanes[PlaneIndex];
 
                 const remaster::metatile_render::PlaneOrder PlaneOrder =
                     PlaneOrderFromName(RenderPlane);
@@ -501,7 +501,7 @@ bool ARemasterWorldActor::BuildRenderChunks()
                     ComponentForMetatile(
                         Visual,
                         RenderPlane,
-                        SourceLayer,
+                        PlaneIndex,
                         Chunk);
 
                 if (!Target)
@@ -529,7 +529,7 @@ bool ARemasterWorldActor::BuildRenderChunks()
                 for (const FRemasterRenderTileEntry& Tile
                      : Metatile->Entries)
                 {
-                    if (Tile.SourceLayer != SourceLayer)
+                    if (Tile.SourceLayer != PlaneIndex)
                         continue;
 
                     if (Tile.Quadrant < 0
