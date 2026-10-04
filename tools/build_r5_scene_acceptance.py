@@ -255,7 +255,7 @@ def build_scene_acceptance(
         if house_warp is None:
             raise AssertionError("real Brendan house exit warp (8,8) missing")
 
-        if house_warp["map"] != town["map"]["id"]:
+        if house_warp["dest_map"] != town["map"]["id"]:
             raise AssertionError(
                 "Brendan house exit no longer targets Littleroot"
             )
@@ -299,7 +299,7 @@ def build_scene_acceptance(
                 "house_exit": {
                     "x": 8,
                     "y": 8,
-                    "dest_map": house_warp["map"],
+                    "dest_map": house_warp["dest_map"],
                     "dest_warp_id": int(house_warp["dest_warp_id_u16"]),
                 },
                 "town_map": town["map"]["id"],
