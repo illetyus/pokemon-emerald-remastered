@@ -1100,6 +1100,15 @@ bool URemasterWorldGameplaySubsystem::StepPlayer(
             Direction,
             OutResult);
 
+    case REMASTER_EMERALD_PLAYER_STEP_LEDGE_JUMP:
+        if (!SyncRuntimeObjectView())
+            return false;
+        OutResult.bLedgeJump = true;
+        return ProcessCurrentStepEvents(
+            0,
+            Direction,
+            OutResult);
+
     case REMASTER_EMERALD_PLAYER_STEP_WARP:
         /* Production passes no warps to player_step; step events own them. */
         return false;
