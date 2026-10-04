@@ -9,6 +9,11 @@
 #include "RemasterWorldActor.h"
 #include "UObject/ConstructorHelpers.h"
 
+extern "C"
+{
+#include "remaster/emerald_map.h"
+}
+
 ARemasterOverworldPawn::ARemasterOverworldPawn()
 {
     PrimaryActorTick.bCanEverTick = false;
@@ -147,16 +152,16 @@ void ARemasterOverworldPawn::ApplyFacing(int32 Direction)
 
     switch (Direction)
     {
-    case 1:
+    case REMASTER_EMERALD_DIR_SOUTH:
         Yaw = 90.0f;
         break;
-    case 2:
+    case REMASTER_EMERALD_DIR_NORTH:
         Yaw = -90.0f;
         break;
-    case 3:
+    case REMASTER_EMERALD_DIR_WEST:
         Yaw = 180.0f;
         break;
-    case 4:
+    case REMASTER_EMERALD_DIR_EAST:
         Yaw = 0.0f;
         break;
     default:
