@@ -13,8 +13,15 @@ struct FRemasterTileVisualRule
 {
     GENERATED_BODY()
 
+    /*
+     * Canonical R5 visual identity. Metatile IDs 0..511 are local to the
+     * primary tileset; 512..1023 are local to the active secondary tileset.
+     */
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    int32 MetatileId = 0;
+    FString Tileset;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    int32 LocalMetatileId = 0;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UStaticMesh> Mesh;
