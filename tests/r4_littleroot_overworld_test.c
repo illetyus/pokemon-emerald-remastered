@@ -2,6 +2,7 @@
 #include "r4_littleroot_fixture.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 enum { MAX_FIXTURE_TILES = 1024 };
@@ -169,12 +170,17 @@ int main(void)
     RemasterEmeraldPlayerStepResult result;
     RemasterEmeraldStepEventResult step_event_result;
     RemasterEmeraldOverworldState state;
+    RemasterEmeraldOverworldState reloaded_state;
     RemasterEmeraldWarpState destination;
     RemasterEmeraldSave save;
+    RemasterEmeraldSave reloaded_save;
     uint8_t path[MAX_FIXTURE_TILES];
     size_t path_count = 0;
     size_t i;
     int16_t connection_x;
+    uint16_t littleroot_state_var = 0;
+    uint16_t reloaded_var = 0;
+    uint8_t *save_image = 0;
 
     if (!check(
             gRemasterR4LittlerootMapCount == 3,
@@ -200,6 +206,8 @@ int main(void)
     memset(&result, 0, sizeof(result));
     memset(&step_event_result, 0, sizeof(step_event_result));
     memset(&destination, 0, sizeof(destination));
+    memset(&reloaded_state, 0, sizeof(reloaded_state));
+    memset(&reloaded_save, 0, sizeof(reloaded_save));
 
     state.map_group = (int8_t)house->group_num;
     state.map_num = (int8_t)house->map_num;
@@ -364,6 +372,8 @@ int main(void)
             "failed to seed non-blocking Littleroot story state"))
         return 1;
 
+    littleroot_state_var = town->coord_events[0].trigger;
+
     for (i = 0; i < path_count; ++i) {
         if (!check(
                 remaster_emerald_player_step(
@@ -478,6 +488,74 @@ int main(void)
                 state.player_y) == 0,
             "Route101 connection landed on an impassable tile"))
         return 1;
+
+    save_image = (uint8_t *)calloc(
+        1u,
+        REMASTER_EMERALD_SAVE_IMAGE_BYTES);
+    if (!check(save_image != 0, "failed to allocate save image"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_save_encode_next(
+                save_image,
+                REMASTER_EMERALD_SAVE_IMAGE_BYTES,
+                &save),
+            "R4 final state failed Emerald save encode"))
+    {
+        free(save_image);
+        return 1;
+    }
+
+    if (!check(
+            remaster_emerald_save_decode(
+                save_image,
+                REMASTER_EMERALD_SAVE_IMAGE_BYTES,
+                &reloaded_save) == REMASTER_EMERALD_SAVE_OK,
+            "R4 encoded save did not decode cleanly"))
+    {
+        free(save_image);
+        return 1;
+    }
+
+    if (!check(
+            remaster_emerald_overworld_get(
+                &reloaded_save,
+                &reloaded_state),
+            "failed to read reloaded R4 overworld state"))
+    {
+        free(save_image);
+        return 1;
+    }
+
+    if (!check(
+            reloaded_state.map_group == route101->group_num
+            && reloaded_state.map_num == route101->map_num
+            && reloaded_state.player_x == state.player_x
+            && reloaded_state.player_y == state.player_y
+            && reloaded_state.map_layout_id == route101->layout_num
+            && reloaded_state.warp_id == -1
+            && reloaded_state.warp_x == -1
+            && reloaded_state.warp_y == -1,
+            "R4 map/position did not survive save reload"))
+    {
+        free(save_image);
+        return 1;
+    }
+
+    if (!check(
+            remaster_emerald_var_get(
+                &reloaded_save,
+                littleroot_state_var,
+                &reloaded_var)
+            && reloaded_var == 2,
+            "R4 persistent story state did not survive save reload"))
+    {
+        free(save_image);
+        return 1;
+    }
+
+    free(save_image);
+    save_image = 0;
 
     printf(
         "R4 real Littleroot overworld acceptance passed (%lu local steps).\n",
