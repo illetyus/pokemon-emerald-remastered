@@ -167,6 +167,7 @@ int main(void)
     const RemasterR4FixtureMap *target;
     RemasterEmeraldMovementContext movement;
     RemasterEmeraldPlayerStepResult result;
+    RemasterEmeraldStepEventResult step_event_result;
     RemasterEmeraldOverworldState state;
     RemasterEmeraldWarpState destination;
     RemasterEmeraldSave save;
@@ -197,6 +198,7 @@ int main(void)
     memset(&state, 0, sizeof(state));
     memset(&movement, 0, sizeof(movement));
     memset(&result, 0, sizeof(result));
+    memset(&step_event_result, 0, sizeof(step_event_result));
     memset(&destination, 0, sizeof(destination));
 
     state.map_group = (int8_t)house->group_num;
@@ -221,24 +223,49 @@ int main(void)
                 &movement,
                 house->connections,
                 house->connection_count,
-                house->warps,
-                house->warp_count,
+                0,
+                0,
                 REMASTER_EMERALD_DIR_SOUTH,
                 &result),
             "house exit step failed"))
         return 1;
 
     if (!check(
-            result.kind == REMASTER_EMERALD_PLAYER_STEP_WARP
+            result.kind == REMASTER_EMERALD_PLAYER_STEP_MOVED
             && result.x == 8
-            && result.y == 8
-            && result.warp_index < house->warp_count,
-            "real Brendan house door did not resolve as a warp"))
+            && result.y == 8,
+            "house door step must commit local movement before events"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_process_step_events(
+                &save,
+                house->coord_events,
+                house->coord_event_count,
+                0,
+                house->warps,
+                house->warp_count,
+                result.x,
+                result.y,
+                remaster_emerald_map_elevation_at(
+                    &house->view,
+                    result.x,
+                    result.y),
+                remaster_emerald_map_behavior_at(
+                    &house->view,
+                    result.x,
+                    result.y),
+                0,
+                0,
+                &step_event_result)
+            && step_event_result.kind == REMASTER_EMERALD_STEP_EVENT_WARP
+            && step_event_result.warp_index < house->warp_count,
+            "real Brendan house coord-before-warp resolution failed"))
         return 1;
 
     {
         const RemasterEmeraldWarpEventDef *warp =
-            &house->warps[result.warp_index];
+            &house->warps[step_event_result.warp_index];
 
         destination.map_group = (int8_t)warp->dest_map_group;
         destination.map_num = (int8_t)warp->dest_map_num;
@@ -293,6 +320,23 @@ int main(void)
 
     movement.map = &town->view;
 
+    /*
+     * The real north-exit story triggers use one town-state variable with
+     * source values 0/1/3. Seed a non-blocking state derived from the real
+     * trigger identity so this acceptance exercises traversal rather than
+     * the pre-starter story stop.
+     */
+    if (!check(
+            town->coord_event_count > 0
+            && town->coord_events[0].kind
+                == REMASTER_EMERALD_COORD_TRIGGER
+            && remaster_emerald_var_set(
+                &save,
+                town->coord_events[0].trigger,
+                2),
+            "failed to seed non-blocking Littleroot story state"))
+        return 1;
+
     for (i = 0; i < path_count; ++i) {
         if (!check(
                 remaster_emerald_player_step(
@@ -300,8 +344,8 @@ int main(void)
                     &movement,
                     town->connections,
                     town->connection_count,
-                    town->warps,
-                    town->warp_count,
+                    0,
+                    0,
                     path[i],
                     &result),
                 "Littleroot path step call failed"))
@@ -310,6 +354,32 @@ int main(void)
         if (!check(
                 result.kind == REMASTER_EMERALD_PLAYER_STEP_MOVED,
                 "Littleroot BFS path produced non-movement outcome"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_process_step_events(
+                    &save,
+                    town->coord_events,
+                    town->coord_event_count,
+                    0,
+                    town->warps,
+                    town->warp_count,
+                    result.x,
+                    result.y,
+                    remaster_emerald_map_elevation_at(
+                        &town->view,
+                        result.x,
+                        result.y),
+                    remaster_emerald_map_behavior_at(
+                        &town->view,
+                        result.x,
+                        result.y),
+                    0,
+                    0,
+                    &step_event_result)
+                && step_event_result.kind
+                    == REMASTER_EMERALD_STEP_EVENT_NONE,
+                "Littleroot path unexpectedly triggered a step event"))
             return 1;
     }
 
@@ -327,8 +397,8 @@ int main(void)
                 &movement,
                 town->connections,
                 town->connection_count,
-                town->warps,
-                town->warp_count,
+                0,
+                0,
                 REMASTER_EMERALD_DIR_NORTH,
                 &result),
             "north connection step call failed"))
