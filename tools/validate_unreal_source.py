@@ -150,8 +150,9 @@ def main() -> int:
     )
     require(
         '#include "remaster/emerald_overworld.h"' in world_gameplay
-        and "remaster_emerald_player_step(" in world_gameplay,
-        "R4 Unreal gameplay bridge must call the portable player-step core",
+        and "remaster_emerald_overworld_step_action(" in world_gameplay
+        and "remaster_emerald_overworld_continue_action(" in world_gameplay,
+        "R4 Unreal gameplay bridge must use the shared overworld action runtime",
         errors,
     )
     require(
@@ -190,14 +191,15 @@ def main() -> int:
     )
 
     require(
-        "remaster_emerald_process_step_events(" in world_gameplay
-        and "ContinuePlayerStepEvents(" in world_gameplay_h,
-        "R4 production movement must expose resumable coord-before-warp processing",
+        "ContinuePlayerStepEvents(" in world_gameplay_h
+        and "remaster_emerald_overworld_continue_action(" in world_gameplay,
+        "R4 production movement must expose resumable shared-action processing",
         errors,
     )
     require(
-        "nullptr,\n            0u,\n            static_cast<uint8>(Direction)" in world_gameplay,
-        "R4 production player_step must not resolve warps before coord events",
+        "remaster_emerald_process_step_events(" not in world_gameplay
+        and "remaster_emerald_player_step(" not in world_gameplay,
+        "R4 Unreal adapter must not duplicate the shared overworld action orchestration",
         errors,
     )
 
