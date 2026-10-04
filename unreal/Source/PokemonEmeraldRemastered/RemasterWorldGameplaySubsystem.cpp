@@ -932,47 +932,6 @@ bool URemasterWorldGameplaySubsystem::StepPlayer(
         static_cast<int32>(RuntimeColliderCount),
         EAllowShrinking::No);
 
-    TArray<RemasterEmeraldWarpEventDef> NativeWarps;
-    TArray<int32> WarpSourceIndices;
-    NativeWarps.Reserve(CurrentMap.WarpEvents.Num());
-    WarpSourceIndices.Reserve(CurrentMap.WarpEvents.Num());
-
-    for (int32 Index = 0; Index < CurrentMap.WarpEvents.Num(); ++Index)
-    {
-        const FRemasterWarpEventIR& Event = CurrentMap.WarpEvents[Index];
-
-        if (!FitsInt16(Event.X)
-            || !FitsInt16(Event.Y)
-            || !FitsUInt8(Event.Elevation)
-            || !FitsUInt8(Event.DestWarpIdNum))
-        {
-            continue;
-        }
-
-        if (!Event.bDynamicTarget
-            && (!FitsUInt8(Event.DestGroupNum)
-                || !FitsUInt8(Event.DestMapNum)))
-        {
-            continue;
-        }
-
-        RemasterEmeraldWarpEventDef Native{};
-        Native.x = static_cast<int16>(Event.X);
-        Native.y = static_cast<int16>(Event.Y);
-        Native.elevation = static_cast<uint8>(Event.Elevation);
-        Native.dest_warp_id =
-            static_cast<uint8>(Event.DestWarpIdNum);
-        Native.dest_map_group = Event.bDynamicTarget
-            ? 0u
-            : static_cast<uint8>(Event.DestGroupNum);
-        Native.dest_map_num = Event.bDynamicTarget
-            ? 0u
-            : static_cast<uint8>(Event.DestMapNum);
-
-        NativeWarps.Add(Native);
-        WarpSourceIndices.Add(Index);
-    }
-
     TArray<RemasterEmeraldConnectionDef> NativeConnections;
     TArray<int32> ConnectionSourceIndices;
     NativeConnections.Reserve(CurrentMap.Connections.Num());
