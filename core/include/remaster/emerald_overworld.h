@@ -1,0 +1,169 @@
+#ifndef REMASTER_EMERALD_OVERWORLD_H
+#define REMASTER_EMERALD_OVERWORLD_H
+
+#include "remaster/emerald_events.h"
+#include "remaster/emerald_movement.h"
+#include "remaster/emerald_state.h"
+#include "remaster/emerald_transition.h"
+
+#include <stddef.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef enum RemasterEmeraldPlayerStepKind {
+    REMASTER_EMERALD_PLAYER_STEP_INVALID = 0,
+    REMASTER_EMERALD_PLAYER_STEP_BLOCKED = 1,
+    REMASTER_EMERALD_PLAYER_STEP_MOVED = 2,
+    REMASTER_EMERALD_PLAYER_STEP_LEDGE_JUMP = 3,
+    REMASTER_EMERALD_PLAYER_STEP_WARP = 4,
+    REMASTER_EMERALD_PLAYER_STEP_CONNECTION = 5
+} RemasterEmeraldPlayerStepKind;
+
+typedef struct RemasterEmeraldPlayerStepResult {
+    RemasterEmeraldPlayerStepKind kind;
+    RemasterEmeraldCollision collision;
+    int16_t x;
+    int16_t y;
+    uint8_t elevation;
+    size_t warp_index;
+    size_t connection_index;
+} RemasterEmeraldPlayerStepResult;
+
+typedef enum RemasterEmeraldOverworldActionKind {
+    REMASTER_EMERALD_OVERWORLD_ACTION_INVALID = 0,
+    REMASTER_EMERALD_OVERWORLD_ACTION_BLOCKED = 1,
+    REMASTER_EMERALD_OVERWORLD_ACTION_MOVED = 2,
+    REMASTER_EMERALD_OVERWORLD_ACTION_LEDGE_JUMP = 3,
+    REMASTER_EMERALD_OVERWORLD_ACTION_IMMEDIATE_SCRIPT = 4,
+    REMASTER_EMERALD_OVERWORLD_ACTION_COORD_SCRIPT = 5,
+    REMASTER_EMERALD_OVERWORLD_ACTION_WARP = 6,
+    REMASTER_EMERALD_OVERWORLD_ACTION_CONNECTION = 7
+} RemasterEmeraldOverworldActionKind;
+
+typedef struct RemasterEmeraldOverworldActionResult {
+    RemasterEmeraldOverworldActionKind kind;
+    RemasterEmeraldCollision collision;
+    int16_t x;
+    int16_t y;
+    uint8_t elevation;
+    uint8_t direction;
+    uint8_t ledge_jump;
+    size_t connection_index;
+    size_t warp_index;
+    size_t coord_event_index;
+    size_t next_coord_event_index;
+    const char *script_id;
+    uint8_t weather_changed;
+    uint8_t weather;
+} RemasterEmeraldOverworldActionResult;
+
+typedef enum RemasterEmeraldStepEventKind {
+    REMASTER_EMERALD_STEP_EVENT_NONE = 0,
+    REMASTER_EMERALD_STEP_EVENT_IMMEDIATE_SCRIPT = 1,
+    REMASTER_EMERALD_STEP_EVENT_COORD_SCRIPT = 2,
+    REMASTER_EMERALD_STEP_EVENT_WARP = 3
+} RemasterEmeraldStepEventKind;
+
+typedef int (*RemasterEmeraldImmediateScriptFn)(
+    void *userdata,
+    const char *script_id);
+
+typedef struct RemasterEmeraldStepEventResult {
+    RemasterEmeraldStepEventKind kind;
+    size_t coord_event_index;
+    size_t next_coord_event_index;
+    size_t warp_index;
+    const char *script_id;
+    uint8_t weather_changed;
+    uint8_t weather;
+} RemasterEmeraldStepEventResult;
+
+int remaster_emerald_coord_weather_to_weather(
+    uint16_t coord_weather,
+    uint8_t *out_weather);
+
+int remaster_emerald_find_directional_warp(
+    const RemasterEmeraldWarpEventDef *warps,
+    size_t warp_count,
+    int16_t x,
+    int16_t y,
+    uint8_t elevation,
+    uint8_t metatile_behavior,
+    uint8_t direction,
+    size_t *out_warp_index);
+
+/*
+ * Mirrors the step-based portion of Vanilla ProcessPlayerFieldInput:
+ * coordinate events are scanned before warp events. Weather coordinate
+ * events apply immediately and scanning continues. TRIGGER_RUN_IMMEDIATELY
+ * scripts may be executed synchronously through run_immediate; when no host
+ * callback is supplied they are returned as an explicit resumable handoff.
+ */
+int remaster_emerald_process_step_events(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldCoordEventDef *coord_events,
+    size_t coord_event_count,
+    size_t coord_start_index,
+    const RemasterEmeraldWarpEventDef *warps,
+    size_t warp_count,
+    int16_t x,
+    int16_t y,
+    uint8_t elevation,
+    uint8_t metatile_behavior,
+    void *userdata,
+    RemasterEmeraldImmediateScriptFn run_immediate,
+    RemasterEmeraldStepEventResult *out_result);
+
+/*
+ * Executes one authoritative free-roaming player step against the current
+ * map. Local movement mutates SaveBlock1 position immediately. Warps and map
+ * connections are reported by index but are not applied here because the host
+ * must first resolve/load the destination map metadata, then call the existing
+ * transition API.
+ *
+ * Return value:
+ *   1 -> the input was valid and OutResult describes the step outcome.
+ *   0 -> invalid input or save state; no step was performed.
+ */
+int remaster_emerald_overworld_step_action(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldMovementContext *movement,
+    const RemasterEmeraldConnectionDef *connections,
+    size_t connection_count,
+    const RemasterEmeraldCoordEventDef *coord_events,
+    size_t coord_event_count,
+    const RemasterEmeraldWarpEventDef *warps,
+    size_t warp_count,
+    uint8_t direction,
+    RemasterEmeraldOverworldActionResult *out_result);
+
+int remaster_emerald_overworld_continue_action(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldMapView *map,
+    const RemasterEmeraldCoordEventDef *coord_events,
+    size_t coord_event_count,
+    size_t coord_start_index,
+    const RemasterEmeraldWarpEventDef *warps,
+    size_t warp_count,
+    uint8_t direction,
+    int ledge_jump,
+    RemasterEmeraldOverworldActionResult *out_result);
+
+int remaster_emerald_player_step(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldMovementContext *movement,
+    const RemasterEmeraldConnectionDef *connections,
+    size_t connection_count,
+    const RemasterEmeraldWarpEventDef *warps,
+    size_t warp_count,
+    uint8_t direction,
+    RemasterEmeraldPlayerStepResult *out_result);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

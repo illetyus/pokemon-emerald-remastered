@@ -6,6 +6,66 @@
 #include "RemasterWorldGameplaySubsystem.generated.h"
 
 
+UENUM(BlueprintType)
+enum class ERemasterPlayerStepKind : uint8
+{
+    Invalid,
+    Blocked,
+    Moved,
+    ImmediateCoordScript,
+    CoordScript,
+    Warp,
+    Connection
+};
+
+USTRUCT(BlueprintType)
+struct FRemasterPlayerStepResult
+{
+    GENERATED_BODY()
+
+    UPROPERTY(BlueprintReadOnly)
+    ERemasterPlayerStepKind Kind = ERemasterPlayerStepKind::Invalid;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 Collision = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 PlayerX = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 PlayerY = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 Elevation = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 Direction = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    FString ScriptId;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 NextCoordEventIndex = -1;
+
+    UPROPERTY(BlueprintReadOnly)
+    bool bWeatherChanged = false;
+
+    UPROPERTY(BlueprintReadOnly)
+    bool bLedgeJump = false;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 WeatherId = -1;
+
+    UPROPERTY(BlueprintReadOnly)
+    FString MapId;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 MapGroup = -1;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 MapNum = -1;
+};
+
 USTRUCT(BlueprintType)
 struct FRemasterResolvedConnection
 {
@@ -128,6 +188,7 @@ class POKEMONEMERALDREMASTERED_API URemasterWorldGameplaySubsystem
 
 public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+    virtual void Deinitialize() override;
 
     /*
      * Loads the map addressed by the legacy save. When bResetTemporaryState is
@@ -162,6 +223,39 @@ public:
 
     UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
     bool IsObjectVisible(int32 LocalId, bool& OutVisible) const;
+
+    /*
+     * Executes one authoritative free-roaming cardinal step through the
+     * portable Emerald core. Warp/connection outcomes are applied before the
+     * function returns, so OutResult always reflects the final save-backed
+     * map/position.
+     */
+    UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
+    bool StepPlayer(
+        int32 Direction,
+        FRemasterPlayerStepResult& OutResult);
+
+    /*
+     * Resume the remaining coord-event scan after the host synchronously
+     * executes an ImmediateCoordScript result.
+     */
+    UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
+    bool ContinuePlayerStepEvents(
+        int32 CoordStartIndex,
+        int32 StepDirection,
+        bool bLedgeJump,
+        FRemasterPlayerStepResult& OutResult);
+
+    // Internal world/script host bridge for transient runtime object state.
+    bool SetRuntimeObjectActive(int32 LocalId, bool bActive);
+    bool SetRuntimeObjectPosition(
+        int32 LocalId,
+        int32 X,
+        int32 Y,
+        int32 Elevation);
+    bool SetRuntimeObjectPlayerCollisionExempt(
+        int32 LocalId,
+        bool bExempt);
 
     UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
     bool ResolveConnection(
@@ -206,7 +300,15 @@ private:
     bool ApplySavedObjectTemplateOverrides();
     bool RefreshSavedObjectTemplateCache(
         const FRemasterMapIR& Map);
+    bool RebuildRuntimeObjectState();
+    bool SyncRuntimeObjectView();
+    bool ProcessCurrentStepEvents(
+        int32 CoordStartIndex,
+        int32 StepDirection,
+        bool bLedgeJump,
+        FRemasterPlayerStepResult& OutResult);
 
     FRemasterMapIR CurrentMap;
+    void* NativeObjectRuntime = nullptr;
     bool bMapReady = false;
 };

@@ -297,3 +297,315 @@ int remaster_emerald_object_template_set_movement_type(
     record[TEMPLATE_MOVEMENT_TYPE] = movement_type;
     return 1;
 }
+
+
+void remaster_emerald_object_runtime_reset(
+    RemasterEmeraldObjectRuntime *runtime)
+{
+    if (runtime == 0)
+        return;
+
+    memset(runtime, 0, sizeof(*runtime));
+}
+
+int remaster_emerald_object_runtime_find(
+    const RemasterEmeraldObjectRuntime *runtime,
+    uint16_t local_id,
+    size_t *out_index)
+{
+    size_t i;
+
+    if (runtime == 0 || out_index == 0 || local_id == 0u)
+        return 0;
+
+    for (i = 0; i < runtime->count; ++i) {
+        if (runtime->objects[i].local_id == local_id) {
+            *out_index = i;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+int remaster_emerald_object_runtime_get(
+    const RemasterEmeraldObjectRuntime *runtime,
+    size_t index,
+    RemasterEmeraldRuntimeObject *out_object)
+{
+    if (runtime == 0 || out_object == 0 || index >= runtime->count)
+        return 0;
+
+    *out_object = runtime->objects[index];
+    return 1;
+}
+
+static int runtime_coords_in_spawn_view(
+    int32_t player_x,
+    int32_t player_y,
+    int32_t object_x,
+    int32_t object_y)
+{
+    /*
+     * Mirrors TrySpawnObjectEvents with MAP_OFFSET=7,
+     * MAP_OFFSET_W=15 and MAP_OFFSET_H=14. Runtime coordinates stay
+     * map-local; the comparisons below are the source inequalities after
+     * cancelling the +MAP_OFFSET applied to template coordinates.
+     */
+    return object_x >= player_x - 9
+        && object_x <= player_x + 10
+        && object_y >= player_y - 7
+        && object_y <= player_y + 9;
+}
+
+static int runtime_object_in_spawn_view(
+    const RemasterEmeraldRuntimeObject *object,
+    int32_t player_x,
+    int32_t player_y)
+{
+    if (object == 0)
+        return 0;
+
+    return runtime_coords_in_spawn_view(
+            player_x,
+            player_y,
+            object->current_x,
+            object->current_y)
+        || runtime_coords_in_spawn_view(
+            player_x,
+            player_y,
+            object->initial_x,
+            object->initial_y);
+}
+
+static int runtime_validate_templates(
+    const RemasterEmeraldObjectEventDef *events,
+    size_t event_count)
+{
+    size_t i;
+    size_t j;
+
+    if (event_count > REMASTER_EMERALD_OBJECT_TEMPLATE_COUNT
+        || (event_count != 0u && events == 0))
+        return 0;
+
+    for (i = 0; i < event_count; ++i) {
+        if (events[i].local_id == 0u)
+            return 0;
+
+        for (j = i + 1u; j < event_count; ++j) {
+            if (events[i].local_id == events[j].local_id)
+                return 0;
+        }
+    }
+
+    return 1;
+}
+
+int remaster_emerald_object_runtime_sync_view(
+    RemasterEmeraldObjectRuntime *runtime,
+    const RemasterEmeraldSave *save,
+    const RemasterEmeraldObjectEventDef *events,
+    size_t event_count,
+    int32_t player_x,
+    int32_t player_y)
+{
+    size_t i;
+
+    if (runtime == 0
+        || save == 0
+        || !runtime_validate_templates(events, event_count))
+        return 0;
+
+    /*
+     * Vanilla first keeps/removes currently spawned objects as the camera
+     * moves, then TrySpawnObjectEvents scans the full template list and fills
+     * any free slots with visible templates inside the spawn window.
+     */
+    for (i = 0; i < runtime->count; ++i) {
+        RemasterEmeraldRuntimeObject *object = &runtime->objects[i];
+
+        if (object->active
+            && !runtime_object_in_spawn_view(
+                object,
+                player_x,
+                player_y))
+        {
+            object->active = 0u;
+        }
+    }
+
+    for (i = 0; i < event_count; ++i) {
+        size_t slot = SIZE_MAX;
+        size_t existing = SIZE_MAX;
+        size_t candidate;
+        RemasterEmeraldRuntimeObject *object;
+
+        if (!runtime_coords_in_spawn_view(
+                player_x,
+                player_y,
+                events[i].x,
+                events[i].y))
+            continue;
+
+        if (!remaster_emerald_object_event_visible(save, &events[i]))
+            continue;
+
+        if (remaster_emerald_object_runtime_find(
+                runtime,
+                events[i].local_id,
+                &existing))
+        {
+            if (runtime->objects[existing].active)
+                continue;
+            slot = existing;
+        } else {
+            for (candidate = 0; candidate < runtime->count; ++candidate) {
+                if (!runtime->objects[candidate].active) {
+                    slot = candidate;
+                    break;
+                }
+            }
+
+            if (slot == SIZE_MAX
+                && runtime->count < REMASTER_EMERALD_RUNTIME_OBJECT_COUNT)
+            {
+                slot = runtime->count++;
+            }
+        }
+
+        if (slot == SIZE_MAX)
+            continue;
+
+        object = &runtime->objects[slot];
+        memset(object, 0, sizeof(*object));
+        object->active = 1u;
+        object->local_id = events[i].local_id;
+        object->current_x = events[i].x;
+        object->current_y = events[i].y;
+        object->previous_x = events[i].x;
+        object->previous_y = events[i].y;
+        object->initial_x = events[i].x;
+        object->initial_y = events[i].y;
+        object->elevation = events[i].elevation;
+    }
+
+    return 1;
+}
+
+int remaster_emerald_object_runtime_load(
+    RemasterEmeraldObjectRuntime *runtime,
+    const RemasterEmeraldSave *save,
+    const RemasterEmeraldObjectEventDef *events,
+    size_t event_count,
+    int32_t player_x,
+    int32_t player_y)
+{
+    if (runtime == 0)
+        return 0;
+
+    remaster_emerald_object_runtime_reset(runtime);
+    return remaster_emerald_object_runtime_sync_view(
+        runtime,
+        save,
+        events,
+        event_count,
+        player_x,
+        player_y);
+}
+
+int remaster_emerald_object_runtime_set_active(
+    RemasterEmeraldObjectRuntime *runtime,
+    uint16_t local_id,
+    int active)
+{
+    size_t index;
+
+    if (!remaster_emerald_object_runtime_find(
+            runtime,
+            local_id,
+            &index))
+        return 0;
+
+    runtime->objects[index].active = active ? 1u : 0u;
+    return 1;
+}
+
+int remaster_emerald_object_runtime_set_position(
+    RemasterEmeraldObjectRuntime *runtime,
+    uint16_t local_id,
+    int32_t x,
+    int32_t y,
+    uint8_t elevation)
+{
+    size_t index;
+    RemasterEmeraldRuntimeObject *object;
+
+    if (!remaster_emerald_object_runtime_find(
+            runtime,
+            local_id,
+            &index))
+        return 0;
+
+    object = &runtime->objects[index];
+    object->previous_x = object->current_x;
+    object->previous_y = object->current_y;
+    object->current_x = x;
+    object->current_y = y;
+    object->elevation = elevation;
+    return 1;
+}
+
+int remaster_emerald_object_runtime_set_player_collision_exempt(
+    RemasterEmeraldObjectRuntime *runtime,
+    uint16_t local_id,
+    int exempt)
+{
+    size_t index;
+
+    if (!remaster_emerald_object_runtime_find(
+            runtime,
+            local_id,
+            &index))
+        return 0;
+
+    runtime->objects[index].player_collision_exempt =
+        exempt ? 1u : 0u;
+    return 1;
+}
+
+int remaster_emerald_object_runtime_build_colliders(
+    const RemasterEmeraldObjectRuntime *runtime,
+    RemasterEmeraldObjectCollider *out_colliders,
+    size_t collider_capacity,
+    size_t *out_count)
+{
+    size_t i;
+
+    if (runtime == 0
+        || out_count == 0
+        || collider_capacity < runtime->count
+        || (runtime->count != 0u && out_colliders == 0))
+        return 0;
+
+    for (i = 0; i < runtime->count; ++i) {
+        const RemasterEmeraldRuntimeObject *source =
+            &runtime->objects[i];
+        RemasterEmeraldObjectCollider *target =
+            &out_colliders[i];
+
+        memset(target, 0, sizeof(*target));
+        target->active = source->active;
+        target->local_id = source->local_id;
+        target->current_x = source->current_x;
+        target->current_y = source->current_y;
+        target->previous_x = source->previous_x;
+        target->previous_y = source->previous_y;
+        target->elevation = source->elevation;
+        target->player_collision_exempt =
+            source->player_collision_exempt;
+    }
+
+    *out_count = runtime->count;
+    return 1;
+}

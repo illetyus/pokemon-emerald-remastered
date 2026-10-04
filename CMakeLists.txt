@@ -220,6 +220,36 @@ endif()
 add_test(NAME emerald_movement_collision COMMAND emerald_movement_test)
 
 
+
+add_executable(emerald_overworld_step_test
+    tests/emerald_overworld_step_test.c
+)
+
+target_link_libraries(emerald_overworld_step_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_overworld_step_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_overworld_step_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME emerald_overworld_player_step COMMAND emerald_overworld_step_test)
+
+add_executable(emerald_step_events_test
+    tests/emerald_step_events_test.c
+)
+
+target_link_libraries(emerald_step_events_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_step_events_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_step_events_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME emerald_step_event_ordering COMMAND emerald_step_events_test)
+
+
 add_executable(emerald_events_test
     tests/emerald_events_test.c
 )
@@ -355,6 +385,41 @@ endif()
 add_test(NAME r2_littleroot_integration COMMAND r2_littleroot_integration_test)
 
 
+set(R4_LITTLEROOT_GENERATED_C "${R2_LITTLEROOT_GENERATED_DIR}/r4_littleroot_world_generated.c")
+
+execute_process(
+    COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tools/build_r4_littleroot_world_fixture.py"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/vanillaplus"
+        "${R4_LITTLEROOT_GENERATED_C}"
+    RESULT_VARIABLE R4_LITTLEROOT_GENERATE_RESULT
+)
+if(NOT R4_LITTLEROOT_GENERATE_RESULT EQUAL 0)
+    message(FATAL_ERROR "Failed to generate real R4 Littleroot world fixture")
+endif()
+
+add_executable(r4_littleroot_overworld_test
+    tests/r4_littleroot_overworld_test.c
+    "${R4_LITTLEROOT_GENERATED_C}"
+)
+
+target_link_libraries(r4_littleroot_overworld_test PRIVATE remaster_core)
+
+target_include_directories(r4_littleroot_overworld_test
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests
+)
+
+if(MSVC)
+    target_compile_options(r4_littleroot_overworld_test PRIVATE /W4)
+else()
+    target_compile_options(r4_littleroot_overworld_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME r4_littleroot_overworld COMMAND r4_littleroot_overworld_test)
+
+
 add_executable(r1_vanillaplus_integration_test
     tests/r1_vanillaplus_integration_test.c
 )
@@ -381,6 +446,21 @@ if(MSVC)
 else()
     target_compile_options(emerald_save_inspect PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
+
+
+add_executable(emerald_object_runtime_test
+    tests/emerald_object_runtime_test.c
+)
+
+target_link_libraries(emerald_object_runtime_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_object_runtime_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_object_runtime_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME emerald_runtime_object_collision COMMAND emerald_object_runtime_test)
 
 
 add_executable(emerald_object_state_test

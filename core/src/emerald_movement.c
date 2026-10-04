@@ -1,4 +1,8 @@
 #include "remaster/emerald_movement.h"
+#include "remaster/emerald_overworld.h"
+
+#include <limits.h>
+#include <string.h>
 
 static int outside_movement_range(
     const RemasterEmeraldMover *mover,
@@ -44,6 +48,10 @@ static int object_collision(
             &context->objects[i];
 
         if (!object->active || i == mover->self_object_index)
+            continue;
+
+        if (mover->self_object_index == SIZE_MAX
+            && object->player_collision_exempt)
             continue;
 
         if (context->object_collision_exempt != 0
@@ -194,4 +202,410 @@ RemasterEmeraldCollision remaster_emerald_player_basic_collision(
         return REMASTER_EMERALD_COLLISION_LEDGE_JUMP;
 
     return collision;
+}
+
+
+int remaster_emerald_player_step(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldMovementContext *movement,
+    const RemasterEmeraldConnectionDef *connections,
+    size_t connection_count,
+    const RemasterEmeraldWarpEventDef *warps,
+    size_t warp_count,
+    uint8_t direction,
+    RemasterEmeraldPlayerStepResult *out_result)
+{
+    RemasterEmeraldOverworldState state;
+    RemasterEmeraldMover player;
+    RemasterEmeraldCollision collision;
+    int32_t target_x;
+    int32_t target_y;
+    size_t index = 0;
+
+    if (out_result != 0) {
+        out_result->kind = REMASTER_EMERALD_PLAYER_STEP_INVALID;
+        out_result->collision = REMASTER_EMERALD_COLLISION_IMPASSABLE;
+        out_result->x = 0;
+        out_result->y = 0;
+        out_result->elevation = 0;
+        out_result->warp_index = SIZE_MAX;
+        out_result->connection_index = SIZE_MAX;
+    }
+
+    if (save == 0
+        || movement == 0
+        || movement->map == 0
+        || out_result == 0
+        || !remaster_emerald_map_is_valid(movement->map)
+        || direction < REMASTER_EMERALD_DIR_SOUTH
+        || direction > REMASTER_EMERALD_DIR_EAST)
+        return 0;
+
+    if (!remaster_emerald_overworld_get(save, &state))
+        return 0;
+
+    if (state.player_x < 0
+        || state.player_y < 0
+        || state.player_x >= movement->map->width
+        || state.player_y >= movement->map->height)
+        return 0;
+
+    out_result->x = state.player_x;
+    out_result->y = state.player_y;
+    out_result->elevation = remaster_emerald_map_elevation_at(
+        movement->map,
+        state.player_x,
+        state.player_y);
+
+    target_x = state.player_x;
+    target_y = state.player_y;
+    remaster_emerald_move_coords(direction, &target_x, &target_y);
+
+    if (target_x < 0
+        || target_y < 0
+        || target_x >= movement->map->width
+        || target_y >= movement->map->height) {
+        if (connections != 0
+            && remaster_emerald_find_incoming_connection(
+                connections,
+                connection_count,
+                direction,
+                state.player_x,
+                state.player_y,
+                (int16_t)movement->map->width,
+                (int16_t)movement->map->height,
+                &index)) {
+            out_result->kind = REMASTER_EMERALD_PLAYER_STEP_CONNECTION;
+            out_result->collision = REMASTER_EMERALD_COLLISION_NONE;
+            out_result->connection_index = index;
+            return 1;
+        }
+
+        out_result->kind = REMASTER_EMERALD_PLAYER_STEP_BLOCKED;
+        out_result->collision = REMASTER_EMERALD_COLLISION_IMPASSABLE;
+        return 1;
+    }
+
+    player.current_x = state.player_x;
+    player.current_y = state.player_y;
+    player.initial_x = state.player_x;
+    player.initial_y = state.player_y;
+    player.range_x = 0u;
+    player.range_y = 0u;
+    player.current_elevation = out_result->elevation;
+    player.tracked_by_camera = 1u;
+    player.self_object_index = SIZE_MAX;
+
+    collision = remaster_emerald_player_basic_collision(
+        movement,
+        &player,
+        direction);
+
+    if (collision == REMASTER_EMERALD_COLLISION_LEDGE_JUMP) {
+        /*
+         * Vanilla PlayerJumpLedge uses the JUMP_2 movement action. The ledge
+         * behavior is on the adjacent tile; the authoritative destination is
+         * one additional tile in the same direction.
+         */
+        remaster_emerald_move_coords(
+            direction,
+            &target_x,
+            &target_y);
+
+        if (target_x < 0
+            || target_y < 0
+            || target_x >= movement->map->width
+            || target_y >= movement->map->height) {
+            out_result->kind = REMASTER_EMERALD_PLAYER_STEP_BLOCKED;
+            out_result->collision = REMASTER_EMERALD_COLLISION_IMPASSABLE;
+            return 1;
+        }
+
+        state.player_x = (int16_t)target_x;
+        state.player_y = (int16_t)target_y;
+
+        if (!remaster_emerald_overworld_set(save, &state))
+            return 0;
+
+        out_result->kind = REMASTER_EMERALD_PLAYER_STEP_LEDGE_JUMP;
+        out_result->collision = REMASTER_EMERALD_COLLISION_LEDGE_JUMP;
+    } else {
+        if (collision != REMASTER_EMERALD_COLLISION_NONE) {
+            out_result->kind = REMASTER_EMERALD_PLAYER_STEP_BLOCKED;
+            out_result->collision = collision;
+            return 1;
+        }
+
+        state.player_x = (int16_t)target_x;
+        state.player_y = (int16_t)target_y;
+
+        if (!remaster_emerald_overworld_set(save, &state))
+            return 0;
+
+        out_result->kind = REMASTER_EMERALD_PLAYER_STEP_MOVED;
+        out_result->collision = REMASTER_EMERALD_COLLISION_NONE;
+    }
+    out_result->x = state.player_x;
+    out_result->y = state.player_y;
+    out_result->elevation = remaster_emerald_map_elevation_at(
+        movement->map,
+        state.player_x,
+        state.player_y);
+
+    if (warps != 0
+        && remaster_emerald_find_warp(
+            warps,
+            warp_count,
+            state.player_x,
+            state.player_y,
+            out_result->elevation,
+            &index)) {
+        out_result->kind = REMASTER_EMERALD_PLAYER_STEP_WARP;
+        out_result->warp_index = index;
+    }
+
+    return 1;
+}
+
+
+
+static void init_overworld_action_result(
+    RemasterEmeraldOverworldActionResult *out_result)
+{
+    if (out_result == 0)
+        return;
+
+    memset(out_result, 0, sizeof(*out_result));
+    out_result->kind = REMASTER_EMERALD_OVERWORLD_ACTION_INVALID;
+    out_result->collision = REMASTER_EMERALD_COLLISION_IMPASSABLE;
+    out_result->connection_index = SIZE_MAX;
+    out_result->warp_index = SIZE_MAX;
+    out_result->coord_event_index = SIZE_MAX;
+    out_result->next_coord_event_index = SIZE_MAX;
+}
+
+static int finish_overworld_action_events(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldMapView *map,
+    const RemasterEmeraldCoordEventDef *coord_events,
+    size_t coord_event_count,
+    size_t coord_start_index,
+    const RemasterEmeraldWarpEventDef *warps,
+    size_t warp_count,
+    uint8_t direction,
+    int ledge_jump,
+    RemasterEmeraldOverworldActionResult *out_result)
+{
+    RemasterEmeraldOverworldState state;
+    RemasterEmeraldStepEventResult event_result;
+    size_t directional_warp_index = SIZE_MAX;
+    uint8_t elevation;
+    uint8_t behavior;
+
+    if (save == 0
+        || map == 0
+        || out_result == 0
+        || !remaster_emerald_map_is_valid(map)
+        || direction < REMASTER_EMERALD_DIR_SOUTH
+        || direction > REMASTER_EMERALD_DIR_EAST)
+        return 0;
+
+    if (!remaster_emerald_overworld_get(save, &state))
+        return 0;
+
+    if (state.player_x < 0
+        || state.player_y < 0
+        || state.player_x >= map->width
+        || state.player_y >= map->height)
+        return 0;
+
+    elevation = remaster_emerald_map_elevation_at(
+        map,
+        state.player_x,
+        state.player_y);
+    behavior = remaster_emerald_map_behavior_at(
+        map,
+        state.player_x,
+        state.player_y);
+
+    memset(&event_result, 0, sizeof(event_result));
+    if (!remaster_emerald_process_step_events(
+            save,
+            coord_events,
+            coord_event_count,
+            coord_start_index,
+            warps,
+            warp_count,
+            state.player_x,
+            state.player_y,
+            elevation,
+            behavior,
+            0,
+            0,
+            &event_result))
+        return 0;
+
+    out_result->x = state.player_x;
+    out_result->y = state.player_y;
+    out_result->elevation = elevation;
+    out_result->direction = direction;
+    out_result->ledge_jump = ledge_jump ? 1u : 0u;
+    out_result->weather_changed = event_result.weather_changed;
+    out_result->weather = event_result.weather;
+    out_result->coord_event_index = event_result.coord_event_index;
+    out_result->next_coord_event_index =
+        event_result.next_coord_event_index;
+    out_result->script_id = event_result.script_id;
+
+    switch (event_result.kind) {
+    case REMASTER_EMERALD_STEP_EVENT_IMMEDIATE_SCRIPT:
+        out_result->kind =
+            REMASTER_EMERALD_OVERWORLD_ACTION_IMMEDIATE_SCRIPT;
+        return 1;
+
+    case REMASTER_EMERALD_STEP_EVENT_COORD_SCRIPT:
+        out_result->kind =
+            REMASTER_EMERALD_OVERWORLD_ACTION_COORD_SCRIPT;
+        return 1;
+
+    case REMASTER_EMERALD_STEP_EVENT_WARP:
+        out_result->kind = REMASTER_EMERALD_OVERWORLD_ACTION_WARP;
+        out_result->warp_index = event_result.warp_index;
+        return 1;
+
+    case REMASTER_EMERALD_STEP_EVENT_NONE:
+        break;
+
+    default:
+        return 0;
+    }
+
+    if (remaster_emerald_find_directional_warp(
+            warps,
+            warp_count,
+            state.player_x,
+            state.player_y,
+            elevation,
+            behavior,
+            direction,
+            &directional_warp_index)) {
+        out_result->kind = REMASTER_EMERALD_OVERWORLD_ACTION_WARP;
+        out_result->warp_index = directional_warp_index;
+        return 1;
+    }
+
+    out_result->kind = ledge_jump
+        ? REMASTER_EMERALD_OVERWORLD_ACTION_LEDGE_JUMP
+        : REMASTER_EMERALD_OVERWORLD_ACTION_MOVED;
+    out_result->collision = ledge_jump
+        ? REMASTER_EMERALD_COLLISION_LEDGE_JUMP
+        : REMASTER_EMERALD_COLLISION_NONE;
+    return 1;
+}
+
+int remaster_emerald_overworld_continue_action(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldMapView *map,
+    const RemasterEmeraldCoordEventDef *coord_events,
+    size_t coord_event_count,
+    size_t coord_start_index,
+    const RemasterEmeraldWarpEventDef *warps,
+    size_t warp_count,
+    uint8_t direction,
+    int ledge_jump,
+    RemasterEmeraldOverworldActionResult *out_result)
+{
+    if (out_result == 0)
+        return 0;
+
+    init_overworld_action_result(out_result);
+    return finish_overworld_action_events(
+        save,
+        map,
+        coord_events,
+        coord_event_count,
+        coord_start_index,
+        warps,
+        warp_count,
+        direction,
+        ledge_jump,
+        out_result);
+}
+
+int remaster_emerald_overworld_step_action(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldMovementContext *movement,
+    const RemasterEmeraldConnectionDef *connections,
+    size_t connection_count,
+    const RemasterEmeraldCoordEventDef *coord_events,
+    size_t coord_event_count,
+    const RemasterEmeraldWarpEventDef *warps,
+    size_t warp_count,
+    uint8_t direction,
+    RemasterEmeraldOverworldActionResult *out_result)
+{
+    RemasterEmeraldPlayerStepResult step_result;
+
+    if (out_result == 0)
+        return 0;
+
+    init_overworld_action_result(out_result);
+    memset(&step_result, 0, sizeof(step_result));
+
+    if (!remaster_emerald_player_step(
+            save,
+            movement,
+            connections,
+            connection_count,
+            0,
+            0,
+            direction,
+            &step_result))
+        return 0;
+
+    out_result->collision = step_result.collision;
+    out_result->x = step_result.x;
+    out_result->y = step_result.y;
+    out_result->elevation = step_result.elevation;
+    out_result->direction = direction;
+    out_result->connection_index = step_result.connection_index;
+
+    switch (step_result.kind) {
+    case REMASTER_EMERALD_PLAYER_STEP_BLOCKED:
+        out_result->kind = REMASTER_EMERALD_OVERWORLD_ACTION_BLOCKED;
+        return 1;
+
+    case REMASTER_EMERALD_PLAYER_STEP_CONNECTION:
+        out_result->kind = REMASTER_EMERALD_OVERWORLD_ACTION_CONNECTION;
+        return 1;
+
+    case REMASTER_EMERALD_PLAYER_STEP_MOVED:
+        return finish_overworld_action_events(
+            save,
+            movement->map,
+            coord_events,
+            coord_event_count,
+            0u,
+            warps,
+            warp_count,
+            direction,
+            0,
+            out_result);
+
+    case REMASTER_EMERALD_PLAYER_STEP_LEDGE_JUMP:
+        return finish_overworld_action_events(
+            save,
+            movement->map,
+            coord_events,
+            coord_event_count,
+            0u,
+            warps,
+            warp_count,
+            direction,
+            1,
+            out_result);
+
+    default:
+        return 0;
+    }
 }

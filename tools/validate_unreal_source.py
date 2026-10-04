@@ -139,6 +139,70 @@ def main() -> int:
         errors,
     )
 
+    world_gameplay_h = (
+        MODULE / "RemasterWorldGameplaySubsystem.h"
+    ).read_text(encoding="utf-8")
+    require(
+        "bool StepPlayer(" in world_gameplay_h
+        and "FRemasterPlayerStepResult" in world_gameplay_h,
+        "R4 Unreal gameplay bridge must expose the authoritative player-step API",
+        errors,
+    )
+    require(
+        '#include "remaster/emerald_overworld.h"' in world_gameplay
+        and "remaster_emerald_overworld_step_action(" in world_gameplay
+        and "remaster_emerald_overworld_continue_action(" in world_gameplay,
+        "R4 Unreal gameplay bridge must use the shared overworld action runtime",
+        errors,
+    )
+    require(
+        "MapView.blocks = CurrentMap.RawBlocks.GetData();" in world_gameplay
+        and "MapView.primary_attributes =" in world_gameplay
+        and "MapView.secondary_attributes =" in world_gameplay,
+        "R4 player movement must consume R3 decoded map data directly",
+        errors,
+    )
+    require(
+        "remaster_emerald_object_event_visible(" in world_gameplay
+        and "RemasterEmeraldObjectCollider" in world_gameplay,
+        "R4 player movement must feed visible world objects into collision",
+        errors,
+    )
+    require(
+        "ApplyResolvedWarp(Warp)" in world_gameplay
+        and "ApplyResolvedConnection(Connection)" in world_gameplay,
+        "R4 player-step adapter must reuse the production warp/connection paths",
+        errors,
+    )
+
+    require(
+        "RemasterEmeraldObjectRuntime" in world_gameplay
+        and "RebuildRuntimeObjectState()" in world_gameplay
+        and "remaster_emerald_object_runtime_build_colliders(" in world_gameplay,
+        "R4 Unreal gameplay bridge must use portable runtime object state",
+        errors,
+    )
+    require(
+        "SetRuntimeObjectPosition(" in world_gameplay_h
+        and "SetRuntimeObjectActive(" in world_gameplay_h
+        and "SetRuntimeObjectPlayerCollisionExempt(" in world_gameplay_h,
+        "R4 world/script host must expose transient runtime object mutations",
+        errors,
+    )
+
+    require(
+        "ContinuePlayerStepEvents(" in world_gameplay_h
+        and "remaster_emerald_overworld_continue_action(" in world_gameplay,
+        "R4 production movement must expose resumable shared-action processing",
+        errors,
+    )
+    require(
+        "remaster_emerald_process_step_events(" not in world_gameplay
+        and "remaster_emerald_player_step(" not in world_gameplay,
+        "R4 Unreal adapter must not duplicate the shared overworld action orchestration",
+        errors,
+    )
+
     world_data_h = (MODULE / "RemasterWorldData.h").read_text(encoding="utf-8")
     world_data_cpp = (MODULE / "RemasterWorldData.cpp").read_text(encoding="utf-8")
     world_catalog_cpp = (
