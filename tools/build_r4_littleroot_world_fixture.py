@@ -118,6 +118,53 @@ def emit_fixture(source_root: Path, output_c: Path) -> None:
                     f"static const RemasterEmeraldWarpEventDef {prefix}_warps[1] = {{{{0}}}};"
                 )
 
+            coord_events = map_doc.get("coord_events", [])
+            if coord_events:
+                lines.append(
+                    f"static const RemasterEmeraldCoordEventDef {prefix}_coords[] = {{"
+                )
+                for event in coord_events:
+                    event_type = event.get("type")
+                    if event_type == "weather":
+                        weather = int(event["weather_id"])
+                        lines.append(
+                            "    {"
+                            "REMASTER_EMERALD_COORD_WEATHER, "
+                            f"{int(event['x'])}, {int(event['y'])}, "
+                            f"{int(event['elevation'])}, "
+                            "0, 0, "
+                            f"{weather}, 0"
+                            "},"
+                        )
+                    elif event_type == "trigger":
+                        script_id = event.get("script_id")
+                        script_literal = (
+                            c_string(script_id)
+                            if script_id is not None
+                            else "0"
+                        )
+                        lines.append(
+                            "    {"
+                            "REMASTER_EMERALD_COORD_TRIGGER, "
+                            f"{int(event['x'])}, {int(event['y'])}, "
+                            f"{int(event['elevation'])}, "
+                            f"{int(event['var_id'])}, "
+                            f"{int(event['var_value_u16'])}, "
+                            "0, "
+                            f"{script_literal}"
+                            "},"
+                        )
+                    else:
+                        raise ValueError(
+                            f"{map_doc['id']}: unsupported coord event type "
+                            f"{event_type!r}"
+                        )
+                lines.append("};")
+            else:
+                lines.append(
+                    f"static const RemasterEmeraldCoordEventDef {prefix}_coords[1] = {{{{0}}}};"
+                )
+
             connections = map_doc.get("connections", [])
             if connections:
                 lines.append(
@@ -178,6 +225,8 @@ def emit_fixture(source_root: Path, output_c: Path) -> None:
                 "        },",
                 f"        {prefix}_warps,",
                 f"        {len(map_doc.get('warp_events', []))},",
+                f"        {prefix}_coords,",
+                f"        {len(map_doc.get('coord_events', []))},",
                 f"        {prefix}_connections,",
                 f"        {len(map_doc.get('connections', []))}",
                 "    },",
