@@ -247,6 +247,35 @@ MapA_EventScript_Talk::
 
             self.assertIn("Missing_Label", str(caught.exception))
 
+
+    def test_inactive_backup_script_file_is_ignored_when_event_manifest_exists(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source(root)
+
+            (root / "data/event_scripts.s").write_text(
+                """
+    .include "data/maps/MapA/scripts.inc"
+    .include "data/scripts/common.inc"
+""".lstrip(),
+                encoding="utf-8",
+            )
+            (root / "data/scripts/common_backup.inc").write_text(
+                """
+Shared_EventScript_Global::
+    end
+""".lstrip(),
+                encoding="utf-8",
+            )
+
+            catalog = build_script_catalog(root)
+
+            self.assertIn("data/scripts/common.inc", catalog["source_files"])
+            self.assertNotIn(
+                "data/scripts/common_backup.inc",
+                catalog["source_files"],
+            )
+
     def test_duplicate_script_label_is_a_hard_error(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
