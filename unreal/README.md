@@ -1,77 +1,133 @@
-# Unreal R0
+# Unreal Production Runtime
 
-The Unreal project is the selected production runtime direction.
+Unreal Engine is the selected production presentation/platform runtime.
 
-## Engine
+Gameplay authority remains in the portable core.
 
-- Unreal Engine 5.8
-- Linux-first build host
-- Android-first runtime target
-- ARM64
-- Target SDK 35
-- Minimum install SDK 26
-- Android NDK r27c
+## Engine target
 
-## R0 objective
+Planned production engine:
 
-Do not build production Hoenn content yet.
+- Unreal Engine 5.8.3;
+- Android-first runtime target;
+- ARM64;
+- real compile/cook/package deferred to R18 on the project PC.
 
-The first Unreal milestone must prove the exact same synthetic contract already used by the portable core:
+Android SDK/NDK/JDK requirements must be re-verified against the exact installed
+UE 5.8.3 build at R18 before toolchain setup.
 
-1. blocked movement;
-2. movement to (3,1);
-3. interaction event;
-4. deterministic encounter;
-5. canonical state hash;
-6. save/load continuation;
-7. touch input;
-8. Android pause/resume persistence.
+## Current status
+
+R5 source/data world-renderer acceptance is complete.
+
+Before R18, the repository may validate:
+
+- Unreal source architecture;
+- portable core behavior;
+- converted world/render data;
+- generated manifests and package integrity.
+
+Before R18, the project does **not** claim:
+
+- successful licensed UE compilation;
+- rendered-frame runtime acceptance;
+- cooked Android package acceptance;
+- APK launch success;
+- BrowserStack real-device success.
 
 ## Architecture
 
-`FRemasterCoreAdapter` is the only presentation-facing entry point during R0.
+Unreal is a presentation/input/audio/platform host.
 
-The portable C implementation is embedded from the root `core/` directory. Unreal must not create a second implementation of movement, collision, event or encounter rules.
+It may:
 
-## Production direction
+- render authoritative world state;
+- present characters and Pokémon;
+- animate;
+- control camera and lighting;
+- show UI;
+- play audio;
+- collect platform input;
+- provide Android lifecycle/platform services.
 
-After R0:
+It must not independently own:
 
-- world data importer;
-- Unreal world-presentation layer;
-- HD/2.5D environment;
-- camera;
-- UMG UI;
-- Niagara VFX;
-- battle presentation;
-- Android device profiles and scalability.
+- movement rules;
+- gameplay collision;
+- scripts;
+- flags/vars;
+- warps/connections;
+- encounter decisions;
+- Pokémon/party/item truth;
+- battle results;
+- story progression;
+- save-domain gameplay truth.
 
-SDL3 remains a regression/reference baseline. Godot is frozen as architecture evidence.
+Input crosses the adapter as explicit actions/commands. The core returns state
+snapshots and one-way presentation events.
 
+## Asset pipeline
 
-## Linux build host
+Commercial character, Pokémon, environment and audio assets are prepared
+locally from user-owned source data where applicable.
 
-The automated engine build path is Linux-first.
+The public repository stores only tooling and redistributable metadata such as:
 
-Expected runner labels:
+- converters;
+- mappings;
+- manifests;
+- hashes/provenance;
+- validators;
+- placeholders/test assets with appropriate redistribution rights.
 
-```text
-self-hosted
-linux
-unreal-5.8
-```
+Extracted commercial models, textures, audio and ROM images must not be
+committed.
 
-The runner must have Unreal Engine 5.8 installed. Set `UE_ROOT` to the engine root or install it in one of these conventional locations:
+## Deferred R18 build stage
 
-- `/opt/UnrealEngine-5.8`
-- `/opt/UnrealEngine`
-- `~/UnrealEngine-5.8`
-- `~/UnrealEngine`
+At R18, on the project PC:
 
-Before compiling, CI runs:
+1. install/verify Unreal Engine 5.8.3;
+2. install/verify the Android toolchain required by that UE build;
+3. compile the production Unreal target;
+4. cook/package Android ARM64;
+5. produce an installable APK;
+6. run local physical-device smoke;
+7. fix compile/cook/runtime problems through normal branch/PR workflow.
 
-```text
-bash tools/unreal_linux_preflight.sh "$UE_ROOT"
-```
+Only after a valid APK exists do BrowserStack real-device tests begin.
 
-The workflow then builds the Linux Development target and uses `RunUAT.sh BuildCookRun` to cook/package the Android ARM64 Development build. The generated APK is uploaded as a GitHub Actions artifact.
+## Presentation phases awaiting real runtime validation
+
+The following phases may be source/data complete before R18, but their final
+runtime gates wait for the real engine build:
+
+- R6 — character/NPC presentation;
+- R7 — environment/camera presentation;
+- R8 — Android input;
+- R9 — UI/HUD/menus;
+- R14 — battle presentation;
+- R15 — audio.
+
+## Self-hosted runner policy
+
+A self-hosted Unreal runner is **not required now**.
+
+If one is introduced later, it must not execute untrusted public-fork pull
+request code with access to the host, credentials or secrets.
+
+The default final plan is to perform the first real production UE/Android build
+on the project PC.
+
+## Historical R0 experiments
+
+SDL3 remains a low-level regression/reference baseline.
+
+Godot experiments are frozen as historical architecture evidence.
+
+Neither is the production presentation runtime.
+
+See the canonical plan:
+
+- `docs/ROADMAP.md`
+- `docs/ARCHITECTURE.md`
