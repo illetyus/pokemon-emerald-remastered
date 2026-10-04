@@ -273,6 +273,10 @@ bool URemasterRenderCatalogSubsystem::ReloadCatalog()
             StringField(Object, TEXT("tiles_png_file"));
         Entry.TilesPngSha256 =
             StringField(Object, TEXT("tiles_png_sha256"));
+        Entry.TilesIndex8File =
+            StringField(Object, TEXT("tiles_index8_file"));
+        Entry.TilesIndex8Sha256 =
+            StringField(Object, TEXT("tiles_index8_sha256"));
         Entry.MetatileCount =
             IntFieldDefault(Object, TEXT("metatile_count"), -1);
 
@@ -283,8 +287,10 @@ bool URemasterRenderCatalogSubsystem::ReloadCatalog()
             || Entry.Id.IsEmpty()
             || !IsSafePackageRelative(Entry.DescriptorFile)
             || !IsSafePackageRelative(Entry.TilesPngFile)
+            || !IsSafePackageRelative(Entry.TilesIndex8File)
             || !IsHexSha256(Entry.DescriptorSha256)
             || !IsHexSha256(Entry.TilesPngSha256)
+            || !IsHexSha256(Entry.TilesIndex8Sha256)
             || Entry.PaletteFiles.Num() != 16
             || Entry.MetatileCount <= 0)
         {
@@ -325,7 +331,8 @@ bool URemasterRenderCatalogSubsystem::ReloadCatalog()
 
         FString Resolved;
         if (!ResolvePackageFile(Entry.DescriptorFile, Resolved)
-            || !ResolvePackageFile(Entry.TilesPngFile, Resolved))
+            || !ResolvePackageFile(Entry.TilesPngFile, Resolved)
+            || !ResolvePackageFile(Entry.TilesIndex8File, Resolved))
         {
             UE_LOG(
                 LogTemp,
@@ -452,6 +459,8 @@ bool URemasterRenderCatalogSubsystem::LoadDescriptor(
         StringField(Root, TEXT("palette_symbol"));
     OutDescriptor.TilesPngRelative =
         StringField(Root, TEXT("tiles_png"));
+    OutDescriptor.TilesIndex8Relative =
+        StringField(Root, TEXT("tiles_index8"));
     OutDescriptor.TilesPngWidth =
         IntFieldDefault(Root, TEXT("tiles_png_width"), -1);
     OutDescriptor.TilesPngHeight =
@@ -469,6 +478,7 @@ bool URemasterRenderCatalogSubsystem::LoadDescriptor(
         || OutDescriptor.bIsSecondary != Entry.bIsSecondary
         || OutDescriptor.MetatileCount != Entry.MetatileCount
         || !IsSafePackageRelative(OutDescriptor.TilesPngRelative)
+        || !IsSafePackageRelative(OutDescriptor.TilesIndex8Relative)
         || OutDescriptor.PaletteFilesRelative.Num() != 16)
     {
         OutError = FString::Printf(
@@ -484,6 +494,16 @@ bool URemasterRenderCatalogSubsystem::LoadDescriptor(
     {
         OutError = FString::Printf(
             TEXT("R5 descriptor tile sheet is missing: %s"),
+            *Entry.Id);
+        return false;
+    }
+
+    if (!ResolvePackageFile(
+            OutDescriptor.TilesIndex8Relative,
+            Resolved))
+    {
+        OutError = FString::Printf(
+            TEXT("R5 descriptor index texture is missing: %s"),
             *Entry.Id);
         return false;
     }
