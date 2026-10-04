@@ -56,6 +56,16 @@ int remaster_emerald_coord_weather_to_weather(
     uint16_t coord_weather,
     uint8_t *out_weather);
 
+int remaster_emerald_find_directional_warp(
+    const RemasterEmeraldWarpEventDef *warps,
+    size_t warp_count,
+    int16_t x,
+    int16_t y,
+    uint8_t elevation,
+    uint8_t metatile_behavior,
+    uint8_t direction,
+    size_t *out_warp_index);
+
 /*
  * Mirrors the step-based portion of Vanilla ProcessPlayerFieldInput:
  * coordinate events are scanned before warp events. Weather coordinate
