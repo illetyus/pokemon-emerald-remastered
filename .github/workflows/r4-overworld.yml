@@ -29,12 +29,13 @@ jobs:
         run: >-
           cmake --build build --config Release --target
           emerald_overworld_step_test
+          emerald_object_runtime_test
           r4_littleroot_overworld_test
 
       - name: Run R4 acceptance
         run: >-
           ctest --test-dir build -C Release
-          -R "emerald_overworld_player_step|r4_littleroot_overworld"
+          -R "emerald_overworld_player_step|emerald_runtime_object_collision|r4_littleroot_overworld"
           --output-on-failure
 
       - name: Validate Unreal R4 adapter architecture
