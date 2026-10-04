@@ -282,17 +282,18 @@ source-gated here.
 
 ## Next phase
 
-R6 — Visual system, camera and environment presentation.
+The canonical remaining-phase order is defined in `docs/ROADMAP.md`.
 
-R6 will build on the R5 authoritative renderer with:
+The next implementation phase is:
 
-- modern 3D environmental language;
-- buildings/props/vegetation;
-- water presentation;
-- lighting/shadows;
-- day/night infrastructure;
-- follow-camera refinement and occlusion;
-- performance-oriented LOD/HLOD.
+**R10 — Map + quest guidance.**
+
+R10 continues on the portable authoritative gameplay/data line before the
+presentation-heavy phases resume.
+
+R6/R7 presentation work remains planned, but it is intentionally deferred until
+R10-R13, R16 and R17 establish the remaining core gameplay/save foundations.
 
 R4 remains the gameplay authority and R5 remains the world-data/render-source
-bridge.
+bridge. Real UE compile/runtime validation is deferred to the final R18 PC
+stage.
