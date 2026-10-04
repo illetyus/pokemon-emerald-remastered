@@ -27,6 +27,8 @@ typedef struct RemasterEmeraldRuntimeObject {
     int32_t current_y;
     int32_t previous_x;
     int32_t previous_y;
+    int32_t initial_x;
+    int32_t initial_y;
     uint8_t elevation;
     uint8_t player_collision_exempt;
 } RemasterEmeraldRuntimeObject;
@@ -116,7 +118,17 @@ int remaster_emerald_object_runtime_load(
     RemasterEmeraldObjectRuntime *runtime,
     const RemasterEmeraldSave *save,
     const RemasterEmeraldObjectEventDef *events,
-    size_t event_count);
+    size_t event_count,
+    int32_t player_x,
+    int32_t player_y);
+
+int remaster_emerald_object_runtime_sync_view(
+    RemasterEmeraldObjectRuntime *runtime,
+    const RemasterEmeraldSave *save,
+    const RemasterEmeraldObjectEventDef *events,
+    size_t event_count,
+    int32_t player_x,
+    int32_t player_y);
 
 int remaster_emerald_object_runtime_find(
     const RemasterEmeraldObjectRuntime *runtime,
