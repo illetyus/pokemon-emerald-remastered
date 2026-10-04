@@ -591,10 +591,13 @@ bool URemasterWorldGameplaySubsystem::SetRuntimeObjectPlayerCollisionExempt(
 
 bool URemasterWorldGameplaySubsystem::ProcessCurrentStepEvents(
     int32 CoordStartIndex,
+    int32 StepDirection,
     FRemasterPlayerStepResult& OutResult)
 {
     if (!bMapReady
         || CoordStartIndex < 0
+        || StepDirection < REMASTER_EMERALD_DIR_SOUTH
+        || StepDirection > REMASTER_EMERALD_DIR_EAST
         || !CurrentMap.IsValid()
         || !GetGameInstance())
     {
@@ -763,6 +766,7 @@ bool URemasterWorldGameplaySubsystem::ProcessCurrentStepEvents(
         return false;
     }
 
+    OutResult.Direction = StepDirection;
     OutResult.ScriptId.Reset();
     OutResult.NextCoordEventIndex = -1;
     OutResult.bWeatherChanged = NativeResult.weather_changed != 0u;
@@ -773,11 +777,64 @@ bool URemasterWorldGameplaySubsystem::ProcessCurrentStepEvents(
     switch (NativeResult.kind)
     {
     case REMASTER_EMERALD_STEP_EVENT_NONE:
+    {
+        size_t DirectionalWarpIndex = SIZE_MAX;
+        const uint8 CurrentElevation =
+            remaster_emerald_map_elevation_at(
+                &MapView,
+                State.player_x,
+                State.player_y);
+        const uint8 CurrentBehavior =
+            remaster_emerald_map_behavior_at(
+                &MapView,
+                State.player_x,
+                State.player_y);
+
+        if (remaster_emerald_find_directional_warp(
+                NativeWarps.IsEmpty() ? nullptr : NativeWarps.GetData(),
+                static_cast<size_t>(NativeWarps.Num()),
+                State.player_x,
+                State.player_y,
+                CurrentElevation,
+                CurrentBehavior,
+                static_cast<uint8>(StepDirection),
+                &DirectionalWarpIndex))
+        {
+            if (DirectionalWarpIndex
+                >= static_cast<size_t>(CurrentMap.WarpEvents.Num()))
+            {
+                return false;
+            }
+
+            const int32 SourceIndex =
+                static_cast<int32>(DirectionalWarpIndex);
+            const FRemasterWarpEventIR& Source =
+                CurrentMap.WarpEvents[SourceIndex];
+
+            FRemasterResolvedWarp Warp{};
+            Warp.SourceEventIndex = SourceIndex;
+            Warp.DestGroupNum = Source.DestGroupNum;
+            Warp.DestMapNum = Source.DestMapNum;
+            Warp.DestWarpId = Source.DestWarpIdNum;
+            Warp.DestMap = Source.DestMap;
+            Warp.bDynamicTarget = Source.bDynamicTarget;
+
+            if (!ApplyResolvedWarp(Warp))
+                return false;
+
+            OutResult.Kind = ERemasterPlayerStepKind::Warp;
+            return PopulatePlayerStepSnapshot(
+                Save,
+                CurrentMap,
+                OutResult);
+        }
+
         OutResult.Kind = ERemasterPlayerStepKind::Moved;
         return PopulatePlayerStepSnapshot(
             Save,
             CurrentMap,
             OutResult);
+    }
 
     case REMASTER_EMERALD_STEP_EVENT_IMMEDIATE_SCRIPT:
     case REMASTER_EMERALD_STEP_EVENT_COORD_SCRIPT:
@@ -851,10 +908,14 @@ bool URemasterWorldGameplaySubsystem::ProcessCurrentStepEvents(
 
 bool URemasterWorldGameplaySubsystem::ContinuePlayerStepEvents(
     int32 CoordStartIndex,
+    int32 StepDirection,
     FRemasterPlayerStepResult& OutResult)
 {
     OutResult = FRemasterPlayerStepResult{};
-    return ProcessCurrentStepEvents(CoordStartIndex, OutResult);
+    return ProcessCurrentStepEvents(
+        CoordStartIndex,
+        StepDirection,
+        OutResult);
 }
 
 
@@ -1034,7 +1095,10 @@ bool URemasterWorldGameplaySubsystem::StepPlayer(
     case REMASTER_EMERALD_PLAYER_STEP_MOVED:
         if (!SyncRuntimeObjectView())
             return false;
-        return ProcessCurrentStepEvents(0, OutResult);
+        return ProcessCurrentStepEvents(
+            0,
+            Direction,
+            OutResult);
 
     case REMASTER_EMERALD_PLAYER_STEP_WARP:
         /* Production passes no warps to player_step; step events own them. */
