@@ -106,6 +106,7 @@ def main() -> int:
         "RemasterWorldGameplaySubsystem.cpp",
         "RemasterRenderCatalogSubsystem.cpp",
         "RemasterRenderCatalogSubsystem.cpp",
+        "RemasterRenderResourceSubsystem.cpp",
         "RemasterOverworldPawn.cpp",
     ]
     for filename in required_runtime_files:
@@ -318,6 +319,69 @@ def main() -> int:
         and "IsSafePackageRelative(" in render_catalog_cpp
         and "FPaths::FileExists(Candidate)" in render_catalog_cpp,
         "R5 render catalog must reject package-path escapes and missing payload files",
+        errors,
+    )
+
+    require(
+        "TilesIndex8File" in render_catalog_h
+        and "TilesIndex8Sha256" in render_catalog_h
+        and "PaletteLutFile" in render_catalog_h
+        and "PaletteLutSha256" in render_catalog_h
+        and 'TEXT("tiles_index8_file")' in render_catalog_cpp
+        and 'TEXT("palette_lut_file")' in render_catalog_cpp,
+        "R5 render catalog must validate indexed tile and palette LUT payloads",
+        errors,
+    )
+
+    render_resources_h = (
+        MODULE / "RemasterRenderResourceSubsystem.h"
+    ).read_text(encoding="utf-8")
+    render_resources_cpp = (
+        MODULE / "RemasterRenderResourceSubsystem.cpp"
+    ).read_text(encoding="utf-8")
+    require(
+        "URemasterRenderResourceSubsystem" in render_resources_h
+        and "LoadTilesetResources(" in render_resources_h
+        and "ResourceCache" in render_resources_h,
+        "R5 must expose a cached runtime render-resource subsystem",
+        errors,
+    )
+    require(
+        "PF_G8" in render_resources_cpp
+        and "PF_B8G8R8A8" in render_resources_cpp
+        and "TF_Nearest" in render_resources_cpp
+        and "FFileHelper::LoadFileToArray(" in render_resources_cpp,
+        "R5 runtime must upload packaged index/palette bytes as nearest-filter textures",
+        errors,
+    )
+    require(
+        "Entry->DescriptorSha256" in render_resources_cpp
+        and "Entry->TilesIndex8Sha256" in render_resources_cpp
+        and "Entry->PaletteLutSha256" in render_resources_cpp
+        and "ResourceCache.Find(CacheKey)" in render_resources_cpp
+        and "ResourceCache.Add(CacheKey, Resources)" in render_resources_cpp,
+        "R5 render resources must be cached by tileset payload fingerprints",
+        errors,
+    )
+    require(
+        "ParseJascPalette" not in render_resources_cpp
+        and "LoadFileToString" not in render_resources_cpp,
+        "R5 runtime must consume prebuilt binary render payloads rather than decode source palettes per load",
+        errors,
+    )
+    require(
+        '#include "RemasterRenderResourceSubsystem.h"' in world_actor
+        and "LoadTilesetResources(" in world_actor
+        and "UMaterialInstanceDynamic::Create(" in world_actor
+        and 'TEXT("R5_TileIndexTexture")' in world_actor
+        and 'TEXT("R5_PaletteTexture")' in world_actor
+        and 'TEXT("R5_TilesPerRow")' in world_actor,
+        "R5 world renderer must bind cached index/palette resources into the material path",
+        errors,
+    )
+    require(
+        "TSoftObjectPtr<UMaterialInterface> MetatileMaterial;" in visual_style_h,
+        "R5 visual style must expose the indexed metatile base-material contract",
         errors,
     )
 
