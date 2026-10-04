@@ -92,6 +92,9 @@ protected:
     UPROPERTY(EditAnywhere, Category="Remaster|World")
     float PreviewThickness = 10.0f;
 
+    UPROPERTY(EditAnywhere, Category="Remaster|World", meta=(ClampMin="0.0"))
+    float RenderPlaneSpacing = 1.0f;
+
     UPROPERTY(EditAnywhere, Category="Remaster|World|Debug")
     FString StartupMapJson;
 
@@ -109,7 +112,7 @@ private:
 
     FIntPoint ChunkForTile(int32 TileX, int32 TileY) const;
 
-    void BuildRenderChunks();
+    bool BuildRenderChunks();
 
     struct FResolvedMetatileVisual
     {
@@ -122,6 +125,8 @@ private:
 
     UHierarchicalInstancedStaticMeshComponent* ComponentForMetatile(
         const FResolvedMetatileVisual& Visual,
+        const FString& PlaneName,
+        int32 PlaneIndex,
         const FIntPoint& Chunk);
 
     FRemasterMapIR LoadedMap;
