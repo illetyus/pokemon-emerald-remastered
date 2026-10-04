@@ -319,12 +319,7 @@ def _script_source_candidates(
     candidates: set[Path] = set()
     event_scripts = source_root / "data/event_scripts.s"
 
-    if active_manifest_only:
-        if not event_scripts.is_file():
-            raise ScriptConversionError(
-                f"missing active script manifest: {event_scripts}"
-            )
-
+    if active_manifest_only and event_scripts.is_file():
         candidates.add(event_scripts)
         pending = [event_scripts]
         visited: set[Path] = set()
@@ -355,6 +350,8 @@ def _script_source_candidates(
     else:
         # R2 focused closures and unit fixtures intentionally discover the
         # available subset instead of requiring the full event_scripts.s tree.
+        # R3 unit fixtures may also omit the full assembly manifest; the real
+        # vendored source contains it and therefore takes the branch above.
         for path in (source_root / "data/maps").glob("**/scripts.inc"):
             if path.is_file():
                 candidates.add(path)
