@@ -174,6 +174,21 @@ def main() -> int:
         errors,
     )
 
+    require(
+        "RemasterEmeraldObjectRuntime" in world_gameplay
+        and "RebuildRuntimeObjectState()" in world_gameplay
+        and "remaster_emerald_object_runtime_build_colliders(" in world_gameplay,
+        "R4 Unreal gameplay bridge must use portable runtime object state",
+        errors,
+    )
+    require(
+        "SetRuntimeObjectPosition(" in world_gameplay_h
+        and "SetRuntimeObjectActive(" in world_gameplay_h
+        and "SetRuntimeObjectPlayerCollisionExempt(" in world_gameplay_h,
+        "R4 world/script host must expose transient runtime object mutations",
+        errors,
+    )
+
     world_data_h = (MODULE / "RemasterWorldData.h").read_text(encoding="utf-8")
     world_data_cpp = (MODULE / "RemasterWorldData.cpp").read_text(encoding="utf-8")
     world_catalog_cpp = (
