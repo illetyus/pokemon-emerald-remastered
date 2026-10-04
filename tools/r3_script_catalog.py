@@ -54,7 +54,11 @@ def build_script_catalog(source_root: Path) -> dict[str, Any]:
 
     try:
         source_catalog = build_source_catalog(source_root)
-        labels, _labels_by_file = _index_script_sources(source_root, [])
+        labels, _labels_by_file = _index_script_sources(
+            source_root,
+            [],
+            active_manifest_only=True,
+        )
     except (SourceCatalogError, ScriptConversionError) as exc:
         raise R3ScriptCatalogError(str(exc)) from exc
 
