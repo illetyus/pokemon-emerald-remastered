@@ -158,6 +158,35 @@ class R3SourceCatalogTests(unittest.TestCase):
             self.assertEqual(by_name["TestHouse"]["script_ownership"]["kind"], "shared")
             self.assertEqual(by_name["TestRoute"]["script_ownership"]["kind"], "none")
 
+
+    def test_global_shared_script_owner_is_supported(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source(root)
+            path = root / "data/maps/TestHouse/map.json"
+            doc = json.loads(path.read_text(encoding="utf-8"))
+            doc["shared_scripts_map"] = "SharedHub"
+            write_json(path, doc)
+
+            shared = root / "data/scripts/shared_hub.inc"
+            shared.parent.mkdir(parents=True, exist_ok=True)
+            shared.write_text(
+                "SharedHub_MapScripts::\n    .byte 0\n",
+                encoding="utf-8",
+            )
+
+            catalog = build_source_catalog(root)
+            by_name = {item["name"]: item for item in catalog["maps"]}
+
+            self.assertEqual(
+                by_name["TestHouse"]["script_ownership"],
+                {"kind": "shared", "owner": "SharedHub"},
+            )
+            self.assertEqual(
+                catalog["global_shared_script_sources"]["SharedHub"],
+                "data/scripts/shared_hub.inc",
+            )
+
     def test_pinned_baseline_metadata_fixture(self):
         fixture = json.loads(
             (ROOT / "tests/fixtures/r3/vanillaplus_catalog.json").read_text(
