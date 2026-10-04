@@ -81,12 +81,93 @@ def symbol_path_index(text: str, c_type: str, prefix: str) -> dict[str, str]:
     return {match.group(1): match.group(2) for match in pattern.finditer(text)}
 
 
+def palette_path_index(text: str) -> dict[str, list[str]]:
+    pattern = re.compile(
+        r"const\s+u16\s+"
+        r"(gTilesetPalettes_[A-Za-z0-9_]+)\[\]\[16\]\s*=\s*"
+        r"\{(.*?)\};",
+        re.DOTALL,
+    )
+    incbin = re.compile(r'INCBIN_U16\("([^"]+)"\)')
+    result: dict[str, list[str]] = {}
+
+    for match in pattern.finditer(text):
+        paths = incbin.findall(match.group(2))
+        if paths:
+            result[match.group(1)] = paths
+
+    return result
+
+
+def source_palette_path(compiled_path: str) -> Path:
+    path = Path(compiled_path)
+    if path.suffix != ".gbapal":
+        raise ValueError(
+            f"{compiled_path}: expected compiled .gbapal palette path"
+        )
+    return path.with_suffix(".pal")
+
+
+def resolve_visual_asset_root(
+    source_root: Path,
+    tileset: str,
+    metatile_root: Path,
+    tile_symbol: str,
+    palette_symbol: str,
+    tile_paths: dict[str, str],
+    palette_paths: dict[str, list[str]],
+) -> tuple[Path, list[Path]]:
+    tile_compiled = tile_paths.get(tile_symbol)
+    palette_compiled = palette_paths.get(palette_symbol)
+
+    if tile_compiled is not None:
+        visual_root = Path(tile_compiled).parent
+    else:
+        visual_root = metatile_root
+
+    tiles_png = source_root / visual_root / "tiles.png"
+    palettes_dir = source_root / visual_root / "palettes"
+
+    if palette_compiled is not None:
+        source_palettes = [
+            source_palette_path(path)
+            for path in palette_compiled
+        ]
+        palette_roots = {path.parent.parent for path in source_palettes}
+        if len(palette_roots) != 1:
+            raise ValueError(
+                f"{tileset}: palette symbol {palette_symbol} spans "
+                f"multiple asset roots: {sorted(map(str, palette_roots))}"
+            )
+        palette_root = next(iter(palette_roots))
+        if palette_root != visual_root:
+            raise ValueError(
+                f"{tileset}: tile root {visual_root} and palette root "
+                f"{palette_root} disagree"
+            )
+    else:
+        source_palettes = [
+            visual_root / "palettes" / f"{index:02d}.pal"
+            for index in range(16)
+        ]
+
+    if not tiles_png.is_file() or not palettes_dir.is_dir():
+        raise FileNotFoundError(
+            f"{tileset}: unresolved visual source root {visual_root}; "
+            f"tile symbol={tile_symbol}, palette symbol={palette_symbol}"
+        )
+
+    return visual_root, source_palettes
+
+
 def parse_tileset_headers(source_root: Path) -> list[dict[str, Any]]:
     headers_path = source_root / "src/data/tilesets/headers.h"
     metatiles_path = source_root / "src/data/tilesets/metatiles.h"
+    graphics_path = source_root / "src/data/tilesets/graphics.h"
 
     headers = headers_path.read_text(encoding="utf-8")
     metatiles = metatiles_path.read_text(encoding="utf-8")
+    graphics = graphics_path.read_text(encoding="utf-8")
 
     metatile_paths = symbol_path_index(
         metatiles,
@@ -98,6 +179,13 @@ def parse_tileset_headers(source_root: Path) -> list[dict[str, Any]]:
         "u16",
         "gMetatileAttributes_",
     )
+
+    tile_paths = symbol_path_index(
+        graphics,
+        "u32",
+        "gTilesetTiles_",
+    )
+    palette_paths = palette_path_index(graphics)
 
     tileset_pattern = re.compile(
         r"const\s+struct\s+Tileset\s+"
@@ -129,6 +217,8 @@ def parse_tileset_headers(source_root: Path) -> list[dict[str, Any]]:
 
         compressed_token = field(body, "isCompressed")
         secondary_token = field(body, "isSecondary")
+        tile_symbol = field(body, "tiles")
+        palette_symbol = field(body, "palettes")
         metatile_symbol = field(body, "metatiles")
         attribute_symbol = field(body, "metatileAttributes")
         callback = field(body, "callback")
@@ -162,8 +252,18 @@ def parse_tileset_headers(source_root: Path) -> list[dict[str, Any]]:
 
         metatile_file = source_root / metatile_rel
         attribute_file = source_root / attribute_rel
-        tiles_png = source_root / asset_root / "tiles.png"
-        palettes_dir = source_root / asset_root / "palettes"
+
+        visual_root, palette_rel_paths = resolve_visual_asset_root(
+            source_root,
+            tileset,
+            asset_root,
+            tile_symbol,
+            palette_symbol,
+            tile_paths,
+            palette_paths,
+        )
+        tiles_png = source_root / visual_root / "tiles.png"
+        palettes_dir = source_root / visual_root / "palettes"
 
         for required in (
             metatile_file,
@@ -197,10 +297,10 @@ def parse_tileset_headers(source_root: Path) -> list[dict[str, Any]]:
                 f"{tiles_png}: tile sheet dimensions must be 8px aligned"
             )
 
-        palettes = sorted(
-            path for path in palettes_dir.iterdir()
-            if path.is_file() and path.suffix == ".pal"
-        )
+        palettes = [
+            source_root / path
+            for path in palette_rel_paths
+        ]
         expected_palette_names = [
             f"{index:02d}.pal"
             for index in range(16)
@@ -214,6 +314,10 @@ def parse_tileset_headers(source_root: Path) -> list[dict[str, Any]]:
             )
 
         for palette in palettes:
+            if not palette.is_file():
+                raise FileNotFoundError(
+                    f"{tileset}: missing source palette {palette}"
+                )
             validate_jasc_palette(palette)
 
         records.append(
@@ -222,8 +326,11 @@ def parse_tileset_headers(source_root: Path) -> list[dict[str, Any]]:
                 "is_compressed": compressed_token == "TRUE",
                 "is_secondary": secondary_token == "TRUE",
                 "callback": None if callback == "NULL" else callback,
-                "asset_root": asset_root.as_posix(),
-                "tiles_png": (asset_root / "tiles.png").as_posix(),
+                "metatile_asset_root": asset_root.as_posix(),
+                "visual_asset_root": visual_root.as_posix(),
+                "tile_symbol": tile_symbol,
+                "palette_symbol": palette_symbol,
+                "tiles_png": (visual_root / "tiles.png").as_posix(),
                 "tiles_png_width": width,
                 "tiles_png_height": height,
                 "tile_count": (width // 8) * (height // 8),
