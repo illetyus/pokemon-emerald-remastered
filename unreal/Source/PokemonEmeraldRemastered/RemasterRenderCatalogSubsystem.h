@@ -67,6 +67,7 @@ struct FRemasterTilesetRenderDescriptor
     FString TileSymbol;
     FString PaletteSymbol;
     FString TilesPngRelative;
+    FString TilesIndex8Relative;
     int32 TilesPngWidth = 0;
     int32 TilesPngHeight = 0;
     int32 TileCount = 0;
@@ -78,6 +79,7 @@ struct FRemasterTilesetRenderDescriptor
     {
         return !Id.IsEmpty()
             && !TilesPngRelative.IsEmpty()
+            && !TilesIndex8Relative.IsEmpty()
             && TilesPngWidth > 0
             && TilesPngHeight > 0
             && TileCount > 0
@@ -95,6 +97,8 @@ struct FRemasterRenderCatalogEntry
     FString DescriptorSha256;
     FString TilesPngFile;
     FString TilesPngSha256;
+    FString TilesIndex8File;
+    FString TilesIndex8Sha256;
     TArray<FString> PaletteFiles;
     int32 MetatileCount = 0;
 };
