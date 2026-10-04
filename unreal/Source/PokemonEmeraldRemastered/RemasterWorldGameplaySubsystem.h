@@ -51,6 +51,9 @@ struct FRemasterPlayerStepResult
     bool bWeatherChanged = false;
 
     UPROPERTY(BlueprintReadOnly)
+    bool bLedgeJump = false;
+
+    UPROPERTY(BlueprintReadOnly)
     int32 WeatherId = -1;
 
     UPROPERTY(BlueprintReadOnly)
