@@ -12,6 +12,8 @@ enum class ERemasterPlayerStepKind : uint8
     Invalid,
     Blocked,
     Moved,
+    ImmediateCoordScript,
+    CoordScript,
     Warp,
     Connection
 };
@@ -35,6 +37,18 @@ struct FRemasterPlayerStepResult
 
     UPROPERTY(BlueprintReadOnly)
     int32 Elevation = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    FString ScriptId;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 NextCoordEventIndex = -1;
+
+    UPROPERTY(BlueprintReadOnly)
+    bool bWeatherChanged = false;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 WeatherId = -1;
 
     UPROPERTY(BlueprintReadOnly)
     FString MapId;
@@ -215,6 +229,15 @@ public:
         int32 Direction,
         FRemasterPlayerStepResult& OutResult);
 
+    /*
+     * Resume the remaining coord-event scan after the host synchronously
+     * executes an ImmediateCoordScript result.
+     */
+    UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
+    bool ContinuePlayerStepEvents(
+        int32 CoordStartIndex,
+        FRemasterPlayerStepResult& OutResult);
+
     // Internal world/script host bridge for transient runtime object state.
     bool SetRuntimeObjectActive(int32 LocalId, bool bActive);
     bool SetRuntimeObjectPosition(
@@ -271,6 +294,9 @@ private:
         const FRemasterMapIR& Map);
     bool RebuildRuntimeObjectState();
     bool SyncRuntimeObjectView();
+    bool ProcessCurrentStepEvents(
+        int32 CoordStartIndex,
+        FRemasterPlayerStepResult& OutResult);
 
     FRemasterMapIR CurrentMap;
     void* NativeObjectRuntime = nullptr;
