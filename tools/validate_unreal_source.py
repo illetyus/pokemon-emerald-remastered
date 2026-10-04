@@ -118,9 +118,6 @@ def main() -> int:
     world_gameplay_h = (
         MODULE / "RemasterWorldGameplaySubsystem.h"
     ).read_text(encoding="utf-8")
-    world_gameplay_h = (
-        MODULE / "RemasterWorldGameplaySubsystem.h"
-    ).read_text(encoding="utf-8")
     require(
         "LoadedMap.MetatileIds[Index]" in world_actor,
         "world renderer must select visuals by decoded metatile id",
