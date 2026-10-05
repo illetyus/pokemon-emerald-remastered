@@ -196,6 +196,7 @@ typedef struct RemasterEmeraldBattleMon {
     uint8_t last_damage_from;
     uint8_t last_damage_type;
     uint8_t last_damage_was_physical;
+    uint8_t last_damage_turn;
     uint8_t side;
     uint8_t party_slot;
     uint8_t active;
