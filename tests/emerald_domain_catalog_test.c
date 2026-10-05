@@ -161,7 +161,7 @@ int main(void)
             "Bulbasaur level-up learnset mismatch"))
         return 1;
 
-        evolution = remaster_emerald_species_evolutions(64); /* Kadabra */
+    evolution = remaster_emerald_species_evolutions(64); /* Kadabra */
     if (!check(
             evolution != 0
             && evolution[0].method == 4
