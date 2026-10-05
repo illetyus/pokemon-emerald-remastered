@@ -171,6 +171,50 @@ int main(void)
             "capture Ball must survive R11 storage round-trip"))
         return 1;
 
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER,
+        0x11223344u);
+    if (!check(
+            remaster_emerald_battle_start_trainer_from_save(
+                &battle,
+                &save,
+                1),
+            "catalog-backed Sawyer trainer battle should start"))
+        return 1;
+    if (!check(
+            (battle.battle_type_flags
+                & REMASTER_EMERALD_BATTLE_TYPE_TRAINER) != 0
+                && battle.opponent_trainer_id == 1
+                && battle.opponent_trainer_ai_flags
+                    == (REMASTER_EMERALD_AI_CHECK_BAD_MOVE
+                        | REMASTER_EMERALD_AI_TRY_TO_FAINT
+                        | REMASTER_EMERALD_AI_CHECK_VIABILITY)
+                && battle.party_count[1] == 1
+                && battle.battlers[1].species == 74,
+            "trainer metadata and generated opponent party must reach battle state"))
+        return 1;
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER,
+        0x55667788u);
+    if (!check(
+            remaster_emerald_battle_start_trainer_from_save(
+                &battle,
+                &save,
+                51),
+            "catalog-backed Gabby & Ty double battle should start"))
+        return 1;
+    if (!check(
+            (battle.battle_type_flags
+                & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE) != 0
+                && battle.party_count[1] == 2
+                && battle.battlers[2].active
+                && battle.battlers[3].active,
+            "trainer double-battle metadata must activate both flanks"))
+        return 1;
+
     puts("r13 encounter-battle integration test passed");
     return 0;
 }
