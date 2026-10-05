@@ -5819,11 +5819,130 @@ static void battle_ai_apply_risky(
     }
 }
 
+static void battle_ai_apply_double_battle(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t target,
+    int scores[4])
+{
+    const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
+    const RemasterEmeraldBattleMon *chosen = &battle->battlers[target];
+    const uint8_t partner_id = (uint8_t)(battler ^ 2u);
+    const RemasterEmeraldBattleMon *partner =
+        battle_valid_battler(partner_id)
+            && battle->battlers[partner_id].active
+            && !battle->battlers[partner_id].fainted
+        ? &battle->battlers[partner_id]
+        : 0;
+    uint8_t slot;
+
+    for (slot = 0; slot < 4; ++slot) {
+        const RemasterEmeraldMoveInfo *move;
+
+        if (scores[slot] < 0)
+            continue;
+        move = remaster_emerald_move_info(user->moves[slot]);
+        if (move == 0)
+            continue;
+
+        if (chosen->side == user->side) {
+            if (move->power != 0) {
+                if (move->type == TYPE_FIRE
+                    && chosen->ability == ABILITY_FLASH_FIRE
+                    && !chosen->flash_fire)
+                    battle_ai_score_add(scores, slot, 3);
+                else
+                    battle_ai_score_add(scores, slot, -30);
+                continue;
+            }
+
+            switch (move->effect) {
+            case EFFECT_WILL_O_WISP:
+            case EFFECT_TOXIC:
+                if (chosen->ability == ABILITY_GUTS
+                    && chosen->pokemon.status == 0
+                    && user->pokemon.hp * 100u
+                        >= user->pokemon.max_hp * 91u)
+                    battle_ai_score_add(scores, slot, 5);
+                else
+                    battle_ai_score_add(scores, slot, -30);
+                break;
+            case EFFECT_HELPING_HAND:
+                if (remaster_emerald_battle_random(&battle->rng)
+                        % 256u < 64u)
+                    battle_ai_score_add(scores, slot, -1);
+                else
+                    battle_ai_score_add(scores, slot, 2);
+                break;
+            case EFFECT_SWAGGER:
+                if (chosen->held_item == 140u
+                    && chosen->stat_stages[1] <= 7u)
+                    battle_ai_score_add(scores, slot, 3);
+                else if (chosen->held_item != 140u)
+                    battle_ai_score_add(scores, slot, -30);
+                break;
+            case EFFECT_SKILL_SWAP:
+                if (chosen->ability == ABILITY_TRUANT)
+                    battle_ai_score_add(scores, slot, 10);
+                else
+                    battle_ai_score_add(scores, slot, -30);
+                break;
+            default:
+                battle_ai_score_add(scores, slot, -30);
+                break;
+            }
+            continue;
+        }
+
+        if ((move->effect == EFFECT_EARTHQUAKE
+                || move->effect == EFFECT_MAGNITUDE)
+            && partner != 0) {
+            if (partner->ability == ABILITY_LEVITATE
+                || partner->types[0] == TYPE_FLYING
+                || partner->types[1] == TYPE_FLYING) {
+                battle_ai_score_add(scores, slot, 2);
+            } else if (partner->types[0] == TYPE_FIRE
+                || partner->types[1] == TYPE_FIRE
+                || partner->types[0] == TYPE_ELECTRIC
+                || partner->types[1] == TYPE_ELECTRIC
+                || partner->types[0] == TYPE_POISON
+                || partner->types[1] == TYPE_POISON
+                || partner->types[0] == TYPE_ROCK
+                || partner->types[1] == TYPE_ROCK) {
+                battle_ai_score_add(scores, slot, -10);
+            } else {
+                battle_ai_score_add(scores, slot, -3);
+            }
+        }
+
+        if (move->type == TYPE_FIRE && user->flash_fire)
+            battle_ai_score_add(scores, slot, 1);
+
+        if (user->ability == ABILITY_GUTS
+            && user->pokemon.status != 0
+            && partner != 0) {
+            uint8_t partner_slot;
+            for (partner_slot = 0; partner_slot < 4; ++partner_slot) {
+                const RemasterEmeraldMoveInfo *partner_move =
+                    remaster_emerald_move_info(
+                        partner->moves[partner_slot]);
+                if (partner_move != 0
+                    && partner_move->effect == EFFECT_HELPING_HAND
+                    && move->power != 0) {
+                    battle_ai_score_add(scores, slot, 1);
+                    break;
+                }
+            }
+        }
+    }
+}
+
 static int battle_ai_choose_trainer_move(
     RemasterEmeraldBattleState *battle,
     uint8_t battler,
     uint8_t target,
-    uint8_t *out_slot)
+    uint8_t *out_slot,
+    int *out_score)
 {
     const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
     uint32_t flags = battle->opponent_trainer_ai_flags;
@@ -5852,6 +5971,9 @@ static int battle_ai_choose_trainer_move(
     if (flags & REMASTER_EMERALD_AI_RISKY)
         battle_ai_apply_risky(
             battle, battler, scores);
+    if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE)
+        battle_ai_apply_double_battle(
+            battle, battler, target, scores);
 
     for (slot = 0; slot < 4; ++slot) {
         if (scores[slot] < 0)
@@ -5870,6 +5992,8 @@ static int battle_ai_choose_trainer_move(
 
     *out_slot = best_slots[
         remaster_emerald_battle_random(&battle->rng) % best_count];
+    if (out_score != 0)
+        *out_score = best_score;
     return 1;
 }
 
@@ -5897,9 +6021,60 @@ int remaster_emerald_battle_choose_ai_action(
 
     if ((battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_TRAINER)
         && mon->side == 1) {
-        if (!battle_ai_choose_trainer_move(
-                battle, battler, target, &best_slot))
+        if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE) {
+            uint8_t candidate_targets[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
+            uint8_t candidate_slots[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
+            uint8_t candidate_count = 0;
+            int target_best_score = -1;
+            uint8_t candidate;
+
+            for (candidate = 0;
+                 candidate < REMASTER_EMERALD_BATTLE_MAX_BATTLERS;
+                 ++candidate) {
+                uint8_t move_slot;
+                int move_score;
+
+                if (candidate == battler
+                    || !battle->battlers[candidate].active
+                    || battle->battlers[candidate].fainted)
+                    continue;
+
+                if (!battle_ai_choose_trainer_move(
+                        battle,
+                        battler,
+                        candidate,
+                        &move_slot,
+                        &move_score))
+                    continue;
+
+                if (battle->battlers[candidate].side == mon->side
+                    && move_score < 100)
+                    continue;
+
+                if (move_score > target_best_score) {
+                    target_best_score = move_score;
+                    candidate_targets[0] = candidate;
+                    candidate_slots[0] = move_slot;
+                    candidate_count = 1;
+                } else if (move_score == target_best_score) {
+                    candidate_targets[candidate_count] = candidate;
+                    candidate_slots[candidate_count] = move_slot;
+                    candidate_count++;
+                }
+            }
+
+            if (candidate_count == 0)
+                return 0;
+
+            slot = (uint8_t)(
+                remaster_emerald_battle_random(&battle->rng)
+                % candidate_count);
+            target = candidate_targets[slot];
+            best_slot = candidate_slots[slot];
+        } else if (!battle_ai_choose_trainer_move(
+                battle, battler, target, &best_slot, 0)) {
             return 0;
+        }
     } else {
         for (slot = 0; slot < 4; ++slot) {
             int score = battle_move_score(
