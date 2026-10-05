@@ -118,6 +118,35 @@ class R13BattleSourceContract(unittest.TestCase):
         ):
             self.assertIn(helper, portable)
 
+    def test_trainer_switch_item_ai_is_pinned(self):
+        switch_items = (
+            VENDOR / "src/battle_ai_switch_items.c"
+        ).read_text(encoding="utf-8")
+        portable = R13.read_text(encoding="utf-8")
+
+        for source_helper in (
+            "ShouldSwitchIfPerishSong",
+            "ShouldSwitchIfWonderGuard",
+            "FindMonThatAbsorbsOpponentsMove",
+            "ShouldSwitchIfNaturalCure",
+            "ShouldUseItem",
+            "AI_TrySwitchOrUseItem",
+        ):
+            self.assertIn(source_helper, switch_items)
+
+        for portable_helper in (
+            "battle_ai_choose_switch_action",
+            "battle_ai_find_absorbing_switch",
+            "battle_ai_choose_item_action",
+            "battle_use_trainer_item",
+        ):
+            self.assertIn(portable_helper, portable)
+
+        self.assertIn(
+            "case REMASTER_EMERALD_BATTLE_ACTION_ITEM:",
+            portable,
+        )
+
     def test_move_effect_count_is_gen3_contract(self):
         text = (VENDOR / "include/constants/battle_move_effects.h").read_text(
             encoding="utf-8"
