@@ -1386,6 +1386,33 @@ static uint16_t battle_dynamic_power(
         return move->power;
     case EFFECT_LOW_KICK:
         return 60;
+    case EFFECT_ROLLOUT: {
+        uint32_t value = move->power;
+        uint8_t count = attacker->rollout_count;
+        if (count > 4)
+            count = 4;
+        value <<= count;
+        if (attacker->status2 & REMASTER_EMERALD_STATUS2_DEFENSE_CURL)
+            value *= 2u;
+        return (uint16_t)(value > UINT16_MAX ? UINT16_MAX : value);
+    }
+    case EFFECT_FURY_CUTTER: {
+        uint32_t value = move->power;
+        uint8_t count = attacker->fury_cutter_count;
+        if (count > 4)
+            count = 4;
+        value <<= count;
+        return (uint16_t)(value > UINT16_MAX ? UINT16_MAX : value);
+    }
+    case EFFECT_REVENGE:
+        return attacker->last_damage_turn
+                == (uint8_t)(battle->turn_number & 0xFFu)
+            ? (uint16_t)(move->power * 2u)
+            : move->power;
+    case EFFECT_SPIT_UP:
+        if (attacker->stockpile == 0)
+            return 0;
+        return (uint16_t)(100u * attacker->stockpile);
     default:
         return move->power;
     }
@@ -1427,11 +1454,15 @@ int remaster_emerald_battle_calculate_damage(
     if (move == 0 || !attacker->active || !defender->active)
         return 0;
 
-    accuracy = battle_accuracy_percent(
-        battle,
-        attacker,
-        defender,
-        move);
+    if (attacker->lock_on_turns != 0
+        && attacker->lock_on_target == defender_id)
+        accuracy = 100;
+    else
+        accuracy = battle_accuracy_percent(
+            battle,
+            attacker,
+            defender,
+            move);
     if (remaster_emerald_battle_random(&battle->rng) % 100u
         >= accuracy) {
         out_result->hit = 0;
@@ -1663,6 +1694,10 @@ int remaster_emerald_battle_calculate_damage(
 
     if (!physical && attacker->flash_fire && move_type == TYPE_FIRE)
         damage = damage * 15u / 10u;
+
+    if (move_type == TYPE_ELECTRIC
+        && (attacker->status3 & REMASTER_EMERALD_STATUS3_CHARGED_UP))
+        damage *= 2u;
 
     damage += 2u;
 
@@ -2236,6 +2271,11 @@ static int battle_apply_primary_effect(
     case EFFECT_DESTINY_BOND:
         user->status2 |= REMASTER_EMERALD_STATUS2_DESTINY_BOND;
         user->destiny_bond_turn =
+            (uint8_t)(battle->turn_number & 0xFFu);
+        return 1;
+    case EFFECT_GRUDGE:
+        user->status3 |= REMASTER_EMERALD_STATUS3_GRUDGE;
+        user->grudge_turn =
             (uint8_t)(battle->turn_number & 0xFFu);
         return 1;
     case EFFECT_NIGHTMARE:
@@ -2927,6 +2967,37 @@ static void battle_faint_check(
         0,
         0);
 
+    if ((mon->status2 & REMASTER_EMERALD_STATUS2_DESTINY_BOND)
+        && mon->destiny_bond_turn
+            == (uint8_t)(battle->turn_number & 0xFFu)
+        && battle_valid_battler(mon->last_damage_from)
+        && mon->last_damage_from != battler
+        && !battle->battlers[mon->last_damage_from].fainted) {
+        battle->battlers[mon->last_damage_from].pokemon.hp = 0;
+        battle_faint_check(battle, mon->last_damage_from);
+    }
+
+    if ((mon->status3 & REMASTER_EMERALD_STATUS3_GRUDGE)
+        && mon->grudge_turn
+            == (uint8_t)(battle->turn_number & 0xFFu)
+        && battle_valid_battler(mon->last_damage_from)
+        && mon->last_damage_from != battler) {
+        RemasterEmeraldBattleMon *killer =
+            &battle->battlers[mon->last_damage_from];
+        uint8_t slot;
+        for (slot = 0; slot < 4; ++slot) {
+            if (killer->moves[slot] == killer->last_move) {
+                killer->pp[slot] = 0;
+                remaster_emerald_box_pokemon_set_move(
+                    &killer->pokemon.box,
+                    slot,
+                    killer->moves[slot],
+                    0);
+                break;
+            }
+        }
+    }
+
     battle_award_exp_for_faint(battle, battler);
     battle_finish_if_over(battle);
 }
@@ -3015,6 +3086,86 @@ int remaster_emerald_battle_use_move(
         return 1;
     }
 
+    if (move->effect == EFFECT_DREAM_EATER
+        && !(target->pokemon.status & REMASTER_EMERALD_STATUS1_SLEEP)) {
+        battle_event(
+            battle,
+            REMASTER_EMERALD_BATTLE_EVENT_MESSAGE,
+            attacker_id,
+            target_id,
+            move_id,
+            0,
+            EFFECT_DREAM_EATER);
+        return 1;
+    }
+
+    if (move->effect == EFFECT_FAKE_OUT
+        && attacker->entered_turn
+            != (uint8_t)(battle->turn_number & 0xFFu)) {
+        battle_event(
+            battle,
+            REMASTER_EMERALD_BATTLE_EVENT_MESSAGE,
+            attacker_id,
+            target_id,
+            move_id,
+            0,
+            EFFECT_FAKE_OUT);
+        return 1;
+    }
+
+    if (move->effect == EFFECT_TELEPORT) {
+        if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_TRAINER)
+            return 1;
+        battle->outcome =
+            REMASTER_EMERALD_BATTLE_OUTCOME_PLAYER_TELEPORTED;
+        battle->ended = 1;
+        battle_event(
+            battle,
+            REMASTER_EMERALD_BATTLE_EVENT_ENDED,
+            attacker_id,
+            target_id,
+            move_id,
+            battle->outcome,
+            0);
+        return 1;
+    }
+
+    if (move->effect == EFFECT_COUNTER
+        || move->effect == EFFECT_MIRROR_COAT) {
+        uint8_t needs_physical = move->effect == EFFECT_COUNTER ? 1u : 0u;
+        uint8_t effectiveness;
+        uint32_t reflected;
+
+        if (attacker->last_damage_turn
+                != (uint8_t)(battle->turn_number & 0xFFu)
+            || attacker->last_damage_from != target_id
+            || attacker->last_damage == 0
+            || attacker->last_damage_was_physical != needs_physical)
+            return 1;
+
+        effectiveness = battle_type_multiplier(target, move->type);
+        if (effectiveness == 0)
+            return 1;
+
+        reflected = (uint32_t)attacker->last_damage * 2u;
+        reflected = reflected * effectiveness / 10u;
+        if (reflected == 0)
+            reflected = 1;
+        if (reflected > UINT16_MAX)
+            reflected = UINT16_MAX;
+        battle_damage_direct(
+            battle,
+            attacker_id,
+            target_id,
+            (uint16_t)reflected,
+            move_id,
+            0);
+        battle_faint_check(battle, target_id);
+        battle_sync_battler(battle, attacker_id);
+        battle_sync_battler(battle, target_id);
+        return 1;
+    }
+
     if (target->protected_turn == (uint8_t)(battle->turn_number & 0xFFu)
         && (move->flags & (1u << 1)) != 0) {
         battle_event(
@@ -3033,6 +3184,8 @@ int remaster_emerald_battle_use_move(
     else if (move->effect == EFFECT_DOUBLE_HIT
         || move->effect == EFFECT_TWINEEDLE)
         hits = 2;
+    else if (move->effect == EFFECT_TRIPLE_KICK)
+        hits = 3;
 
     for (hit = 0; hit < hits && !target->fainted; ++hit) {
         uint16_t damage = 0;
@@ -3143,6 +3296,30 @@ int remaster_emerald_battle_use_move(
                 return 1;
             damage = (uint16_t)(target->pokemon.hp - attacker->pokemon.hp);
             break;
+        case EFFECT_PRESENT: {
+            uint16_t roll =
+                remaster_emerald_battle_random(&battle->rng) % 100u;
+            if (roll < 40)
+                damage = 40;
+            else if (roll < 70)
+                damage = 80;
+            else if (roll < 80)
+                damage = 120;
+            else {
+                battle_heal(
+                    battle,
+                    target_id,
+                    target->pokemon.max_hp / 4u,
+                    move_id);
+                return 1;
+            }
+            break;
+        }
+        case EFFECT_SPIT_UP:
+            if (attacker->stockpile == 0)
+                return 1;
+            damage = result.damage;
+            break;
         default:
             damage = result.damage;
             break;
@@ -3179,12 +3356,63 @@ int remaster_emerald_battle_use_move(
             target_id,
             move);
 
-    if (move->effect == EFFECT_ABSORB && total_damage != 0)
+    if ((move->effect == EFFECT_ABSORB
+            || move->effect == EFFECT_DREAM_EATER)
+        && total_damage != 0)
         battle_heal(
             battle,
             attacker_id,
             (uint16_t)(total_damage / 2u),
             move_id);
+
+    if (move->effect == EFFECT_TRAP
+        && total_damage != 0
+        && !target->fainted) {
+        target->status2 |= REMASTER_EMERALD_STATUS2_WRAPPED;
+        target->trapped_turns = (uint8_t)(
+            2u + remaster_emerald_battle_random(&battle->rng) % 4u);
+        target->trapped_move = move_id;
+    }
+
+    if (move->effect == EFFECT_FAKE_OUT
+        && total_damage != 0
+        && target->ability != ABILITY_INNER_FOCUS)
+        target->status2 |= REMASTER_EMERALD_STATUS2_FLINCHED;
+
+    if (move->effect == EFFECT_RAPID_SPIN && total_damage != 0) {
+        attacker->status2 &= ~REMASTER_EMERALD_STATUS2_WRAPPED;
+        attacker->trapped_turns = 0;
+        attacker->trapped_move = 0;
+        attacker->status3 &= ~REMASTER_EMERALD_STATUS3_LEECH_SEED;
+        battle->spikes_layers[attacker->side] = 0;
+        battle->side_status[attacker->side] &=
+            ~REMASTER_EMERALD_SIDE_SPIKES;
+    }
+
+    if (move->effect == EFFECT_PAY_DAY && total_damage != 0)
+        battle->money_reward +=
+            (uint32_t)attacker->pokemon.level * 5u;
+
+    if (move->effect == EFFECT_ROLLOUT && total_damage != 0) {
+        if (attacker->rollout_count < 4)
+            attacker->rollout_count++;
+    } else {
+        attacker->rollout_count = 0;
+    }
+
+    if (move->effect == EFFECT_FURY_CUTTER && total_damage != 0) {
+        if (attacker->fury_cutter_count < 4)
+            attacker->fury_cutter_count++;
+    } else {
+        attacker->fury_cutter_count = 0;
+    }
+
+    if (move->effect == EFFECT_SPIT_UP)
+        attacker->stockpile = 0;
+
+    if (move->type == TYPE_ELECTRIC
+        && (attacker->status3 & REMASTER_EMERALD_STATUS3_CHARGED_UP))
+        attacker->status3 &= ~REMASTER_EMERALD_STATUS3_CHARGED_UP;
 
     if ((move->effect == EFFECT_RECOIL
             || move->effect == EFFECT_DOUBLE_EDGE)
