@@ -107,6 +107,8 @@ class R13BattleSourceContract(unittest.TestCase):
             "AI_Risky:",
             "AI_PreferPowerExtremes:",
             "AI_PreferBatonPass:",
+            "AI_HPAware:",
+            "AI_TrySunnyDayStart:",
         ):
             self.assertIn(label, scripts)
 
@@ -118,9 +120,24 @@ class R13BattleSourceContract(unittest.TestCase):
             "battle_ai_apply_risky",
             "battle_ai_apply_prefer_power_extremes",
             "battle_ai_apply_prefer_baton_pass",
+            "battle_ai_apply_hp_aware",
+            "battle_ai_apply_try_sunny_day_start",
             "battle_ai_choose_trainer_move",
         ):
             self.assertIn(helper, portable)
+
+        for flag in (
+            "REMASTER_EMERALD_AI_CHECK_BAD_MOVE",
+            "REMASTER_EMERALD_AI_TRY_TO_FAINT",
+            "REMASTER_EMERALD_AI_CHECK_VIABILITY",
+            "REMASTER_EMERALD_AI_SETUP_FIRST_TURN",
+            "REMASTER_EMERALD_AI_RISKY",
+            "REMASTER_EMERALD_AI_PREFER_POWER_EXTREMES",
+            "REMASTER_EMERALD_AI_PREFER_BATON_PASS",
+            "REMASTER_EMERALD_AI_HP_AWARE",
+            "REMASTER_EMERALD_AI_TRY_SUNNY_DAY_START",
+        ):
+            self.assertIn(f"if (flags & {flag})", portable)
 
     def test_trainer_switch_item_ai_is_pinned(self):
         switch_items = (
