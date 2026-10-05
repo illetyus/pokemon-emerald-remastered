@@ -437,30 +437,30 @@ def build(
         lines.extend(
             [
                 "    {",
-                f"        .id = {objective['id']},",
-                f"        .key = {c_string(objective['key'])},",
-                f"        .title = {c_string(objective['title'])},",
-                f"        .description = {c_string(objective['description'])},",
-                f"        .map_section_id = 0x{map_section_id:04X},",
-                f"        .target_type = {TARGET_ENUM[target['type']]},",
-                f"        .map_group = {map_group},",
-                f"        .map_num = {map_num},",
-                f"        .local_id = {local_id},",
-                f"        .x = {target_x},",
-                f"        .y = {target_y},",
-                "        .region_marker = {",
+                f"        {objective['id']},",
+                f"        {c_string(objective['key'])},",
+                f"        {c_string(objective['title'])},",
+                f"        {c_string(objective['description'])},",
+                f"        0x{map_section_id:04X},",
+                f"        {TARGET_ENUM[target['type']]},",
+                f"        {map_group},",
+                f"        {map_num},",
+                f"        {local_id},",
+                f"        {target_x},",
+                f"        {target_y},",
+                "        {",
                 f"            0x{map_section_id:04X},",
                 f"            {int(marker['x'])},",
                 f"            {int(marker['y'])},",
                 f"            {int(marker['width'])},",
                 f"            {int(marker['height'])}",
                 "        },",
-                f"        .activation_count = {len(activation)},",
-                f"        .completion_count = {len(completion)},",
-                "        .activation = {"
+                f"        {len(activation)},",
+                f"        {len(completion)},",
+                "        {"
                 + padded_conditions(activation, flags, vars_)
                 + "},",
-                "        .completion = {"
+                "        {"
                 + padded_conditions(completion, flags, vars_)
                 + "}",
                 "    },",
