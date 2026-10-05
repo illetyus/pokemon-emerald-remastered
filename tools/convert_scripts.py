@@ -72,6 +72,9 @@ CORE_COMMANDS = {
     "call_if_le",
     "call_if_ge",
     "call_if_ne",
+    "checktrainerflag",
+    "settrainerflag",
+    "cleartrainerflag",
 }
 
 WORLD_COMMANDS = {
@@ -179,6 +182,11 @@ DOMAIN_COMMANDS = {
     "giveitem",
     "trainerbattle",
     "dotrainerbattle",
+    "trainerbattle_single",
+    "trainerbattle_double",
+    "trainerbattle_rematch",
+    "trainerbattle_rematch_double",
+    "trainerbattle_no_intro",
     "setwildbattle",
     "dowildbattle",
 }
@@ -454,6 +462,14 @@ def _script_targets(command: SourceCommand) -> tuple[str, ...]:
         if args:
             return (args[-1],)
 
+    if name == "trainerbattle_single" and len(args) >= 4:
+        if args[3] != "FALSE":
+            return (args[3],)
+
+    if name == "trainerbattle_double" and len(args) >= 5:
+        if args[4] != "FALSE":
+            return (args[4],)
+
     return ()
 
 
@@ -613,6 +629,132 @@ def _normalize_script_command(
 
     if name in {"map_script", "map_script_2"}:
         return []
+
+    if name in {
+        "checktrainerflag",
+        "settrainerflag",
+        "cleartrainerflag",
+    } and len(args) == 1:
+        op = {
+            "checktrainerflag": "CHECK_FLAG",
+            "settrainerflag": "SET_FLAG",
+            "cleartrainerflag": "CLEAR_FLAG",
+        }[name]
+        return [{
+            "op": op,
+            "flag": f"(TRAINER_FLAGS_START + {args[0]})",
+        }]
+
+    if name == "trainerbattle" and len(args) >= 3:
+        item: dict[str, object] = {
+            "op": "DOMAIN_TRAINER_BATTLE_CONFIG",
+            "mode": args[0],
+            "trainer": args[1],
+            "local_id": args[2],
+        }
+        if len(args) >= 4:
+            item["intro_text"] = args[3]
+        if len(args) >= 5:
+            item["lose_text"] = args[4]
+        if len(args) >= 6:
+            item["pointer3"] = args[5]
+        if len(args) >= 7:
+            item["pointer4"] = args[6]
+        return [item]
+
+    if name == "dotrainerbattle" and not args:
+        return [{"op": "DOMAIN_TRAINER_BATTLE_START"}]
+
+    if name in {
+        "trainerbattle_single",
+        "trainerbattle_double",
+        "trainerbattle_rematch",
+        "trainerbattle_rematch_double",
+        "trainerbattle_no_intro",
+    }:
+        event_script: str | None = None
+        music = "TRUE"
+        if name == "trainerbattle_single" and len(args) >= 3:
+            if len(args) >= 4 and args[3] != "FALSE":
+                event_script = args[3]
+                music = args[4] if len(args) >= 5 else "TRUE"
+                mode = (
+                    "TRAINER_BATTLE_CONTINUE_SCRIPT"
+                    if music == "TRUE"
+                    else "TRAINER_BATTLE_CONTINUE_SCRIPT_NO_MUSIC"
+                )
+            else:
+                mode = "TRAINER_BATTLE_SINGLE"
+            item = {
+                "op": "DOMAIN_TRAINER_BATTLE_CONFIG",
+                "mode": mode,
+                "trainer": args[0],
+                "local_id": "0",
+                "intro_text": args[1],
+                "lose_text": args[2],
+            }
+        elif name == "trainerbattle_double" and len(args) >= 4:
+            if len(args) >= 5 and args[4] != "FALSE":
+                event_script = args[4]
+                music = args[5] if len(args) >= 6 else "TRUE"
+                mode = (
+                    "TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE"
+                    if music == "TRUE"
+                    else "TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE_NO_MUSIC"
+                )
+            else:
+                mode = "TRAINER_BATTLE_DOUBLE"
+            item = {
+                "op": "DOMAIN_TRAINER_BATTLE_CONFIG",
+                "mode": mode,
+                "trainer": args[0],
+                "local_id": "0",
+                "intro_text": args[1],
+                "lose_text": args[2],
+                "not_enough_pkmn_text": args[3],
+            }
+        elif name == "trainerbattle_rematch" and len(args) == 3:
+            item = {
+                "op": "DOMAIN_TRAINER_BATTLE_CONFIG",
+                "mode": "TRAINER_BATTLE_REMATCH",
+                "trainer": args[0],
+                "local_id": "0",
+                "intro_text": args[1],
+                "lose_text": args[2],
+            }
+        elif name == "trainerbattle_rematch_double" and len(args) == 4:
+            item = {
+                "op": "DOMAIN_TRAINER_BATTLE_CONFIG",
+                "mode": "TRAINER_BATTLE_REMATCH_DOUBLE",
+                "trainer": args[0],
+                "local_id": "0",
+                "intro_text": args[1],
+                "lose_text": args[2],
+                "not_enough_pkmn_text": args[3],
+            }
+        elif name == "trainerbattle_no_intro" and len(args) == 2:
+            item = {
+                "op": "DOMAIN_TRAINER_BATTLE_CONFIG",
+                "mode": "TRAINER_BATTLE_SINGLE_NO_INTRO_TEXT",
+                "trainer": args[0],
+                "local_id": "0",
+                "lose_text": args[1],
+            }
+        else:
+            raise ScriptConversionError(
+                f"{command.path}:{command.line}: {command.label}: "
+                f"invalid trainer battle arguments for {name}"
+            )
+
+        result = [item, {"op": "DOMAIN_TRAINER_BATTLE_START"}]
+        if event_script is not None:
+            result.append({
+                "op": "CALL",
+                "target_script_id": _symbolic_target_or_error(
+                    event_script, labels, command
+                ),
+            })
+        return result
 
     if name == "call" and len(args) == 1:
         return [{
