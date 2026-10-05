@@ -1903,7 +1903,7 @@ void remaster_emerald_encounter_roamer_set_location(
     runtime->roamer_location_valid = 1;
 }
 
-int remaster_emerald_encounter_roamer_move(
+static void r12_roamer_update_history(
     RemasterEmeraldEncounterRuntime *runtime,
     const RemasterEmeraldSave *save)
 {
@@ -1911,14 +1911,6 @@ int remaster_emerald_encounter_roamer_move(
         save != 0 ? save->save_block1[0x04] : 0;
     const uint8_t current_num =
         save != 0 ? save->save_block1[0x05] : 0;
-    const int active = r12_roamer_active(save);
-    size_t row_count =
-        sizeof(kRemasterRoamerLocations)
-        / sizeof(kRemasterRoamerLocations[0]);
-    size_t row;
-
-    if (runtime == 0 || save == 0 || row_count == 0)
-        return 0;
 
     runtime->roamer_location_history[2][0] =
         runtime->roamer_location_history[1][0];
@@ -1930,33 +1922,60 @@ int remaster_emerald_encounter_roamer_move(
         runtime->roamer_location_history[0][1];
     runtime->roamer_location_history[0][0] = current_group;
     runtime->roamer_location_history[0][1] = current_num;
+}
 
-    if (!runtime->roamer_location_valid && active) {
+static int r12_roamer_move_to_other_location_set(
+    RemasterEmeraldEncounterRuntime *runtime,
+    const RemasterEmeraldSave *save)
+{
+    const int active = r12_roamer_active(save);
+    const size_t row_count =
+        sizeof(kRemasterRoamerLocations)
+        / sizeof(kRemasterRoamerLocations[0]);
+    size_t row;
+
+    if (runtime == 0 || save == 0 || row_count == 0)
+        return 0;
+
+    if (!active)
+        return 1;
+
+    for (;;) {
         row = remaster_emerald_encounter_random(&runtime->rng)
             % row_count;
-        remaster_emerald_encounter_roamer_set_location(
-            runtime,
-            0,
-            kRemasterRoamerLocations[row][0]);
-        return 1;
-    }
 
-    if (remaster_emerald_encounter_random(&runtime->rng) % 16u == 0u) {
-        if (!active)
-            return 1;
-
-        for (;;) {
-            row = remaster_emerald_encounter_random(&runtime->rng)
-                % row_count;
-            if (kRemasterRoamerLocations[row][0]
+        if (!runtime->roamer_location_valid
+            || kRemasterRoamerLocations[row][0]
                 != runtime->roamer_map_num) {
-                runtime->roamer_map_group = 0;
-                runtime->roamer_map_num =
-                    kRemasterRoamerLocations[row][0];
-                return 1;
-            }
+            runtime->roamer_map_group = 0;
+            runtime->roamer_map_num =
+                kRemasterRoamerLocations[row][0];
+            runtime->roamer_location_valid = 1;
+            return 1;
         }
     }
+}
+
+int remaster_emerald_encounter_roamer_move(
+    RemasterEmeraldEncounterRuntime *runtime,
+    const RemasterEmeraldSave *save)
+{
+    const int active = r12_roamer_active(save);
+    const size_t row_count =
+        sizeof(kRemasterRoamerLocations)
+        / sizeof(kRemasterRoamerLocations[0]);
+    size_t row;
+
+    if (runtime == 0 || save == 0 || row_count == 0)
+        return 0;
+
+    r12_roamer_update_history(runtime, save);
+
+    if (!runtime->roamer_location_valid && active)
+        return r12_roamer_move_to_other_location_set(runtime, save);
+
+    if (remaster_emerald_encounter_random(&runtime->rng) % 16u == 0u)
+        return r12_roamer_move_to_other_location_set(runtime, save);
 
     if (!active)
         return 1;
@@ -1981,10 +2000,22 @@ int remaster_emerald_encounter_roamer_move(
 
                 runtime->roamer_map_group = 0;
                 runtime->roamer_map_num = map_num;
+                runtime->roamer_location_valid = 1;
                 return 1;
             }
         }
     }
 
     return 1;
+}
+
+int remaster_emerald_encounter_roamer_warp(
+    RemasterEmeraldEncounterRuntime *runtime,
+    const RemasterEmeraldSave *save)
+{
+    if (runtime == 0 || save == 0)
+        return 0;
+
+    r12_roamer_update_history(runtime, save);
+    return r12_roamer_move_to_other_location_set(runtime, save);
 }
