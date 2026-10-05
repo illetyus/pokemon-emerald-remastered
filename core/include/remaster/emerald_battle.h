@@ -231,6 +231,7 @@ typedef struct RemasterEmeraldBattleMon {
     uint8_t magic_coat;
     uint8_t snatch;
     uint8_t imprison;
+    uint8_t temporary_move_mask;
     uint16_t last_consumed_item;
 } RemasterEmeraldBattleMon;
 
