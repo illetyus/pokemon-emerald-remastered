@@ -6,6 +6,8 @@
 #include <limits.h>
 #include <string.h>
 
+#include "emerald_trainer_catalog.inc"
+
 enum {
     TYPE_NORMAL = 0,
     TYPE_FIGHTING = 1,
@@ -1193,6 +1195,20 @@ static void battle_entry_ability(
             mon->ability,
             0);
     }
+}
+
+size_t remaster_emerald_battle_trainer_count(void)
+{
+    return sizeof(kRemasterEmeraldTrainers)
+        / sizeof(kRemasterEmeraldTrainers[0]);
+}
+
+const RemasterEmeraldTrainer *remaster_emerald_battle_trainer_find(
+    uint16_t trainer_id)
+{
+    if ((size_t)trainer_id >= remaster_emerald_battle_trainer_count())
+        return 0;
+    return &kRemasterEmeraldTrainers[trainer_id];
 }
 
 int remaster_emerald_battle_trainer_validate(
