@@ -1328,6 +1328,14 @@ static uint8_t battle_accuracy_percent(
     if (move->accuracy == 0 || move->effect == EFFECT_ALWAYS_HIT)
         return 100;
 
+    if (move->effect == EFFECT_THUNDER
+        && battle_weather_has_effect(battle)) {
+        if (battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_RAIN)
+            return 100;
+        if (battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_SUN)
+            return 50;
+    }
+
     stage = (int)attacker->stat_stages[6]
         - (int)defender->stat_stages[7] + 6;
     if (stage < 0)
@@ -2197,6 +2205,9 @@ static void battle_secondary_effect(
             REMASTER_EMERALD_STATUS1_PARALYSIS, move->move_id);
         break;
     case EFFECT_FLINCH_HIT:
+    case EFFECT_SKY_ATTACK:
+    case EFFECT_TWISTER:
+    case EFFECT_FLINCH_MINIMIZE_HIT:
         if (battle->battlers[target].ability != ABILITY_INNER_FOCUS)
             battle->battlers[target].status2 |=
                 REMASTER_EMERALD_STATUS2_FLINCHED;
