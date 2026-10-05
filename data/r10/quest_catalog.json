@@ -1,0 +1,579 @@
+{
+  "schema_version": 1,
+  "source": "vendor/vanillaplus/src/quest_system.c",
+  "objectives": [
+    {
+      "id": 1,
+      "key": "MEET_RIVAL_ROUTE103",
+      "title": "RAKİBİNİ BUL",
+      "description": "Route 103'e git ve rakibinle\nbuluş.",
+      "map_section": "MAPSEC_ROUTE_103",
+      "target": {"type": "region"},
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_SYS_POKEMON_GET"},
+        {"type": "flag_clear", "id": "FLAG_DEFEATED_RIVAL_ROUTE103"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_DEFEATED_RIVAL_ROUTE103"}
+      ]
+    },
+    {
+      "id": 2,
+      "key": "RETURN_TO_BIRCH",
+      "title": "LABORATUVARA DÖN",
+      "description": "Littleroot'taki Prof. Birch'ün\nlaboratuvarına dön.",
+      "map_section": "MAPSEC_LITTLEROOT_TOWN",
+      "target": {
+        "type": "map",
+        "map": "MAP_LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB"
+      },
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_DEFEATED_RIVAL_ROUTE103"},
+        {"type": "flag_clear", "id": "FLAG_SYS_POKEDEX_GET"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_SYS_POKEDEX_GET"}
+      ]
+    },
+    {
+      "id": 3,
+      "key": "VISIT_PETALBURG_GYM",
+      "title": "PETALBURG'A GİT",
+      "description": "Petalburg Şehri'ndeki Spor\nSalonu'nda Norman'ı bul.",
+      "map_section": "MAPSEC_PETALBURG_CITY",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_PETALBURG_CITY_GYM",
+        "local_id": 1,
+        "expected_script": "PetalburgCity_Gym_EventScript_Norman"
+      },
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_SYS_POKEDEX_GET"},
+        {"type": "var_lt", "id": "VAR_PETALBURG_GYM_STATE", "value": 2},
+        {"type": "flag_clear", "id": "FLAG_BADGE01_GET"}
+      ],
+      "completion": [
+        {"type": "var_ge", "id": "VAR_PETALBURG_GYM_STATE", "value": 2}
+      ]
+    },
+    {
+      "id": 4,
+      "key": "CHALLENGE_ROXANNE",
+      "title": "İLK ROZET",
+      "description": "Rustboro Spor Salonu'nda\nRoxanne'a meydan oku.",
+      "map_section": "MAPSEC_RUSTBORO_CITY",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_RUSTBORO_CITY_GYM",
+        "local_id": 1,
+        "expected_script": "RustboroCity_Gym_EventScript_Roxanne"
+      },
+      "activation": [
+        {"type": "var_ge", "id": "VAR_PETALBURG_GYM_STATE", "value": 2},
+        {"type": "flag_clear", "id": "FLAG_BADGE01_GET"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_BADGE01_GET"}
+      ]
+    },
+    {
+      "id": 5,
+      "key": "FIND_DEVON_THIEF",
+      "title": "DEVON MALLARI",
+      "description": "Devon çalışanını takip ederek\nRoute 116'ya ilerle.",
+      "map_section": "MAPSEC_ROUTE_116",
+      "target": {"type": "region"},
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_BADGE01_GET"},
+        {"type": "flag_clear", "id": "FLAG_DEVON_GOODS_STOLEN"},
+        {"type": "flag_clear", "id": "FLAG_RECOVERED_DEVON_GOODS"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_DEVON_GOODS_STOLEN"}
+      ]
+    },
+    {
+      "id": 6,
+      "key": "RECOVER_DEVON_GOODS",
+      "title": "HIRSIZI YAKALA",
+      "description": "Rusturf Tüneli'nde çalınan\nDevon Mallarını geri al.",
+      "map_section": "MAPSEC_RUSTURF_TUNNEL",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_RUSTURF_TUNNEL",
+        "local_id": 6,
+        "expected_script": "RusturfTunnel_EventScript_Grunt"
+      },
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_DEVON_GOODS_STOLEN"},
+        {"type": "flag_clear", "id": "FLAG_RECOVERED_DEVON_GOODS"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_RECOVERED_DEVON_GOODS"}
+      ]
+    },
+    {
+      "id": 7,
+      "key": "RETURN_DEVON_GOODS",
+      "title": "DEVON'A DÖN",
+      "description": "Devon Mallarını Rustboro'daki\nDevon Corp'a geri götür.",
+      "map_section": "MAPSEC_RUSTBORO_CITY",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_RUSTBORO_CITY_DEVON_CORP_1F",
+        "local_id": 1,
+        "expected_script": "RustboroCity_DevonCorp_1F_EventScript_Employee"
+      },
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_RECOVERED_DEVON_GOODS"},
+        {"type": "flag_clear", "id": "FLAG_RETURNED_DEVON_GOODS"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_RETURNED_DEVON_GOODS"}
+      ]
+    },
+    {
+      "id": 8,
+      "key": "DELIVER_STEVEN_LETTER",
+      "title": "STEVEN'A MEKTUP",
+      "description": "Dewford yakınındaki Granit\nMağarası'nda Steven'ı bul.",
+      "map_section": "MAPSEC_GRANITE_CAVE",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_GRANITE_CAVE_STEVENS_ROOM",
+        "local_id": 1,
+        "expected_script": "GraniteCave_StevensRoom_EventScript_Steven"
+      },
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_RETURNED_DEVON_GOODS"},
+        {"type": "flag_clear", "id": "FLAG_DELIVERED_STEVEN_LETTER"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_DELIVERED_STEVEN_LETTER"}
+      ]
+    },
+    {
+      "id": 9,
+      "key": "DELIVER_DEVON_PACKAGE",
+      "title": "PAKETİ TESLİM ET",
+      "description": "Slateport'ta Kaptan Stern'e\nDevon paketini teslim et.",
+      "map_section": "MAPSEC_SLATEPORT_CITY",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_SLATEPORT_CITY_OCEANIC_MUSEUM_2F",
+        "local_id": 1,
+        "expected_script": "SlateportCity_OceanicMuseum_2F_EventScript_CaptStern"
+      },
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_RETURNED_DEVON_GOODS"},
+        {"type": "flag_set", "id": "FLAG_DELIVERED_STEVEN_LETTER"},
+        {"type": "flag_clear", "id": "FLAG_DELIVERED_DEVON_GOODS"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_DELIVERED_DEVON_GOODS"}
+      ]
+    },
+    {
+      "id": 10,
+      "key": "CHALLENGE_BRAWLY",
+      "title": "BRAWLY'Yİ YEN",
+      "description": "Dewford Spor Salonu'nda\nBrawly'ye meydan oku.",
+      "map_section": "MAPSEC_DEWFORD_TOWN",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_DEWFORD_TOWN_GYM",
+        "local_id": 1,
+        "expected_script": "DewfordTown_Gym_EventScript_Brawly"
+      },
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_DELIVERED_DEVON_GOODS"},
+        {"type": "flag_clear", "id": "FLAG_BADGE02_GET"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_BADGE02_GET"}
+      ]
+    },
+    {
+      "id": 11,
+      "key": "CHALLENGE_WATTSON",
+      "title": "WATTSON'I YEN",
+      "description": "Mauville Spor Salonu'nda\nWattson'a meydan oku.",
+      "map_section": "MAPSEC_MAUVILLE_CITY",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_MAUVILLE_CITY_GYM",
+        "local_id": 1,
+        "expected_script": "MauvilleCity_Gym_EventScript_Wattson"
+      },
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_DELIVERED_DEVON_GOODS"},
+        {"type": "flag_set", "id": "FLAG_BADGE02_GET"},
+        {"type": "flag_clear", "id": "FLAG_BADGE03_GET"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_BADGE03_GET"}
+      ]
+    },
+    {
+      "id": 12,
+      "key": "GO_METEOR_FALLS",
+      "title": "METEOR FALLS",
+      "description": "Route 114 üzerinden Meteor\nFalls'a ilerle.",
+      "map_section": "MAPSEC_METEOR_FALLS",
+      "target": {"type": "region"},
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_BADGE03_GET"},
+        {"type": "flag_clear", "id": "FLAG_MET_ARCHIE_METEOR_FALLS"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_MET_ARCHIE_METEOR_FALLS"}
+      ]
+    },
+    {
+      "id": 13,
+      "key": "STOP_MT_CHIMNEY",
+      "title": "MT. CHIMNEY",
+      "description": "Teleferikle Mt. Chimney'e çık\nve Team Magma'yı durdur.",
+      "map_section": "MAPSEC_MT_CHIMNEY",
+      "target": {"type": "region"},
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_MET_ARCHIE_METEOR_FALLS"},
+        {"type": "flag_clear", "id": "FLAG_DEFEATED_EVIL_TEAM_MT_CHIMNEY"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_DEFEATED_EVIL_TEAM_MT_CHIMNEY"}
+      ]
+    },
+    {
+      "id": 14,
+      "key": "CHALLENGE_FLANNERY",
+      "title": "FLANNERY'Yİ YEN",
+      "description": "Lavaridge Spor Salonu'nda\nFlannery'ye meydan oku.",
+      "map_section": "MAPSEC_LAVARIDGE_TOWN",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_LAVARIDGE_TOWN_GYM_1F",
+        "local_id": 1,
+        "expected_script": "LavaridgeTown_Gym_1F_EventScript_Flannery"
+      },
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_DEFEATED_EVIL_TEAM_MT_CHIMNEY"},
+        {"type": "flag_clear", "id": "FLAG_BADGE04_GET"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_BADGE04_GET"}
+      ]
+    },
+    {
+      "id": 15,
+      "key": "CHALLENGE_NORMAN",
+      "title": "NORMAN'I YEN",
+      "description": "Petalburg Spor Salonu'na dön\nve Norman'a meydan oku.",
+      "map_section": "MAPSEC_PETALBURG_CITY",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_PETALBURG_CITY_GYM",
+        "local_id": 1,
+        "expected_script": "PetalburgCity_Gym_EventScript_Norman"
+      },
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_BADGE04_GET"},
+        {"type": "flag_clear", "id": "FLAG_BADGE05_GET"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_BADGE05_GET"}
+      ]
+    },
+    {
+      "id": 16,
+      "key": "CLEAR_WEATHER_INSTITUTE",
+      "title": "HAVA ENSTİTÜSÜ",
+      "description": "Route 119'daki Hava\nEnstitüsü'nü Team Aqua'dan kurtar.",
+      "map_section": "MAPSEC_ROUTE_119",
+      "target": {"type": "region"},
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_BADGE05_GET"},
+        {"type": "var_lt", "id": "VAR_WEATHER_INSTITUTE_STATE", "value": 1}
+      ],
+      "completion": [
+        {"type": "var_ge", "id": "VAR_WEATHER_INSTITUTE_STATE", "value": 1}
+      ]
+    },
+    {
+      "id": 17,
+      "key": "GET_DEVON_SCOPE",
+      "title": "STEVEN'I BUL",
+      "description": "Route 120'de Steven'la buluş\nve görünmez engeli çöz.",
+      "map_section": "MAPSEC_ROUTE_120",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_ROUTE120",
+        "local_id": 31,
+        "expected_script": "Route120_EventScript_Steven"
+      },
+      "activation": [
+        {"type": "var_ge", "id": "VAR_WEATHER_INSTITUTE_STATE", "value": 1},
+        {"type": "flag_clear", "id": "FLAG_RECEIVED_DEVON_SCOPE"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_RECEIVED_DEVON_SCOPE"}
+      ]
+    },
+    {
+      "id": 18,
+      "key": "CHALLENGE_WINONA",
+      "title": "WINONA'YI YEN",
+      "description": "Fortree Spor Salonu'nda\nWinona'ya meydan oku.",
+      "map_section": "MAPSEC_FORTREE_CITY",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_FORTREE_CITY_GYM",
+        "local_id": 1,
+        "expected_script": "FortreeCity_Gym_EventScript_Winona"
+      },
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_RECEIVED_DEVON_SCOPE"},
+        {"type": "flag_clear", "id": "FLAG_BADGE06_GET"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_BADGE06_GET"}
+      ]
+    },
+    {
+      "id": 19,
+      "key": "CLIMB_MT_PYRE",
+      "title": "MT. PYRE'A GİT",
+      "description": "Route 122'den Mt. Pyre'ın\nzirvesine ilerle.",
+      "map_section": "MAPSEC_MT_PYRE",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_MT_PYRE_SUMMIT",
+        "local_id": 3,
+        "expected_script": "MtPyre_Summit_EventScript_OldLady"
+      },
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_BADGE06_GET"},
+        {"type": "flag_clear", "id": "FLAG_RECEIVED_RED_OR_BLUE_ORB"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_RECEIVED_RED_OR_BLUE_ORB"}
+      ]
+    },
+    {
+      "id": 20,
+      "key": "ENTER_MAGMA_HIDEOUT",
+      "title": "MAGMA ÜSSÜ",
+      "description": "Jagged Pass'teki Team Magma\nüssünü bul ve içeri gir.",
+      "map_section": "MAPSEC_MAGMA_HIDEOUT",
+      "target": {"type": "region"},
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_RECEIVED_RED_OR_BLUE_ORB"},
+        {"type": "flag_clear", "id": "FLAG_GROUDON_AWAKENED_MAGMA_HIDEOUT"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_GROUDON_AWAKENED_MAGMA_HIDEOUT"}
+      ]
+    },
+    {
+      "id": 21,
+      "key": "GO_SLATEPORT_HARBOR",
+      "title": "SLATEPORT LİMANI",
+      "description": "Slateport Limanı'nda Kaptan\nStern'in yanına git.",
+      "map_section": "MAPSEC_SLATEPORT_CITY",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_SLATEPORT_CITY_HARBOR",
+        "local_id": 4,
+        "expected_script": "SlateportCity_Harbor_EventScript_CaptStern"
+      },
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_GROUDON_AWAKENED_MAGMA_HIDEOUT"},
+        {"type": "flag_clear", "id": "FLAG_MET_TEAM_AQUA_HARBOR"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_MET_TEAM_AQUA_HARBOR"}
+      ]
+    },
+    {
+      "id": 22,
+      "key": "CLEAR_AQUA_HIDEOUT",
+      "title": "AQUA ÜSSÜ",
+      "description": "Lilycove'daki Team Aqua\nüssüne gir.",
+      "map_section": "MAPSEC_AQUA_HIDEOUT",
+      "target": {"type": "region"},
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_MET_TEAM_AQUA_HARBOR"},
+        {"type": "flag_clear", "id": "FLAG_TEAM_AQUA_ESCAPED_IN_SUBMARINE"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_TEAM_AQUA_ESCAPED_IN_SUBMARINE"}
+      ]
+    },
+    {
+      "id": 23,
+      "key": "CHALLENGE_TATE_LIZA",
+      "title": "TATE & LIZA",
+      "description": "Mossdeep Spor Salonu'nda\nTate ve Liza'ya meydan oku.",
+      "map_section": "MAPSEC_MOSSDEEP_CITY",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_MOSSDEEP_CITY_GYM",
+        "local_id": 1,
+        "expected_script": "MossdeepCity_Gym_EventScript_TateAndLiza"
+      },
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_TEAM_AQUA_ESCAPED_IN_SUBMARINE"},
+        {"type": "flag_clear", "id": "FLAG_BADGE07_GET"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_BADGE07_GET"}
+      ]
+    },
+    {
+      "id": 24,
+      "key": "DEFEND_SPACE_CENTER",
+      "title": "UZAY MERKEZİ",
+      "description": "Mossdeep Uzay Merkezi'ne git\nve Team Magma'yı durdur.",
+      "map_section": "MAPSEC_MOSSDEEP_CITY",
+      "target": {"type": "region"},
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_BADGE07_GET"},
+        {"type": "var_lt", "id": "VAR_MOSSDEEP_SPACE_CENTER_STATE", "value": 2}
+      ],
+      "completion": [
+        {"type": "var_ge", "id": "VAR_MOSSDEEP_SPACE_CENTER_STATE", "value": 2}
+      ]
+    },
+    {
+      "id": 25,
+      "key": "GET_DIVE_FROM_STEVEN",
+      "title": "STEVEN'IN EVİ",
+      "description": "Mossdeep'te Steven'ın evine\ngit ve onunla konuş.",
+      "map_section": "MAPSEC_MOSSDEEP_CITY",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_MOSSDEEP_CITY_STEVENS_HOUSE",
+        "local_id": 1,
+        "expected_script": "MossdeepCity_StevensHouse_EventScript_Steven"
+      },
+      "activation": [
+        {"type": "var_ge", "id": "VAR_MOSSDEEP_SPACE_CENTER_STATE", "value": 2},
+        {"type": "var_ge", "id": "VAR_STEVENS_HOUSE_STATE", "value": 1},
+        {"type": "var_lt", "id": "VAR_STEVENS_HOUSE_STATE", "value": 2}
+      ],
+      "completion": [
+        {"type": "var_ge", "id": "VAR_STEVENS_HOUSE_STATE", "value": 2}
+      ]
+    },
+    {
+      "id": 26,
+      "key": "ENTER_SEAFLOOR_CAVERN",
+      "title": "SEAFLOOR CAVERN",
+      "description": "Route 128 altında Seafloor\nCavern'ı bul ve içeri gir.",
+      "map_section": "MAPSEC_SEAFLOOR_CAVERN",
+      "target": {"type": "region"},
+      "activation": [
+        {"type": "var_ge", "id": "VAR_STEVENS_HOUSE_STATE", "value": 2},
+        {"type": "flag_clear", "id": "FLAG_KYOGRE_ESCAPED_SEAFLOOR_CAVERN"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_KYOGRE_ESCAPED_SEAFLOOR_CAVERN"}
+      ]
+    },
+    {
+      "id": 27,
+      "key": "GO_SOOTOPOLIS",
+      "title": "SOOTOPOLIS",
+      "description": "Sootopolis Şehri'ne git ve\nkrizin kaynağını araştır.",
+      "map_section": "MAPSEC_SOOTOPOLIS_CITY",
+      "target": {"type": "region"},
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_KYOGRE_ESCAPED_SEAFLOOR_CAVERN"},
+        {"type": "var_lt", "id": "VAR_SOOTOPOLIS_CITY_STATE", "value": 3}
+      ],
+      "completion": [
+        {"type": "var_ge", "id": "VAR_SOOTOPOLIS_CITY_STATE", "value": 3}
+      ]
+    },
+    {
+      "id": 28,
+      "key": "WAKE_RAYQUAZA",
+      "title": "SKY PILLAR",
+      "description": "Route 131'deki Sky Pillar'a\ngit ve zirveye ulaş.",
+      "map_section": "MAPSEC_SKY_PILLAR",
+      "target": {"type": "region"},
+      "activation": [
+        {"type": "var_ge", "id": "VAR_SOOTOPOLIS_CITY_STATE", "value": 3},
+        {"type": "var_lt", "id": "VAR_SOOTOPOLIS_CITY_STATE", "value": 5}
+      ],
+      "completion": [
+        {"type": "var_ge", "id": "VAR_SOOTOPOLIS_CITY_STATE", "value": 5}
+      ]
+    },
+    {
+      "id": 29,
+      "key": "RETURN_SOOTOPOLIS",
+      "title": "SOOTOPOLIS'E DÖN",
+      "description": "Rayquaza'dan sonra Sootopolis\nŞehri'ne geri dön.",
+      "map_section": "MAPSEC_SOOTOPOLIS_CITY",
+      "target": {"type": "region"},
+      "activation": [
+        {"type": "var_ge", "id": "VAR_SOOTOPOLIS_CITY_STATE", "value": 5},
+        {"type": "var_lt", "id": "VAR_SOOTOPOLIS_CITY_STATE", "value": 6}
+      ],
+      "completion": [
+        {"type": "var_ge", "id": "VAR_SOOTOPOLIS_CITY_STATE", "value": 6}
+      ]
+    },
+    {
+      "id": 30,
+      "key": "CHALLENGE_JUAN",
+      "title": "JUAN'I YEN",
+      "description": "Sootopolis Spor Salonu'nda\nJuan'a meydan oku.",
+      "map_section": "MAPSEC_SOOTOPOLIS_CITY",
+      "target": {
+        "type": "object_event",
+        "map": "MAP_SOOTOPOLIS_CITY_GYM_1F",
+        "local_id": 1,
+        "expected_script": "SootopolisCity_Gym_1F_EventScript_Juan"
+      },
+      "activation": [
+        {"type": "var_ge", "id": "VAR_SOOTOPOLIS_CITY_STATE", "value": 6},
+        {"type": "flag_clear", "id": "FLAG_BADGE08_GET"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_BADGE08_GET"}
+      ]
+    },
+    {
+      "id": 31,
+      "key": "CROSS_VICTORY_ROAD",
+      "title": "VICTORY ROAD",
+      "description": "Ever Grande'e ulaş ve Victory\nRoad'u geç.",
+      "map_section": "MAPSEC_VICTORY_ROAD",
+      "target": {"type": "region"},
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_BADGE08_GET"},
+        {"type": "flag_clear", "id": "FLAG_LANDMARK_POKEMON_LEAGUE"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_LANDMARK_POKEMON_LEAGUE"}
+      ]
+    },
+    {
+      "id": 32,
+      "key": "CHALLENGE_POKEMON_LEAGUE",
+      "title": "POKéMON LEAGUE",
+      "description": "Elite Four ve Şampiyon'a\nmeydan okumaya hazırlan.",
+      "map_section": "MAPSEC_EVER_GRANDE_CITY",
+      "target": {"type": "region"},
+      "activation": [
+        {"type": "flag_set", "id": "FLAG_LANDMARK_POKEMON_LEAGUE"},
+        {"type": "flag_clear", "id": "FLAG_SYS_GAME_CLEAR"}
+      ],
+      "completion": [
+        {"type": "flag_set", "id": "FLAG_SYS_GAME_CLEAR"}
+      ]
+    }
+  ]
+}
