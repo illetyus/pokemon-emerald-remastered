@@ -189,6 +189,7 @@ typedef struct RemasterEmeraldBattleMon {
     uint32_t status3;
     uint16_t substitute_hp;
     uint16_t last_move;
+    uint16_t last_taken_move;
     uint16_t choice_locked_move;
     uint16_t last_damage;
     uint16_t bide_damage;
@@ -255,6 +256,7 @@ typedef struct RemasterEmeraldBattleState {
     uint16_t wish_amount[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
     uint8_t future_turns[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
     uint8_t future_attacker[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
+    uint8_t pursuit_boost[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
     uint16_t future_move[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
     uint16_t future_damage[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
     uint32_t turn_number;
