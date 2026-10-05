@@ -165,6 +165,31 @@ class R13BattleSourceContract(unittest.TestCase):
             portable,
         )
 
+    def test_progression_handoff_sources_are_pinned(self):
+        pokemon = (
+            VENDOR / "src/pokemon.c"
+        ).read_text(encoding="utf-8")
+        learnsets = (
+            VENDOR / "src/data/pokemon/level_up_learnsets.h"
+        ).read_text(encoding="utf-8")
+        portable = R13.read_text(encoding="utf-8")
+        header = (
+            ROOT / "core/include/remaster/emerald_battle.h"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("MonTryLearningNewMove", pokemon)
+        self.assertIn("GetEvolutionTargetSpecies", pokemon)
+        self.assertIn("LEVEL_UP_MOVE(", learnsets)
+
+        for symbol in (
+            "REMASTER_EMERALD_BATTLE_EVENT_MOVE_LEARN",
+            "REMASTER_EMERALD_BATTLE_EVENT_EVOLUTION_CHECK",
+        ):
+            self.assertIn(symbol, header)
+            self.assertIn(symbol, portable)
+
+        self.assertIn("battle_emit_progression_handoffs", portable)
+
     def test_move_effect_count_is_gen3_contract(self):
         text = (VENDOR / "include/constants/battle_move_effects.h").read_text(
             encoding="utf-8"
