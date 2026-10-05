@@ -457,6 +457,8 @@ def constants_block(resolver: Resolver) -> list[str]:
         ("R12_ITEM_POKE_BALL", "ITEM_POKE_BALL"),
         ("R12_WEATHER_SANDSTORM", "WEATHER_SANDSTORM"),
         ("R12_SPECIES_MR_MIME", "SPECIES_MR_MIME"),
+        ("R12_VERSION_EMERALD", "VERSION_EMERALD"),
+        ("R12_LANGUAGE_ENGLISH", "LANGUAGE_ENGLISH"),
     ]
 
     soot_group, soot_num = map_parts(resolver.resolve("MAP_SOOTOPOLIS_CITY"))
