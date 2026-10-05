@@ -556,3 +556,59 @@ add_test(
         "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_r10_quest_catalog.py"
 )
+
+
+add_executable(emerald_pokemon_codec_test
+    tests/emerald_pokemon_codec_test.c
+)
+target_link_libraries(emerald_pokemon_codec_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_pokemon_codec_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_pokemon_codec_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r11_box_pokemon_codec COMMAND emerald_pokemon_codec_test)
+
+
+add_executable(emerald_party_storage_test
+    tests/emerald_party_storage_test.c
+)
+target_link_libraries(emerald_party_storage_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_party_storage_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_party_storage_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r11_party_storage COMMAND emerald_party_storage_test)
+
+
+add_executable(emerald_bag_test
+    tests/emerald_bag_test.c
+)
+target_link_libraries(emerald_bag_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_bag_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_bag_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r11_bag COMMAND emerald_bag_test)
+
+
+add_executable(emerald_domain_catalog_test
+    tests/emerald_domain_catalog_test.c
+)
+target_link_libraries(emerald_domain_catalog_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_domain_catalog_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_domain_catalog_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r11_domain_catalog COMMAND emerald_domain_catalog_test)
+
+
+add_test(
+    NAME r11_domain_catalog_audit
+    COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_r11_domain_catalog.py"
+)
