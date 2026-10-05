@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
 Date: 2026-10-04  
-Status: **R0-R5 and R10 complete; R11 is the next implementation phase.**
+Status: **R0-R5 and R10-R11 complete; R12 is the next implementation phase.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -189,7 +189,7 @@ var, map, region-section and object-event data.
 
 ## R11 — Pokémon / party / item core
 
-**Status: NEXT.**
+**Status: COMPLETE.** See `docs/R11_POKEMON_PARTY_ITEM.md`.
 
 ### Goal
 
@@ -221,6 +221,8 @@ save compatibility.
 - old R0-R10 regressions remain green.
 
 ## R12 — Encounter system
+
+**Status: NEXT.**
 
 ### Goal
 
@@ -879,16 +881,16 @@ of successful UE compilation or Android runtime.
 
 # 14. Immediate next action
 
-The next implementation phase is **R11 — Pokémon / party / item core**.
+The next implementation phase is **R12 — Encounter system**.
 
-Before R11 implementation:
+Before R12 implementation:
 
-1. re-check current `main` after the R10 merge;
+1. re-check current `main` after the R11 merge;
 2. verify open PRs do not conflict;
-3. inspect the pinned Emerald/Vanilla+ Pokémon, party, storage, move and item data structures;
-4. define the R11 acceptance contract;
+3. inspect pinned Emerald/Vanilla+ encounter tables, encounter-rate logic, repel/modifier rules and RNG call ordering;
+4. define the R12 deterministic acceptance contract;
 5. regression-test first;
-6. implement only on an R11 branch;
+6. implement only on an R12 branch;
 7. merge only after green CI.
 
 Real Unreal build and BrowserStack device execution remain deferred until R18.
