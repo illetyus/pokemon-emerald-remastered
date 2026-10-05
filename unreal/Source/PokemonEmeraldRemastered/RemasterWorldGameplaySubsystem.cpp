@@ -6,6 +6,7 @@
 
 extern "C"
 {
+#include "remaster/emerald_encounter.h"
 #include "remaster/emerald_events.h"
 #include "remaster/emerald_object_state.h"
 #include "remaster/emerald_overworld.h"
@@ -19,6 +20,30 @@ namespace
 bool FitsInt16(int32 Value)
 {
     return Value >= MIN_int16 && Value <= MAX_int16;
+}
+
+ERemasterWildEncounterKind ToPresentationEncounterKind(uint8 Kind)
+{
+    switch (static_cast<RemasterEmeraldEncounterKind>(Kind))
+    {
+    case REMASTER_EMERALD_ENCOUNTER_REGULAR:
+        return ERemasterWildEncounterKind::Regular;
+    case REMASTER_EMERALD_ENCOUNTER_ROAMER:
+        return ERemasterWildEncounterKind::Roamer;
+    case REMASTER_EMERALD_ENCOUNTER_OUTBREAK:
+        return ERemasterWildEncounterKind::Outbreak;
+    case REMASTER_EMERALD_ENCOUNTER_ROCK_SMASH:
+        return ERemasterWildEncounterKind::RockSmash;
+    case REMASTER_EMERALD_ENCOUNTER_FISHING:
+        return ERemasterWildEncounterKind::Fishing;
+    case REMASTER_EMERALD_ENCOUNTER_BATTLE_PIKE:
+        return ERemasterWildEncounterKind::BattlePike;
+    case REMASTER_EMERALD_ENCOUNTER_BATTLE_PYRAMID:
+        return ERemasterWildEncounterKind::BattlePyramid;
+    case REMASTER_EMERALD_ENCOUNTER_NONE:
+    default:
+        return ERemasterWildEncounterKind::None;
+    }
 }
 
 bool FitsUInt8(int32 Value)
@@ -256,6 +281,18 @@ void URemasterWorldGameplaySubsystem::Initialize(
                 NativeObjectRuntime));
     }
 
+    NativeEncounterRuntime = FMemory::Malloc(
+        sizeof(RemasterEmeraldEncounterRuntime),
+        alignof(RemasterEmeraldEncounterRuntime));
+
+    if (NativeEncounterRuntime)
+    {
+        remaster_emerald_encounter_runtime_init(
+            static_cast<RemasterEmeraldEncounterRuntime*>(
+                NativeEncounterRuntime),
+            0u);
+    }
+
     LoadCurrentMapFromSave(false);
 }
 
@@ -267,6 +304,13 @@ void URemasterWorldGameplaySubsystem::Deinitialize()
         NativeObjectRuntime = nullptr;
     }
 
+    if (NativeEncounterRuntime)
+    {
+        FMemory::Free(NativeEncounterRuntime);
+        NativeEncounterRuntime = nullptr;
+    }
+
+    LastWildEncounter = FRemasterWildEncounterPresentation{};
     CurrentMap = FRemasterMapIR{};
     bMapReady = false;
 
@@ -638,6 +682,124 @@ bool URemasterWorldGameplaySubsystem::IsObjectVisible(
 }
 
 
+void URemasterWorldGameplaySubsystem::SetEncounterSeed(int64 Seed)
+{
+    if (!NativeEncounterRuntime)
+        return;
+
+    remaster_emerald_encounter_runtime_init(
+        static_cast<RemasterEmeraldEncounterRuntime*>(
+            NativeEncounterRuntime),
+        static_cast<uint32>(Seed));
+    LastWildEncounter = FRemasterWildEncounterPresentation{};
+}
+
+bool URemasterWorldGameplaySubsystem::ProcessEncounterAfterMove(
+    int32 PreviousBehavior,
+    FRemasterPlayerStepResult& OutResult)
+{
+    if (!NativeEncounterRuntime
+        || !bMapReady
+        || !CurrentMap.IsValid()
+        || !GetGameInstance())
+    {
+        return false;
+    }
+
+    URemasterVanillaPlusSaveSubsystem* SaveSubsystem =
+        GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
+
+    if (!SaveSubsystem || !SaveSubsystem->HasUsableSave())
+        return false;
+
+    RemasterEmeraldSave* Save =
+        static_cast<RemasterEmeraldSave*>(
+            SaveSubsystem->GetMutableNativeSaveHandle());
+    if (!Save)
+        return false;
+
+    RemasterEmeraldMapView MapView{};
+    MapView.width = CurrentMap.Width;
+    MapView.height = CurrentMap.Height;
+    MapView.blocks = CurrentMap.RawBlocks.GetData();
+    MapView.block_count =
+        static_cast<size_t>(CurrentMap.RawBlocks.Num());
+    MapView.border = CurrentMap.BorderActiveWords.GetData();
+    MapView.border_count =
+        static_cast<size_t>(CurrentMap.BorderActiveWords.Num());
+    MapView.primary_attributes =
+        CurrentMap.PrimaryMetatileAttributes.GetData();
+    MapView.primary_attribute_count =
+        static_cast<size_t>(CurrentMap.PrimaryMetatileAttributes.Num());
+    MapView.secondary_attributes =
+        CurrentMap.SecondaryMetatileAttributes.GetData();
+    MapView.secondary_attribute_count =
+        static_cast<size_t>(CurrentMap.SecondaryMetatileAttributes.Num());
+
+    const uint8 CurrentBehavior =
+        remaster_emerald_map_behavior_at(
+            &MapView,
+            static_cast<int16>(OutResult.PlayerX),
+            static_cast<int16>(OutResult.PlayerY));
+
+    RemasterEmeraldEncounterStepContext Context{};
+    Context.map_group = static_cast<uint8>(CurrentMap.GroupNum);
+    Context.map_num = static_cast<uint8>(CurrentMap.MapNum);
+    Context.current_behavior = CurrentBehavior;
+    Context.previous_behavior =
+        PreviousBehavior >= 0 && PreviousBehavior <= MAX_uint8
+            ? static_cast<uint8>(PreviousBehavior)
+            : CurrentBehavior;
+
+    /*
+     * R4 currently has no authoritative bike/surf avatar-state model.
+     * Water encounter behavior itself remains authoritative; the bridge-under-
+     * water and bike-rate modifiers become active when those gameplay states
+     * are added to the portable avatar context, not from presentation guesses.
+     */
+    Context.surfing = 0u;
+    Context.biking = 0u;
+    Context.encounters_disabled = 0u;
+    Context.battle_pike = 0u;
+    Context.battle_pyramid = 0u;
+    Context.union_room = 0u;
+
+    RemasterEmeraldEncounterResult Native{};
+    const bool bOccurred =
+        remaster_emerald_encounter_step(
+            static_cast<RemasterEmeraldEncounterRuntime*>(
+                NativeEncounterRuntime),
+            Save,
+            &Context,
+            &Native) != 0;
+
+    OutResult.bRepelWoreOff = Native.repel_wore_off != 0u;
+    OutResult.bEncounterPending = bOccurred;
+
+    LastWildEncounter = FRemasterWildEncounterPresentation{};
+    if (bOccurred)
+    {
+        LastWildEncounter.bOccurred = true;
+        LastWildEncounter.Kind =
+            ToPresentationEncounterKind(Native.kind);
+        LastWildEncounter.Species = Native.species;
+        LastWildEncounter.Level = Native.level;
+        LastWildEncounter.Nature = Native.nature;
+        LastWildEncounter.Gender = Native.gender;
+        LastWildEncounter.AbilitySlot = Native.ability_num;
+        LastWildEncounter.RngCallsBefore =
+            static_cast<int64>(Native.rng_calls_before);
+        LastWildEncounter.RngCallsAfter =
+            static_cast<int64>(Native.rng_calls_after);
+
+        OnWildEncounterGenerated.Broadcast(LastWildEncounter);
+    }
+
+    OutResult.Encounter = LastWildEncounter;
+    return true;
+}
+
+
 bool URemasterWorldGameplaySubsystem::SetRuntimeObjectActive(
     int32 LocalId,
     bool bActive)
@@ -931,6 +1093,17 @@ bool URemasterWorldGameplaySubsystem::StepPlayer(
     MapView.secondary_attribute_count =
         static_cast<size_t>(CurrentMap.SecondaryMetatileAttributes.Num());
 
+    RemasterEmeraldOverworldState BeforeState{};
+    if (!remaster_emerald_overworld_get(Save, &BeforeState))
+        return false;
+
+    const int32 PreviousBehavior =
+        static_cast<int32>(
+            remaster_emerald_map_behavior_at(
+                &MapView,
+                BeforeState.player_x,
+                BeforeState.player_y));
+
     if (!NativeObjectRuntime || !SyncRuntimeObjectView())
         return false;
 
@@ -1083,10 +1256,20 @@ bool URemasterWorldGameplaySubsystem::StepPlayer(
         if (!SyncRuntimeObjectView())
             return false;
         OutResult.Kind = ERemasterPlayerStepKind::Moved;
-        return PopulatePlayerStepSnapshot(
-            Save,
-            CurrentMap,
-            OutResult);
+        if (!PopulatePlayerStepSnapshot(
+                Save,
+                CurrentMap,
+                OutResult))
+        {
+            return false;
+        }
+        if (!ProcessEncounterAfterMove(
+                PreviousBehavior,
+                OutResult))
+        {
+            return false;
+        }
+        return true;
 
     case REMASTER_EMERALD_OVERWORLD_ACTION_IMMEDIATE_SCRIPT:
     case REMASTER_EMERALD_OVERWORLD_ACTION_COORD_SCRIPT:
