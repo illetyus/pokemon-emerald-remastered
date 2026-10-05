@@ -216,6 +216,93 @@ int main(void)
             return 1;
     }
 
+    {
+        static const uint16_t player_left_moves[4] = {33, 0, 0, 0};
+        static const uint16_t player_right_moves[4] = {33, 0, 0, 0};
+        static const uint16_t foe_left_moves[4] = {52, 33, 0, 0};
+        static const uint16_t foe_right_moves[4] = {33, 0, 0, 0};
+        RemasterEmeraldPartyPokemon players[2];
+        RemasterEmeraldPartyPokemon foes[2];
+
+        if (!check(
+                make_mon(&players[0], 1, 30, player_left_moves)
+                    && make_mon(&players[1], 7, 30, player_right_moves)
+                    && make_mon(&foes[0], 4, 30, foe_left_moves)
+                    && make_mon(&foes[1], 37, 30, foe_right_moves),
+                "doubles AI fixtures should build"))
+            return 1;
+
+        remaster_emerald_battle_state_init(
+            &battle,
+            REMASTER_EMERALD_BATTLE_TYPE_MASTER
+                | REMASTER_EMERALD_BATTLE_TYPE_TRAINER
+                | REMASTER_EMERALD_BATTLE_TYPE_DOUBLE,
+            0x31415926u);
+        if (!check(
+                remaster_emerald_battle_start(
+                    &battle, players, 2, foes, 2),
+                "doubles trainer battle should start"))
+            return 1;
+
+        battle.opponent_trainer_ai_flags = 0;
+        battle.battlers[3].ability = 18;
+        battle.battlers[3].flash_fire = 0;
+
+        if (!check(
+                remaster_emerald_battle_choose_ai_action(
+                    &battle, 1, &action),
+                "doubles AI should choose an action"))
+            return 1;
+
+        if (!check(
+                action.target == 3 && action.move_slot == 0,
+                "Emerald doubles AI should deliberately trigger an "
+                "unboosted Flash Fire partner with a Fire move"))
+            return 1;
+    }
+
+    {
+        static const uint16_t player_left_moves[4] = {33, 0, 0, 0};
+        static const uint16_t player_right_moves[4] = {33, 0, 0, 0};
+        static const uint16_t foe_left_moves[4] = {33, 0, 0, 0};
+        static const uint16_t foe_right_moves[4] = {33, 0, 0, 0};
+        RemasterEmeraldPartyPokemon players[2];
+        RemasterEmeraldPartyPokemon foes[2];
+
+        if (!check(
+                make_mon(&players[0], 1, 30, player_left_moves)
+                    && make_mon(&players[1], 7, 30, player_right_moves)
+                    && make_mon(&foes[0], 4, 30, foe_left_moves)
+                    && make_mon(&foes[1], 37, 30, foe_right_moves),
+                "ordinary doubles AI fixtures should build"))
+            return 1;
+
+        remaster_emerald_battle_state_init(
+            &battle,
+            REMASTER_EMERALD_BATTLE_TYPE_MASTER
+                | REMASTER_EMERALD_BATTLE_TYPE_TRAINER
+                | REMASTER_EMERALD_BATTLE_TYPE_DOUBLE,
+            0x27182818u);
+        if (!check(
+                remaster_emerald_battle_start(
+                    &battle, players, 2, foes, 2),
+                "ordinary doubles trainer battle should start"))
+            return 1;
+
+        battle.opponent_trainer_ai_flags = 0;
+        if (!check(
+                remaster_emerald_battle_choose_ai_action(
+                    &battle, 1, &action),
+                "ordinary doubles AI should choose an action"))
+            return 1;
+
+        if (!check(
+                action.target == 0 || action.target == 2,
+                "Emerald doubles AI must not use an ordinary damaging move "
+                "against its partner"))
+            return 1;
+    }
+
     puts("r13 trainer AI parity test passed");
     return 0;
 }
