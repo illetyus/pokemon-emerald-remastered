@@ -149,6 +149,35 @@ def main() -> int:
         errors,
     )
 
+    world_gameplay_h = (
+        MODULE / "RemasterWorldGameplaySubsystem.h"
+    ).read_text(encoding="utf-8")
+    world_gameplay_cpp = (
+        MODULE / "RemasterWorldGameplaySubsystem.cpp"
+    ).read_text(encoding="utf-8")
+    require(
+        "FRemasterWildEncounterPresentation" in world_gameplay_h
+        and "OnWildEncounterGenerated" in world_gameplay_h
+        and "NativeEncounterRuntime" in world_gameplay_h,
+        "R12 world host must expose presentation-only encounter results and hold opaque portable runtime state",
+        errors,
+    )
+    require(
+        '#include "remaster/emerald_encounter.h"' in world_gameplay_cpp
+        and "remaster_emerald_encounter_runtime_init(" in world_gameplay_cpp
+        and "remaster_emerald_encounter_step(" in world_gameplay_cpp
+        and "ProcessEncounterAfterMove(" in world_gameplay_cpp,
+        "R12 moved-step adapter must call the portable encounter runtime",
+        errors,
+    )
+    require(
+        "Phase9ChooseWildSpecies" not in world_gameplay_cpp
+        and "Random()" not in world_gameplay_cpp
+        and "encounterRate *=" not in world_gameplay_cpp,
+        "R12 Unreal host must not reimplement species/RNG/encounter-rate authority",
+        errors,
+    )
+
     require(
         (MODULE / "RemasterEmeraldPokemonEmbed.cpp").is_file()
         and (MODULE / "RemasterEmeraldItemsEmbed.cpp").is_file(),
