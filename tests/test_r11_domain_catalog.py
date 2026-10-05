@@ -40,6 +40,8 @@ class R11DomainCatalogTest(unittest.TestCase):
             self.assertEqual(report["move_count"], 355)
             self.assertEqual(report["item_count"], 377)
             self.assertEqual(report["evolution_slots_per_species"], 5)
+            self.assertGreater(report["level_up_move_entry_count"], 1000)
+            self.assertEqual(report["level_up_learnset_species_count"], 412)
 
             self.assertEqual(report["species_entries_missing"], [])
             self.assertEqual(report["move_entries_missing"], [])
