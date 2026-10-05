@@ -63,6 +63,23 @@ class R13BattleSourceContract(unittest.TestCase):
             text,
         )
 
+    def test_trainer_reward_and_end_lifecycle_are_pinned(self):
+        battle_main = (VENDOR / "src/battle_main.c").read_text(
+            encoding="utf-8"
+        )
+        commands = (VENDOR / "src/battle_script_commands.c").read_text(
+            encoding="utf-8"
+        )
+        setup = (VENDOR / "src/battle_setup.c").read_text(encoding="utf-8")
+
+        self.assertIn("const struct TrainerMoney gTrainerMoneyTable[]", battle_main)
+        self.assertIn(
+            "4 * lastMonLevel * gBattleStruct->moneyMultiplier",
+            commands,
+        )
+        self.assertIn("SetBattledTrainersFlags();", setup)
+        self.assertIn("SetMainCallback2(CB2_WhiteOut);", setup)
+
     def test_move_effect_count_is_gen3_contract(self):
         text = (VENDOR / "include/constants/battle_move_effects.h").read_text(
             encoding="utf-8"
