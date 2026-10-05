@@ -1480,6 +1480,50 @@ int remaster_emerald_battle_start_trainer_from_save(
     return 1;
 }
 
+int remaster_emerald_battle_finalize_trainer(
+    const RemasterEmeraldBattleState *battle,
+    RemasterEmeraldSave *save,
+    int *out_whiteout)
+{
+    enum { TRAINER_FLAGS_START = 0x500 };
+    int whiteout = 0;
+
+    if (battle == 0
+        || save == 0
+        || !battle->ended
+        || !(battle->battle_type_flags
+            & REMASTER_EMERALD_BATTLE_TYPE_TRAINER)
+        || remaster_emerald_battle_trainer_find(
+            battle->opponent_trainer_id) == 0)
+        return 0;
+
+    if (!remaster_emerald_battle_commit_player_party(battle, save))
+        return 0;
+
+    switch (battle->outcome) {
+    case REMASTER_EMERALD_BATTLE_OUTCOME_WON:
+        if (!remaster_emerald_flag_set(
+                save,
+                (uint16_t)(TRAINER_FLAGS_START
+                    + battle->opponent_trainer_id),
+                1))
+            return 0;
+        break;
+
+    case REMASTER_EMERALD_BATTLE_OUTCOME_LOST:
+    case REMASTER_EMERALD_BATTLE_OUTCOME_DREW:
+        whiteout = 1;
+        break;
+
+    default:
+        return 0;
+    }
+
+    if (out_whiteout != 0)
+        *out_whiteout = whiteout;
+    return 1;
+}
+
 void remaster_emerald_battle_state_init(
     RemasterEmeraldBattleState *battle,
     uint32_t battle_type_flags,
