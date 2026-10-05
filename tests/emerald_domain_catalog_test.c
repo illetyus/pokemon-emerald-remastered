@@ -19,6 +19,8 @@ int main(void)
     const RemasterEmeraldMoveInfo *move;
     const RemasterEmeraldItemInfo *item;
     const RemasterEmeraldEvolution *evolution;
+    const RemasterEmeraldLevelUpMove *learnset;
+    size_t learnset_count = 0;
     RemasterEmeraldCalculatedStats stats;
     uint8_t ivs[6] = {31, 31, 31, 31, 31, 31};
     uint8_t evs[6] = {0, 252, 0, 0, 252, 0};
@@ -149,7 +151,17 @@ int main(void)
             "Poke Ball source data mismatch"))
         return 1;
 
-    evolution = remaster_emerald_species_evolutions(64); /* Kadabra */
+    learnset = remaster_emerald_species_level_up_moves(
+        1, &learnset_count); /* Bulbasaur */
+    if (!check(
+            learnset != 0
+            && learnset_count >= 4
+            && learnset[2].level == 7
+            && learnset[2].move_id == 73,
+            "Bulbasaur level-up learnset mismatch"))
+        return 1;
+
+        evolution = remaster_emerald_species_evolutions(64); /* Kadabra */
     if (!check(
             evolution != 0
             && evolution[0].method == 4
