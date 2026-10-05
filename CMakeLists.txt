@@ -725,6 +725,18 @@ endif()
 add_test(NAME r12_encounter_special COMMAND emerald_encounter_special_test)
 
 
+add_executable(emerald_encounter_replay_test
+    tests/emerald_encounter_replay_test.c
+)
+target_link_libraries(emerald_encounter_replay_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_encounter_replay_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_encounter_replay_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r12_encounter_replay COMMAND emerald_encounter_replay_test)
+
+
 add_test(
     NAME r12_encounter_catalog_audit
     COMMAND
