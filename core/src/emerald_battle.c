@@ -368,6 +368,7 @@ enum {
     SPECIES_LATIAS = 407,
     SPECIES_LATIOS = 408,
 
+    MOVE_SWORDS_DANCE = 14,
     MOVE_GUST = 16,
     MOVE_FLY = 19,
     MOVE_HYDRO_PUMP = 56,
@@ -388,6 +389,7 @@ enum {
     MOVE_THIEF = 168,
     MOVE_PROTECT = 182,
     MOVE_DESTINY_BOND = 194,
+    MOVE_BATON_PASS = 226,
     MOVE_DETECT = 197,
     MOVE_ENDURE = 203,
     MOVE_SLEEP_TALK = 214,
@@ -404,6 +406,8 @@ enum {
     MOVE_DIVE = 291,
     MOVE_BOUNCE = 340,
     MOVE_COVET = 343,
+    MOVE_CALM_MIND = 347,
+    MOVE_DRAGON_DANCE = 349,
 
     FLAG_BADGE01_GET = 0x867
 };
@@ -6012,6 +6016,103 @@ static void battle_ai_apply_prefer_power_extremes(
     }
 }
 
+static int battle_ai_has_move_effect(
+    const RemasterEmeraldBattleMon *user,
+    uint8_t effect)
+{
+    uint8_t slot;
+
+    if (user == 0)
+        return 0;
+
+    for (slot = 0; slot < REMASTER_EMERALD_MAX_MOVES; ++slot) {
+        const RemasterEmeraldMoveInfo *move =
+            remaster_emerald_move_info(user->moves[slot]);
+        if (move != 0 && move->effect == effect)
+            return 1;
+    }
+    return 0;
+}
+
+static void battle_ai_apply_prefer_baton_pass(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t target,
+    int scores[4])
+{
+    const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
+    const int has_baton_pass =
+        battle_ai_has_move_effect(user, EFFECT_BATON_PASS);
+    uint8_t slot;
+
+    if (battle->battlers[target].side == user->side
+        || !battle_ai_has_reserve(battle, user->side))
+        return;
+
+    for (slot = 0; slot < REMASTER_EMERALD_MAX_MOVES; ++slot) {
+        const RemasterEmeraldMoveInfo *move;
+        uint16_t move_id;
+
+        if (scores[slot] < 0)
+            continue;
+
+        move_id = user->moves[slot];
+        move = remaster_emerald_move_info(move_id);
+        if (!battle_ai_power_is_other(move))
+            continue;
+
+        if (!has_baton_pass
+            && remaster_emerald_battle_random(&battle->rng) % 256u < 80u)
+            continue;
+
+        if (move_id == MOVE_SWORDS_DANCE
+            || move_id == MOVE_DRAGON_DANCE
+            || move_id == MOVE_CALM_MIND) {
+            if (battle->turn_number == 0) {
+                battle_ai_score_add(scores, slot, 5);
+            } else if ((uint32_t)user->pokemon.hp * 100u
+                    < (uint32_t)user->pokemon.max_hp * 60u) {
+                battle_ai_score_add(scores, slot, -10);
+            } else {
+                battle_ai_score_add(scores, slot, 1);
+            }
+            continue;
+        }
+
+        if (move->effect == EFFECT_PROTECT) {
+            if (user->last_move == MOVE_PROTECT
+                || user->last_move == MOVE_DETECT)
+                battle_ai_score_add(scores, slot, -2);
+            else
+                battle_ai_score_add(scores, slot, 2);
+            continue;
+        }
+
+        if (move_id == MOVE_BATON_PASS) {
+            if (battle->turn_number == 0) {
+                battle_ai_score_add(scores, slot, -2);
+            } else if (user->stat_stages[1] > 8u) {
+                battle_ai_score_add(scores, slot, 3);
+            } else if (user->stat_stages[1] > 7u) {
+                battle_ai_score_add(scores, slot, 2);
+            } else if (user->stat_stages[1] > 6u) {
+                battle_ai_score_add(scores, slot, 1);
+            } else if (user->stat_stages[4] > 8u) {
+                battle_ai_score_add(scores, slot, 3);
+            } else if (user->stat_stages[4] > 7u) {
+                battle_ai_score_add(scores, slot, 2);
+            } else if (user->stat_stages[4] > 6u) {
+                battle_ai_score_add(scores, slot, 1);
+            }
+            continue;
+        }
+
+        if (remaster_emerald_battle_random(&battle->rng) % 256u < 20u)
+            continue;
+        battle_ai_score_add(scores, slot, 3);
+    }
+}
+
 static void battle_ai_apply_double_battle(
     RemasterEmeraldBattleState *battle,
     uint8_t battler,
@@ -6565,6 +6666,9 @@ static int battle_ai_choose_trainer_move(
             battle, battler, scores);
     if (flags & REMASTER_EMERALD_AI_PREFER_POWER_EXTREMES)
         battle_ai_apply_prefer_power_extremes(
+            battle, battler, target, scores);
+    if (flags & REMASTER_EMERALD_AI_PREFER_BATON_PASS)
+        battle_ai_apply_prefer_baton_pass(
             battle, battler, target, scores);
     if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE)
         battle_ai_apply_double_battle(
