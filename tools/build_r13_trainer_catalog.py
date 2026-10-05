@@ -150,8 +150,8 @@ def build_charmap(vendor: Path) -> dict[str, list[int]]:
     text = (vendor / "charmap.txt").read_text(encoding="utf-8")
     for line in text.splitlines():
         match = re.match(
-            r"^'((?:\\\\.|[^'])*)'\\s*=\\s*"
-            r"([0-9A-Fa-f]{2}(?:\\s+[0-9A-Fa-f]{2})*)\\s*$",
+            r"^'((?:\\.|[^'])*)'\s*=\s*"
+            r"([0-9A-Fa-f]{2}(?:\s+[0-9A-Fa-f]{2})*)\s*$",
             line.strip(),
         )
         if not match:
@@ -193,8 +193,8 @@ def build_species_name_hashes(
     )
     hashes = [0] * resolver.eval("NUM_SPECIES")
     for match in re.finditer(
-        r'\\[(SPECIES_[A-Z0-9_]+)\\]\\s*=\\s*_\\("'
-        r'((?:\\\\.|[^"\\\\])*)"\\)',
+        r'\[(SPECIES_[A-Z0-9_]+)\]\s*=\s*_\("'
+        r'((?:\\.|[^"\\])*)"\)',
         text,
     ):
         species = resolver.eval(match.group(1))
