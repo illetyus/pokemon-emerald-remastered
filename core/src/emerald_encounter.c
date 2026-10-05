@@ -221,6 +221,16 @@ void remaster_emerald_encounter_runtime_init(
     remaster_emerald_encounter_rng_seed(&runtime->rng, seed);
 }
 
+void remaster_emerald_encounter_restart_immunity(
+    RemasterEmeraldEncounterRuntime *runtime)
+{
+    if (runtime == 0)
+        return;
+
+    runtime->wild_immunity_steps = 0;
+    runtime->previous_behavior_valid = 0;
+}
+
 size_t remaster_emerald_encounter_map_count(void)
 {
     return sizeof(kRemasterEncounterMaps)
@@ -1642,6 +1652,9 @@ int remaster_emerald_encounter_step(
         || context == 0 || out_result == 0)
         return 0;
 
+    int wore_off = 0;
+    uint8_t previous_behavior;
+
     area = remaster_emerald_encounter_area_from_behavior(
         context->current_behavior,
         context->surfing);
@@ -1652,8 +1665,47 @@ int remaster_emerald_encounter_step(
         REMASTER_EMERALD_ROD_NONE);
     calls_before = runtime->rng.calls;
 
+    /*
+     * ProcessPlayerFieldInput calls UpdateRepelCounter before
+     * CheckStandardWildEncounter. If repel expires, its script consumes this
+     * step and the wild check does not run.
+     */
+    if (!remaster_emerald_encounter_update_repel(
+            save,
+            context->battle_pike,
+            context->battle_pyramid,
+            context->union_room,
+            &wore_off)) {
+        r12_result_finalize(runtime, out_result);
+        return 0;
+    }
+    if (wore_off) {
+        runtime->previous_behavior = context->current_behavior;
+        runtime->previous_behavior_valid = 1;
+        r12_result_finalize(runtime, out_result);
+        return 0;
+    }
+
+    /*
+     * Vanilla CheckStandardWildEncounter grants four encounter-immune steps
+     * after the counter is restarted.
+     */
+    if (runtime->wild_immunity_steps < 4u) {
+        runtime->wild_immunity_steps++;
+        runtime->previous_behavior = context->current_behavior;
+        runtime->previous_behavior_valid = 1;
+        r12_result_finalize(runtime, out_result);
+        return 0;
+    }
+
+    previous_behavior = runtime->previous_behavior_valid
+        ? runtime->previous_behavior
+        : context->previous_behavior;
+
     if (context->encounters_disabled
         || area == REMASTER_EMERALD_ENCOUNTER_AREA_NONE) {
+        runtime->previous_behavior = context->current_behavior;
+        runtime->previous_behavior_valid = 1;
         r12_result_finalize(runtime, out_result);
         return 0;
     }
@@ -1696,8 +1748,7 @@ int remaster_emerald_encounter_step(
         return 0;
     }
 
-    if (context->previous_behavior
-            != context->current_behavior
+    if (previous_behavior != context->current_behavior
         && remaster_emerald_encounter_random(&runtime->rng)
             % 100u >= 60u) {
         r12_result_finalize(runtime, out_result);
@@ -1715,6 +1766,8 @@ int remaster_emerald_encounter_step(
     out_result->modified_rate = rate;
 
     if (!r12_rate_roll(runtime, rate)) {
+        runtime->previous_behavior = context->current_behavior;
+        runtime->previous_behavior_valid = 1;
         r12_result_finalize(runtime, out_result);
         return 0;
     }
@@ -1730,6 +1783,10 @@ int remaster_emerald_encounter_step(
 
     out_result->modified_rate = rate;
     out_result->rng_calls_before = calls_before;
+    runtime->previous_behavior = context->current_behavior;
+    runtime->previous_behavior_valid = 1;
+    if (occurred)
+        runtime->wild_immunity_steps = 0;
     r12_result_finalize(runtime, out_result);
     return occurred;
 }
