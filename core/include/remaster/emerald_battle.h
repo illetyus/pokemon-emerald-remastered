@@ -353,6 +353,11 @@ int remaster_emerald_battle_start_trainer_from_save(
     const RemasterEmeraldSave *save,
     uint16_t trainer_id);
 
+int remaster_emerald_battle_finalize_trainer(
+    const RemasterEmeraldBattleState *battle,
+    RemasterEmeraldSave *save,
+    int *out_whiteout);
+
 void remaster_emerald_battle_state_init(
     RemasterEmeraldBattleState *battle,
     uint32_t battle_type_flags,
