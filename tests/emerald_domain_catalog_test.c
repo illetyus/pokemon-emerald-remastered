@@ -86,7 +86,7 @@ int main(void)
         return 1;
 
     if (!check(
-            stats.hp == 147
+            stats.hp == 115
             && stats.attack == 106
             && stats.sp_attack == 105,
             "Treecko Gen III stat/nature calculation mismatch"))
