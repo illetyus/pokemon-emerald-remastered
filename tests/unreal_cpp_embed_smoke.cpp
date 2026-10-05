@@ -5,6 +5,8 @@ extern "C"
 {
 #include "remaster/core.h"
 #include "remaster/emerald_object_state.h"
+#include "remaster/emerald_quest.h"
+#include "remaster/emerald_state.h"
 }
 
 
@@ -71,6 +73,15 @@ int main()
         || observed_template.movement_type != 5
         || observed_template.flag_id != 0x123)
         return fail("object-template state mismatch");
+
+    if (!remaster_emerald_flag_set(&save, 0x0860, 1))
+        return fail("R10 starter flag write failed");
+
+    const RemasterEmeraldQuestObjective* quest =
+        remaster_emerald_quest_active(&save);
+    if (quest == nullptr
+        || quest->id != REMASTER_EMERALD_QUEST_MEET_RIVAL_ROUTE103)
+        return fail("R10 quest resolver embed mismatch");
 
     const std::uint64_t hash = remaster_core_state_hash(&state);
     if (hash != UINT64_C(7218695048241891488))
