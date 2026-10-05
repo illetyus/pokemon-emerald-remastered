@@ -499,28 +499,6 @@ static int battle_party_slot_active(
     return 0;
 }
 
-static int battle_find_switch_slot(
-    const RemasterEmeraldBattleState *battle,
-    uint8_t side,
-    uint8_t *out_slot)
-{
-    uint8_t i;
-
-    if (battle == 0 || out_slot == 0 || side > 1)
-        return 0;
-
-    for (i = 0; i < battle->party_count[side]; ++i) {
-        if (battle->parties[side][i].hp != 0
-            && remaster_emerald_box_pokemon_species(
-                &battle->parties[side][i].box) != 0
-            && !battle_party_slot_active(battle, side, i)) {
-            *out_slot = i;
-            return 1;
-        }
-    }
-    return 0;
-}
-
 static int battle_weather_has_effect(
     const RemasterEmeraldBattleState *battle)
 {
