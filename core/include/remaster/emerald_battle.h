@@ -399,6 +399,15 @@ int remaster_emerald_battle_switch(
     uint8_t battler,
     uint8_t party_slot);
 
+int remaster_emerald_battle_needs_replacement(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t battler);
+
+int remaster_emerald_battle_replace_fainted(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t party_slot);
+
 int remaster_emerald_battle_choose_ai_action(
     RemasterEmeraldBattleState *battle,
     uint8_t battler,
