@@ -166,6 +166,10 @@ int main(void)
             remaster_emerald_box_pokemon_species(&stored.box) == 129,
             "stored species must match R12 encounter"))
         return 1;
+    if (!check(
+            remaster_emerald_box_pokemon_pokeball(&stored.box) == 1,
+            "capture Ball must survive R11 storage round-trip"))
+        return 1;
 
     puts("r13 encounter-battle integration test passed");
     return 0;
