@@ -8,7 +8,7 @@ input and platform integration.
 
 ## Project status
 
-**R0-R5 are complete.**
+**R0-R5 and R10 are complete.**
 
 Completed foundation:
 
@@ -17,11 +17,12 @@ Completed foundation:
 - R2 — script engine;
 - R3 — complete Hoenn world-data conversion;
 - R4 — authoritative overworld runtime;
-- R5 — Unreal world-renderer source/data bridge.
+- R5 — Unreal world-renderer source/data bridge;
+- R10 — map + quest guidance derived from Emerald state.
 
 The next implementation phase is:
 
-**R10 — Map + quest guidance**
+**R11 — Pokémon / party / item core**
 
 The phase numbers are intentionally preserved even though the remaining
 implementation order is non-numeric.
