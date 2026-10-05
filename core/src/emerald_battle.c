@@ -3239,8 +3239,6 @@ static int battle_apply_primary_effect(
             return 0;
         user->snatch = 1;
         return 1;
-    case EFFECT_BATON_PASS:
-        return 1;
     case EFFECT_CAMOUFLAGE:
         user->types[0] = TYPE_NORMAL;
         user->types[1] = TYPE_NORMAL;
