@@ -137,6 +137,32 @@ int main(void)
     }
 
     {
+        static const uint16_t foe_moves[4] = {63, 33, 0, 0};
+
+        if (!check(
+                start_trainer_fixture(
+                    &battle,
+                    player_moves,
+                    foe_moves,
+                    REMASTER_EMERALD_AI_PREFER_POWER_EXTREMES,
+                    5u),
+                "prefer-power-extremes trainer AI fixture should start"))
+            return 1;
+
+        if (!check(
+                remaster_emerald_battle_choose_ai_action(
+                    &battle, 1, &action),
+                "prefer-power-extremes AI should choose a move"))
+            return 1;
+
+        if (!check(
+                action.move_slot == 0,
+                "PreferPowerExtremes must treat Hyper Beam's recharge "
+                "effect as MOVE_POWER_OTHER and apply Emerald's +2 roll"))
+            return 1;
+    }
+
+    {
         static const uint16_t foe_moves[4] = {63, 98, 0, 0};
 
         if (!check(
