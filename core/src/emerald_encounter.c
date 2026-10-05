@@ -1680,6 +1680,7 @@ int remaster_emerald_encounter_step(
         return 0;
     }
     if (wore_off) {
+        out_result->repel_wore_off = 1;
         runtime->previous_behavior = context->current_behavior;
         runtime->previous_behavior_valid = 1;
         r12_result_finalize(runtime, out_result);
