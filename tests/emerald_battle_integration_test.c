@@ -1,5 +1,6 @@
 #include "remaster/emerald_battle.h"
 #include "remaster/emerald_encounter.h"
+#include "remaster/emerald_state.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -81,6 +82,8 @@ int main(void)
     RemasterEmeraldEncounterRuntime encounter;
     RemasterEmeraldBattleState battle;
     uint8_t count;
+    int trainer_flag = 0;
+    int whiteout = 0;
 
     memset(&save, 0, sizeof(save));
 
