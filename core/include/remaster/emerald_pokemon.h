@@ -227,6 +227,11 @@ uint8_t remaster_emerald_species_ability(
     uint16_t species_id,
     uint8_t ability_num);
 
+int remaster_emerald_pokemon_apply_initial_moves(
+    RemasterEmeraldBoxPokemon *pokemon,
+    uint16_t species_id,
+    uint8_t level);
+
 uint32_t remaster_emerald_experience_for_level(
     uint8_t growth_rate,
     uint8_t level);
