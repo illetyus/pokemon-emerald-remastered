@@ -8,7 +8,7 @@ input and platform integration.
 
 ## Project status
 
-**R0-R5 and R10-R11 are complete.**
+**R0-R5 and R10-R12 are complete.**
 
 Completed foundation:
 
@@ -19,11 +19,12 @@ Completed foundation:
 - R4 — authoritative overworld runtime;
 - R5 — Unreal world-renderer source/data bridge;
 - R10 — map + quest guidance derived from Emerald state;
-- R11 — Pokémon / party / item core with Gen III save-compatible binary semantics.
+- R11 — Pokémon / party / item core with Gen III save-compatible binary semantics;
+- R12 — deterministic Emerald/Phase9 encounter core.
 
 The next implementation phase is:
 
-**R12 — Encounter system**
+**R13 — Battle core**
 
 The phase numbers are intentionally preserved even though the remaining
 implementation order is non-numeric.
@@ -39,9 +40,8 @@ the current remaining-phase order.
 
 Current remaining order:
 
-1. R12 — Encounter system
-2. R13 — Battle core
-3. R16 — Vanilla+ QoL
+1. R13 — Battle core
+2. R16 — Vanilla+ QoL
 4. R17 — Save compatibility / migration
 5. R6 — Character / NPC presentation + asset pipeline
 6. R7 — Camera / environment presentation + asset pipeline
