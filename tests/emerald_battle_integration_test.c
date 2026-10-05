@@ -84,6 +84,7 @@ int main(void)
     uint8_t count;
     int trainer_flag = 0;
     int whiteout = 0;
+    RemasterEmeraldOverworldState world;
 
     memset(&save, 0, sizeof(save));
 
@@ -234,6 +235,12 @@ int main(void)
             "won trainer battle must set its trainer defeat flag"))
         return 1;
 
+    if (!check(
+            remaster_emerald_overworld_get(&save, &world)
+                && world.money == 1632u,
+            "won double trainer battle must pay the Vanilla reward"))
+        return 1;
+
     remaster_emerald_battle_state_init(
         &battle,
         REMASTER_EMERALD_BATTLE_TYPE_MASTER,
@@ -261,6 +268,59 @@ int main(void)
                 && remaster_emerald_flag_get(&save, 0x500u + 11u, &trainer_flag)
                 && !trainer_flag,
             "lost trainer battle must request whiteout without defeat flag"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_overworld_get(&save, &world)
+                && world.money == 1632u,
+            "lost trainer battle must not award trainer money"))
+        return 1;
+
+    if (!check(
+            remaster_emerald_party_get(&save, 0, &stored, 0)
+                && remaster_emerald_box_pokemon_set_held_item(
+                    &stored.box,
+                    189),
+            "prepare Amulet Coin player"))
+        return 1;
+    stored.box.checksum =
+        remaster_emerald_box_pokemon_checksum(&stored.box);
+    if (!check(
+            remaster_emerald_party_set(&save, 0, &stored),
+            "store Amulet Coin player"))
+        return 1;
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER,
+        0xABCDEF01u);
+    if (!check(
+            remaster_emerald_battle_start_trainer_from_save(
+                &battle,
+                &save,
+                1),
+            "Sawyer battle with Amulet Coin should start"))
+        return 1;
+    if (!check(
+            battle.money_multiplier == 2,
+            "Amulet Coin switch-in must double trainer prize money"))
+        return 1;
+
+    battle.money_reward = 100u;
+    battle.ended = 1;
+    battle.outcome = REMASTER_EMERALD_BATTLE_OUTCOME_WON;
+    whiteout = 0;
+    if (!check(
+            remaster_emerald_battle_finalize_trainer(
+                &battle,
+                &save,
+                &whiteout),
+            "Amulet Coin trainer win should finalize"))
+        return 1;
+    if (!check(
+            remaster_emerald_overworld_get(&save, &world)
+                && world.money == 3412u,
+            "trainer reward and Pay Day money must both reach save money"))
         return 1;
 
     puts("r13 encounter-battle integration test passed");
