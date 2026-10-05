@@ -223,6 +223,14 @@ typedef struct RemasterEmeraldBattleMon {
     uint8_t disable_move_slot;
     uint8_t destiny_bond_turn;
     uint8_t grudge_turn;
+    uint16_t charging_move;
+    uint8_t charging_move_slot;
+    uint8_t charging_target;
+    uint8_t helping_hand;
+    uint8_t magic_coat;
+    uint8_t snatch;
+    uint8_t imprison;
+    uint16_t last_consumed_item;
 } RemasterEmeraldBattleMon;
 
 typedef struct RemasterEmeraldBattleState {
@@ -239,6 +247,16 @@ typedef struct RemasterEmeraldBattleState {
     uint8_t weather;
     uint8_t weather_turns;
     uint8_t player_badge_mask;
+    uint8_t terrain;
+    uint8_t called_move_depth;
+    uint8_t follow_me_target[2];
+    uint8_t follow_me_turns[2];
+    uint8_t wish_turns[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
+    uint16_t wish_amount[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
+    uint8_t future_turns[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
+    uint8_t future_attacker[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
+    uint16_t future_move[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
+    uint16_t future_damage[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
     uint32_t turn_number;
     uint8_t outcome;
     uint8_t ended;
