@@ -2273,7 +2273,13 @@ static void battle_damage_direct(
     if (!target->active || target->fainted)
         return;
 
-    if (target->substitute_hp != 0) {
+    /*
+     * Substitute absorbs direct opposing move damage, not residual/self
+     * damage such as poison, burn, weather, Curse, Leech Seed or confusion.
+     */
+    if (target->substitute_hp != 0
+        && move_id != 0
+        && source != target_id) {
         actual = damage > target->substitute_hp
             ? target->substitute_hp
             : damage;
