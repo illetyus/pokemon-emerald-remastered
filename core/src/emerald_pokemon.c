@@ -1,4 +1,5 @@
 #include "remaster/emerald_pokemon.h"
+#include "remaster/emerald_items.h"
 
 #include <string.h>
 
@@ -628,6 +629,20 @@ const RemasterEmeraldMoveInfo *remaster_emerald_move_info(
     if ((size_t)move_id >= remaster_emerald_move_info_count())
         return 0;
     return &kRemasterEmeraldMoveInfo[move_id];
+}
+
+size_t remaster_emerald_item_info_count(void)
+{
+    return sizeof(kRemasterEmeraldItemInfo)
+        / sizeof(kRemasterEmeraldItemInfo[0]);
+}
+
+const RemasterEmeraldItemInfo *remaster_emerald_item_info(
+    uint16_t item_id)
+{
+    if ((size_t)item_id >= remaster_emerald_item_info_count())
+        return 0;
+    return &kRemasterEmeraldItemInfo[item_id];
 }
 
 const RemasterEmeraldEvolution *remaster_emerald_species_evolutions(
