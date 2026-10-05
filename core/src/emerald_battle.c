@@ -1256,6 +1256,187 @@ int remaster_emerald_battle_trainer_validate(
     return 1;
 }
 
+static uint16_t battle_trainer_shiny_value(
+    uint32_t ot_id,
+    uint32_t personality)
+{
+    return (uint16_t)(
+        (ot_id >> 16u)
+        ^ (ot_id & 0xFFFFu)
+        ^ (personality >> 16u)
+        ^ (personality & 0xFFFFu));
+}
+
+static int battle_build_trainer_mon(
+    RemasterEmeraldBattleRng *rng,
+    const RemasterEmeraldTrainer *trainer,
+    const RemasterEmeraldTrainerMon *source,
+    uint32_t personality,
+    RemasterEmeraldPartyPokemon *out)
+{
+    const RemasterEmeraldSpeciesInfo *info;
+    RemasterEmeraldCalculatedStats stats;
+    uint8_t ivs[REMASTER_EMERALD_STAT_COUNT];
+    uint8_t evs[REMASTER_EMERALD_STAT_COUNT] = {0};
+    uint8_t fixed_iv;
+    uint8_t ability_num;
+    uint8_t slot;
+    uint32_t ot_id;
+
+    if (rng == 0 || trainer == 0 || source == 0 || out == 0)
+        return 0;
+
+    info = remaster_emerald_species_info(source->species);
+    if (info == 0)
+        return 0;
+
+    fixed_iv = (uint8_t)((uint32_t)source->iv * 31u / 255u);
+    memset(ivs, fixed_iv, sizeof(ivs));
+    memset(out, 0, sizeof(*out));
+
+    do {
+        ot_id = remaster_emerald_battle_random32(rng);
+    } while (battle_trainer_shiny_value(ot_id, personality) < 8u);
+
+    out->box.personality = personality;
+    out->box.ot_id = ot_id;
+    out->box.header_flags = 0x02u;
+
+    if (!remaster_emerald_box_pokemon_set_species(
+            &out->box, source->species)
+        || !remaster_emerald_box_pokemon_set_experience(
+            &out->box,
+            remaster_emerald_experience_for_level(
+                info->growth_rate,
+                source->level))
+        || !remaster_emerald_box_pokemon_set_friendship(
+            &out->box,
+            info->friendship))
+        return 0;
+
+    for (slot = 0; slot < REMASTER_EMERALD_STAT_COUNT; ++slot) {
+        if (!remaster_emerald_box_pokemon_set_iv(
+                &out->box, slot, fixed_iv))
+            return 0;
+    }
+
+    ability_num =
+        info->abilities[1] != 0
+        ? (uint8_t)(personality & 1u)
+        : 0u;
+    if (!remaster_emerald_box_pokemon_set_ability_num(
+            &out->box, ability_num))
+        return 0;
+
+    if (trainer->party_flags
+        & REMASTER_EMERALD_TRAINER_PARTY_HELD_ITEM) {
+        if (!remaster_emerald_box_pokemon_set_held_item(
+                &out->box, source->held_item))
+            return 0;
+    }
+
+    if (trainer->party_flags
+        & REMASTER_EMERALD_TRAINER_PARTY_CUSTOM_MOVESET) {
+        for (slot = 0; slot < REMASTER_EMERALD_MAX_MOVES; ++slot) {
+            const RemasterEmeraldMoveInfo *move =
+                remaster_emerald_move_info(source->moves[slot]);
+            uint8_t pp = move != 0 ? move->pp : 0;
+            if (!remaster_emerald_box_pokemon_set_move(
+                    &out->box,
+                    slot,
+                    source->moves[slot],
+                    pp))
+                return 0;
+        }
+    } else if (!remaster_emerald_pokemon_apply_initial_moves(
+            &out->box,
+            source->species,
+            source->level)) {
+        return 0;
+    }
+
+    if (!remaster_emerald_calculate_stats(
+            source->species,
+            source->level,
+            (uint8_t)(personality % 25u),
+            ivs,
+            evs,
+            &stats))
+        return 0;
+
+    out->level = source->level;
+    out->hp = stats.hp;
+    out->max_hp = stats.hp;
+    out->attack = stats.attack;
+    out->defense = stats.defense;
+    out->speed = stats.speed;
+    out->sp_attack = stats.sp_attack;
+    out->sp_defense = stats.sp_defense;
+    out->box.checksum =
+        remaster_emerald_box_pokemon_checksum(&out->box);
+    return 1;
+}
+
+int remaster_emerald_battle_build_trainer_party(
+    RemasterEmeraldBattleRng *rng,
+    uint16_t trainer_id,
+    RemasterEmeraldPartyPokemon out_party[
+        REMASTER_EMERALD_BATTLE_PARTY_SIZE],
+    uint8_t *out_count)
+{
+    const RemasterEmeraldTrainer *trainer =
+        remaster_emerald_battle_trainer_find(trainer_id);
+    uint32_t name_hash = 0;
+    uint8_t i;
+
+    if (rng == 0
+        || out_party == 0
+        || out_count == 0
+        || trainer == 0
+        || !remaster_emerald_battle_trainer_validate(trainer)
+        || (size_t)trainer_id
+            >= sizeof(kRemasterEmeraldTrainerNameHashes)
+                / sizeof(kRemasterEmeraldTrainerNameHashes[0]))
+        return 0;
+
+    memset(
+        out_party,
+        0,
+        sizeof(out_party[0]) * REMASTER_EMERALD_BATTLE_PARTY_SIZE);
+
+    for (i = 0; i < trainer->party_size; ++i) {
+        const RemasterEmeraldTrainerMon *source = &trainer->party[i];
+        uint32_t personality;
+
+        if ((size_t)source->species
+            >= sizeof(kRemasterEmeraldSpeciesNameHashes)
+                / sizeof(kRemasterEmeraldSpeciesNameHashes[0]))
+            return 0;
+
+        personality =
+            trainer->double_battle
+            ? UINT32_C(0x80)
+            : ((trainer->encounter_music_gender & 0x80u)
+                ? UINT32_C(0x78)
+                : UINT32_C(0x88));
+
+        name_hash += kRemasterEmeraldTrainerNameHashes[trainer_id];
+        name_hash += kRemasterEmeraldSpeciesNameHashes[source->species];
+        personality += name_hash << 8u;
+
+        if (!battle_build_trainer_mon(
+                rng,
+                trainer,
+                source,
+                personality,
+                &out_party[i]))
+            return 0;
+    }
+
+    *out_count = trainer->party_size;
+    return 1;
+}
+
 void remaster_emerald_battle_state_init(
     RemasterEmeraldBattleState *battle,
     uint32_t battle_type_flags,
