@@ -16,6 +16,7 @@ add_library(remaster_core STATIC
     core/src/emerald_pokemon.c
     core/src/emerald_items.c
     core/src/emerald_encounter.c
+    core/src/emerald_battle.c
     core/src/emerald_map.c
     core/src/emerald_movement.c
     core/src/emerald_events.c
@@ -83,6 +84,7 @@ add_executable(unreal_cpp_embed_smoke
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldPokemonEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldItemsEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldEncounterEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldBattleEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMapEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMovementEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldEventsEmbed.cpp
@@ -743,3 +745,15 @@ add_test(
         "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_r12_encounter_catalog.py"
 )
+
+
+add_executable(emerald_battle_core_test
+    tests/emerald_battle_core_test.c
+)
+target_link_libraries(emerald_battle_core_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_battle_core_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_battle_core_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_battle_core COMMAND emerald_battle_core_test)
