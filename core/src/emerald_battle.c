@@ -5132,6 +5132,38 @@ int remaster_emerald_battle_switch(
     return 1;
 }
 
+int remaster_emerald_battle_needs_replacement(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t battler)
+{
+    uint8_t slot;
+
+    if (battle == 0
+        || battle->ended
+        || !battle_valid_battler(battler)
+        || !battle->battlers[battler].active
+        || !battle->battlers[battler].fainted)
+        return 0;
+
+    return battle_find_switch_slot(
+        battle,
+        battle->battlers[battler].side,
+        &slot);
+}
+
+int remaster_emerald_battle_replace_fainted(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t party_slot)
+{
+    if (!remaster_emerald_battle_needs_replacement(
+            battle, battler))
+        return 0;
+
+    return remaster_emerald_battle_switch(
+        battle, battler, party_slot);
+}
+
 static int battle_move_score(
     const RemasterEmeraldBattleState *battle,
     uint8_t attacker,
@@ -6814,6 +6846,82 @@ static void battle_end_turn(
     battle_finish_if_over(battle);
 }
 
+static int battle_handle_pending_replacements(
+    RemasterEmeraldBattleState *battle,
+    const RemasterEmeraldBattleAction actions[
+        REMASTER_EMERALD_BATTLE_MAX_BATTLERS],
+    int *out_handled)
+{
+    uint8_t battler;
+    int pending = 0;
+
+    if (battle == 0 || actions == 0 || out_handled == 0)
+        return 0;
+
+    *out_handled = 0;
+
+    for (battler = 0;
+         battler < REMASTER_EMERALD_BATTLE_MAX_BATTLERS;
+         ++battler) {
+        uint8_t party_slot;
+        uint8_t target;
+
+        if (!remaster_emerald_battle_needs_replacement(
+                battle, battler))
+            continue;
+
+        pending = 1;
+        if (battle->battlers[battler].side == 0) {
+            if (actions[battler].kind
+                    == REMASTER_EMERALD_BATTLE_ACTION_SWITCH
+                && remaster_emerald_battle_replace_fainted(
+                    battle,
+                    battler,
+                    actions[battler].party_slot))
+                continue;
+            continue;
+        }
+
+        target = battle_default_target(battle, battler);
+        if (!battle_valid_battler(target)
+            || battle->battlers[target].fainted
+            || battle->battlers[target].side
+                == battle->battlers[battler].side) {
+            uint8_t candidate;
+            target = 0xFFu;
+            for (candidate = 0;
+                 candidate < REMASTER_EMERALD_BATTLE_MAX_BATTLERS;
+                 ++candidate) {
+                if (battle->battlers[candidate].active
+                    && !battle->battlers[candidate].fainted
+                    && battle->battlers[candidate].side == 0) {
+                    target = candidate;
+                    break;
+                }
+            }
+        }
+
+        if (target != 0xFFu
+            && battle_ai_find_best_switch(
+                battle,
+                battler,
+                target,
+                0,
+                &party_slot)) {
+            remaster_emerald_battle_replace_fainted(
+                battle, battler, party_slot);
+        } else if (battle_find_switch_slot(
+                battle, 1, &party_slot)) {
+            remaster_emerald_battle_replace_fainted(
+                battle, battler, party_slot);
+        }
+    }
+
+    if (pending)
+        *out_handled = 1;
+    return 1;
+}
+
 int remaster_emerald_battle_resolve_turn(
     RemasterEmeraldBattleState *battle,
     const RemasterEmeraldBattleAction actions[
@@ -6825,9 +6933,16 @@ int remaster_emerald_battle_resolve_turn(
     uint8_t count = 0;
     uint8_t i;
     uint8_t j;
+    int replacement_handled = 0;
 
     if (battle == 0 || actions == 0 || battle->ended)
         return 0;
+
+    if (!battle_handle_pending_replacements(
+            battle, actions, &replacement_handled))
+        return 0;
+    if (replacement_handled)
+        return 1;
 
     battle->turn_number++;
     battle_event(
