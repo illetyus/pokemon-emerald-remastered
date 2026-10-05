@@ -460,6 +460,35 @@ target_include_directories(unreal_cpp_embed_smoke
     PRIVATE
         "${R12_GENERATED_DIR}"
 )
+
+
+set(R13_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/r13")
+set(R13_TRAINER_CATALOG "${R13_GENERATED_DIR}/emerald_trainer_catalog.inc")
+set(R13_TRAINER_REPORT "${R13_GENERATED_DIR}/trainer_catalog_report.json")
+file(MAKE_DIRECTORY "${R13_GENERATED_DIR}")
+
+execute_process(
+    COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tools/build_r13_trainer_catalog.py"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/vanillaplus"
+        "${R13_TRAINER_CATALOG}"
+        "${R13_TRAINER_REPORT}"
+    RESULT_VARIABLE R13_TRAINER_GENERATE_RESULT
+)
+if(NOT R13_TRAINER_GENERATE_RESULT EQUAL 0)
+    message(FATAL_ERROR "Failed to generate R13 trainer catalog")
+endif()
+
+target_include_directories(remaster_core
+    PRIVATE
+        "${R13_GENERATED_DIR}"
+)
+
+target_include_directories(unreal_cpp_embed_smoke
+    PRIVATE
+        "${R13_GENERATED_DIR}"
+)
 set(R2_LITTLEROOT_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(R2_LITTLEROOT_GENERATED_C "${R2_LITTLEROOT_GENERATED_DIR}/r2_littleroot_generated.c")
 file(MAKE_DIRECTORY "${R2_LITTLEROOT_GENERATED_DIR}")
