@@ -12,6 +12,7 @@ add_library(remaster_core STATIC
     core/src/emerald_save.c
     core/src/emerald_rtc.c
     core/src/emerald_state.c
+    core/src/emerald_quest.c
     core/src/emerald_map.c
     core/src/emerald_movement.c
     core/src/emerald_events.c
@@ -75,6 +76,7 @@ add_executable(unreal_cpp_embed_smoke
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldSaveEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldRtcEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldStateEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldQuestEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMapEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMovementEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldEventsEmbed.cpp
