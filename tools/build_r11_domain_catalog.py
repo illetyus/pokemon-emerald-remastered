@@ -208,7 +208,7 @@ def parse_species(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, Any]]
                 "exp": 0,
                 "ev": [0] * 6,
                 "items": [0, 0],
-                "gender": 0,
+                "female_threshold": 0,
                 "egg_cycles": 0,
                 "friendship": 0,
                 "growth": 0,
@@ -233,7 +233,7 @@ def parse_species(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, Any]]
                 r.eval_expr(field_expr(block, "itemCommon")),
                 r.eval_expr(field_expr(block, "itemRare")),
             ],
-            "gender": r.eval_expr(field_expr(block, "genderRatio")),
+            "female_threshold": r.eval_expr(field_expr(block, "genderRatio")),
             "egg_cycles": r.eval_expr(field_expr(block, "eggCycles")),
             "friendship": r.eval_expr(field_expr(block, "friendship")),
             "growth": r.eval_expr(field_expr(block, "growthRate")),
@@ -336,7 +336,7 @@ def render(species: list[dict[str, Any]], moves: list[dict[str, int]], items: li
             + ",".join(str(x) for x in s["base"])
             + f",{s['types'][0]},{s['types'][1]},{s['catch']},{s['exp']},"
             + "{" + ",".join(str(x) for x in s["ev"]) + "},"
-            + f"{s['items'][0]},{s['items'][1]},{s['gender']},{s['egg_cycles']},{s['friendship']},{s['growth']},"
+            + f"{s['items'][0]},{s['items'][1]},{s['female_threshold']},{s['egg_cycles']},{s['friendship']},{s['growth']},"
             + "{" + ",".join(str(x) for x in s["egg_groups"]) + "},"
             + "{" + ",".join(str(x) for x in s["abilities"]) + "}"
             + "},"
