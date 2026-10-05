@@ -217,6 +217,60 @@ int main(void)
     }
 
     {
+        static const uint16_t foe_moves[4] = {79, 33, 0, 0};
+
+        if (!check(
+                start_trainer_fixture(
+                    &battle,
+                    player_moves,
+                    foe_moves,
+                    REMASTER_EMERALD_AI_HP_AWARE,
+                    1u),
+                "HP-aware trainer AI fixture should start"))
+            return 1;
+
+        battle.battlers[0].pokemon.hp = 1;
+        if (!check(
+                remaster_emerald_battle_choose_ai_action(
+                    &battle, 1, &action),
+                "HP-aware AI should choose a move"))
+            return 1;
+
+        if (!check(
+                action.move_slot == 1,
+                "HPAware must discourage Sleep against a low-HP target "
+                "when Emerald's 50/256 gate passes"))
+            return 1;
+    }
+
+    {
+        static const uint16_t foe_moves[4] = {241, 33, 0, 0};
+
+        if (!check(
+                start_trainer_fixture(
+                    &battle,
+                    player_moves,
+                    foe_moves,
+                    REMASTER_EMERALD_AI_TRY_SUNNY_DAY_START,
+                    3u),
+                "sunny-day-start trainer AI fixture should start"))
+            return 1;
+
+        battle.turn_number = 1;
+        if (!check(
+                remaster_emerald_battle_choose_ai_action(
+                    &battle, 1, &action),
+                "sunny-day-start AI should choose a move"))
+            return 1;
+
+        if (!check(
+                action.move_slot == 0,
+                "TrySunnyDayStart must give Sunny Day +5 on the user's "
+                "first active turn"))
+            return 1;
+    }
+
+    {
         static const uint16_t foe_moves[4] = {63, 98, 0, 0};
 
         if (!check(
