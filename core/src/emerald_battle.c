@@ -353,6 +353,10 @@ enum {
     ITEM_TIMER_BALL = 10,
     ITEM_LUXURY_BALL = 11,
     ITEM_PREMIER_BALL = 12,
+    ITEM_POTION = 13,
+    ITEM_FULL_RESTORE = 19,
+    ITEM_HYPER_POTION = 21,
+    ITEM_SUPER_POTION = 22,
 
     SPECIES_PIKACHU = 25,
     SPECIES_FARFETCHD = 83,
@@ -5937,6 +5941,405 @@ static void battle_ai_apply_double_battle(
     }
 }
 
+static int battle_ai_active_has_super_effective(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t target)
+{
+    const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
+    const RemasterEmeraldBattleMon *foe = &battle->battlers[target];
+    uint8_t slot;
+
+    for (slot = 0; slot < 4; ++slot) {
+        const RemasterEmeraldMoveInfo *move =
+            remaster_emerald_move_info(user->moves[slot]);
+        uint8_t effectiveness;
+
+        if (move == 0 || user->pp[slot] == 0 || move->power == 0)
+            continue;
+
+        effectiveness = battle_type_multiplier(foe, move->type);
+        if ((foe->ability == ABILITY_VOLT_ABSORB
+                && move->type == TYPE_ELECTRIC)
+            || (foe->ability == ABILITY_WATER_ABSORB
+                && move->type == TYPE_WATER)
+            || (foe->ability == ABILITY_FLASH_FIRE
+                && move->type == TYPE_FIRE))
+            effectiveness = 0;
+        if (foe->ability == ABILITY_WONDER_GUARD
+            && effectiveness <= 10)
+            effectiveness = 0;
+
+        if (effectiveness >= 20)
+            return 1;
+    }
+    return 0;
+}
+
+static int battle_ai_reserve_has_super_effective(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t party_slot,
+    uint8_t target)
+{
+    RemasterEmeraldBattleState probe;
+
+    if (battle == 0
+        || party_slot >= battle->party_count[1]
+        || battle_party_slot_active(battle, 1, party_slot))
+        return 0;
+
+    probe = *battle;
+    if (!battle_load_mon(
+            &probe.battlers[battler],
+            &probe.parties[1][party_slot],
+            1,
+            party_slot))
+        return 0;
+
+    return battle_ai_active_has_super_effective(
+        &probe, battler, target);
+}
+
+static uint16_t battle_ai_reserve_best_damage(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t party_slot,
+    uint8_t target)
+{
+    RemasterEmeraldBattleState probe;
+    uint16_t best = 0;
+    uint8_t slot;
+
+    if (battle == 0
+        || party_slot >= battle->party_count[1]
+        || battle_party_slot_active(battle, 1, party_slot))
+        return 0;
+
+    probe = *battle;
+    if (!battle_load_mon(
+            &probe.battlers[battler],
+            &probe.parties[1][party_slot],
+            1,
+            party_slot))
+        return 0;
+
+    for (slot = 0; slot < 4; ++slot) {
+        uint16_t damage;
+        if (!battle_ai_move_usable(&probe.battlers[battler], slot))
+            continue;
+        damage = battle_ai_estimated_damage(
+            &probe,
+            battler,
+            target,
+            probe.battlers[battler].moves[slot],
+            0);
+        if (damage > best)
+            best = damage;
+    }
+    return best;
+}
+
+static int battle_ai_find_best_switch(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t target,
+    int require_super_effective,
+    uint8_t *out_slot)
+{
+    uint8_t party_slot;
+    uint8_t best_slot = REMASTER_EMERALD_BATTLE_PARTY_SIZE;
+    uint16_t best_damage = 0;
+
+    if (battle == 0 || out_slot == 0)
+        return 0;
+
+    for (party_slot = 0;
+         party_slot < battle->party_count[1];
+         ++party_slot) {
+        uint16_t damage;
+
+        if (battle->parties[1][party_slot].hp == 0
+            || remaster_emerald_box_pokemon_species(
+                &battle->parties[1][party_slot].box) == 0
+            || battle_party_slot_active(battle, 1, party_slot))
+            continue;
+
+        if (require_super_effective
+            && !battle_ai_reserve_has_super_effective(
+                battle, battler, party_slot, target))
+            continue;
+
+        damage = battle_ai_reserve_best_damage(
+            battle, battler, party_slot, target);
+        if (best_slot == REMASTER_EMERALD_BATTLE_PARTY_SIZE
+            || damage > best_damage) {
+            best_slot = party_slot;
+            best_damage = damage;
+        }
+    }
+
+    if (best_slot == REMASTER_EMERALD_BATTLE_PARTY_SIZE)
+        return 0;
+
+    *out_slot = best_slot;
+    return 1;
+}
+
+static int battle_ai_find_absorbing_switch(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t move_type,
+    uint8_t *out_slot)
+{
+    uint8_t desired_ability;
+    uint8_t slot;
+
+    if (move_type == TYPE_FIRE)
+        desired_ability = ABILITY_FLASH_FIRE;
+    else if (move_type == TYPE_WATER)
+        desired_ability = ABILITY_WATER_ABSORB;
+    else if (move_type == TYPE_ELECTRIC)
+        desired_ability = ABILITY_VOLT_ABSORB;
+    else
+        return 0;
+
+    if (battle->battlers[battler].ability == desired_ability)
+        return 0;
+
+    for (slot = 0; slot < battle->party_count[1]; ++slot) {
+        const RemasterEmeraldPartyPokemon *member =
+            &battle->parties[1][slot];
+        uint16_t species;
+        uint8_t ability_num;
+
+        if (member->hp == 0
+            || battle_party_slot_active(battle, 1, slot))
+            continue;
+        species = remaster_emerald_box_pokemon_species(&member->box);
+        if (species == 0)
+            continue;
+        ability_num =
+            remaster_emerald_box_pokemon_ability_num(&member->box);
+        if (remaster_emerald_species_ability(species, ability_num)
+            == desired_ability) {
+            *out_slot = slot;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int battle_ai_stats_are_raised(
+    const RemasterEmeraldBattleMon *mon)
+{
+    unsigned raised = 0;
+    uint8_t i;
+
+    if (mon == 0)
+        return 0;
+
+    for (i = 0; i < REMASTER_EMERALD_BATTLE_STAT_COUNT; ++i) {
+        if (mon->stat_stages[i] > 6)
+            raised += mon->stat_stages[i] - 6u;
+    }
+    return raised > 3u;
+}
+
+static int battle_ai_choose_switch_action(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    RemasterEmeraldBattleAction *out_action)
+{
+    RemasterEmeraldBattleMon *user;
+    uint8_t target;
+    uint8_t party_slot;
+
+    if (battle == 0
+        || out_action == 0
+        || !(battle->battle_type_flags
+            & REMASTER_EMERALD_BATTLE_TYPE_TRAINER)
+        || (battle->battle_type_flags
+            & REMASTER_EMERALD_BATTLE_TYPE_ARENA)
+        || !battle_valid_battler(battler))
+        return 0;
+
+    user = &battle->battlers[battler];
+    if (user->side != 1
+        || !battle_ai_has_reserve(battle, 1))
+        return 0;
+
+    target = battle_default_target(battle, battler);
+    if (!battle_valid_battler(target))
+        return 0;
+
+    if ((user->status3 & REMASTER_EMERALD_STATUS3_PERISH_SONG)
+        && user->perish_count <= 1u
+        && battle_ai_find_best_switch(
+            battle, battler, target, 0, &party_slot))
+        goto choose_switch;
+
+    if (!(battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE)
+        && battle->battlers[target].ability == ABILITY_WONDER_GUARD
+        && !battle_ai_active_has_super_effective(
+            battle, battler, target)
+        && battle_ai_find_best_switch(
+            battle, battler, target, 1, &party_slot)
+        && remaster_emerald_battle_random(&battle->rng) % 3u < 2u)
+        goto choose_switch;
+
+    if (user->last_taken_move != 0) {
+        const RemasterEmeraldMoveInfo *last =
+            remaster_emerald_move_info(user->last_taken_move);
+        if (last != 0
+            && last->power != 0
+            && (!battle_ai_active_has_super_effective(
+                    battle, battler, target)
+                || remaster_emerald_battle_random(&battle->rng) % 3u == 0u)
+            && battle_ai_find_absorbing_switch(
+                battle, battler, last->type, &party_slot)
+            && (remaster_emerald_battle_random(&battle->rng) & 1u))
+            goto choose_switch;
+    }
+
+    if ((user->pokemon.status & REMASTER_EMERALD_STATUS1_SLEEP)
+        && user->ability == ABILITY_NATURAL_CURE
+        && user->pokemon.hp >= user->pokemon.max_hp / 2u
+        && battle_ai_find_best_switch(
+            battle, battler, target, 0, &party_slot)
+        && (remaster_emerald_battle_random(&battle->rng) & 1u))
+        goto choose_switch;
+
+    if (battle_ai_active_has_super_effective(
+            battle, battler, target)
+        && remaster_emerald_battle_random(&battle->rng) % 10u != 0u)
+        return 0;
+
+    if (battle_ai_stats_are_raised(user))
+        return 0;
+
+    return 0;
+
+choose_switch:
+    memset(out_action, 0, sizeof(*out_action));
+    out_action->kind = REMASTER_EMERALD_BATTLE_ACTION_SWITCH;
+    out_action->party_slot = party_slot;
+    out_action->target = battler;
+    return 1;
+}
+
+static uint16_t battle_ai_trainer_item_heal(uint16_t item_id)
+{
+    switch (item_id) {
+    case ITEM_POTION:
+        return 20;
+    case ITEM_SUPER_POTION:
+        return 50;
+    case ITEM_HYPER_POTION:
+        return 200;
+    case ITEM_FULL_RESTORE:
+        return UINT16_MAX;
+    default:
+        return 0;
+    }
+}
+
+static int battle_ai_choose_item_action(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    RemasterEmeraldBattleAction *out_action)
+{
+    RemasterEmeraldBattleMon *user;
+    uint8_t i;
+
+    if (battle == 0
+        || out_action == 0
+        || !battle_valid_battler(battler)
+        || !(battle->battle_type_flags
+            & REMASTER_EMERALD_BATTLE_TYPE_TRAINER)
+        || battle_frontier_type(battle->battle_type_flags)
+        || (battle->battle_type_flags
+            & (REMASTER_EMERALD_BATTLE_TYPE_LINK
+               | REMASTER_EMERALD_BATTLE_TYPE_EREADER_TRAINER
+               | REMASTER_EMERALD_BATTLE_TYPE_SECRET_BASE
+               | REMASTER_EMERALD_BATTLE_TYPE_INGAME_PARTNER
+               | REMASTER_EMERALD_BATTLE_TYPE_RECORDED_LINK)))
+        return 0;
+
+    user = &battle->battlers[battler];
+    if (user->side != 1 || user->pokemon.hp == 0)
+        return 0;
+
+    for (i = 0; i < 4; ++i) {
+        const uint16_t item_id = battle->opponent_trainer_items[i];
+        const uint16_t heal = battle_ai_trainer_item_heal(item_id);
+        const uint16_t missing =
+            (uint16_t)(user->pokemon.max_hp - user->pokemon.hp);
+        int should_use = 0;
+
+        if (heal == 0)
+            continue;
+
+        if (item_id == ITEM_FULL_RESTORE) {
+            should_use =
+                user->pokemon.hp < user->pokemon.max_hp / 4u;
+        } else {
+            should_use =
+                user->pokemon.hp < user->pokemon.max_hp / 4u
+                || missing > heal;
+        }
+
+        if (!should_use)
+            continue;
+
+        memset(out_action, 0, sizeof(*out_action));
+        out_action->kind = REMASTER_EMERALD_BATTLE_ACTION_ITEM;
+        out_action->item_id = item_id;
+        out_action->target = battler;
+        battle->opponent_trainer_items[i] = 0;
+        return 1;
+    }
+
+    return 0;
+}
+
+static int battle_use_trainer_item(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint16_t item_id)
+{
+    RemasterEmeraldBattleMon *user;
+    uint16_t heal;
+
+    if (battle == 0
+        || !battle_valid_battler(battler)
+        || battle->battlers[battler].side != 1)
+        return 0;
+
+    user = &battle->battlers[battler];
+    heal = battle_ai_trainer_item_heal(item_id);
+    if (heal == 0 || user->fainted || !user->active)
+        return 0;
+
+    battle_event(
+        battle,
+        REMASTER_EMERALD_BATTLE_EVENT_ITEM,
+        battler,
+        battler,
+        0,
+        item_id,
+        0);
+
+    if (item_id == ITEM_FULL_RESTORE) {
+        user->pokemon.status = 0;
+        heal = user->pokemon.max_hp;
+    }
+
+    battle_heal(battle, battler, heal, 0);
+    battle_sync_battler(battle, battler);
+    return 1;
+}
+
 static int battle_ai_choose_trainer_move(
     RemasterEmeraldBattleState *battle,
     uint8_t battler,
@@ -6021,6 +6424,13 @@ int remaster_emerald_battle_choose_ai_action(
 
     if ((battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_TRAINER)
         && mon->side == 1) {
+        if (battle_ai_choose_switch_action(
+                battle, battler, out_action))
+            return 1;
+        if (battle_ai_choose_item_action(
+                battle, battler, out_action))
+            return 1;
+
         if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE) {
             uint8_t candidate_targets[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
             uint8_t candidate_slots[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
@@ -6572,6 +6982,12 @@ int remaster_emerald_battle_resolve_turn(
                 battle,
                 battler,
                 action->party_slot);
+            break;
+        case REMASTER_EMERALD_BATTLE_ACTION_ITEM:
+            battle_use_trainer_item(
+                battle,
+                battler,
+                action->item_id);
             break;
         case REMASTER_EMERALD_BATTLE_ACTION_RUN:
             remaster_emerald_battle_try_run(battle, battler);
