@@ -1055,7 +1055,9 @@ static uint16_t battle_nature_power_move(uint8_t terrain)
         MOVE_SWIFT,
         MOVE_SWIFT
     };
-    return terrain < 10 ? moves[terrain] : MOVE_SWIFT;
+    return terrain < 10
+        ? moves[terrain]
+        : (uint16_t)MOVE_SWIFT;
 }
 
 static uint8_t battle_gender(const RemasterEmeraldBattleMon *mon)
