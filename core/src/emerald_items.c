@@ -123,6 +123,9 @@ static uint16_t slot_quantity(
     const RemasterEmeraldSave *save,
     const uint8_t *slot)
 {
+    if (slot_item_id(slot) == 0)
+        return 0;
+
     return (uint16_t)(read16(slot + 2) ^ bag_key(save));
 }
 
