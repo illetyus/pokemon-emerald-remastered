@@ -676,6 +676,34 @@ const RemasterEmeraldEvolution *remaster_emerald_species_evolutions(
     return kRemasterEmeraldEvolutionTable[species_id];
 }
 
+const RemasterEmeraldLevelUpMove *remaster_emerald_species_level_up_moves(
+    uint16_t species_id,
+    size_t *out_count)
+{
+    size_t start;
+    size_t count;
+
+    if (out_count != 0)
+        *out_count = 0;
+
+    if ((size_t)species_id
+        >= sizeof(kRemasterEmeraldLevelUpMoveSlices)
+            / sizeof(kRemasterEmeraldLevelUpMoveSlices[0]))
+        return 0;
+
+    start = kRemasterEmeraldLevelUpMoveSlices[species_id][0];
+    count = kRemasterEmeraldLevelUpMoveSlices[species_id][1];
+
+    if (start + count
+        > sizeof(kRemasterEmeraldLevelUpMoves)
+            / sizeof(kRemasterEmeraldLevelUpMoves[0]))
+        return 0;
+
+    if (out_count != 0)
+        *out_count = count;
+    return count != 0 ? &kRemasterEmeraldLevelUpMoves[start] : 0;
+}
+
 uint8_t remaster_emerald_species_ability(
     uint16_t species_id,
     uint8_t ability_num)
