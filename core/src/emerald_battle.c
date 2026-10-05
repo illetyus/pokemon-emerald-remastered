@@ -100,6 +100,7 @@ enum {
     HOLD_EFFECT_QUICK_CLAW = 26,
     HOLD_EFFECT_CHOICE_BAND = 29,
     HOLD_EFFECT_BUG_POWER = 31,
+    HOLD_EFFECT_DOUBLE_PRIZE = 32,
     HOLD_EFFECT_SOUL_DEW = 34,
     HOLD_EFFECT_DEEP_SEA_TOOTH = 35,
     HOLD_EFFECT_DEEP_SEA_SCALE = 36,
@@ -1156,6 +1157,10 @@ static void battle_entry_ability(
     if (!mon->active || mon->fainted)
         return;
 
+    if (mon->side == 0
+        && battle_hold_effect(mon) == HOLD_EFFECT_DOUBLE_PRIZE)
+        battle->money_multiplier = 2;
+
     if (mon->ability == ABILITY_DRIZZLE) {
         battle_set_weather(
             battle,
@@ -1531,13 +1536,37 @@ int remaster_emerald_battle_finalize_trainer(
 
     switch (battle->outcome) {
     case REMASTER_EMERALD_BATTLE_OUTCOME_WON:
+    {
+        enum { MAX_MONEY = 999999 };
+        RemasterEmeraldOverworldState world;
+        uint32_t trainer_reward;
+        uint32_t total_reward;
+        uint32_t next_money;
+
+        if (!remaster_emerald_overworld_get(save, &world))
+            return 0;
+
+        trainer_reward = remaster_emerald_battle_trainer_reward(
+            battle->opponent_trainer_id,
+            battle->money_multiplier != 0 ? battle->money_multiplier : 1);
+        total_reward = trainer_reward + battle->money_reward;
+        if (total_reward < trainer_reward)
+            total_reward = UINT32_MAX;
+
+        next_money = world.money + total_reward;
+        if (next_money > MAX_MONEY || next_money < world.money)
+            next_money = MAX_MONEY;
+        world.money = next_money;
+
         if (!remaster_emerald_flag_set(
                 save,
                 (uint16_t)(TRAINER_FLAGS_START
                     + battle->opponent_trainer_id),
-                1))
+                1)
+            || !remaster_emerald_overworld_set(save, &world))
             return 0;
         break;
+    }
 
     case REMASTER_EMERALD_BATTLE_OUTCOME_LOST:
     case REMASTER_EMERALD_BATTLE_OUTCOME_DREW:
@@ -1563,6 +1592,7 @@ void remaster_emerald_battle_state_init(
 
     memset(battle, 0, sizeof(*battle));
     battle->battle_type_flags = battle_type_flags;
+    battle->money_multiplier = 1;
     battle->follow_me_target[0] = 0xFFu;
     battle->follow_me_target[1] = 0xFFu;
     memset(
