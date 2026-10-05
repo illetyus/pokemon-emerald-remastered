@@ -3548,6 +3548,7 @@ int remaster_emerald_battle_use_move(
     int direct_effect_result = 0;
     int false_swipe;
     int continuing_charge;
+    int continuing_repeat;
     int move_landed = 0;
 
     if (battle == 0
@@ -3583,6 +3584,10 @@ int remaster_emerald_battle_use_move(
     move = remaster_emerald_move_info(move_id);
     continuing_charge = attacker->charging_move == move_id
         && attacker->charging_move_slot == move_slot;
+    continuing_repeat =
+        (move->effect == EFFECT_RAMPAGE && attacker->rampage_turns != 0)
+        || (move->effect == EFFECT_UPROAR && attacker->uproar_turns != 0);
+    (void)battle_effect_is_plain_hit(move->effect);
     if (move == 0
         || move_id == 0
         || (!continuing_charge
@@ -3590,7 +3595,9 @@ int remaster_emerald_battle_use_move(
             && attacker->pp[move_slot] == 0))
         return 0;
 
-    if (!continuing_charge && battle->called_move_depth == 0) {
+    if (!continuing_charge
+        && !continuing_repeat
+        && battle->called_move_depth == 0) {
         uint8_t enemy;
         for (enemy = 0;
              enemy < REMASTER_EMERALD_BATTLE_MAX_BATTLERS;
@@ -3610,21 +3617,25 @@ int remaster_emerald_battle_use_move(
     }
 
     if (!continuing_charge
+        && !continuing_repeat
         && battle->called_move_depth == 0
         && attacker->disable_turns != 0
         && attacker->disable_move_slot == move_slot)
         return 0;
     if (!continuing_charge
+        && !continuing_repeat
         && battle->called_move_depth == 0
         && attacker->encore_turns != 0
         && attacker->encore_move_slot != move_slot)
         return 0;
     if (!continuing_charge
+        && !continuing_repeat
         && battle->called_move_depth == 0
         && attacker->taunt_turns != 0
         && move->power == 0)
         return 0;
     if (!continuing_charge
+        && !continuing_repeat
         && battle->called_move_depth == 0
         && battle_hold_effect(attacker) == HOLD_EFFECT_CHOICE_BAND
         && attacker->choice_locked_move != 0
@@ -3647,6 +3658,8 @@ int remaster_emerald_battle_use_move(
     } else {
         pp_cost = 0;
     }
+    if (move->effect != EFFECT_RAGE)
+        attacker->status2 &= ~REMASTER_EMERALD_STATUS2_RAGE;
     attacker->last_move = move_id;
     if (battle_hold_effect(attacker) == HOLD_EFFECT_CHOICE_BAND
         && attacker->choice_locked_move == 0)
@@ -3693,6 +3706,12 @@ int remaster_emerald_battle_use_move(
 
     if (move->effect == EFFECT_SNORE
         && !(attacker->pokemon.status & REMASTER_EMERALD_STATUS1_SLEEP))
+        return 1;
+
+    if (move->effect == EFFECT_FOCUS_PUNCH
+        && attacker->last_damage_turn
+            == (uint8_t)(battle->turn_number & 0xFFu)
+        && attacker->last_damage != 0)
         return 1;
 
     if (move->effect == EFFECT_MIRROR_MOVE) {
@@ -3979,6 +3998,41 @@ int remaster_emerald_battle_use_move(
                 move_id,
                 0,
                 0);
+            if (hit == 0 && move->effect == EFFECT_RECOIL_IF_MISS) {
+                uint8_t saved_lock_turns = attacker->lock_on_turns;
+                uint8_t saved_lock_target = attacker->lock_on_target;
+                RemasterEmeraldBattleDamageResult crash_result;
+                uint16_t crash;
+
+                attacker->lock_on_turns = 1;
+                attacker->lock_on_target = target_id;
+                if (remaster_emerald_battle_calculate_damage(
+                        battle,
+                        attacker_id,
+                        target_id,
+                        move_id,
+                        &crash_result)
+                    && crash_result.damage != 0) {
+                    crash = (uint16_t)(crash_result.damage / 2u);
+                    if (crash == 0)
+                        crash = 1;
+                    if (crash > target->pokemon.max_hp / 2u)
+                        crash = target->pokemon.max_hp / 2u;
+                    if (crash == 0)
+                        crash = 1;
+                    battle_damage_direct(
+                        battle,
+                        attacker_id,
+                        attacker_id,
+                        crash,
+                        move_id,
+                        0);
+                    battle_faint_check(battle, attacker_id);
+                }
+                attacker->lock_on_turns = saved_lock_turns;
+                attacker->lock_on_target = saved_lock_target;
+                return 1;
+            }
             if (hit == 0)
                 return 1;
             break;
@@ -4187,6 +4241,54 @@ int remaster_emerald_battle_use_move(
     if (move->type == TYPE_ELECTRIC
         && (attacker->status3 & REMASTER_EMERALD_STATUS3_CHARGED_UP))
         attacker->status3 &= ~REMASTER_EMERALD_STATUS3_CHARGED_UP;
+
+    if (move_landed && move->effect == EFFECT_RAGE)
+        attacker->status2 |= REMASTER_EMERALD_STATUS2_RAGE;
+
+    if (move_landed && move->effect == EFFECT_RAMPAGE) {
+        if (attacker->rampage_turns == 0) {
+            attacker->rampage_turns = (uint8_t)(
+                2u + remaster_emerald_battle_random(&battle->rng) % 2u);
+            attacker->status2 |=
+                REMASTER_EMERALD_STATUS2_MULTIPLETURNS
+                | REMASTER_EMERALD_STATUS2_LOCK_CONFUSE;
+        }
+        attacker->rampage_turns--;
+        if (attacker->rampage_turns == 0) {
+            attacker->status2 &=
+                ~(REMASTER_EMERALD_STATUS2_MULTIPLETURNS
+                  | REMASTER_EMERALD_STATUS2_LOCK_CONFUSE);
+            battle_apply_confusion(
+                battle, attacker_id, attacker_id, move_id);
+        }
+    }
+
+    if (move_landed && move->effect == EFFECT_UPROAR) {
+        uint8_t awake;
+        if (attacker->uproar_turns == 0) {
+            attacker->uproar_turns = (uint8_t)(
+                2u + remaster_emerald_battle_random(&battle->rng) % 4u);
+            attacker->status2 |=
+                REMASTER_EMERALD_STATUS2_MULTIPLETURNS
+                | REMASTER_EMERALD_STATUS2_UPROAR;
+        }
+        for (awake = 0;
+             awake < REMASTER_EMERALD_BATTLE_MAX_BATTLERS;
+             ++awake) {
+            RemasterEmeraldBattleMon *woken = &battle->battlers[awake];
+            if (woken->active
+                && !woken->fainted
+                && woken->ability != ABILITY_SOUNDPROOF
+                && (woken->pokemon.status & REMASTER_EMERALD_STATUS1_SLEEP))
+                woken->pokemon.status &=
+                    ~REMASTER_EMERALD_STATUS1_SLEEP;
+        }
+        attacker->uproar_turns--;
+        if (attacker->uproar_turns == 0)
+            attacker->status2 &=
+                ~(REMASTER_EMERALD_STATUS2_MULTIPLETURNS
+                  | REMASTER_EMERALD_STATUS2_UPROAR);
+    }
 
     if ((move->effect == EFFECT_RECOIL
             || move->effect == EFFECT_DOUBLE_EDGE)
@@ -4761,6 +4863,19 @@ int remaster_emerald_battle_resolve_turn(
                 battle->battlers[i].charging_move_slot;
             resolved[i].target =
                 battle->battlers[i].charging_target;
+        } else if (battle->battlers[i].rampage_turns != 0
+            || battle->battlers[i].uproar_turns != 0) {
+            uint8_t slot;
+            for (slot = 0; slot < 4; ++slot) {
+                if (battle->battlers[i].moves[slot]
+                    == battle->battlers[i].last_move)
+                    break;
+            }
+            if (slot < 4) {
+                resolved[i].kind = REMASTER_EMERALD_BATTLE_ACTION_MOVE;
+                resolved[i].move_slot = slot;
+                resolved[i].target = battle_default_target(battle, i);
+            }
         } else if (resolved[i].kind == REMASTER_EMERALD_BATTLE_ACTION_NONE
             && battle->battlers[i].side == 1) {
             remaster_emerald_battle_choose_ai_action(
