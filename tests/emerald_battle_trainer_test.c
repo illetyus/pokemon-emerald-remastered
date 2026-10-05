@@ -81,6 +81,19 @@ int main(void)
             "out-of-range trainer IDs must not resolve"))
         return 1;
 
+    if (!check(
+            remaster_emerald_battle_trainer_reward(1, 1) == 840u,
+            "Sawyer reward must match Hiker class x level formula"))
+        return 1;
+    if (!check(
+            remaster_emerald_battle_trainer_reward(1, 2) == 1680u,
+            "money multiplier must scale trainer reward"))
+        return 1;
+    if (!check(
+            remaster_emerald_battle_trainer_reward(51, 1) == 1632u,
+            "double trainer reward must apply the Vanilla x2 factor"))
+        return 1;
+
     remaster_emerald_battle_rng_seed(&rng_a, 0x12345678u);
     remaster_emerald_battle_rng_seed(&rng_b, 0x12345678u);
     if (!check(
