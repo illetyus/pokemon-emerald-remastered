@@ -35,6 +35,7 @@ enum {
     ABILITY_STATIC = 9,
     ABILITY_VOLT_ABSORB = 10,
     ABILITY_WATER_ABSORB = 11,
+    ABILITY_OBLIVIOUS = 12,
     ABILITY_CLOUD_NINE = 13,
     ABILITY_COMPOUND_EYES = 14,
     ABILITY_INSOMNIA = 15,
@@ -361,12 +362,39 @@ enum {
 
     MOVE_GUST = 16,
     MOVE_FLY = 19,
+    MOVE_HYDRO_PUMP = 56,
     MOVE_SURF = 57,
+    MOVE_BUBBLE_BEAM = 61,
+    MOVE_COUNTER = 68,
+    MOVE_RAZOR_LEAF = 75,
+    MOVE_STUN_SPORE = 78,
     MOVE_EARTHQUAKE = 89,
     MOVE_DIG = 91,
+    MOVE_MIMIC = 102,
+    MOVE_METRONOME = 118,
+    MOVE_SWIFT = 129,
+    MOVE_ROCK_SLIDE = 157,
+    MOVE_STRUGGLE = 165,
+    MOVE_SKETCH = 166,
+    MOVE_THIEF = 168,
+    MOVE_PROTECT = 182,
+    MOVE_DESTINY_BOND = 194,
+    MOVE_DETECT = 197,
+    MOVE_ENDURE = 203,
+    MOVE_SLEEP_TALK = 214,
+    MOVE_MIRROR_COAT = 243,
+    MOVE_SHADOW_BALL = 247,
     MOVE_WHIRLPOOL = 250,
+    MOVE_UPROAR = 253,
+    MOVE_FOCUS_PUNCH = 264,
+    MOVE_FOLLOW_ME = 266,
+    MOVE_HELPING_HAND = 270,
+    MOVE_TRICK = 271,
+    MOVE_ASSIST = 274,
+    MOVE_SNATCH = 289,
     MOVE_DIVE = 291,
     MOVE_BOUNCE = 340,
+    MOVE_COVET = 343,
 
     FLAG_BADGE01_GET = 0x867
 };
@@ -889,6 +917,165 @@ static void battle_clear_charge(RemasterEmeraldBattleMon *mon)
     mon->status3 &= ~(REMASTER_EMERALD_STATUS3_ON_AIR
         | REMASTER_EMERALD_STATUS3_UNDERGROUND
         | REMASTER_EMERALD_STATUS3_UNDERWATER);
+}
+
+static int battle_move_invalid_for_sleep_assist(uint16_t move_id)
+{
+    const RemasterEmeraldMoveInfo *move =
+        remaster_emerald_move_info(move_id);
+
+    if (move == 0
+        || move_id == 0
+        || move_id == MOVE_SLEEP_TALK
+        || move_id == MOVE_ASSIST
+        || move_id == 119
+        || move_id == MOVE_METRONOME)
+        return 1;
+
+    if (move_id == MOVE_FOCUS_PUNCH
+        || move_id == MOVE_UPROAR
+        || battle_is_two_turn_effect(move)
+        || move->effect == EFFECT_BIDE)
+        return 1;
+
+    return 0;
+}
+
+static int battle_move_forbidden_metronome(uint16_t move_id)
+{
+    switch (move_id) {
+    case MOVE_METRONOME:
+    case MOVE_STRUGGLE:
+    case MOVE_SKETCH:
+    case MOVE_MIMIC:
+    case MOVE_COUNTER:
+    case MOVE_MIRROR_COAT:
+    case MOVE_PROTECT:
+    case MOVE_DETECT:
+    case MOVE_ENDURE:
+    case MOVE_DESTINY_BOND:
+    case MOVE_SLEEP_TALK:
+    case MOVE_THIEF:
+    case MOVE_FOLLOW_ME:
+    case MOVE_SNATCH:
+    case MOVE_HELPING_HAND:
+    case MOVE_COVET:
+    case MOVE_TRICK:
+    case MOVE_FOCUS_PUNCH:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+static uint8_t battle_called_target(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t attacker,
+    uint8_t requested_target,
+    uint16_t move_id)
+{
+    const RemasterEmeraldMoveInfo *move =
+        remaster_emerald_move_info(move_id);
+
+    if (move == 0)
+        return requested_target;
+
+    if (move->target & (1u << 4))
+        return attacker;
+
+    if (battle_valid_battler(requested_target)
+        && battle->battlers[requested_target].active
+        && !battle->battlers[requested_target].fainted)
+        return requested_target;
+
+    return battle_default_target(battle, attacker);
+}
+
+static int battle_call_move(
+    RemasterEmeraldBattleState *battle,
+    uint8_t attacker,
+    uint8_t target,
+    uint8_t scratch_slot,
+    uint16_t called_move)
+{
+    RemasterEmeraldBattleMon *mon;
+    uint16_t saved_move;
+    uint8_t saved_pp;
+    uint8_t called_target;
+    int result;
+
+    if (battle == 0
+        || !battle_valid_battler(attacker)
+        || scratch_slot >= 4
+        || remaster_emerald_move_info(called_move) == 0
+        || called_move == 0
+        || battle->called_move_depth >= 8)
+        return 0;
+
+    mon = &battle->battlers[attacker];
+    saved_move = mon->moves[scratch_slot];
+    saved_pp = mon->pp[scratch_slot];
+    mon->moves[scratch_slot] = called_move;
+    mon->pp[scratch_slot] = 1;
+    called_target = battle_called_target(
+        battle,
+        attacker,
+        target,
+        called_move);
+
+    battle->called_move_depth++;
+    result = remaster_emerald_battle_use_move(
+        battle,
+        attacker,
+        called_target,
+        scratch_slot);
+    battle->called_move_depth--;
+
+    mon->moves[scratch_slot] = saved_move;
+    mon->pp[scratch_slot] = saved_pp;
+    return result;
+}
+
+static uint16_t battle_nature_power_move(uint8_t terrain)
+{
+    static const uint16_t moves[10] = {
+        MOVE_STUN_SPORE,
+        MOVE_RAZOR_LEAF,
+        MOVE_EARTHQUAKE,
+        MOVE_HYDRO_PUMP,
+        MOVE_SURF,
+        MOVE_BUBBLE_BEAM,
+        MOVE_ROCK_SLIDE,
+        MOVE_SHADOW_BALL,
+        MOVE_SWIFT,
+        MOVE_SWIFT
+    };
+    return terrain < 10 ? moves[terrain] : MOVE_SWIFT;
+}
+
+static uint8_t battle_gender(const RemasterEmeraldBattleMon *mon)
+{
+    const RemasterEmeraldSpeciesInfo *species;
+    uint8_t ratio;
+    uint8_t personality;
+
+    if (mon == 0)
+        return 2;
+
+    species = remaster_emerald_species_info(mon->species);
+    if (species == 0)
+        return 2;
+
+    ratio = species->gender_ratio;
+    if (ratio == 255)
+        return 2;
+    if (ratio == 254)
+        return 1;
+    if (ratio == 0)
+        return 0;
+
+    personality = (uint8_t)(mon->pokemon.box.personality & 0xFFu);
+    return personality < ratio ? 1u : 0u;
 }
 
 static uint8_t battle_default_target(
