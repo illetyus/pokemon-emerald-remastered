@@ -302,15 +302,27 @@ def build_overrides_and_guarantees(
     block = source[start:end]
 
     overrides: list[tuple[int, int, int]] = []
-    for match in re.finditer(
-        r"((?:\s*case\s+MAP_[A-Z0-9_]+\s*:\s*)+)\s*"
-        r"return\s+([^;]+);",
-        block,
-    ):
-        mask = resolver.eval(match.group(2))
-        for symbol in re.findall(r"case\s+(MAP_[A-Z0-9_]+)", match.group(1)):
-            group, number = map_parts(resolver.resolve(symbol))
-            overrides.append((group, number, mask))
+    pending_cases: list[str] = []
+    for raw_line in block.splitlines():
+        line = re.sub(r"//.*$", "", raw_line).strip()
+        if not line:
+            continue
+
+        case_match = re.fullmatch(r"case\s+(MAP_[A-Z0-9_]+)\s*:", line)
+        if case_match:
+            pending_cases.append(case_match.group(1))
+            continue
+
+        if pending_cases and line.startswith("return ") and line.endswith(";"):
+            mask = resolver.eval(line[len("return "):-1].strip())
+            for symbol in pending_cases:
+                group, number = map_parts(resolver.resolve(symbol))
+                overrides.append((group, number, mask))
+            pending_cases.clear()
+            continue
+
+        if pending_cases and line not in ("{", "}", "switch (map)"):
+            pending_cases.clear()
 
     g_start = source.index("static bool8 IsPhase9GuaranteedLocalSpecies")
     g_end = source.index("static bool8 IsPhase9LocalPoolSpecies", g_start)
