@@ -37,6 +37,7 @@ def main() -> int:
         "RemasterEmeraldQuestEmbed.cpp": "../../../core/src/emerald_quest.c",
         "RemasterEmeraldPokemonEmbed.cpp": "../../../core/src/emerald_pokemon.c",
         "RemasterEmeraldItemsEmbed.cpp": "../../../core/src/emerald_items.c",
+        "RemasterEmeraldEncounterEmbed.cpp": "../../../core/src/emerald_encounter.c",
         "RemasterEmeraldMapEmbed.cpp": "../../../core/src/emerald_map.c",
         "RemasterEmeraldMovementEmbed.cpp": "../../../core/src/emerald_movement.c",
         "RemasterEmeraldEventsEmbed.cpp": "../../../core/src/emerald_events.c",
