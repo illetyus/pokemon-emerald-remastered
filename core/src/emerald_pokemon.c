@@ -439,6 +439,22 @@ int remaster_emerald_box_pokemon_set_ability_num(
     return 1;
 }
 
+int remaster_emerald_box_pokemon_set_pokeball(
+    RemasterEmeraldBoxPokemon *pokemon,
+    uint8_t pokeball)
+{
+    uint16_t origins;
+
+    if (pokemon == 0 || pokeball > 15)
+        return 0;
+
+    origins = sub_read16(pokemon, 3, 2);
+    origins &= (uint16_t)~UINT16_C(0x7800);
+    origins |= (uint16_t)((uint16_t)pokeball << 11u);
+    sub_write16(pokemon, 3, 2, origins);
+    return 1;
+}
+
 static int decode_party_raw(
     const uint8_t *raw,
     RemasterEmeraldPartyPokemon *out,
