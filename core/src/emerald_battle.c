@@ -1437,6 +1437,49 @@ int remaster_emerald_battle_build_trainer_party(
     return 1;
 }
 
+int remaster_emerald_battle_start_trainer_from_save(
+    RemasterEmeraldBattleState *battle,
+    const RemasterEmeraldSave *save,
+    uint16_t trainer_id)
+{
+    const RemasterEmeraldTrainer *trainer;
+    RemasterEmeraldPartyPokemon opponent_party[
+        REMASTER_EMERALD_BATTLE_PARTY_SIZE];
+    uint8_t opponent_count;
+
+    if (battle == 0 || save == 0)
+        return 0;
+
+    trainer = remaster_emerald_battle_trainer_find(trainer_id);
+    if (trainer == 0
+        || !remaster_emerald_battle_trainer_validate(trainer)
+        || !remaster_emerald_battle_build_trainer_party(
+            &battle->rng,
+            trainer_id,
+            opponent_party,
+            &opponent_count))
+        return 0;
+
+    battle->battle_type_flags |= REMASTER_EMERALD_BATTLE_TYPE_TRAINER;
+    if (trainer->double_battle)
+        battle->battle_type_flags |= REMASTER_EMERALD_BATTLE_TYPE_DOUBLE;
+
+    if (!remaster_emerald_battle_start_from_save(
+            battle,
+            save,
+            opponent_party,
+            opponent_count))
+        return 0;
+
+    battle->opponent_trainer_id = trainer_id;
+    battle->opponent_trainer_ai_flags = trainer->ai_flags;
+    memcpy(
+        battle->opponent_trainer_items,
+        trainer->items,
+        sizeof(battle->opponent_trainer_items));
+    return 1;
+}
+
 void remaster_emerald_battle_state_init(
     RemasterEmeraldBattleState *battle,
     uint32_t battle_type_flags,
