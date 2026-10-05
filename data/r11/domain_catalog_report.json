@@ -1,0 +1,23 @@
+{
+  "bag_pocket_capacities": {
+    "berries": 46,
+    "items": 30,
+    "key_items": 30,
+    "poke_balls": 16,
+    "tm_hm": 64
+  },
+  "box_pokemon_bytes": 80,
+  "evolution_slots_per_species": 5,
+  "item_count": 377,
+  "item_entries_missing": [],
+  "move_count": 355,
+  "move_entries_missing": [],
+  "party_pokemon_bytes": 100,
+  "party_size": 6,
+  "species_entries_missing": [],
+  "species_internal_count": 412,
+  "storage_box_capacity": 30,
+  "storage_box_count": 14,
+  "storage_box_names_offset": 33604,
+  "storage_box_payload_offset": 4
+}

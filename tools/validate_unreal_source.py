@@ -35,6 +35,8 @@ def main() -> int:
         "RemasterEmeraldRtcEmbed.cpp": "../../../core/src/emerald_rtc.c",
         "RemasterEmeraldStateEmbed.cpp": "../../../core/src/emerald_state.c",
         "RemasterEmeraldQuestEmbed.cpp": "../../../core/src/emerald_quest.c",
+        "RemasterEmeraldPokemonEmbed.cpp": "../../../core/src/emerald_pokemon.c",
+        "RemasterEmeraldItemsEmbed.cpp": "../../../core/src/emerald_items.c",
         "RemasterEmeraldMapEmbed.cpp": "../../../core/src/emerald_map.c",
         "RemasterEmeraldMovementEmbed.cpp": "../../../core/src/emerald_movement.c",
         "RemasterEmeraldEventsEmbed.cpp": "../../../core/src/emerald_events.c",
@@ -143,6 +145,13 @@ def main() -> int:
         "remaster_emerald_flag_set(" not in navigation_cpp
         and "remaster_emerald_var_set(" not in navigation_cpp,
         "R10 navigation presentation must never mutate Emerald story flags/vars",
+        errors,
+    )
+
+    require(
+        (MODULE / "RemasterEmeraldPokemonEmbed.cpp").is_file()
+        and (MODULE / "RemasterEmeraldItemsEmbed.cpp").is_file(),
+        "R11 Pokémon/item portable cores must be embedded for Unreal builds",
         errors,
     )
 

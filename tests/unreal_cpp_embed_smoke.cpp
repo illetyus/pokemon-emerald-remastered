@@ -6,6 +6,8 @@ extern "C"
 #include "remaster/core.h"
 #include "remaster/emerald_object_state.h"
 #include "remaster/emerald_quest.h"
+#include "remaster/emerald_pokemon.h"
+#include "remaster/emerald_items.h"
 #include "remaster/emerald_state.h"
 }
 
@@ -82,6 +84,17 @@ int main()
     if (quest == nullptr
         || quest->id != REMASTER_EMERALD_QUEST_MEET_RIVAL_ROUTE103)
         return fail("R10 quest resolver embed mismatch");
+
+    const RemasterEmeraldSpeciesInfo* treecko =
+        remaster_emerald_species_info(277);
+    if (treecko == nullptr
+        || treecko->base_hp != 40
+        || treecko->base_speed != 70)
+        return fail("R11 species catalog embed mismatch");
+
+    if (!remaster_emerald_bag_add(&save, 13, 1)
+        || remaster_emerald_bag_count(&save, 13) != 1)
+        return fail("R11 bag core embed mismatch");
 
     const std::uint64_t hash = remaster_core_state_hash(&state);
     if (hash != UINT64_C(7218695048241891488))

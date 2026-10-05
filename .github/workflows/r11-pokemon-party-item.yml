@@ -1,0 +1,52 @@
+name: R11 Pokemon Party Item
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+      - remaster/r11-**
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: r11-pokemon-party-item-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pokemon-domain:
+    timeout-minutes: 12
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build R11 targets
+        run: >-
+          cmake --build build --config Release --target
+          emerald_pokemon_codec_test
+          emerald_party_storage_test
+          emerald_bag_test
+          emerald_domain_catalog_test
+          unreal_cpp_embed_smoke
+
+      - name: Run R11 C regressions
+        run: >-
+          ctest --test-dir build -C Release
+          -R "r11_box_pokemon_codec|r11_party_storage|r11_bag|r11_domain_catalog|unreal_cpp_embed"
+          --output-on-failure
+
+      - name: Audit deterministic source catalog
+        run: python -m unittest tests/test_r11_domain_catalog.py -v
+
+      - name: Validate Unreal source boundary
+        run: python tools/validate_unreal_source.py

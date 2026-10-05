@@ -13,6 +13,8 @@ add_library(remaster_core STATIC
     core/src/emerald_rtc.c
     core/src/emerald_state.c
     core/src/emerald_quest.c
+    core/src/emerald_pokemon.c
+    core/src/emerald_items.c
     core/src/emerald_map.c
     core/src/emerald_movement.c
     core/src/emerald_events.c
@@ -77,6 +79,8 @@ add_executable(unreal_cpp_embed_smoke
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldRtcEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldStateEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldQuestEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldPokemonEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldItemsEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMapEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMovementEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldEventsEmbed.cpp
@@ -395,6 +399,34 @@ add_test(NAME r2_opening_commands COMMAND r2_opening_commands_test)
 
 
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
+set(R11_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/r11")
+set(R11_DOMAIN_CATALOG "${R11_GENERATED_DIR}/emerald_domain_catalog.inc")
+set(R11_DOMAIN_REPORT "${R11_GENERATED_DIR}/domain_catalog_report.json")
+file(MAKE_DIRECTORY "${R11_GENERATED_DIR}")
+
+execute_process(
+    COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tools/build_r11_domain_catalog.py"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/vanillaplus"
+        "${R11_DOMAIN_CATALOG}"
+        "${R11_DOMAIN_REPORT}"
+    RESULT_VARIABLE R11_DOMAIN_GENERATE_RESULT
+)
+if(NOT R11_DOMAIN_GENERATE_RESULT EQUAL 0)
+    message(FATAL_ERROR "Failed to generate R11 Pokémon domain catalog")
+endif()
+
+target_include_directories(remaster_core
+    PRIVATE
+        "${R11_GENERATED_DIR}"
+)
+
+target_include_directories(unreal_cpp_embed_smoke
+    PRIVATE
+        "${R11_GENERATED_DIR}"
+)
 set(R2_LITTLEROOT_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(R2_LITTLEROOT_GENERATED_C "${R2_LITTLEROOT_GENERATED_DIR}/r2_littleroot_generated.c")
 file(MAKE_DIRECTORY "${R2_LITTLEROOT_GENERATED_DIR}")
@@ -555,4 +587,60 @@ add_test(
     COMMAND
         "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_r10_quest_catalog.py"
+)
+
+
+add_executable(emerald_pokemon_codec_test
+    tests/emerald_pokemon_codec_test.c
+)
+target_link_libraries(emerald_pokemon_codec_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_pokemon_codec_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_pokemon_codec_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r11_box_pokemon_codec COMMAND emerald_pokemon_codec_test)
+
+
+add_executable(emerald_party_storage_test
+    tests/emerald_party_storage_test.c
+)
+target_link_libraries(emerald_party_storage_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_party_storage_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_party_storage_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r11_party_storage COMMAND emerald_party_storage_test)
+
+
+add_executable(emerald_bag_test
+    tests/emerald_bag_test.c
+)
+target_link_libraries(emerald_bag_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_bag_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_bag_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r11_bag COMMAND emerald_bag_test)
+
+
+add_executable(emerald_domain_catalog_test
+    tests/emerald_domain_catalog_test.c
+)
+target_link_libraries(emerald_domain_catalog_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_domain_catalog_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_domain_catalog_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r11_domain_catalog COMMAND emerald_domain_catalog_test)
+
+
+add_test(
+    NAME r11_domain_catalog_audit
+    COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_r11_domain_catalog.py"
 )
