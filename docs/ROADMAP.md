@@ -887,12 +887,12 @@ The next implementation phase is **R13 — Battle core**.
 
 Before R13 implementation:
 
-1. re-check current `main` after the R11 merge;
+1. re-check current `main` after the R12 merge;
 2. verify open PRs do not conflict;
-3. inspect pinned Emerald/Vanilla+ encounter tables, encounter-rate logic, repel/modifier rules and RNG call ordering;
-4. define the R12 deterministic acceptance contract;
+3. inspect pinned Emerald/Vanilla+ battle state, move execution, damage, status, ability, item and RNG behavior;
+4. define the R13 deterministic acceptance contract;
 5. regression-test first;
-6. implement only on an R12 branch;
+6. implement only on an R13 branch;
 7. merge only after green CI.
 
 Real Unreal build and BrowserStack device execution remain deferred until R18.
