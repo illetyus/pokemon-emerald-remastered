@@ -4090,6 +4090,105 @@ int remaster_emerald_battle_use_move(
         return 1;
     }
 
+    if (move->effect == EFFECT_BEAT_UP) {
+        uint8_t party_slot;
+        uint8_t accuracy = battle_accuracy_percent(
+            battle,
+            attacker,
+            target,
+            move);
+
+        if (remaster_emerald_battle_random(&battle->rng) % 100u
+            >= accuracy) {
+            battle_event(
+                battle,
+                REMASTER_EMERALD_BATTLE_EVENT_MOVE_MISSED,
+                attacker_id,
+                target_id,
+                move_id,
+                0,
+                0);
+            return 1;
+        }
+
+        for (party_slot = 0;
+             party_slot < battle->party_count[attacker->side]
+                 && !target->fainted;
+             ++party_slot) {
+            const RemasterEmeraldPartyPokemon *member =
+                &battle->parties[attacker->side][party_slot];
+            const uint16_t member_species =
+                remaster_emerald_box_pokemon_species(&member->box);
+            const RemasterEmeraldSpeciesInfo *member_info;
+            const RemasterEmeraldSpeciesInfo *target_info;
+            uint32_t damage;
+            int critical;
+
+            if (member_species == 0
+                || member->hp == 0
+                || member->status != 0)
+                continue;
+
+            member_info = remaster_emerald_species_info(member_species);
+            target_info = remaster_emerald_species_info(target->species);
+            if (member_info == 0
+                || target_info == 0
+                || target_info->base_defense == 0)
+                continue;
+
+            damage = member_info->base_attack;
+            damage *= move->power;
+            damage *= (2u * member->level / 5u + 2u);
+            damage /= target_info->base_defense;
+            damage = damage / 50u + 2u;
+
+            if (attacker->helping_hand)
+                damage = damage * 15u / 10u;
+
+            critical = battle_critical(
+                battle,
+                attacker,
+                target,
+                move->effect);
+            if (critical) {
+                damage *= 2u;
+                battle_event(
+                    battle,
+                    REMASTER_EMERALD_BATTLE_EVENT_CRITICAL,
+                    attacker_id,
+                    target_id,
+                    move_id,
+                    1,
+                    party_slot);
+            }
+
+            damage = damage
+                * (85u
+                    + remaster_emerald_battle_random(&battle->rng) % 16u)
+                / 100u;
+            if (damage == 0)
+                damage = 1;
+            if (damage > UINT16_MAX)
+                damage = UINT16_MAX;
+
+            battle_damage_direct(
+                battle,
+                attacker_id,
+                target_id,
+                (uint16_t)damage,
+                move_id,
+                0);
+            move_landed = 1;
+            battle_faint_check(battle, target_id);
+        }
+
+        if (move_landed)
+            target->last_taken_move = move_id;
+        battle_sync_battler(battle, attacker_id);
+        battle_sync_battler(battle, target_id);
+        return 1;
+    }
+
     if (move->effect == EFFECT_MULTI_HIT)
         hits = (uint8_t)(2u + remaster_emerald_battle_random(&battle->rng) % 4u);
     else if (move->effect == EFFECT_DOUBLE_HIT
