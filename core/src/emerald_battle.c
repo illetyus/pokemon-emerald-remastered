@@ -2029,6 +2029,9 @@ int remaster_emerald_battle_calculate_damage(
     if (critical)
         damage *= 2u;
 
+    if (attacker->helping_hand)
+        damage = damage * 15u / 10u;
+
     if (attacker->types[0] == move_type
         || attacker->types[1] == move_type)
         damage = damage * 15u / 10u;
@@ -4486,6 +4489,7 @@ static void battle_end_turn(
         } else if (hold == HOLD_EFFECT_RESTORE_HP
             && mon->pokemon.hp * 2u <= mon->pokemon.max_hp) {
             heal = battle_hold_param(mon);
+            mon->last_consumed_item = mon->held_item;
             mon->held_item = 0;
         }
 
@@ -4605,6 +4609,60 @@ static void battle_end_turn(
         mon->endure_turn = 0xFFu;
         battle_sync_battler(battle, battler);
     }
+
+    for (battler = 0;
+         battler < REMASTER_EMERALD_BATTLE_MAX_BATTLERS;
+         ++battler) {
+        RemasterEmeraldBattleMon *mon = &battle->battlers[battler];
+
+        if (battle->future_turns[battler] != 0) {
+            battle->future_turns[battler]--;
+            if (battle->future_turns[battler] == 0
+                && mon->active
+                && !mon->fainted) {
+                uint8_t source = battle->future_attacker[battler];
+                uint16_t move_id = battle->future_move[battler];
+                uint16_t damage = battle->future_damage[battler];
+                battle_damage_direct(
+                    battle,
+                    battle_valid_battler(source) ? source : battler,
+                    battler,
+                    damage != 0 ? damage : 1u,
+                    move_id,
+                    0);
+                battle_faint_check(battle, battler);
+                battle->future_attacker[battler] = 0xFFu;
+                battle->future_move[battler] = 0;
+                battle->future_damage[battler] = 0;
+            }
+        }
+
+        if (battle->wish_turns[battler] != 0) {
+            battle->wish_turns[battler]--;
+            if (battle->wish_turns[battler] == 0
+                && mon->active
+                && !mon->fainted) {
+                battle_heal(
+                    battle,
+                    battler,
+                    battle->wish_amount[battler],
+                    0);
+                battle->wish_amount[battler] = 0;
+            }
+        }
+
+        if (mon->active) {
+            mon->helping_hand = 0;
+            mon->magic_coat = 0;
+            mon->snatch = 0;
+            battle_sync_battler(battle, battler);
+        }
+    }
+
+    battle->follow_me_turns[0] = 0;
+    battle->follow_me_turns[1] = 0;
+    battle->follow_me_target[0] = 0xFFu;
+    battle->follow_me_target[1] = 0xFFu;
 
     if (battle->weather_turns != 0) {
         battle->weather_turns--;
