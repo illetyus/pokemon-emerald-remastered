@@ -1680,6 +1680,10 @@ static uint16_t battle_dynamic_power(
             return (uint16_t)(move->power * 2u);
         }
         return move->power;
+    case EFFECT_PURSUIT:
+        return battle->pursuit_boost[attacker->side == 0
+                ? 0
+                : 1] ? (uint16_t)(move->power * 2u) : move->power;
     case EFFECT_LOW_KICK:
         return 60;
     case EFFECT_ROLLOUT: {
@@ -1791,6 +1795,9 @@ static int battle_calculate_damage_internal(
         defender,
         move,
         &move_type);
+    if (move->effect == EFFECT_PURSUIT
+        && battle->pursuit_boost[attacker_id])
+        power = (uint16_t)(move->power * 2u);
 
     if ((defender->status3 & REMASTER_EMERALD_STATUS3_ON_AIR)
         && (move->effect == EFFECT_GUST
@@ -3213,6 +3220,8 @@ static int battle_apply_primary_effect(
             return 0;
         user->snatch = 1;
         return 1;
+    case EFFECT_BATON_PASS:
+        return 1;
     case EFFECT_CAMOUFLAGE:
         user->types[0] = TYPE_NORMAL;
         user->types[1] = TYPE_NORMAL;
@@ -4543,6 +4552,10 @@ static int battle_action_priority(
     case REMASTER_EMERALD_BATTLE_ACTION_MOVE:
         move = remaster_emerald_move_info(
             battle->battlers[battler].moves[action->move_slot]);
+        if (move != 0
+            && move->effect == EFFECT_PURSUIT
+            && battle->pursuit_boost[battler])
+            return 70;
         return move != 0 ? (int)move->priority : 0;
     default:
         return -100;
