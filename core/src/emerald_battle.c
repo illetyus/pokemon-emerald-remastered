@@ -1680,10 +1680,6 @@ static uint16_t battle_dynamic_power(
             return (uint16_t)(move->power * 2u);
         }
         return move->power;
-    case EFFECT_PURSUIT:
-        return battle->pursuit_boost[attacker->side == 0
-                ? 0
-                : 1] ? (uint16_t)(move->power * 2u) : move->power;
     case EFFECT_LOW_KICK:
         return 60;
     case EFFECT_ROLLOUT: {
@@ -4899,6 +4895,30 @@ int remaster_emerald_battle_resolve_turn(
             order[count++] = i;
     }
 
+    memset(battle->pursuit_boost, 0, sizeof(battle->pursuit_boost));
+    for (i = 0; i < count; ++i) {
+        uint8_t battler = order[i];
+        RemasterEmeraldBattleAction *action = &resolved[battler];
+        if (action->kind == REMASTER_EMERALD_BATTLE_ACTION_MOVE
+            && action->move_slot < 4) {
+            const RemasterEmeraldMoveInfo *chosen =
+                remaster_emerald_move_info(
+                    battle->battlers[battler].moves[action->move_slot]);
+            uint8_t target = action->target;
+            if ((!battle_valid_battler(target)
+                    || battle->battlers[target].side
+                        == battle->battlers[battler].side)
+                && chosen != 0)
+                target = battle_default_target(battle, battler);
+            if (chosen != 0
+                && chosen->effect == EFFECT_PURSUIT
+                && battle_valid_battler(target)
+                && resolved[target].kind
+                    == REMASTER_EMERALD_BATTLE_ACTION_SWITCH)
+                battle->pursuit_boost[battler] = 1;
+        }
+    }
+
     for (i = 0; i < count; ++i) {
         for (j = (uint8_t)(i + 1u); j < count; ++j) {
             uint8_t a = order[i];
@@ -4943,13 +4963,61 @@ int remaster_emerald_battle_resolve_turn(
             continue;
 
         switch (action->kind) {
-        case REMASTER_EMERALD_BATTLE_ACTION_MOVE:
-            remaster_emerald_battle_use_move(
-                battle,
-                battler,
-                action->target,
-                action->move_slot);
+        case REMASTER_EMERALD_BATTLE_ACTION_MOVE: {
+            const RemasterEmeraldMoveInfo *chosen =
+                action->move_slot < 4
+                ? remaster_emerald_move_info(
+                    battle->battlers[battler].moves[action->move_slot])
+                : 0;
+
+            if (chosen != 0 && chosen->effect == EFFECT_BATON_PASS) {
+                uint8_t stages[REMASTER_EMERALD_BATTLE_STAT_COUNT];
+                uint32_t status2 = battle->battlers[battler].status2;
+                uint16_t substitute_hp =
+                    battle->battlers[battler].substitute_hp;
+                uint8_t slot = action->party_slot;
+
+                memcpy(
+                    stages,
+                    battle->battlers[battler].stat_stages,
+                    sizeof(stages));
+
+                if (remaster_emerald_battle_use_move(
+                        battle,
+                        battler,
+                        action->target,
+                        action->move_slot)) {
+                    uint8_t side = battle->battlers[battler].side;
+                    if (slot >= battle->party_count[side]
+                        || battle->parties[side][slot].hp == 0
+                        || battle_party_slot_active(battle, side, slot)) {
+                        if (!battle_find_switch_slot(
+                                battle, side, &slot))
+                            break;
+                    }
+
+                    if (remaster_emerald_battle_switch(
+                            battle, battler, slot)) {
+                        memcpy(
+                            battle->battlers[battler].stat_stages,
+                            stages,
+                            sizeof(stages));
+                        battle->battlers[battler].status2 = status2;
+                        battle->battlers[battler].substitute_hp =
+                            substitute_hp;
+                    }
+                }
+            } else {
+                remaster_emerald_battle_use_move(
+                    battle,
+                    battler,
+                    action->target,
+                    action->move_slot);
+            }
+
+            battle->pursuit_boost[battler] = 0;
             break;
+        }
         case REMASTER_EMERALD_BATTLE_ACTION_SWITCH:
             remaster_emerald_battle_switch(
                 battle,
