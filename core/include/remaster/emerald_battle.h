@@ -211,6 +211,7 @@ typedef struct RemasterEmeraldBattleMon {
     uint8_t fury_cutter_count;
     uint8_t trapped_turns;
     uint8_t rampage_turns;
+    uint8_t uproar_turns;
     uint8_t bide_turns;
     uint8_t lock_on_turns;
     uint8_t lock_on_target;
