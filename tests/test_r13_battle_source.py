@@ -85,6 +85,39 @@ class R13BattleSourceContract(unittest.TestCase):
         self.assertIn("case HOLD_EFFECT_DOUBLE_PRIZE:", battle_util)
         self.assertIn("gBattleStruct->moneyMultiplier = 2;", battle_util)
 
+    def test_trainer_ai_score_pipeline_is_pinned(self):
+        commands = (
+            VENDOR / "src/battle_ai_script_commands.c"
+        ).read_text(encoding="utf-8")
+        scripts = (
+            VENDOR / "data/battle_ai_scripts.s"
+        ).read_text(encoding="utf-8")
+        portable = R13.read_text(encoding="utf-8")
+
+        self.assertIn("AI_THINKING_STRUCT->score[i] = 100;", commands)
+        self.assertIn(
+            "consideredMoveArray[Random() % numOfBestMoves]",
+            commands,
+        )
+        for label in (
+            "AI_CheckBadMove:",
+            "AI_TryToFaint:",
+            "AI_CheckViability:",
+            "AI_SetupFirstTurn:",
+            "AI_Risky:",
+        ):
+            self.assertIn(label, scripts)
+
+        for helper in (
+            "battle_ai_apply_check_bad_move",
+            "battle_ai_apply_try_to_faint",
+            "battle_ai_apply_check_viability",
+            "battle_ai_apply_setup_first_turn",
+            "battle_ai_apply_risky",
+            "battle_ai_choose_trainer_move",
+        ):
+            self.assertIn(helper, portable)
+
     def test_move_effect_count_is_gen3_contract(self):
         text = (VENDOR / "include/constants/battle_move_effects.h").read_text(
             encoding="utf-8"
