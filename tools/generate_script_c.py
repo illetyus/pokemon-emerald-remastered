@@ -240,6 +240,7 @@ _OPCODE_NAMES = {
         "FADE_DEFAULT_BGM", "INCREMENT_GAME_STAT",
         "BUFFER_LEAD_MON_SPECIES_NAME", "SET_FOLLOWER",
         "FOLLOWER_INTO_POKEBALL", "UPDATE_FOLLOWER_POKEMON_GRAPHIC",
+        "DOMAIN_TRAINER_BATTLE_CONFIG", "DOMAIN_TRAINER_BATTLE_START",
     ]
 }
 
@@ -373,6 +374,16 @@ def _instruction_fields(
             f".a = {_u(number('species'))}",
             f".b = {_u(number('level'))}",
         ]
+    elif op == "DOMAIN_TRAINER_BATTLE_CONFIG":
+        fields += [
+            f".a = {_u(number('trainer'))}",
+            f".b = {_u(number('mode'))}",
+            f".target = {number('local_id') & 0xFFFFFFFF}u",
+        ]
+        if "intro_text" in ins:
+            fields.append(
+                f".resource_id = {_cstr(str(ins['intro_text']))}"
+            )
     elif op in {"SPECIAL", "SPECIAL_VAR"}:
         fields += [
             f".resource_id = {_cstr(str(ins.get('special_id', '')))}",
