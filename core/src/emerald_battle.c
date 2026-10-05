@@ -3543,6 +3543,87 @@ static void battle_faint_check(
     battle_finish_if_over(battle);
 }
 
+static int battle_execute_beat_up(
+    RemasterEmeraldBattleState *battle,
+    uint8_t attacker_id,
+    uint8_t target_id,
+    const RemasterEmeraldMoveInfo *move)
+{
+    RemasterEmeraldBattleMon *attacker;
+    RemasterEmeraldBattleMon *target;
+    const RemasterEmeraldSpeciesInfo *target_species;
+    uint8_t party_slot;
+    int hit_any = 0;
+
+    if (battle == 0
+        || move == 0
+        || !battle_valid_battler(attacker_id)
+        || !battle_valid_battler(target_id))
+        return 0;
+
+    attacker = &battle->battlers[attacker_id];
+    target = &battle->battlers[target_id];
+    target_species = remaster_emerald_species_info(target->species);
+    if (target_species == 0 || target_species->base_defense == 0)
+        return 0;
+
+    for (party_slot = 0;
+         party_slot < battle->party_count[attacker->side]
+            && !target->fainted;
+         ++party_slot) {
+        const RemasterEmeraldPartyPokemon *party_mon =
+            &battle->parties[attacker->side][party_slot];
+        const uint16_t species_id =
+            remaster_emerald_box_pokemon_species(&party_mon->box);
+        const RemasterEmeraldSpeciesInfo *species;
+        uint32_t damage;
+
+        if (species_id == 0
+            || party_mon->hp == 0
+            || party_mon->status != 0)
+            continue;
+
+        species = remaster_emerald_species_info(species_id);
+        if (species == 0)
+            continue;
+
+        damage = (uint32_t)species->base_attack
+            * move->power
+            * (2u * party_mon->level / 5u + 2u);
+        damage /= target_species->base_defense;
+        damage = damage / 50u + 2u;
+
+        if (attacker->helping_hand)
+            damage = damage * 15u / 10u;
+        if (battle_critical(
+                battle,
+                attacker,
+                target,
+                move->effect))
+            damage *= 2u;
+
+        damage = damage
+            * (85u + remaster_emerald_battle_random(&battle->rng) % 16u)
+            / 100u;
+        if (damage == 0)
+            damage = 1;
+        if (damage > UINT16_MAX)
+            damage = UINT16_MAX;
+
+        battle_damage_direct(
+            battle,
+            attacker_id,
+            target_id,
+            (uint16_t)damage,
+            move->move_id,
+            0);
+        hit_any = 1;
+        battle_faint_check(battle, target_id);
+    }
+
+    return hit_any;
+}
+
 int remaster_emerald_battle_use_move(
     RemasterEmeraldBattleState *battle,
     uint8_t attacker_id,
@@ -3980,6 +4061,32 @@ int remaster_emerald_battle_use_move(
             move_id,
             0,
             EFFECT_PROTECT);
+        return 1;
+    }
+
+    if (move->effect == EFFECT_BEAT_UP) {
+        uint8_t accuracy = battle_accuracy_percent(
+            battle, attacker, target, move);
+        if (remaster_emerald_battle_random(&battle->rng) % 100u
+            >= accuracy) {
+            battle_event(
+                battle,
+                REMASTER_EMERALD_BATTLE_EVENT_MOVE_MISSED,
+                attacker_id,
+                target_id,
+                move_id,
+                0,
+                0);
+            return 1;
+        }
+        battle_execute_beat_up(
+            battle,
+            attacker_id,
+            target_id,
+            move);
+        target->last_taken_move = move_id;
+        battle_sync_battler(battle, attacker_id);
+        battle_sync_battler(battle, target_id);
         return 1;
     }
 
