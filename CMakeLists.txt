@@ -516,3 +516,41 @@ else()
 endif()
 
 add_test(NAME emerald_object_save_state COMMAND emerald_object_state_test)
+
+
+add_executable(emerald_quest_test
+    tests/emerald_quest_test.c
+)
+
+target_link_libraries(emerald_quest_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_quest_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_quest_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME r10_quest_progression COMMAND emerald_quest_test)
+
+
+add_executable(emerald_quest_save_test
+    tests/emerald_quest_save_test.c
+)
+
+target_link_libraries(emerald_quest_save_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_quest_save_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_quest_save_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME r10_quest_save_roundtrip COMMAND emerald_quest_save_test)
+
+
+add_test(
+    NAME r10_quest_catalog_audit
+    COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_r10_quest_catalog.py"
+)
