@@ -54,11 +54,19 @@ enum {
 
 #define REMASTER_EMERALD_STATUS2_CONFUSION UINT32_C(0x00000007)
 #define REMASTER_EMERALD_STATUS2_FLINCHED UINT32_C(0x00000008)
+#define REMASTER_EMERALD_STATUS2_UPROAR UINT32_C(0x00000070)
+#define REMASTER_EMERALD_STATUS2_BIDE UINT32_C(0x00000300)
+#define REMASTER_EMERALD_STATUS2_LOCK_CONFUSE UINT32_C(0x00000C00)
+#define REMASTER_EMERALD_STATUS2_MULTIPLETURNS UINT32_C(0x00001000)
+#define REMASTER_EMERALD_STATUS2_WRAPPED UINT32_C(0x0000E000)
+#define REMASTER_EMERALD_STATUS2_INFATUATION UINT32_C(0x000F0000)
 #define REMASTER_EMERALD_STATUS2_FOCUS_ENERGY UINT32_C(0x00100000)
+#define REMASTER_EMERALD_STATUS2_TRANSFORMED UINT32_C(0x00200000)
 #define REMASTER_EMERALD_STATUS2_RECHARGE UINT32_C(0x00400000)
 #define REMASTER_EMERALD_STATUS2_SUBSTITUTE UINT32_C(0x01000000)
 #define REMASTER_EMERALD_STATUS2_DESTINY_BOND UINT32_C(0x02000000)
 #define REMASTER_EMERALD_STATUS2_ESCAPE_PREVENTION UINT32_C(0x04000000)
+#define REMASTER_EMERALD_STATUS2_NIGHTMARE UINT32_C(0x08000000)
 #define REMASTER_EMERALD_STATUS2_CURSED UINT32_C(0x10000000)
 #define REMASTER_EMERALD_STATUS2_FORESIGHT UINT32_C(0x20000000)
 #define REMASTER_EMERALD_STATUS2_DEFENSE_CURL UINT32_C(0x40000000)
@@ -66,11 +74,20 @@ enum {
 
 enum {
     REMASTER_EMERALD_STATUS3_LEECH_SEED = 1u << 2,
+    REMASTER_EMERALD_STATUS3_ALWAYS_HITS = (1u << 3) | (1u << 4),
     REMASTER_EMERALD_STATUS3_PERISH_SONG = 1u << 5,
+    REMASTER_EMERALD_STATUS3_ON_AIR = 1u << 6,
+    REMASTER_EMERALD_STATUS3_UNDERGROUND = 1u << 7,
+    REMASTER_EMERALD_STATUS3_MINIMIZED = 1u << 8,
+    REMASTER_EMERALD_STATUS3_CHARGED_UP = 1u << 9,
     REMASTER_EMERALD_STATUS3_ROOTED = 1u << 10,
     REMASTER_EMERALD_STATUS3_YAWN = (1u << 11) | (1u << 12),
+    REMASTER_EMERALD_STATUS3_IMPRISONED_OTHERS = 1u << 13,
+    REMASTER_EMERALD_STATUS3_GRUDGE = 1u << 14,
+    REMASTER_EMERALD_STATUS3_CANT_SCORE_CRIT = 1u << 15,
     REMASTER_EMERALD_STATUS3_MUD_SPORT = 1u << 16,
-    REMASTER_EMERALD_STATUS3_WATER_SPORT = 1u << 17
+    REMASTER_EMERALD_STATUS3_WATER_SPORT = 1u << 17,
+    REMASTER_EMERALD_STATUS3_UNDERWATER = 1u << 18
 };
 
 enum {
@@ -173,13 +190,27 @@ typedef struct RemasterEmeraldBattleMon {
     uint16_t last_move;
     uint16_t choice_locked_move;
     uint16_t last_damage;
+    uint16_t bide_damage;
+    uint16_t trapped_move;
+    uint8_t last_damage_from;
+    uint8_t last_damage_type;
+    uint8_t last_damage_was_physical;
     uint8_t side;
     uint8_t party_slot;
     uint8_t active;
     uint8_t fainted;
     uint8_t protected_turn;
+    uint8_t endure_turn;
+    uint8_t entered_turn;
     uint8_t protect_chain;
     uint8_t stockpile;
+    uint8_t rollout_count;
+    uint8_t fury_cutter_count;
+    uint8_t trapped_turns;
+    uint8_t rampage_turns;
+    uint8_t bide_turns;
+    uint8_t lock_on_turns;
+    uint8_t lock_on_target;
     uint8_t perish_count;
     uint8_t toxic_counter;
     uint8_t flash_fire;
@@ -188,6 +219,8 @@ typedef struct RemasterEmeraldBattleMon {
     uint8_t encore_move_slot;
     uint8_t disable_turns;
     uint8_t disable_move_slot;
+    uint8_t destiny_bond_turn;
+    uint8_t grudge_turn;
 } RemasterEmeraldBattleMon;
 
 typedef struct RemasterEmeraldBattleState {
