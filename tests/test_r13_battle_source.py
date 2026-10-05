@@ -139,6 +139,43 @@ class R13BattleSourceContract(unittest.TestCase):
         ):
             self.assertIn(f"if (flags & {flag})", portable)
 
+    def test_trainer_ai_pipeline_matches_script_order(self):
+        portable = R13.read_text(encoding="utf-8")
+        start = portable.index("static int battle_ai_choose_trainer_move")
+        end = portable.index(
+            "int remaster_emerald_battle_choose_ai_action", start
+        )
+        pipeline = portable[start:end]
+
+        ordered = (
+            "battle_ai_apply_check_bad_move(",
+            "battle_ai_apply_try_to_faint(",
+            "battle_ai_apply_check_viability(",
+            "battle_ai_apply_setup_first_turn(",
+            "battle_ai_apply_risky(",
+            "battle_ai_apply_prefer_power_extremes(",
+            "battle_ai_apply_prefer_baton_pass(",
+            "battle_ai_apply_double_battle(",
+            "battle_ai_apply_hp_aware(",
+            "battle_ai_apply_try_sunny_day_start(",
+        )
+        positions = [pipeline.index(symbol) for symbol in ordered]
+        self.assertEqual(positions, sorted(positions))
+
+        for helper in (
+            "battle_ai_apply_check_bad_move",
+            "battle_ai_apply_try_to_faint",
+            "battle_ai_apply_check_viability",
+            "battle_ai_apply_setup_first_turn",
+            "battle_ai_apply_risky",
+            "battle_ai_apply_prefer_power_extremes",
+            "battle_ai_apply_prefer_baton_pass",
+        ):
+            helper_start = portable.index(f"static void {helper}")
+            helper_end = portable.index("\nstatic ", helper_start + 20)
+            helper_text = portable[helper_start:helper_end]
+            self.assertIn(".side == user->side", helper_text, helper)
+
     def test_trainer_switch_item_ai_is_pinned(self):
         switch_items = (
             VENDOR / "src/battle_ai_switch_items.c"
