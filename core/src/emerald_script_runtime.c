@@ -600,6 +600,21 @@ RemasterEmeraldScriptStatus remaster_emerald_script_runtime_run(
                 request->action = REMASTER_EMERALD_SCRIPT_BGM_FADE_DEFAULT;
                 break;
 
+            case REMASTER_EMERALD_SCRIPT_DOMAIN_TRAINER_BATTLE_CONFIG:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN;
+                request->action =
+                    REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_TRAINER_BATTLE_CONFIG;
+                request->value_u16 = ins->a;
+                request->quantity = ins->b;
+                request->local_id = (uint16_t)ins->target;
+                break;
+
+            case REMASTER_EMERALD_SCRIPT_DOMAIN_TRAINER_BATTLE_START:
+                request->type = REMASTER_EMERALD_SCRIPT_REQUEST_DOMAIN;
+                request->action =
+                    REMASTER_EMERALD_SCRIPT_DOMAIN_ACTION_TRAINER_BATTLE_START;
+                break;
+
             case REMASTER_EMERALD_SCRIPT_SPECIAL:
             case REMASTER_EMERALD_SCRIPT_SPECIAL_VAR:
             {
