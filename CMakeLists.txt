@@ -15,6 +15,7 @@ add_library(remaster_core STATIC
     core/src/emerald_quest.c
     core/src/emerald_pokemon.c
     core/src/emerald_items.c
+    core/src/emerald_encounter.c
     core/src/emerald_map.c
     core/src/emerald_movement.c
     core/src/emerald_events.c
@@ -81,6 +82,7 @@ add_executable(unreal_cpp_embed_smoke
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldQuestEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldPokemonEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldItemsEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldEncounterEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMapEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMovementEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldEventsEmbed.cpp
@@ -426,6 +428,35 @@ target_include_directories(remaster_core
 target_include_directories(unreal_cpp_embed_smoke
     PRIVATE
         "${R11_GENERATED_DIR}"
+)
+
+
+set(R12_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/r12")
+set(R12_ENCOUNTER_CATALOG "${R12_GENERATED_DIR}/emerald_encounter_catalog.inc")
+set(R12_ENCOUNTER_REPORT "${R12_GENERATED_DIR}/encounter_catalog_report.json")
+file(MAKE_DIRECTORY "${R12_GENERATED_DIR}")
+
+execute_process(
+    COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tools/build_r12_encounter_catalog.py"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/vanillaplus"
+        "${R12_ENCOUNTER_CATALOG}"
+        "${R12_ENCOUNTER_REPORT}"
+    RESULT_VARIABLE R12_ENCOUNTER_GENERATE_RESULT
+)
+if(NOT R12_ENCOUNTER_GENERATE_RESULT EQUAL 0)
+    message(FATAL_ERROR "Failed to generate R12 encounter catalog")
+endif()
+
+target_include_directories(remaster_core
+    PRIVATE
+        "${R12_GENERATED_DIR}"
+)
+
+target_include_directories(unreal_cpp_embed_smoke
+    PRIVATE
+        "${R12_GENERATED_DIR}"
 )
 set(R2_LITTLEROOT_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(R2_LITTLEROOT_GENERATED_C "${R2_LITTLEROOT_GENERATED_DIR}/r2_littleroot_generated.c")
