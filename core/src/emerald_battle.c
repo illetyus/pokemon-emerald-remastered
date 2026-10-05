@@ -58,6 +58,7 @@ enum {
     ABILITY_INNER_FOCUS = 39,
     ABILITY_MAGMA_ARMOR = 40,
     ABILITY_WATER_VEIL = 41,
+    ABILITY_SOUNDPROOF = 43,
     ABILITY_RAIN_DISH = 44,
     ABILITY_SAND_STREAM = 45,
     ABILITY_PRESSURE = 46,
@@ -854,6 +855,19 @@ static int battle_field_has_status3(
             return 1;
     }
     return 0;
+}
+
+static int battle_effect_is_plain_hit(uint8_t effect)
+{
+    switch (effect) {
+    case EFFECT_HIT:
+    case EFFECT_VITAL_THROW:
+    case EFFECT_QUICK_ATTACK:
+    case EFFECT_EARTHQUAKE:
+        return 1;
+    default:
+        return 0;
+    }
 }
 
 static int battle_is_two_turn_effect(
@@ -2295,6 +2309,12 @@ static void battle_damage_direct(
         move_id,
         actual,
         0);
+
+    if (source != target_id
+        && move_id != 0
+        && (target->status2 & REMASTER_EMERALD_STATUS2_RAGE))
+        battle_change_stage(
+            battle, target_id, 1, 1, target->last_move);
 }
 
 static int battle_contact_move(const RemasterEmeraldMoveInfo *move)
@@ -2817,6 +2837,7 @@ static int battle_apply_primary_effect(
             user->moves[i] = foe->moves[i];
             user->pp[i] = foe->moves[i] != 0 ? 5u : 0u;
         }
+        user->temporary_move_mask = 0x0Fu;
         user->status2 |= REMASTER_EMERALD_STATUS2_TRANSFORMED;
         return 1;
     case EFFECT_HAZE:
@@ -3617,11 +3638,12 @@ int remaster_emerald_battle_use_move(
             pp_cost = attacker->pp[move_slot];
         attacker->pp[move_slot] =
             (uint8_t)(attacker->pp[move_slot] - pp_cost);
-        remaster_emerald_box_pokemon_set_move(
-            &attacker->pokemon.box,
-            move_slot,
-            move_id,
-            attacker->pp[move_slot]);
+        if (!(attacker->temporary_move_mask & (1u << move_slot)))
+            remaster_emerald_box_pokemon_set_move(
+                &attacker->pokemon.box,
+                move_slot,
+                move_id,
+                attacker->pp[move_slot]);
     } else {
         pp_cost = 0;
     }
