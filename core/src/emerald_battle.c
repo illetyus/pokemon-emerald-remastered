@@ -6113,6 +6113,323 @@ static void battle_ai_apply_prefer_baton_pass(
     }
 }
 
+static uint8_t battle_ai_hp_percent(
+    const RemasterEmeraldBattleMon *mon)
+{
+    if (mon == 0 || mon->pokemon.max_hp == 0)
+        return 0;
+    return (uint8_t)(
+        (uint32_t)mon->pokemon.hp * 100u / mon->pokemon.max_hp);
+}
+
+static int battle_ai_hp_aware_user_discouraged(
+    uint8_t hp_percent,
+    uint8_t effect)
+{
+    if (hp_percent > 70u) {
+        switch (effect) {
+        case EFFECT_EXPLOSION:
+        case EFFECT_RESTORE_HP:
+        case EFFECT_REST:
+        case EFFECT_DESTINY_BOND:
+        case EFFECT_FLAIL:
+        case EFFECT_ENDURE:
+        case EFFECT_MORNING_SUN:
+        case EFFECT_SYNTHESIS:
+        case EFFECT_MOONLIGHT:
+        case EFFECT_SOFTBOILED:
+        case EFFECT_MEMENTO:
+        case EFFECT_GRUDGE:
+        case EFFECT_OVERHEAT:
+            return 1;
+        default:
+            return 0;
+        }
+    }
+
+    if (hp_percent > 30u) {
+        switch (effect) {
+        case EFFECT_EXPLOSION:
+        case EFFECT_ATTACK_UP:
+        case EFFECT_DEFENSE_UP:
+        case EFFECT_SPEED_UP:
+        case EFFECT_SPECIAL_ATTACK_UP:
+        case EFFECT_SPECIAL_DEFENSE_UP:
+        case EFFECT_ACCURACY_UP:
+        case EFFECT_EVASION_UP:
+        case EFFECT_ATTACK_DOWN:
+        case EFFECT_DEFENSE_DOWN:
+        case EFFECT_SPEED_DOWN:
+        case EFFECT_SPECIAL_ATTACK_DOWN:
+        case EFFECT_SPECIAL_DEFENSE_DOWN:
+        case EFFECT_ACCURACY_DOWN:
+        case EFFECT_EVASION_DOWN:
+        case EFFECT_BIDE:
+        case EFFECT_CONVERSION:
+        case EFFECT_LIGHT_SCREEN:
+        case EFFECT_MIST:
+        case EFFECT_FOCUS_ENERGY:
+        case EFFECT_ATTACK_UP_2:
+        case EFFECT_DEFENSE_UP_2:
+        case EFFECT_SPEED_UP_2:
+        case EFFECT_SPECIAL_ATTACK_UP_2:
+        case EFFECT_SPECIAL_DEFENSE_UP_2:
+        case EFFECT_ACCURACY_UP_2:
+        case EFFECT_EVASION_UP_2:
+        case EFFECT_ATTACK_DOWN_2:
+        case EFFECT_DEFENSE_DOWN_2:
+        case EFFECT_SPEED_DOWN_2:
+        case EFFECT_SPECIAL_ATTACK_DOWN_2:
+        case EFFECT_SPECIAL_DEFENSE_DOWN_2:
+        case EFFECT_ACCURACY_DOWN_2:
+        case EFFECT_EVASION_DOWN_2:
+        case EFFECT_CONVERSION_2:
+        case EFFECT_SAFEGUARD:
+        case EFFECT_BELLY_DRUM:
+        case EFFECT_TICKLE:
+        case EFFECT_COSMIC_POWER:
+        case EFFECT_BULK_UP:
+        case EFFECT_CALM_MIND:
+        case EFFECT_DRAGON_DANCE:
+            return 1;
+        default:
+            return 0;
+        }
+    }
+
+    switch (effect) {
+    case EFFECT_ATTACK_UP:
+    case EFFECT_DEFENSE_UP:
+    case EFFECT_SPEED_UP:
+    case EFFECT_SPECIAL_ATTACK_UP:
+    case EFFECT_SPECIAL_DEFENSE_UP:
+    case EFFECT_ACCURACY_UP:
+    case EFFECT_EVASION_UP:
+    case EFFECT_ATTACK_DOWN:
+    case EFFECT_DEFENSE_DOWN:
+    case EFFECT_SPEED_DOWN:
+    case EFFECT_SPECIAL_ATTACK_DOWN:
+    case EFFECT_SPECIAL_DEFENSE_DOWN:
+    case EFFECT_ACCURACY_DOWN:
+    case EFFECT_EVASION_DOWN:
+    case EFFECT_BIDE:
+    case EFFECT_CONVERSION:
+    case EFFECT_LIGHT_SCREEN:
+    case EFFECT_MIST:
+    case EFFECT_FOCUS_ENERGY:
+    case EFFECT_ATTACK_UP_2:
+    case EFFECT_DEFENSE_UP_2:
+    case EFFECT_SPEED_UP_2:
+    case EFFECT_SPECIAL_ATTACK_UP_2:
+    case EFFECT_SPECIAL_DEFENSE_UP_2:
+    case EFFECT_ACCURACY_UP_2:
+    case EFFECT_EVASION_UP_2:
+    case EFFECT_ATTACK_DOWN_2:
+    case EFFECT_DEFENSE_DOWN_2:
+    case EFFECT_SPEED_DOWN_2:
+    case EFFECT_SPECIAL_ATTACK_DOWN_2:
+    case EFFECT_SPECIAL_DEFENSE_DOWN_2:
+    case EFFECT_ACCURACY_DOWN_2:
+    case EFFECT_EVASION_DOWN_2:
+    case EFFECT_RAGE:
+    case EFFECT_CONVERSION_2:
+    case EFFECT_LOCK_ON:
+    case EFFECT_SAFEGUARD:
+    case EFFECT_BELLY_DRUM:
+    case EFFECT_PSYCH_UP:
+    case EFFECT_MIRROR_COAT:
+    case EFFECT_SOLAR_BEAM:
+    case EFFECT_ERUPTION:
+    case EFFECT_TICKLE:
+    case EFFECT_COSMIC_POWER:
+    case EFFECT_BULK_UP:
+    case EFFECT_CALM_MIND:
+    case EFFECT_DRAGON_DANCE:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+static int battle_ai_hp_aware_target_discouraged(
+    uint8_t hp_percent,
+    uint8_t effect)
+{
+    if (hp_percent > 70u)
+        return 0;
+
+    if (hp_percent > 30u) {
+        switch (effect) {
+        case EFFECT_ATTACK_UP:
+        case EFFECT_DEFENSE_UP:
+        case EFFECT_SPEED_UP:
+        case EFFECT_SPECIAL_ATTACK_UP:
+        case EFFECT_SPECIAL_DEFENSE_UP:
+        case EFFECT_ACCURACY_UP:
+        case EFFECT_EVASION_UP:
+        case EFFECT_ATTACK_DOWN:
+        case EFFECT_DEFENSE_DOWN:
+        case EFFECT_SPEED_DOWN:
+        case EFFECT_SPECIAL_ATTACK_DOWN:
+        case EFFECT_SPECIAL_DEFENSE_DOWN:
+        case EFFECT_ACCURACY_DOWN:
+        case EFFECT_EVASION_DOWN:
+        case EFFECT_MIST:
+        case EFFECT_FOCUS_ENERGY:
+        case EFFECT_ATTACK_UP_2:
+        case EFFECT_DEFENSE_UP_2:
+        case EFFECT_SPEED_UP_2:
+        case EFFECT_SPECIAL_ATTACK_UP_2:
+        case EFFECT_SPECIAL_DEFENSE_UP_2:
+        case EFFECT_ACCURACY_UP_2:
+        case EFFECT_EVASION_UP_2:
+        case EFFECT_ATTACK_DOWN_2:
+        case EFFECT_DEFENSE_DOWN_2:
+        case EFFECT_SPEED_DOWN_2:
+        case EFFECT_SPECIAL_ATTACK_DOWN_2:
+        case EFFECT_SPECIAL_DEFENSE_DOWN_2:
+        case EFFECT_ACCURACY_DOWN_2:
+        case EFFECT_EVASION_DOWN_2:
+        case EFFECT_POISON:
+        case EFFECT_PAIN_SPLIT:
+        case EFFECT_PERISH_SONG:
+        case EFFECT_SAFEGUARD:
+        case EFFECT_TICKLE:
+        case EFFECT_COSMIC_POWER:
+        case EFFECT_BULK_UP:
+        case EFFECT_CALM_MIND:
+        case EFFECT_DRAGON_DANCE:
+            return 1;
+        default:
+            return 0;
+        }
+    }
+
+    switch (effect) {
+    case EFFECT_SLEEP:
+    case EFFECT_EXPLOSION:
+    case EFFECT_ATTACK_UP:
+    case EFFECT_DEFENSE_UP:
+    case EFFECT_SPEED_UP:
+    case EFFECT_SPECIAL_ATTACK_UP:
+    case EFFECT_SPECIAL_DEFENSE_UP:
+    case EFFECT_ACCURACY_UP:
+    case EFFECT_EVASION_UP:
+    case EFFECT_ATTACK_DOWN:
+    case EFFECT_DEFENSE_DOWN:
+    case EFFECT_SPEED_DOWN:
+    case EFFECT_SPECIAL_ATTACK_DOWN:
+    case EFFECT_SPECIAL_DEFENSE_DOWN:
+    case EFFECT_ACCURACY_DOWN:
+    case EFFECT_EVASION_DOWN:
+    case EFFECT_BIDE:
+    case EFFECT_CONVERSION:
+    case EFFECT_TOXIC:
+    case EFFECT_LIGHT_SCREEN:
+    case EFFECT_OHKO:
+    case EFFECT_SUPER_FANG:
+    case EFFECT_MIST:
+    case EFFECT_FOCUS_ENERGY:
+    case EFFECT_CONFUSE:
+    case EFFECT_ATTACK_UP_2:
+    case EFFECT_DEFENSE_UP_2:
+    case EFFECT_SPEED_UP_2:
+    case EFFECT_SPECIAL_ATTACK_UP_2:
+    case EFFECT_SPECIAL_DEFENSE_UP_2:
+    case EFFECT_ACCURACY_UP_2:
+    case EFFECT_EVASION_UP_2:
+    case EFFECT_ATTACK_DOWN_2:
+    case EFFECT_DEFENSE_DOWN_2:
+    case EFFECT_SPEED_DOWN_2:
+    case EFFECT_SPECIAL_ATTACK_DOWN_2:
+    case EFFECT_SPECIAL_DEFENSE_DOWN_2:
+    case EFFECT_ACCURACY_DOWN_2:
+    case EFFECT_EVASION_DOWN_2:
+    case EFFECT_POISON:
+    case EFFECT_PARALYZE:
+    case EFFECT_PAIN_SPLIT:
+    case EFFECT_CONVERSION_2:
+    case EFFECT_LOCK_ON:
+    case EFFECT_SPITE:
+    case EFFECT_PERISH_SONG:
+    case EFFECT_SWAGGER:
+    case EFFECT_FURY_CUTTER:
+    case EFFECT_ATTRACT:
+    case EFFECT_SAFEGUARD:
+    case EFFECT_PSYCH_UP:
+    case EFFECT_MIRROR_COAT:
+    case EFFECT_WILL_O_WISP:
+    case EFFECT_TICKLE:
+    case EFFECT_COSMIC_POWER:
+    case EFFECT_BULK_UP:
+    case EFFECT_CALM_MIND:
+    case EFFECT_DRAGON_DANCE:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+static void battle_ai_apply_hp_aware(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t target,
+    int scores[4])
+{
+    const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
+    const RemasterEmeraldBattleMon *foe = &battle->battlers[target];
+    const uint8_t user_hp = battle_ai_hp_percent(user);
+    const uint8_t target_hp = battle_ai_hp_percent(foe);
+    uint8_t slot;
+
+    if (foe->side == user->side)
+        return;
+
+    for (slot = 0; slot < REMASTER_EMERALD_MAX_MOVES; ++slot) {
+        const RemasterEmeraldMoveInfo *move;
+
+        if (scores[slot] < 0)
+            continue;
+        move = remaster_emerald_move_info(user->moves[slot]);
+        if (move == 0)
+            continue;
+
+        if (battle_ai_hp_aware_user_discouraged(
+                user_hp, move->effect)
+            && remaster_emerald_battle_random(&battle->rng) % 256u >= 50u)
+            battle_ai_score_add(scores, slot, -2);
+
+        if (battle_ai_hp_aware_target_discouraged(
+                target_hp, move->effect)
+            && remaster_emerald_battle_random(&battle->rng) % 256u >= 50u)
+            battle_ai_score_add(scores, slot, -2);
+    }
+}
+
+static void battle_ai_apply_try_sunny_day_start(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t target,
+    int scores[4])
+{
+    const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
+    uint8_t slot;
+
+    if (battle->battlers[target].side == user->side
+        || !battle_ai_is_first_turn(battle, user))
+        return;
+
+    for (slot = 0; slot < REMASTER_EMERALD_MAX_MOVES; ++slot) {
+        const RemasterEmeraldMoveInfo *move;
+
+        if (scores[slot] < 0)
+            continue;
+        move = remaster_emerald_move_info(user->moves[slot]);
+        if (move != 0 && move->effect == EFFECT_SUNNY_DAY)
+            battle_ai_score_add(scores, slot, 5);
+    }
+}
+
 static void battle_ai_apply_double_battle(
     RemasterEmeraldBattleState *battle,
     uint8_t battler,
@@ -6669,6 +6986,12 @@ static int battle_ai_choose_trainer_move(
             battle, battler, target, scores);
     if (flags & REMASTER_EMERALD_AI_PREFER_BATON_PASS)
         battle_ai_apply_prefer_baton_pass(
+            battle, battler, target, scores);
+    if (flags & REMASTER_EMERALD_AI_HP_AWARE)
+        battle_ai_apply_hp_aware(
+            battle, battler, target, scores);
+    if (flags & REMASTER_EMERALD_AI_TRY_SUNNY_DAY_START)
+        battle_ai_apply_try_sunny_day_start(
             battle, battler, target, scores);
     if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE)
         battle_ai_apply_double_battle(
