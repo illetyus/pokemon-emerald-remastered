@@ -34,6 +34,7 @@ jobs:
         run: >-
           cmake --build build --config Release --target
           emerald_battle_core_test
+          emerald_battle_trainer_test
           emerald_battle_integration_test
           emerald_battle_effects_test
           unreal_cpp_embed_smoke
@@ -41,7 +42,7 @@ jobs:
       - name: Run R13 regressions
         run: >-
           ctest --test-dir build -C Release
-          -R "r13_battle_core|r13_encounter_battle_integration|r13_battle_effects|unreal_cpp_embed"
+          -R "r13_battle_core|r13_battle_trainer_contract|r13_encounter_battle_integration|r13_battle_effects|unreal_cpp_embed"
           --output-on-failure
 
       - name: Audit pinned Vanilla+ battle contract
