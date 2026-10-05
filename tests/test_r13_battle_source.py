@@ -106,6 +106,7 @@ class R13BattleSourceContract(unittest.TestCase):
             "AI_SetupFirstTurn:",
             "AI_Risky:",
             "AI_PreferPowerExtremes:",
+            "AI_PreferBatonPass:",
         ):
             self.assertIn(label, scripts)
 
@@ -116,6 +117,7 @@ class R13BattleSourceContract(unittest.TestCase):
             "battle_ai_apply_setup_first_turn",
             "battle_ai_apply_risky",
             "battle_ai_apply_prefer_power_extremes",
+            "battle_ai_apply_prefer_baton_pass",
             "battle_ai_choose_trainer_move",
         ):
             self.assertIn(helper, portable)
