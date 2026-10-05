@@ -644,3 +644,59 @@ add_test(
         "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_r11_domain_catalog.py"
 )
+
+
+add_executable(emerald_encounter_rng_test
+    tests/emerald_encounter_rng_test.c
+)
+target_link_libraries(emerald_encounter_rng_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_encounter_rng_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_encounter_rng_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r12_encounter_rng COMMAND emerald_encounter_rng_test)
+
+
+add_executable(emerald_encounter_rules_test
+    tests/emerald_encounter_rules_test.c
+)
+target_link_libraries(emerald_encounter_rules_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_encounter_rules_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_encounter_rules_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r12_encounter_rules COMMAND emerald_encounter_rules_test)
+
+
+add_executable(emerald_encounter_ecosystem_test
+    tests/emerald_encounter_ecosystem_test.c
+)
+target_link_libraries(emerald_encounter_ecosystem_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_encounter_ecosystem_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_encounter_ecosystem_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r12_encounter_ecosystem COMMAND emerald_encounter_ecosystem_test)
+
+
+add_executable(emerald_encounter_special_test
+    tests/emerald_encounter_special_test.c
+)
+target_link_libraries(emerald_encounter_special_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_encounter_special_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_encounter_special_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r12_encounter_special COMMAND emerald_encounter_special_test)
+
+
+add_test(
+    NAME r12_encounter_catalog_audit
+    COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_r12_encounter_catalog.py"
+)
