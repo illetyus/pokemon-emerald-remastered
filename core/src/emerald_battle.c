@@ -5962,6 +5962,56 @@ static void battle_ai_apply_risky(
     }
 }
 
+static int battle_ai_power_is_other(
+    const RemasterEmeraldMoveInfo *move)
+{
+    if (move == 0 || move->power <= 1)
+        return 1;
+
+    switch (move->effect) {
+    case EFFECT_EXPLOSION:
+    case EFFECT_DREAM_EATER:
+    case EFFECT_RAZOR_WIND:
+    case EFFECT_SKY_ATTACK:
+    case EFFECT_RECHARGE:
+    case EFFECT_SKULL_BASH:
+    case EFFECT_SOLAR_BEAM:
+    case EFFECT_SPIT_UP:
+    case EFFECT_FOCUS_PUNCH:
+    case EFFECT_SUPERPOWER:
+    case EFFECT_ERUPTION:
+    case EFFECT_OVERHEAT:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+static void battle_ai_apply_prefer_power_extremes(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t target,
+    int scores[4])
+{
+    const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
+    uint8_t slot;
+
+    if (battle->battlers[target].side == user->side)
+        return;
+
+    for (slot = 0; slot < REMASTER_EMERALD_MAX_MOVES; ++slot) {
+        const RemasterEmeraldMoveInfo *move;
+
+        if (scores[slot] < 0)
+            continue;
+
+        move = remaster_emerald_move_info(user->moves[slot]);
+        if (battle_ai_power_is_other(move)
+            && remaster_emerald_battle_random(&battle->rng) % 256u >= 100u)
+            battle_ai_score_add(scores, slot, 2);
+    }
+}
+
 static void battle_ai_apply_double_battle(
     RemasterEmeraldBattleState *battle,
     uint8_t battler,
@@ -6513,6 +6563,9 @@ static int battle_ai_choose_trainer_move(
     if (flags & REMASTER_EMERALD_AI_RISKY)
         battle_ai_apply_risky(
             battle, battler, scores);
+    if (flags & REMASTER_EMERALD_AI_PREFER_POWER_EXTREMES)
+        battle_ai_apply_prefer_power_extremes(
+            battle, battler, target, scores);
     if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE)
         battle_ai_apply_double_battle(
             battle, battler, target, scores);
