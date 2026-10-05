@@ -44,6 +44,54 @@ class R13BattleSourceContract(unittest.TestCase):
         self.assertIn("1103515245", r13)
         self.assertIn("24691", r13)
 
+    def test_all_used_move_effects_have_portable_handlers(self):
+        effects_text = (
+            VENDOR / "include/constants/battle_move_effects.h"
+        ).read_text(encoding="utf-8")
+        effect_names = {
+            int(match.group(2)): match.group(1)
+            for match in re.finditer(
+                r"^#define\s+(EFFECT_[A-Z0-9_]+)\s+(\d+)",
+                effects_text,
+                re.MULTILINE,
+            )
+        }
+
+        catalog = (
+            ROOT / "core" / "src" / "emerald_domain_catalog.inc"
+        ).read_text(encoding="utf-8")
+        start = catalog.index(
+            "static const RemasterEmeraldMoveInfo"
+        )
+        end = catalog.index("};", start)
+        used_effects = {
+            int(match.group(2))
+            for match in re.finditer(
+                r"\{\s*(\d+)\s*,\s*(\d+)\s*,",
+                catalog[start:end],
+            )
+        }
+
+        r13 = R13.read_text(encoding="utf-8")
+        handled = set(
+            re.findall(r"case\s+(EFFECT_[A-Z0-9_]+)", r13)
+        )
+        handled.update(
+            re.findall(r"effect\s*==\s*(EFFECT_[A-Z0-9_]+)", r13)
+        )
+
+        missing = [
+            effect_names[effect]
+            for effect in sorted(used_effects)
+            if effect_names.get(effect) not in handled
+        ]
+        self.assertEqual(
+            missing,
+            [],
+            "portable battle core is missing used move effects: "
+            + ", ".join(missing),
+        )
+
     def test_unreal_does_not_own_battle_math(self):
         r13 = R13.read_text(encoding="utf-8")
         self.assertIn("remaster_emerald_battle_calculate_damage", r13)
