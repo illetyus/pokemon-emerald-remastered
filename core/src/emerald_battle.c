@@ -1700,12 +1700,14 @@ static uint16_t battle_dynamic_power(
     }
 }
 
-int remaster_emerald_battle_calculate_damage(
+static int battle_calculate_damage_internal(
     RemasterEmeraldBattleState *battle,
     uint8_t attacker_id,
     uint8_t defender_id,
     uint16_t move_id,
-    RemasterEmeraldBattleDamageResult *out_result)
+    RemasterEmeraldBattleDamageResult *out_result,
+    int skip_accuracy,
+    int allow_critical)
 {
     RemasterEmeraldBattleMon *attacker;
     RemasterEmeraldBattleMon *defender;
@@ -1748,17 +1750,21 @@ int remaster_emerald_battle_calculate_damage(
         return 1;
     }
 
-    if (attacker->lock_on_turns != 0
-        && attacker->lock_on_target == defender_id)
+    if (skip_accuracy) {
         accuracy = 100;
-    else
+    } else if (attacker->lock_on_turns != 0
+        && attacker->lock_on_target == defender_id) {
+        accuracy = 100;
+    } else {
         accuracy = battle_accuracy_percent(
             battle,
             attacker,
             defender,
             move);
-    if (remaster_emerald_battle_random(&battle->rng) % 100u
-        >= accuracy) {
+    }
+    if (!skip_accuracy
+        && remaster_emerald_battle_random(&battle->rng) % 100u
+            >= accuracy) {
         out_result->hit = 0;
         return 1;
     }
@@ -1829,11 +1835,13 @@ int remaster_emerald_battle_calculate_damage(
         return 1;
 
     physical = battle_is_physical(move_type);
-    critical = battle_critical(
-        battle,
-        attacker,
-        defender,
-        move->effect);
+    critical = allow_critical
+        ? battle_critical(
+            battle,
+            attacker,
+            defender,
+            move->effect)
+        : 0;
     out_result->critical = critical ? 1u : 0u;
 
     atk_stage = physical ? attacker->stat_stages[1] : attacker->stat_stages[4];
@@ -2051,6 +2059,23 @@ int remaster_emerald_battle_calculate_damage(
 
     out_result->damage = (uint16_t)damage;
     return 1;
+}
+
+int remaster_emerald_battle_calculate_damage(
+    RemasterEmeraldBattleState *battle,
+    uint8_t attacker_id,
+    uint8_t defender_id,
+    uint16_t move_id,
+    RemasterEmeraldBattleDamageResult *out_result)
+{
+    return battle_calculate_damage_internal(
+        battle,
+        attacker_id,
+        defender_id,
+        move_id,
+        out_result,
+        0,
+        1);
 }
 
 static int battle_status_allowed(
