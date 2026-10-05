@@ -303,6 +303,125 @@ int main(void)
             return 1;
     }
 
+    {
+        static const uint16_t player_moves2[4] = {33, 0, 0, 0};
+        static const uint16_t foe_active_moves[4] = {33, 0, 0, 0};
+        static const uint16_t foe_reserve_moves[4] = {52, 0, 0, 0};
+        RemasterEmeraldPartyPokemon player;
+        RemasterEmeraldPartyPokemon foes[2];
+
+        if (!check(
+                make_mon(&player, 1, 30, player_moves2)
+                    && make_mon(&foes[0], 4, 30, foe_active_moves)
+                    && make_mon(&foes[1], 37, 30, foe_reserve_moves),
+                "Wonder Guard switch fixtures should build"))
+            return 1;
+
+        remaster_emerald_battle_state_init(
+            &battle,
+            REMASTER_EMERALD_BATTLE_TYPE_MASTER
+                | REMASTER_EMERALD_BATTLE_TYPE_TRAINER,
+            2u);
+        if (!check(
+                remaster_emerald_battle_start(
+                    &battle, &player, 1, foes, 2),
+                "Wonder Guard switch battle should start"))
+            return 1;
+
+        battle.battlers[0].ability = 25;
+        battle.opponent_trainer_ai_flags =
+            REMASTER_EMERALD_AI_CHECK_BAD_MOVE;
+
+        if (!check(
+                remaster_emerald_battle_choose_ai_action(
+                    &battle, 1, &action),
+                "switch AI should choose an action"))
+            return 1;
+
+        if (!check(
+                action.kind == REMASTER_EMERALD_BATTLE_ACTION_SWITCH
+                    && action.party_slot == 1,
+                "Wonder Guard AI should switch to a reserve with a "
+                "super-effective move"))
+            return 1;
+
+        {
+            RemasterEmeraldBattleAction turn_actions[
+                REMASTER_EMERALD_BATTLE_MAX_BATTLERS] = {{0}};
+            turn_actions[1] = action;
+            if (!check(
+                    remaster_emerald_battle_resolve_turn(
+                        &battle, turn_actions),
+                    "AI switch action should resolve")
+                || !check(
+                    battle.battlers[1].party_slot == 1,
+                    "AI switch should load the selected reserve"))
+                return 1;
+        }
+    }
+
+    {
+        static const uint16_t player_moves2[4] = {33, 0, 0, 0};
+        static const uint16_t foe_moves2[4] = {33, 0, 0, 0};
+        RemasterEmeraldPartyPokemon player;
+        RemasterEmeraldPartyPokemon foe;
+
+        if (!check(
+                make_mon(&player, 1, 30, player_moves2)
+                    && make_mon(&foe, 4, 30, foe_moves2),
+                "trainer item fixtures should build"))
+            return 1;
+
+        remaster_emerald_battle_state_init(
+            &battle,
+            REMASTER_EMERALD_BATTLE_TYPE_MASTER
+                | REMASTER_EMERALD_BATTLE_TYPE_TRAINER,
+            0x11223344u);
+        if (!check(
+                remaster_emerald_battle_start(
+                    &battle, &player, 1, &foe, 1),
+                "trainer item battle should start"))
+            return 1;
+
+        battle.opponent_trainer_items[0] = 19;
+        battle.battlers[1].pokemon.hp = 1;
+        battle.battlers[1].pokemon.status =
+            REMASTER_EMERALD_STATUS1_POISON;
+
+        if (!check(
+                remaster_emerald_battle_choose_ai_action(
+                    &battle, 1, &action),
+                "trainer item AI should choose an action"))
+            return 1;
+
+        if (!check(
+                action.kind == REMASTER_EMERALD_BATTLE_ACTION_ITEM
+                    && action.item_id == 19,
+                "low-HP trainer AI should choose Full Restore"))
+            return 1;
+
+        {
+            RemasterEmeraldBattleAction turn_actions[
+                REMASTER_EMERALD_BATTLE_MAX_BATTLERS] = {{0}};
+            turn_actions[1] = action;
+            if (!check(
+                    remaster_emerald_battle_resolve_turn(
+                        &battle, turn_actions),
+                    "trainer item action should resolve")
+                || !check(
+                    battle.battlers[1].pokemon.hp
+                        == battle.battlers[1].pokemon.max_hp,
+                    "Full Restore should heal trainer Pokémon to full HP")
+                || !check(
+                    battle.battlers[1].pokemon.status == 0,
+                    "Full Restore should cure trainer Pokémon status")
+                || !check(
+                    battle.opponent_trainer_items[0] == 0,
+                    "trainer item should be consumed exactly once"))
+                return 1;
+        }
+    }
+
     puts("r13 trainer AI parity test passed");
     return 0;
 }
