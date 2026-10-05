@@ -518,7 +518,7 @@ static int battle_load_mon(
     out->fainted = pokemon->hp == 0 ? 1u : 0u;
     out->protected_turn = 0xFFu;
     out->endure_turn = 0xFFu;
-    out->entered_turn = 0;
+    out->entered_turn = 1;
     out->last_damage_from = 0xFFu;
     out->lock_on_target = 0xFFu;
     return 1;
@@ -583,6 +583,28 @@ static int battle_party_slot_active(
     }
     return 0;
 }
+static int battle_find_switch_slot(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t side,
+    uint8_t *out_slot)
+{
+    uint8_t i;
+
+    if (battle == 0 || out_slot == 0 || side > 1)
+        return 0;
+
+    for (i = 0; i < battle->party_count[side]; ++i) {
+        if (battle->parties[side][i].hp != 0
+            && remaster_emerald_box_pokemon_species(
+                &battle->parties[side][i].box) != 0
+            && !battle_party_slot_active(battle, side, i)) {
+            *out_slot = i;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 
 static int battle_weather_has_effect(
     const RemasterEmeraldBattleState *battle)
@@ -1840,13 +1862,38 @@ static void battle_damage_direct(
     actual = damage > target->pokemon.hp
         ? target->pokemon.hp
         : damage;
-    if (false_swipe
+    if ((false_swipe
+            || target->endure_turn
+                == (uint8_t)(battle->turn_number & 0xFFu))
         && actual >= target->pokemon.hp
         && target->pokemon.hp > 1)
+        actual = (uint16_t)(target->pokemon.hp - 1u);
+    else if (actual >= target->pokemon.hp
+        && target->pokemon.hp > 1
+        && battle_hold_effect(target) == HOLD_EFFECT_FOCUS_BAND
+        && remaster_emerald_battle_random(&battle->rng) % 100u
+            < battle_hold_param(target))
         actual = (uint16_t)(target->pokemon.hp - 1u);
 
     target->pokemon.hp = (uint16_t)(target->pokemon.hp - actual);
     target->last_damage = actual;
+    if (move_id != 0 && source != target_id) {
+        const RemasterEmeraldMoveInfo *source_move =
+            remaster_emerald_move_info(move_id);
+        target->last_damage_from = source;
+        target->last_damage_turn =
+            (uint8_t)(battle->turn_number & 0xFFu);
+        if (source_move != 0) {
+            target->last_damage_type = source_move->type;
+            target->last_damage_was_physical =
+                battle_is_physical(source_move->type) ? 1u : 0u;
+        }
+        if (target->bide_turns != 0) {
+            uint32_t total = (uint32_t)target->bide_damage + actual;
+            target->bide_damage =
+                (uint16_t)(total > UINT16_MAX ? UINT16_MAX : total);
+        }
+    }
 
     battle_event(
         battle,
@@ -2038,6 +2085,26 @@ static void battle_secondary_effect(
             battle, attacker, target,
             REMASTER_EMERALD_STATUS1_TOXIC, move->move_id);
         break;
+    case EFFECT_THUNDER:
+        battle_apply_status(
+            battle, attacker, target,
+            REMASTER_EMERALD_STATUS1_PARALYSIS, move->move_id);
+        break;
+    case EFFECT_DEFENSE_UP_HIT:
+        battle_change_stage(
+            battle, attacker, 2, 1, move->move_id);
+        break;
+    case EFFECT_ATTACK_UP_HIT:
+        battle_change_stage(
+            battle, attacker, 1, 1, move->move_id);
+        break;
+    case EFFECT_ALL_STATS_UP_HIT:
+        battle_change_stage(battle, attacker, 1, 1, move->move_id);
+        battle_change_stage(battle, attacker, 2, 1, move->move_id);
+        battle_change_stage(battle, attacker, 3, 1, move->move_id);
+        battle_change_stage(battle, attacker, 4, 1, move->move_id);
+        battle_change_stage(battle, attacker, 5, 1, move->move_id);
+        break;
     default:
         break;
     }
@@ -2140,6 +2207,174 @@ static int battle_apply_primary_effect(
         return battle_change_stage(battle, target, 6, -2, move->move_id);
     case EFFECT_EVASION_DOWN_2:
         return battle_change_stage(battle, target, 7, -2, move->move_id);
+    case EFFECT_SPLASH:
+        return 1;
+    case EFFECT_ENDURE: {
+        uint32_t denominator = UINT32_C(1) << user->protect_chain;
+        if (denominator > 8)
+            denominator = 8;
+        if (remaster_emerald_battle_random(&battle->rng)
+                % denominator
+            != 0) {
+            user->protect_chain = 0;
+            return 0;
+        }
+        user->endure_turn =
+            (uint8_t)(battle->turn_number & 0xFFu);
+        if (user->protect_chain < 3)
+            user->protect_chain++;
+        return 1;
+    }
+    case EFFECT_MINIMIZE:
+        user->status3 |= REMASTER_EMERALD_STATUS3_MINIMIZED;
+        return battle_change_stage(
+            battle, attacker, 7, 1, move->move_id);
+    case EFFECT_DESTINY_BOND:
+        user->status2 |= REMASTER_EMERALD_STATUS2_DESTINY_BOND;
+        user->destiny_bond_turn =
+            (uint8_t)(battle->turn_number & 0xFFu);
+        return 1;
+    case EFFECT_NIGHTMARE:
+        if (!(foe->pokemon.status & REMASTER_EMERALD_STATUS1_SLEEP)
+            || (foe->status2 & REMASTER_EMERALD_STATUS2_NIGHTMARE))
+            return 0;
+        foe->status2 |= REMASTER_EMERALD_STATUS2_NIGHTMARE;
+        return 1;
+    case EFFECT_LOCK_ON:
+        user->lock_on_target = target;
+        user->lock_on_turns = 2;
+        user->status3 |= REMASTER_EMERALD_STATUS3_ALWAYS_HITS;
+        return 1;
+    case EFFECT_SPITE:
+        if (foe->last_move == 0)
+            return 0;
+        for (i = 0; i < 4; ++i) {
+            if (foe->moves[i] == foe->last_move && foe->pp[i] != 0) {
+                uint8_t loss = (uint8_t)(
+                    2u + remaster_emerald_battle_random(&battle->rng) % 4u);
+                if (loss > foe->pp[i])
+                    loss = foe->pp[i];
+                foe->pp[i] = (uint8_t)(foe->pp[i] - loss);
+                remaster_emerald_box_pokemon_set_move(
+                    &foe->pokemon.box,
+                    i,
+                    foe->moves[i],
+                    foe->pp[i]);
+                battle_event(
+                    battle,
+                    REMASTER_EMERALD_BATTLE_EVENT_PP,
+                    target,
+                    target,
+                    foe->last_move,
+                    -(int32_t)loss,
+                    0);
+                return 1;
+            }
+        }
+        return 0;
+    case EFFECT_PAIN_SPLIT: {
+        uint32_t total = (uint32_t)user->pokemon.hp + foe->pokemon.hp;
+        uint16_t shared = (uint16_t)(total / 2u);
+        user->pokemon.hp = shared > user->pokemon.max_hp
+            ? user->pokemon.max_hp
+            : shared;
+        foe->pokemon.hp = shared > foe->pokemon.max_hp
+            ? foe->pokemon.max_hp
+            : shared;
+        return 1;
+    }
+    case EFFECT_YAWN:
+        if (foe->pokemon.status != 0
+            || (foe->status3 & REMASTER_EMERALD_STATUS3_YAWN)
+            || foe->ability == ABILITY_INSOMNIA
+            || foe->ability == ABILITY_VITAL_SPIRIT)
+            return 0;
+        foe->status3 |= 2u << 11u;
+        return 1;
+    case EFFECT_STOCKPILE:
+        if (user->stockpile >= 3)
+            return 0;
+        user->stockpile++;
+        return 1;
+    case EFFECT_SWALLOW:
+        if (user->stockpile == 0
+            || user->pokemon.hp == user->pokemon.max_hp)
+            return 0;
+        amount = user->stockpile == 1
+            ? user->pokemon.max_hp / 4u
+            : (user->stockpile == 2
+                ? user->pokemon.max_hp / 2u
+                : user->pokemon.max_hp);
+        user->stockpile = 0;
+        if (amount == 0)
+            amount = 1;
+        battle_heal(battle, attacker, amount, move->move_id);
+        return 1;
+    case EFFECT_CHARGE:
+        user->status3 |= REMASTER_EMERALD_STATUS3_CHARGED_UP;
+        return battle_change_stage(
+            battle, attacker, 5, 1, move->move_id);
+    case EFFECT_CURSE:
+        if (user->types[0] == TYPE_GHOST
+            || user->types[1] == TYPE_GHOST) {
+            if (foe->status2 & REMASTER_EMERALD_STATUS2_CURSED)
+                return 0;
+            amount = user->pokemon.max_hp / 2u;
+            if (amount == 0)
+                amount = 1;
+            battle_damage_direct(
+                battle, attacker, attacker, amount, move->move_id, 0);
+            foe->status2 |= REMASTER_EMERALD_STATUS2_CURSED;
+            return 1;
+        }
+        battle_change_stage(battle, attacker, 3, -1, move->move_id);
+        battle_change_stage(battle, attacker, 1, 1, move->move_id);
+        battle_change_stage(battle, attacker, 2, 1, move->move_id);
+        return 1;
+    case EFFECT_ROAR: {
+        uint8_t slot;
+        if (foe->status3 & REMASTER_EMERALD_STATUS3_ROOTED)
+            return 0;
+        if (!battle_find_switch_slot(battle, foe->side, &slot))
+            return 0;
+        return remaster_emerald_battle_switch(
+            battle, target, slot);
+    }
+    case EFFECT_CONVERSION: {
+        uint8_t candidates[4];
+        uint8_t candidate_count = 0;
+        for (i = 0; i < 4; ++i) {
+            const RemasterEmeraldMoveInfo *candidate =
+                remaster_emerald_move_info(user->moves[i]);
+            if (candidate != 0
+                && user->moves[i] != 0
+                && candidate->type != user->types[0])
+                candidates[candidate_count++] = candidate->type;
+        }
+        if (candidate_count == 0)
+            return 0;
+        user->types[0] = candidates[
+            remaster_emerald_battle_random(&battle->rng)
+            % candidate_count];
+        user->types[1] = user->types[0];
+        return 1;
+    }
+    case EFFECT_TRANSFORM:
+        user->types[0] = foe->types[0];
+        user->types[1] = foe->types[1];
+        user->ability = foe->ability;
+        user->pokemon.attack = foe->pokemon.attack;
+        user->pokemon.defense = foe->pokemon.defense;
+        user->pokemon.speed = foe->pokemon.speed;
+        user->pokemon.sp_attack = foe->pokemon.sp_attack;
+        user->pokemon.sp_defense = foe->pokemon.sp_defense;
+        memcpy(user->stat_stages, foe->stat_stages, sizeof(user->stat_stages));
+        for (i = 0; i < 4; ++i) {
+            user->moves[i] = foe->moves[i];
+            user->pp[i] = foe->moves[i] != 0 ? 5u : 0u;
+        }
+        user->status2 |= REMASTER_EMERALD_STATUS2_TRANSFORMED;
+        return 1;
     case EFFECT_HAZE:
         for (i = 0; i < REMASTER_EMERALD_BATTLE_MAX_BATTLERS; ++i) {
             if (battle->battlers[i].active)
@@ -3053,6 +3288,8 @@ int remaster_emerald_battle_switch(
         return 0;
 
     battle->active_party_slot[battler] = party_slot;
+    battle->battlers[battler].entered_turn =
+        (uint8_t)((battle->turn_number + 1u) & 0xFFu);
     battle_event(
         battle,
         REMASTER_EMERALD_BATTLE_EVENT_SWITCH,
@@ -3318,6 +3555,47 @@ static void battle_end_turn(
             battle_faint_check(battle, battler);
         }
 
+        if (mon->trapped_turns != 0) {
+            damage = mon->pokemon.max_hp / 16u;
+            if (damage == 0)
+                damage = 1;
+            battle_damage_direct(
+                battle, battler, battler, damage, mon->trapped_move, 0);
+            mon->trapped_turns--;
+            if (mon->trapped_turns == 0) {
+                mon->status2 &= ~REMASTER_EMERALD_STATUS2_WRAPPED;
+                mon->trapped_move = 0;
+            }
+            battle_faint_check(battle, battler);
+            if (mon->fainted)
+                continue;
+        }
+
+        if ((mon->status2 & REMASTER_EMERALD_STATUS2_NIGHTMARE)
+            && (mon->pokemon.status & REMASTER_EMERALD_STATUS1_SLEEP)) {
+            damage = mon->pokemon.max_hp / 4u;
+            if (damage == 0)
+                damage = 1;
+            battle_damage_direct(
+                battle, battler, battler, damage, 0, 0);
+            battle_faint_check(battle, battler);
+            if (mon->fainted)
+                continue;
+        } else if (!(mon->pokemon.status & REMASTER_EMERALD_STATUS1_SLEEP)) {
+            mon->status2 &= ~REMASTER_EMERALD_STATUS2_NIGHTMARE;
+        }
+
+        if (mon->status2 & REMASTER_EMERALD_STATUS2_CURSED) {
+            damage = mon->pokemon.max_hp / 4u;
+            if (damage == 0)
+                damage = 1;
+            battle_damage_direct(
+                battle, battler, battler, damage, 0, 0);
+            battle_faint_check(battle, battler);
+            if (mon->fainted)
+                continue;
+        }
+
         if (mon->perish_count != 0) {
             mon->perish_count--;
             if (mon->perish_count == 0) {
@@ -3354,8 +3632,16 @@ static void battle_end_turn(
             mon->encore_turns--;
         if (mon->disable_turns != 0)
             mon->disable_turns--;
+        if (mon->lock_on_turns != 0) {
+            mon->lock_on_turns--;
+            if (mon->lock_on_turns == 0) {
+                mon->status3 &= ~REMASTER_EMERALD_STATUS3_ALWAYS_HITS;
+                mon->lock_on_target = 0xFFu;
+            }
+        }
 
         mon->protected_turn = 0xFFu;
+        mon->endure_turn = 0xFFu;
         battle_sync_battler(battle, battler);
     }
 
