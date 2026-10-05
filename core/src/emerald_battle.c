@@ -2470,6 +2470,50 @@ static void battle_secondary_effect(
         battle_change_stage(battle, attacker, 4, 1, move->move_id);
         battle_change_stage(battle, attacker, 5, 1, move->move_id);
         break;
+    case EFFECT_SECRET_POWER:
+        switch (battle->terrain) {
+        case 0:
+            battle_apply_status(
+                battle, attacker, target,
+                REMASTER_EMERALD_STATUS1_POISON, move->move_id);
+            break;
+        case 1:
+            battle_apply_status(
+                battle, attacker, target,
+                REMASTER_EMERALD_STATUS1_SLEEP, move->move_id);
+            break;
+        case 2:
+            battle_change_stage(
+                battle, target, 6, -1, move->move_id);
+            break;
+        case 3:
+            battle_change_stage(
+                battle, target, 2, -1, move->move_id);
+            break;
+        case 4:
+            battle_change_stage(
+                battle, target, 1, -1, move->move_id);
+            break;
+        case 5:
+            battle_change_stage(
+                battle, target, 3, -1, move->move_id);
+            break;
+        case 6:
+            battle_apply_confusion(
+                battle, attacker, target, move->move_id);
+            break;
+        case 7:
+            if (battle->battlers[target].ability != ABILITY_INNER_FOCUS)
+                battle->battlers[target].status2 |=
+                    REMASTER_EMERALD_STATUS2_FLINCHED;
+            break;
+        default:
+            battle_apply_status(
+                battle, attacker, target,
+                REMASTER_EMERALD_STATUS1_PARALYSIS, move->move_id);
+            break;
+        }
+        break;
     default:
         break;
     }
@@ -3026,6 +3070,98 @@ static int battle_apply_primary_effect(
                     battle, attacker, i, move->move_id);
         }
         return 1;
+    case EFFECT_CONVERSION_2: {
+        const RemasterEmeraldMoveInfo *last =
+            remaster_emerald_move_info(user->last_taken_move);
+        uint8_t candidates[17];
+        uint8_t count = 0;
+        uint8_t type;
+        if (last == 0)
+            return 0;
+        for (type = 0; type < 18; ++type) {
+            uint8_t effectiveness;
+            if (type == TYPE_MYSTERY)
+                continue;
+            effectiveness = remaster_emerald_battle_type_effectiveness(
+                last->type,
+                type);
+            if (effectiveness <= 5
+                && effectiveness != 0
+                && type != user->types[0]
+                && type != user->types[1])
+                candidates[count++] = type;
+        }
+        if (count == 0)
+            return 0;
+        user->types[0] = candidates[
+            remaster_emerald_battle_random(&battle->rng) % count];
+        user->types[1] = user->types[0];
+        return 1;
+    }
+    case EFFECT_ATTRACT: {
+        uint8_t user_gender;
+        uint8_t foe_gender;
+        uint32_t bit;
+        if (foe->ability == ABILITY_OBLIVIOUS)
+            return 0;
+        user_gender = battle_gender(user);
+        foe_gender = battle_gender(foe);
+        if (user_gender > 1
+            || foe_gender > 1
+            || user_gender == foe_gender)
+            return 0;
+        bit = UINT32_C(1) << (16u + attacker);
+        if (foe->status2 & bit)
+            return 0;
+        foe->status2 |= bit;
+        return 1;
+    }
+    case EFFECT_FOLLOW_ME:
+        battle->follow_me_target[user->side] = attacker;
+        battle->follow_me_turns[user->side] = 1;
+        return 1;
+    case EFFECT_HELPING_HAND: {
+        uint8_t partner = battle_partner(attacker);
+        if (!(battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE)
+            || !battle_valid_battler(partner)
+            || !battle->battlers[partner].active
+            || battle->battlers[partner].fainted
+            || battle->battlers[partner].helping_hand)
+            return 0;
+        battle->battlers[partner].helping_hand = 1;
+        return 1;
+    }
+    case EFFECT_WISH:
+        if (battle->wish_turns[attacker] != 0)
+            return 0;
+        battle->wish_turns[attacker] = 2;
+        battle->wish_amount[attacker] =
+            user->pokemon.max_hp / 2u;
+        if (battle->wish_amount[attacker] == 0)
+            battle->wish_amount[attacker] = 1;
+        return 1;
+    case EFFECT_RECYCLE:
+        if (user->held_item != 0 || user->last_consumed_item == 0)
+            return 0;
+        user->held_item = user->last_consumed_item;
+        user->last_consumed_item = 0;
+        return 1;
+    case EFFECT_IMPRISON:
+        if (user->status3 & REMASTER_EMERALD_STATUS3_IMPRISONED_OTHERS)
+            return 0;
+        user->status3 |= REMASTER_EMERALD_STATUS3_IMPRISONED_OTHERS;
+        user->imprison = 1;
+        return 1;
+    case EFFECT_MAGIC_COAT:
+        if (user->magic_coat)
+            return 0;
+        user->magic_coat = 1;
+        return 1;
+    case EFFECT_SNATCH:
+        if (user->snatch)
+            return 0;
+        user->snatch = 1;
+        return 1;
     case EFFECT_CAMOUFLAGE:
         user->types[0] = TYPE_NORMAL;
         user->types[1] = TYPE_NORMAL;
@@ -3096,6 +3232,10 @@ static int battle_can_act(
 
     if ((mon->pokemon.status & REMASTER_EMERALD_STATUS1_PARALYSIS)
         && remaster_emerald_battle_random(&battle->rng) % 4u == 0)
+        return 0;
+
+    if ((mon->status2 & REMASTER_EMERALD_STATUS2_INFATUATION)
+        && (remaster_emerald_battle_random(&battle->rng) & 1u) == 0)
         return 0;
 
     turns = mon->status2 & REMASTER_EMERALD_STATUS2_CONFUSION;
@@ -3357,6 +3497,7 @@ int remaster_emerald_battle_use_move(
     int direct_effect_result = 0;
     int false_swipe;
     int continuing_charge;
+    int move_landed = 0;
 
     if (battle == 0
         || battle->ended
@@ -3376,6 +3517,16 @@ int remaster_emerald_battle_use_move(
     if (!battle_valid_battler(target_id))
         return 0;
 
+    if (battle->battlers[target_id].side != attacker->side) {
+        uint8_t target_side = battle->battlers[target_id].side;
+        uint8_t follow = battle->follow_me_target[target_side];
+        if (battle->follow_me_turns[target_side] != 0
+            && battle_valid_battler(follow)
+            && battle->battlers[follow].active
+            && !battle->battlers[follow].fainted)
+            target_id = follow;
+    }
+
     target = &battle->battlers[target_id];
     move_id = attacker->moves[move_slot];
     move = remaster_emerald_move_info(move_id);
@@ -3387,6 +3538,25 @@ int remaster_emerald_battle_use_move(
             && battle->called_move_depth == 0
             && attacker->pp[move_slot] == 0))
         return 0;
+
+    if (!continuing_charge && battle->called_move_depth == 0) {
+        uint8_t enemy;
+        for (enemy = 0;
+             enemy < REMASTER_EMERALD_BATTLE_MAX_BATTLERS;
+             ++enemy) {
+            uint8_t slot;
+            if (!battle->battlers[enemy].active
+                || battle->battlers[enemy].fainted
+                || battle->battlers[enemy].side == attacker->side
+                || !(battle->battlers[enemy].status3
+                    & REMASTER_EMERALD_STATUS3_IMPRISONED_OTHERS))
+                continue;
+            for (slot = 0; slot < 4; ++slot) {
+                if (battle->battlers[enemy].moves[slot] == move_id)
+                    return 0;
+            }
+        }
+    }
 
     if (!continuing_charge
         && battle->called_move_depth == 0
@@ -3659,6 +3829,27 @@ int remaster_emerald_battle_use_move(
         return 1;
     }
 
+    if (move->effect == EFFECT_FUTURE_SIGHT) {
+        RemasterEmeraldBattleDamageResult future_result;
+        if (battle->future_turns[target_id] != 0)
+            return 1;
+        if (!remaster_emerald_battle_calculate_damage(
+                battle,
+                attacker_id,
+                target_id,
+                move_id,
+                &future_result)
+            || !future_result.hit
+            || future_result.immune)
+            return 1;
+        battle->future_turns[target_id] = 3;
+        battle->future_attacker[target_id] = attacker_id;
+        battle->future_move[target_id] = move_id;
+        battle->future_damage[target_id] =
+            future_result.damage != 0 ? future_result.damage : 1u;
+        return 1;
+    }
+
     if (move->effect == EFFECT_COUNTER
         || move->effect == EFFECT_MIRROR_COAT) {
         uint8_t needs_physical = move->effect == EFFECT_COUNTER ? 1u : 0u;
@@ -3740,6 +3931,8 @@ int remaster_emerald_battle_use_move(
                 return 1;
             break;
         }
+
+        move_landed = 1;
 
         if (result.immune) {
             if (target->ability == ABILITY_VOLT_ABSORB
@@ -4007,6 +4200,9 @@ int remaster_emerald_battle_use_move(
             0,
             0);
     }
+
+    if (move_landed && target_id != attacker_id)
+        target->last_taken_move = move_id;
 
     battle_sync_battler(battle, attacker_id);
     battle_sync_battler(battle, target_id);
