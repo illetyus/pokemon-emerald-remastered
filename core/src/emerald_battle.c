@@ -5473,6 +5473,9 @@ static void battle_ai_apply_check_bad_move(
     const RemasterEmeraldBattleMon *foe = &battle->battlers[target];
     uint8_t slot;
 
+    if (foe->side == user->side)
+        return;
+
     for (slot = 0; slot < 4; ++slot) {
         const RemasterEmeraldMoveInfo *move;
         uint8_t stage = 0;
@@ -5689,6 +5692,9 @@ static void battle_ai_apply_try_to_faint(
     uint16_t best_damage = 0;
     uint8_t slot;
 
+    if (foe->side == user->side)
+        return;
+
     for (slot = 0; slot < 4; ++slot) {
         if (scores[slot] < 0)
             continue;
@@ -5753,6 +5759,9 @@ static void battle_ai_apply_check_viability(
     const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
     const RemasterEmeraldBattleMon *foe = &battle->battlers[target];
     uint8_t slot;
+
+    if (foe->side == user->side)
+        return;
 
     for (slot = 0; slot < 4; ++slot) {
         const RemasterEmeraldMoveInfo *move;
@@ -5896,12 +5905,14 @@ static int battle_ai_setup_effect(uint8_t effect)
 static void battle_ai_apply_setup_first_turn(
     RemasterEmeraldBattleState *battle,
     uint8_t battler,
+    uint8_t target,
     int scores[4])
 {
     const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
     uint8_t slot;
 
-    if (!battle_ai_is_first_turn(battle, user))
+    if (battle->battlers[target].side == user->side
+        || battle->turn_number > 1u)
         return;
 
     for (slot = 0; slot < 4; ++slot) {
@@ -5948,10 +5959,14 @@ static int battle_ai_risky_effect(uint8_t effect)
 static void battle_ai_apply_risky(
     RemasterEmeraldBattleState *battle,
     uint8_t battler,
+    uint8_t target,
     int scores[4])
 {
     const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
     uint8_t slot;
+
+    if (battle->battlers[target].side == user->side)
+        return;
 
     for (slot = 0; slot < 4; ++slot) {
         const RemasterEmeraldMoveInfo *move;
@@ -6068,7 +6083,7 @@ static void battle_ai_apply_prefer_baton_pass(
         if (move_id == MOVE_SWORDS_DANCE
             || move_id == MOVE_DRAGON_DANCE
             || move_id == MOVE_CALM_MIND) {
-            if (battle->turn_number == 0) {
+            if (battle->turn_number <= 1u) {
                 battle_ai_score_add(scores, slot, 5);
             } else if ((uint32_t)user->pokemon.hp * 100u
                     < (uint32_t)user->pokemon.max_hp * 60u) {
@@ -6089,7 +6104,7 @@ static void battle_ai_apply_prefer_baton_pass(
         }
 
         if (move_id == MOVE_BATON_PASS) {
-            if (battle->turn_number == 0) {
+            if (battle->turn_number <= 1u) {
                 battle_ai_score_add(scores, slot, -2);
             } else if (user->stat_stages[1] > 8u) {
                 battle_ai_score_add(scores, slot, 3);
@@ -6112,6 +6127,12 @@ static void battle_ai_apply_prefer_baton_pass(
         battle_ai_score_add(scores, slot, 3);
     }
 }
+
+static void battle_ai_apply_double_battle(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t target,
+    int scores[4]);
 
 static uint8_t battle_ai_hp_percent(
     const RemasterEmeraldBattleMon *mon)
@@ -6382,8 +6403,11 @@ static void battle_ai_apply_hp_aware(
     const uint8_t target_hp = battle_ai_hp_percent(foe);
     uint8_t slot;
 
-    if (foe->side == user->side)
+    if (foe->side == user->side) {
+        battle_ai_apply_double_battle(
+            battle, battler, target, scores);
         return;
+    }
 
     for (slot = 0; slot < REMASTER_EMERALD_MAX_MOVES; ++slot) {
         const RemasterEmeraldMoveInfo *move;
@@ -6407,7 +6431,7 @@ static void battle_ai_apply_hp_aware(
 }
 
 static void battle_ai_apply_try_sunny_day_start(
-    const RemasterEmeraldBattleState *battle,
+    RemasterEmeraldBattleState *battle,
     uint8_t battler,
     uint8_t target,
     int scores[4])
@@ -6415,8 +6439,15 @@ static void battle_ai_apply_try_sunny_day_start(
     const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
     uint8_t slot;
 
-    if (battle->battlers[target].side == user->side
-        || !battle_ai_is_first_turn(battle, user))
+    if (battle->battlers[target].side == user->side) {
+        battle_ai_apply_double_battle(
+            battle,
+            battler,
+            target,
+            scores);
+        return;
+    }
+    if (battle->turn_number > 1u)
         return;
 
     for (slot = 0; slot < REMASTER_EMERALD_MAX_MOVES; ++slot) {
@@ -6977,24 +7008,24 @@ static int battle_ai_choose_trainer_move(
             battle, battler, target, scores);
     if (flags & REMASTER_EMERALD_AI_SETUP_FIRST_TURN)
         battle_ai_apply_setup_first_turn(
-            battle, battler, scores);
+            battle, battler, target, scores);
     if (flags & REMASTER_EMERALD_AI_RISKY)
         battle_ai_apply_risky(
-            battle, battler, scores);
+            battle, battler, target, scores);
     if (flags & REMASTER_EMERALD_AI_PREFER_POWER_EXTREMES)
         battle_ai_apply_prefer_power_extremes(
             battle, battler, target, scores);
     if (flags & REMASTER_EMERALD_AI_PREFER_BATON_PASS)
         battle_ai_apply_prefer_baton_pass(
             battle, battler, target, scores);
+    if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE)
+        battle_ai_apply_double_battle(
+            battle, battler, target, scores);
     if (flags & REMASTER_EMERALD_AI_HP_AWARE)
         battle_ai_apply_hp_aware(
             battle, battler, target, scores);
     if (flags & REMASTER_EMERALD_AI_TRY_SUNNY_DAY_START)
         battle_ai_apply_try_sunny_day_start(
-            battle, battler, target, scores);
-    if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE)
-        battle_ai_apply_double_battle(
             battle, battler, target, scores);
 
     for (slot = 0; slot < 4; ++slot) {
