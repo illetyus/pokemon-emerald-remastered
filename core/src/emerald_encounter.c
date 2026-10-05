@@ -830,11 +830,11 @@ uint16_t remaster_emerald_encounter_modified_rate(
 {
     uint32_t rate = (uint32_t)base_rate * 16u;
 
-    if (context == 0)
-        return (uint16_t)(
-            rate > REMASTER_EMERALD_ENCOUNTER_MAX_RATE
-                ? REMASTER_EMERALD_ENCOUNTER_MAX_RATE
-                : rate);
+    if (context == 0) {
+        if (rate > (uint32_t)REMASTER_EMERALD_ENCOUNTER_MAX_RATE)
+            rate = (uint32_t)REMASTER_EMERALD_ENCOUNTER_MAX_RATE;
+        return (uint16_t)rate;
+    }
 
     if (context->biking)
         rate = rate * 80u / 100u;
