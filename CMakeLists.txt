@@ -847,6 +847,18 @@ endif()
 add_test(NAME r13_battle_progression COMMAND emerald_battle_progression_test)
 
 
+add_executable(emerald_battle_replay_test
+    tests/emerald_battle_replay_test.c
+)
+target_link_libraries(emerald_battle_replay_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_battle_replay_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_battle_replay_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_battle_replay COMMAND emerald_battle_replay_test)
+
+
 add_test(
     NAME r13_trainer_catalog_audit
     COMMAND
