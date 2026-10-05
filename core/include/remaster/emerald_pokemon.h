@@ -94,6 +94,11 @@ typedef struct RemasterEmeraldEvolution {
     uint16_t target_species;
 } RemasterEmeraldEvolution;
 
+typedef struct RemasterEmeraldLevelUpMove {
+    uint16_t move_id;
+    uint8_t level;
+} RemasterEmeraldLevelUpMove;
+
 typedef struct RemasterEmeraldCalculatedStats {
     uint16_t hp;
     uint16_t attack;
@@ -222,6 +227,10 @@ const RemasterEmeraldMoveInfo *remaster_emerald_move_info(
 
 const RemasterEmeraldEvolution *remaster_emerald_species_evolutions(
     uint16_t species_id);
+
+const RemasterEmeraldLevelUpMove *remaster_emerald_species_level_up_moves(
+    uint16_t species_id,
+    size_t *out_count);
 
 uint8_t remaster_emerald_species_ability(
     uint16_t species_id,
