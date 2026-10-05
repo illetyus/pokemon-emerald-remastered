@@ -116,8 +116,10 @@ enum {
     HOLD_EFFECT_DRAGON_POWER = 59,
     HOLD_EFFECT_NORMAL_POWER = 60,
     HOLD_EFFECT_SHELL_BELL = 62,
+    HOLD_EFFECT_LUCKY_PUNCH = 63,
     HOLD_EFFECT_METAL_POWDER = 64,
     HOLD_EFFECT_THICK_CLUB = 65,
+    HOLD_EFFECT_STICK = 66,
 
     EFFECT_HIT = 0,
     EFFECT_SLEEP = 1,
@@ -289,8 +291,10 @@ enum {
     ITEM_PREMIER_BALL = 12,
 
     SPECIES_PIKACHU = 25,
+    SPECIES_FARFETCHD = 83,
     SPECIES_CUBONE = 104,
     SPECIES_MAROWAK = 105,
+    SPECIES_CHANSEY = 113,
     SPECIES_DITTO = 132,
     SPECIES_CLAMPERL = 373,
     SPECIES_LATIAS = 407,
@@ -692,6 +696,42 @@ static uint32_t battle_speed(
     return speed != 0 ? speed : 1;
 }
 
+static uint8_t battle_alive_on_side(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t side)
+{
+    uint8_t i;
+    uint8_t count = 0;
+
+    if (battle == 0 || side > 1)
+        return 0;
+
+    for (i = 0; i < REMASTER_EMERALD_BATTLE_MAX_BATTLERS; ++i) {
+        if (battle->battlers[i].active
+            && !battle->battlers[i].fainted
+            && battle->battlers[i].side == side)
+            count++;
+    }
+    return count;
+}
+
+static int battle_field_has_status3(
+    const RemasterEmeraldBattleState *battle,
+    uint32_t mask)
+{
+    uint8_t i;
+
+    if (battle == 0)
+        return 0;
+    for (i = 0; i < REMASTER_EMERALD_BATTLE_MAX_BATTLERS; ++i) {
+        if (battle->battlers[i].active
+            && !battle->battlers[i].fainted
+            && (battle->battlers[i].status3 & mask))
+            return 1;
+    }
+    return 0;
+}
+
 static uint8_t battle_default_target(
     const RemasterEmeraldBattleState *battle,
     uint8_t battler)
@@ -1061,6 +1101,7 @@ static int battle_type_power_hold_effect(
 static int battle_high_critical_effect(uint8_t effect)
 {
     return effect == EFFECT_HIGH_CRITICAL
+        || effect == 75
         || effect == EFFECT_BLAZE_KICK
         || effect == EFFECT_POISON_TAIL;
 }
@@ -1081,9 +1122,15 @@ static int battle_critical(
     if (battle_high_critical_effect(effect))
         stage++;
     if (attacker->status2 & REMASTER_EMERALD_STATUS2_FOCUS_ENERGY)
-        stage++;
+        stage += 2u;
     if (battle_hold_effect(attacker) == HOLD_EFFECT_SCOPE_LENS)
         stage++;
+    if (battle_hold_effect(attacker) == HOLD_EFFECT_LUCKY_PUNCH
+        && attacker->species == SPECIES_CHANSEY)
+        stage += 2u;
+    if (battle_hold_effect(attacker) == HOLD_EFFECT_STICK
+        && attacker->species == SPECIES_FARFETCHD)
+        stage += 2u;
 
     if (stage > 4)
         stage = 4;
@@ -1346,13 +1393,67 @@ int remaster_emerald_battle_calculate_damage(
 
     attack = physical ? attacker->pokemon.attack : attacker->pokemon.sp_attack;
     defense = physical ? defender->pokemon.defense : defender->pokemon.sp_defense;
-    attack = battle_apply_stage(attack, atk_stage);
-    defense = battle_apply_stage(defense, def_stage);
+    hold_effect = battle_hold_effect(attacker);
 
     if (physical
         && (attacker->ability == ABILITY_HUGE_POWER
             || attacker->ability == ABILITY_PURE_POWER))
         attack *= 2u;
+
+    if (battle_badge_boost_allowed(
+            battle,
+            attacker_id,
+            physical ? 0u : 6u))
+        attack = attack * 110u / 100u;
+    if (battle_badge_boost_allowed(
+            battle,
+            defender_id,
+            physical ? 4u : 6u))
+        defense = defense * 110u / 100u;
+
+    if (battle_type_power_hold_effect(hold_effect, move_type))
+        attack = attack
+            * (100u + battle_hold_param(attacker))
+            / 100u;
+
+    if (physical && hold_effect == HOLD_EFFECT_CHOICE_BAND)
+        attack = attack * 150u / 100u;
+
+    if (!physical
+        && hold_effect == HOLD_EFFECT_SOUL_DEW
+        && !battle_frontier_type(battle->battle_type_flags)
+        && (attacker->species == SPECIES_LATIAS
+            || attacker->species == SPECIES_LATIOS))
+        attack = attack * 150u / 100u;
+    if (!physical
+        && hold_effect == HOLD_EFFECT_DEEP_SEA_TOOTH
+        && attacker->species == SPECIES_CLAMPERL)
+        attack *= 2u;
+    if (!physical
+        && hold_effect == HOLD_EFFECT_LIGHT_BALL
+        && attacker->species == SPECIES_PIKACHU)
+        attack *= 2u;
+    if (physical
+        && hold_effect == HOLD_EFFECT_THICK_CLUB
+        && (attacker->species == SPECIES_CUBONE
+            || attacker->species == SPECIES_MAROWAK))
+        attack *= 2u;
+
+    if (!physical
+        && battle_hold_effect(defender) == HOLD_EFFECT_SOUL_DEW
+        && !battle_frontier_type(battle->battle_type_flags)
+        && (defender->species == SPECIES_LATIAS
+            || defender->species == SPECIES_LATIOS))
+        defense = defense * 150u / 100u;
+    if (!physical
+        && battle_hold_effect(defender) == HOLD_EFFECT_DEEP_SEA_SCALE
+        && defender->species == SPECIES_CLAMPERL)
+        defense *= 2u;
+    if (physical
+        && battle_hold_effect(defender) == HOLD_EFFECT_METAL_POWDER
+        && defender->species == SPECIES_DITTO)
+        defense *= 2u;
+
     if (physical
         && attacker->ability == ABILITY_GUTS
         && attacker->pokemon.status != 0)
@@ -1360,16 +1461,25 @@ int remaster_emerald_battle_calculate_damage(
     if (physical && attacker->ability == ABILITY_HUSTLE)
         attack = attack * 150u / 100u;
     if (!physical
+        && ((attacker->ability == ABILITY_PLUS
+                && battle_ability_on_field(battle, ABILITY_MINUS))
+            || (attacker->ability == ABILITY_MINUS
+                && battle_ability_on_field(battle, ABILITY_PLUS))))
+        attack = attack * 150u / 100u;
+    if (physical
+        && defender->ability == ABILITY_MARVEL_SCALE
+        && defender->pokemon.status != 0)
+        defense = defense * 150u / 100u;
+    if (!physical
         && defender->ability == ABILITY_THICK_FAT
         && (move_type == TYPE_FIRE || move_type == TYPE_ICE))
         attack /= 2u;
 
-    hold_effect = battle_hold_effect(attacker);
-    if (physical && hold_effect == HOLD_EFFECT_CHOICE_BAND)
-        attack = attack * 150u / 100u;
+    if (move->effect == EFFECT_EXPLOSION && physical)
+        defense /= 2u;
 
-    if (battle_type_power_hold_effect(hold_effect, move_type))
-        power = (uint16_t)((uint32_t)power * 110u / 100u);
+    attack = battle_apply_stage(attack, atk_stage);
+    defense = battle_apply_stage(defense, def_stage);
 
     if (attacker->pokemon.hp * 3u <= attacker->pokemon.max_hp) {
         if ((attacker->ability == ABILITY_OVERGROW && move_type == TYPE_GRASS)
@@ -1379,66 +1489,100 @@ int remaster_emerald_battle_calculate_damage(
             power = (uint16_t)((uint32_t)power * 150u / 100u);
     }
 
-    if (attacker->flash_fire && move_type == TYPE_FIRE)
-        power = (uint16_t)((uint32_t)power * 150u / 100u);
-
-    if (battle_weather_has_effect(battle)) {
-        if (battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_RAIN) {
-            if (move_type == TYPE_WATER)
-                power = (uint16_t)((uint32_t)power * 150u / 100u);
-            if (move_type == TYPE_FIRE)
-                power /= 2u;
-        } else if (battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_SUN) {
-            if (move_type == TYPE_FIRE)
-                power = (uint16_t)((uint32_t)power * 150u / 100u);
-            if (move_type == TYPE_WATER)
-                power /= 2u;
-        }
-
-        if (move->effect == EFFECT_SOLAR_BEAM
-            && battle->weather != REMASTER_EMERALD_BATTLE_WEATHER_SUN)
-            power /= 2u;
-    }
+    if (move_type == TYPE_ELECTRIC
+        && battle_field_has_status3(
+            battle,
+            REMASTER_EMERALD_STATUS3_MUD_SPORT))
+        power /= 2u;
+    if (move_type == TYPE_FIRE
+        && battle_field_has_status3(
+            battle,
+            REMASTER_EMERALD_STATUS3_WATER_SPORT))
+        power /= 2u;
 
     if (power == 0)
         power = 1;
     if (defense == 0)
         defense = 1;
 
-    damage = (((2u * attacker->pokemon.level / 5u + 2u)
+    damage = ((2u * attacker->pokemon.level / 5u + 2u)
             * power
             * attack
             / defense)
-        / 50u)
-        + 2u;
-
-    if (critical)
-        damage *= 2u;
-
-    if (!critical) {
-        if (physical
-            && (battle->side_status[defender->side]
-                & REMASTER_EMERALD_SIDE_REFLECT))
-            damage /= 2u;
-        if (!physical
-            && (battle->side_status[defender->side]
-                & REMASTER_EMERALD_SIDE_LIGHT_SCREEN))
-            damage /= 2u;
-    }
-
-    if (attacker->types[0] == move_type
-        || attacker->types[1] == move_type)
-        damage = damage * 150u / 100u;
-
-    damage = damage * type_multiplier / 10u;
-    damage = damage
-        * (85u + remaster_emerald_battle_random(&battle->rng) % 16u)
-        / 100u;
+        / 50u;
 
     if (physical
         && (attacker->pokemon.status & REMASTER_EMERALD_STATUS1_BURN)
         && attacker->ability != ABILITY_GUTS)
         damage /= 2u;
+
+    if (!critical) {
+        if (physical
+            && (battle->side_status[defender->side]
+                & REMASTER_EMERALD_SIDE_REFLECT)) {
+            if ((battle->battle_type_flags
+                    & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE)
+                && battle_alive_on_side(battle, defender->side) == 2)
+                damage = 2u * (damage / 3u);
+            else
+                damage /= 2u;
+        }
+        if (!physical
+            && (battle->side_status[defender->side]
+                & REMASTER_EMERALD_SIDE_LIGHT_SCREEN)) {
+            if ((battle->battle_type_flags
+                    & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE)
+                && battle_alive_on_side(battle, defender->side) == 2)
+                damage = 2u * (damage / 3u);
+            else
+                damage /= 2u;
+        }
+    }
+
+    if ((battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE)
+        && move->target == (1u << 3)
+        && battle_alive_on_side(battle, defender->side) == 2)
+        damage /= 2u;
+
+    if (!physical && battle_weather_has_effect(battle)) {
+        if (battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_RAIN) {
+            if (move_type == TYPE_FIRE)
+                damage /= 2u;
+            else if (move_type == TYPE_WATER)
+                damage = damage * 15u / 10u;
+        }
+        if ((battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_RAIN
+                || battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_SANDSTORM
+                || battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_HAIL)
+            && move->effect == EFFECT_SOLAR_BEAM)
+            damage /= 2u;
+        if (battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_SUN) {
+            if (move_type == TYPE_FIRE)
+                damage = damage * 15u / 10u;
+            else if (move_type == TYPE_WATER)
+                damage /= 2u;
+        }
+    }
+
+    if (!physical && attacker->flash_fire && move_type == TYPE_FIRE)
+        damage = damage * 15u / 10u;
+
+    damage += 2u;
+
+    if (critical)
+        damage *= 2u;
+
+    if (attacker->types[0] == move_type
+        || attacker->types[1] == move_type)
+        damage = damage * 15u / 10u;
+
+    damage = damage * type_multiplier / 10u;
+    if (damage == 0 && type_multiplier != 0)
+        damage = 1;
+
+    damage = damage
+        * (85u + remaster_emerald_battle_random(&battle->rng) % 16u)
+        / 100u;
 
     if (damage == 0)
         damage = 1;
