@@ -86,6 +86,7 @@ enum {
     HOLD_EFFECT_CURE_BRN = 5,
     HOLD_EFFECT_CURE_FRZ = 6,
     HOLD_EFFECT_CURE_STATUS = 9,
+    HOLD_EFFECT_EVASION_UP = 22,
     HOLD_EFFECT_MACHO_BRACE = 24,
     HOLD_EFFECT_EXP_SHARE = 25,
     HOLD_EFFECT_QUICK_CLAW = 26,
@@ -1033,13 +1034,20 @@ static uint8_t battle_type_multiplier(
     value = remaster_emerald_battle_type_effectiveness(
         move_type,
         defender->types[0]);
+    if ((defender->status2 & REMASTER_EMERALD_STATUS2_FORESIGHT)
+        && defender->types[0] == TYPE_GHOST
+        && (move_type == TYPE_NORMAL || move_type == TYPE_FIGHTING))
+        value = 10;
 
     if (defender->types[1] != defender->types[0]) {
-        value = value
-            * remaster_emerald_battle_type_effectiveness(
-                move_type,
-                defender->types[1])
-            / 10u;
+        uint8_t second = remaster_emerald_battle_type_effectiveness(
+            move_type,
+            defender->types[1]);
+        if ((defender->status2 & REMASTER_EMERALD_STATUS2_FORESIGHT)
+            && defender->types[1] == TYPE_GHOST
+            && (move_type == TYPE_NORMAL || move_type == TYPE_FIGHTING))
+            second = 10;
+        value = value * second / 10u;
     }
 
     if (value > 255)
@@ -1178,6 +1186,11 @@ static uint8_t battle_accuracy_percent(
         && battle_weather_has_effect(battle)
         && battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_SANDSTORM)
         accuracy = accuracy * 80u / 100u;
+
+    if (battle_hold_effect(defender) == HOLD_EFFECT_EVASION_UP)
+        accuracy = accuracy
+            * (100u - battle_hold_param(defender))
+            / 100u;
 
     if (accuracy > 100)
         accuracy = 100;
@@ -1604,17 +1617,24 @@ static int battle_status_allowed(
         && (target->ability == ABILITY_INSOMNIA
             || target->ability == ABILITY_VITAL_SPIRIT))
         return 0;
-    if ((status & REMASTER_EMERALD_STATUS1_POISON)
-        && target->ability == ABILITY_IMMUNITY)
-        return 0;
-    if ((status & REMASTER_EMERALD_STATUS1_TOXIC)
-        && target->ability == ABILITY_IMMUNITY)
+    if ((status
+            & (REMASTER_EMERALD_STATUS1_POISON
+               | REMASTER_EMERALD_STATUS1_TOXIC))
+        && (target->ability == ABILITY_IMMUNITY
+            || target->types[0] == TYPE_POISON
+            || target->types[1] == TYPE_POISON
+            || target->types[0] == TYPE_STEEL
+            || target->types[1] == TYPE_STEEL))
         return 0;
     if ((status & REMASTER_EMERALD_STATUS1_BURN)
-        && target->ability == ABILITY_WATER_VEIL)
+        && (target->ability == ABILITY_WATER_VEIL
+            || target->types[0] == TYPE_FIRE
+            || target->types[1] == TYPE_FIRE))
         return 0;
     if ((status & REMASTER_EMERALD_STATUS1_FREEZE)
-        && target->ability == ABILITY_MAGMA_ARMOR)
+        && (target->ability == ABILITY_MAGMA_ARMOR
+            || target->types[0] == TYPE_ICE
+            || target->types[1] == TYPE_ICE))
         return 0;
     if ((status & REMASTER_EMERALD_STATUS1_PARALYSIS)
         && target->ability == ABILITY_LIMBER)
