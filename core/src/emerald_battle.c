@@ -3137,6 +3137,7 @@ int remaster_emerald_battle_use_move(
     uint8_t pp_cost = 1;
     int direct_effect_result = 0;
     int false_swipe;
+    int continuing_charge;
 
     if (battle == 0
         || battle->ended
@@ -3159,32 +3160,52 @@ int remaster_emerald_battle_use_move(
     target = &battle->battlers[target_id];
     move_id = attacker->moves[move_slot];
     move = remaster_emerald_move_info(move_id);
-    if (move == 0 || move_id == 0 || attacker->pp[move_slot] == 0)
+    continuing_charge = attacker->charging_move == move_id
+        && attacker->charging_move_slot == move_slot;
+    if (move == 0
+        || move_id == 0
+        || (!continuing_charge
+            && battle->called_move_depth == 0
+            && attacker->pp[move_slot] == 0))
         return 0;
 
-    if (attacker->disable_turns != 0
+    if (!continuing_charge
+        && battle->called_move_depth == 0
+        && attacker->disable_turns != 0
         && attacker->disable_move_slot == move_slot)
         return 0;
-    if (attacker->encore_turns != 0
+    if (!continuing_charge
+        && battle->called_move_depth == 0
+        && attacker->encore_turns != 0
         && attacker->encore_move_slot != move_slot)
         return 0;
-    if (attacker->taunt_turns != 0 && move->power == 0)
+    if (!continuing_charge
+        && battle->called_move_depth == 0
+        && attacker->taunt_turns != 0
+        && move->power == 0)
         return 0;
-    if (battle_hold_effect(attacker) == HOLD_EFFECT_CHOICE_BAND
+    if (!continuing_charge
+        && battle->called_move_depth == 0
+        && battle_hold_effect(attacker) == HOLD_EFFECT_CHOICE_BAND
         && attacker->choice_locked_move != 0
         && attacker->choice_locked_move != move_id)
         return 0;
 
-    if (target->ability == ABILITY_PRESSURE)
-        pp_cost = 2;
-    if (pp_cost > attacker->pp[move_slot])
-        pp_cost = attacker->pp[move_slot];
-    attacker->pp[move_slot] = (uint8_t)(attacker->pp[move_slot] - pp_cost);
-    remaster_emerald_box_pokemon_set_move(
-        &attacker->pokemon.box,
-        move_slot,
-        move_id,
-        attacker->pp[move_slot]);
+    if (!continuing_charge && battle->called_move_depth == 0) {
+        if (target->ability == ABILITY_PRESSURE)
+            pp_cost = 2;
+        if (pp_cost > attacker->pp[move_slot])
+            pp_cost = attacker->pp[move_slot];
+        attacker->pp[move_slot] =
+            (uint8_t)(attacker->pp[move_slot] - pp_cost);
+        remaster_emerald_box_pokemon_set_move(
+            &attacker->pokemon.box,
+            move_slot,
+            move_id,
+            attacker->pp[move_slot]);
+    } else {
+        pp_cost = 0;
+    }
     attacker->last_move = move_id;
     if (battle_hold_effect(attacker) == HOLD_EFFECT_CHOICE_BAND
         && attacker->choice_locked_move == 0)
@@ -3199,8 +3220,33 @@ int remaster_emerald_battle_use_move(
         move_slot,
         pp_cost);
 
-    if (!battle_can_act(battle, attacker_id, move_id)) {
+    if (battle->called_move_depth == 0
+        && !battle_can_act(battle, attacker_id, move_id)) {
+        if (continuing_charge)
+            battle_clear_charge(attacker);
         battle_faint_check(battle, attacker_id);
+        return 1;
+    }
+
+    if (continuing_charge) {
+        battle_clear_charge(attacker);
+    } else if (battle_is_two_turn_effect(move)
+        && !(move->effect == EFFECT_SOLAR_BEAM
+            && battle_weather_has_effect(battle)
+            && battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_SUN)) {
+        attacker->charging_move = move_id;
+        attacker->charging_move_slot = move_slot;
+        attacker->charging_target = target_id;
+        attacker->status2 |= REMASTER_EMERALD_STATUS2_MULTIPLETURNS;
+        attacker->status3 |= battle_semi_invulnerable_flag(move_id);
+        if (move->effect == EFFECT_SKULL_BASH)
+            battle_change_stage(
+                battle,
+                attacker_id,
+                2,
+                1,
+                move_id);
+        battle_sync_battler(battle, attacker_id);
         return 1;
     }
 
@@ -3637,6 +3683,8 @@ int remaster_emerald_battle_switch(
             party_slot))
         return 0;
 
+    battle->battlers[battler].entered_turn =
+        (uint8_t)(battle->turn_number & 0xFFu);
     battle->active_party_slot[battler] = party_slot;
     battle->battlers[battler].entered_turn =
         (uint8_t)((battle->turn_number + 1u) & 0xFFu);
@@ -4039,7 +4087,13 @@ int remaster_emerald_battle_resolve_turn(
         if (!battle->battlers[i].active || battle->battlers[i].fainted)
             continue;
 
-        if (resolved[i].kind == REMASTER_EMERALD_BATTLE_ACTION_NONE
+        if (battle->battlers[i].charging_move != 0) {
+            resolved[i].kind = REMASTER_EMERALD_BATTLE_ACTION_MOVE;
+            resolved[i].move_slot =
+                battle->battlers[i].charging_move_slot;
+            resolved[i].target =
+                battle->battlers[i].charging_target;
+        } else if (resolved[i].kind == REMASTER_EMERALD_BATTLE_ACTION_NONE
             && battle->battlers[i].side == 1) {
             remaster_emerald_battle_choose_ai_action(
                 battle, i, &resolved[i]);
