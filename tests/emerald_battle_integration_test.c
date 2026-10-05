@@ -215,6 +215,51 @@ int main(void)
             "trainer double-battle metadata must activate both flanks"))
         return 1;
 
+    battle.ended = 1;
+    battle.outcome = REMASTER_EMERALD_BATTLE_OUTCOME_WON;
+    if (!check(
+            remaster_emerald_battle_finalize_trainer(
+                &battle,
+                &save,
+                &whiteout),
+            "won trainer battle should finalize into save state"))
+        return 1;
+    if (!check(
+            !whiteout
+                && remaster_emerald_flag_get(&save, 0x500u + 51u, &trainer_flag)
+                && trainer_flag,
+            "won trainer battle must set its trainer defeat flag"))
+        return 1;
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER,
+        0x10203040u);
+    if (!check(
+            remaster_emerald_battle_start_trainer_from_save(
+                &battle,
+                &save,
+                11),
+            "catalog-backed Marcel trainer battle should start"))
+        return 1;
+    battle.ended = 1;
+    battle.outcome = REMASTER_EMERALD_BATTLE_OUTCOME_LOST;
+    whiteout = 0;
+    trainer_flag = 0;
+    if (!check(
+            remaster_emerald_battle_finalize_trainer(
+                &battle,
+                &save,
+                &whiteout),
+            "lost trainer battle should finalize into save state"))
+        return 1;
+    if (!check(
+            whiteout
+                && remaster_emerald_flag_get(&save, 0x500u + 11u, &trainer_flag)
+                && !trainer_flag,
+            "lost trainer battle must request whiteout without defeat flag"))
+        return 1;
+
     puts("r13 encounter-battle integration test passed");
     return 0;
 }
