@@ -46,6 +46,14 @@ class DefineResolver:
             value = float(percent.group(1))
             return min(254, int((value * 255) / 100))
 
+        item_to_mail = re.fullmatch(r"ITEM_TO_MAIL\(([^)]+)\)", expression)
+        if item_to_mail:
+            return self.eval_expr(item_to_mail.group(1), stack) - self.resolve("FIRST_MAIL_INDEX")
+
+        item_to_berry = re.fullmatch(r"ITEM_TO_BERRY\(([^)]+)\)", expression)
+        if item_to_berry:
+            return self.eval_expr(item_to_berry.group(1), stack) - self.resolve("FIRST_BERRY_INDEX") + 1
+
         if re.fullmatch(r"[A-Za-z_]\w*", expression):
             name = expression
             if name in self.cache:
