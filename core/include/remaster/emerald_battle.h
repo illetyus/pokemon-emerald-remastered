@@ -154,6 +154,46 @@ typedef enum RemasterEmeraldBattleEventKind {
     REMASTER_EMERALD_BATTLE_EVENT_MESSAGE = 23
 } RemasterEmeraldBattleEventKind;
 
+enum {
+    REMASTER_EMERALD_TRAINER_PARTY_CUSTOM_MOVESET = 1u << 0,
+    REMASTER_EMERALD_TRAINER_PARTY_HELD_ITEM = 1u << 1
+};
+
+enum {
+    REMASTER_EMERALD_AI_CHECK_BAD_MOVE = 1u << 0,
+    REMASTER_EMERALD_AI_TRY_TO_FAINT = 1u << 1,
+    REMASTER_EMERALD_AI_CHECK_VIABILITY = 1u << 2,
+    REMASTER_EMERALD_AI_SETUP_FIRST_TURN = 1u << 3,
+    REMASTER_EMERALD_AI_RISKY = 1u << 4,
+    REMASTER_EMERALD_AI_PREFER_POWER_EXTREMES = 1u << 5,
+    REMASTER_EMERALD_AI_PREFER_BATON_PASS = 1u << 6,
+    REMASTER_EMERALD_AI_DOUBLE_BATTLE = 1u << 7,
+    REMASTER_EMERALD_AI_HP_AWARE = 1u << 8,
+    REMASTER_EMERALD_AI_TRY_SUNNY_DAY_START = 1u << 9
+};
+
+typedef struct RemasterEmeraldTrainerMon {
+    uint16_t species;
+    uint16_t held_item;
+    uint16_t moves[REMASTER_EMERALD_MAX_MOVES];
+    uint16_t iv;
+    uint8_t level;
+} RemasterEmeraldTrainerMon;
+
+typedef struct RemasterEmeraldTrainer {
+    uint16_t trainer_id;
+    uint8_t trainer_class;
+    uint8_t encounter_music_gender;
+    uint8_t trainer_pic;
+    char trainer_name[13];
+    uint16_t items[4];
+    uint8_t double_battle;
+    uint32_t ai_flags;
+    uint8_t party_size;
+    uint8_t party_flags;
+    RemasterEmeraldTrainerMon party[REMASTER_EMERALD_BATTLE_PARTY_SIZE];
+} RemasterEmeraldTrainer;
+
 typedef struct RemasterEmeraldBattleRng {
     uint32_t state;
     uint64_t calls;
@@ -289,6 +329,9 @@ uint16_t remaster_emerald_battle_random(
     RemasterEmeraldBattleRng *rng);
 uint32_t remaster_emerald_battle_random32(
     RemasterEmeraldBattleRng *rng);
+
+int remaster_emerald_battle_trainer_validate(
+    const RemasterEmeraldTrainer *trainer);
 
 void remaster_emerald_battle_state_init(
     RemasterEmeraldBattleState *battle,
