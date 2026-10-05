@@ -13,11 +13,38 @@ class R13BattleSourceContract(unittest.TestCase):
             "src/battle_main.c",
             "src/battle_util.c",
             "src/battle_script_commands.c",
+            "src/battle_ai_script_commands.c",
+            "src/battle_ai_switch_items.c",
+            "src/battle_setup.c",
+            "src/data/trainers.h",
+            "src/data/trainer_parties.h",
+            "data/battle_ai_scripts.s",
             "src/pokemon.c",
+            "include/data.h",
             "include/constants/battle.h",
+            "include/constants/battle_ai.h",
             "include/constants/battle_move_effects.h",
+            "include/constants/trainers.h",
         ):
             self.assertTrue((VENDOR / rel).is_file(), rel)
+
+    def test_trainer_contract_sources_match_gen3_shapes(self):
+        data_h = (VENDOR / "include/data.h").read_text(encoding="utf-8")
+        ai_h = (VENDOR / "include/constants/battle_ai.h").read_text(
+            encoding="utf-8"
+        )
+        trainers = (VENDOR / "src/data/trainers.h").read_text(encoding="utf-8")
+
+        self.assertIn("struct TrainerMonNoItemDefaultMoves", data_h)
+        self.assertIn("struct TrainerMonItemCustomMoves", data_h)
+        self.assertIn("struct Trainer", data_h)
+        self.assertIn("#define MAX_TRAINER_ITEMS 4", data_h)
+        self.assertIn("#define AI_SCRIPT_CHECK_BAD_MOVE", ai_h)
+        self.assertIn("#define AI_SCRIPT_TRY_TO_FAINT", ai_h)
+        self.assertIn("#define AI_SCRIPT_CHECK_VIABILITY", ai_h)
+        self.assertIn(".doubleBattle =", trainers)
+        self.assertIn(".aiFlags =", trainers)
+        self.assertIn(".party =", trainers)
 
     def test_move_effect_count_is_gen3_contract(self):
         text = (VENDOR / "include/constants/battle_move_effects.h").read_text(
