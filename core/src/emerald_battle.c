@@ -4045,8 +4045,12 @@ int remaster_emerald_battle_use_move(
         if (effectiveness == 0)
             return 1;
 
+        /*
+         * Emerald Cmd_typecalc2 only rejects type immunity for Counter and
+         * Mirror Coat. It records resistance/super-effective flags but does
+         * not scale the fixed reflected damage.
+         */
         reflected = (uint32_t)attacker->last_damage * 2u;
-        reflected = reflected * effectiveness / 10u;
         if (reflected == 0)
             reflected = 1;
         if (reflected > UINT16_MAX)
