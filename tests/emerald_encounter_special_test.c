@@ -266,6 +266,49 @@ int main(void)
         return 1;
 
     /*
+     * A warp uses UpdateLocationHistoryForRoamer followed by
+     * RoamerMoveToOtherLocationSet. The move is deterministic for a fixed
+     * runtime seed and never leaves the roamer in the same location set.
+     */
+    save.save_block1[0x04] = 0;
+    save.save_block1[0x05] = 16;
+    remaster_emerald_encounter_runtime_init(
+        &runtime_a,
+        UINT32_C(0xACE1));
+    remaster_emerald_encounter_runtime_init(
+        &runtime_b,
+        UINT32_C(0xACE1));
+    remaster_emerald_encounter_roamer_set_location(&runtime_a, 0, 16);
+    remaster_emerald_encounter_roamer_set_location(&runtime_b, 0, 16);
+
+    if (!check(
+            remaster_emerald_encounter_roamer_warp(&runtime_a, &save)
+            && remaster_emerald_encounter_roamer_warp(&runtime_b, &save),
+            "roamer warp transition failed"))
+        return 1;
+    if (!check(
+            runtime_a.roamer_location_valid
+            && runtime_a.roamer_map_group == 0
+            && runtime_a.roamer_map_num != 16
+            && runtime_a.roamer_map_num == runtime_b.roamer_map_num
+            && runtime_a.rng.state == runtime_b.rng.state
+            && runtime_a.rng.calls == runtime_b.rng.calls
+            && runtime_a.roamer_location_history[0][0] == 0
+            && runtime_a.roamer_location_history[0][1] == 16,
+            "roamer warp transition ordering/state mismatch"))
+        return 1;
+
+    save.save_block1[SB1_ROAMER + 0x13] = 0;
+    remaster_emerald_encounter_runtime_init(
+        &runtime_a,
+        UINT32_C(0xACE1));
+    if (!check(
+            remaster_emerald_encounter_roamer_warp(&runtime_a, &save)
+            && runtime_a.rng.calls == 0,
+            "inactive roamer warp must not consume RNG"))
+        return 1;
+
+    /*
      * Fishing bypasses step encounter-rate/repel checks after the rod minigame
      * and remains deterministic for fixed state + seed.
      */
