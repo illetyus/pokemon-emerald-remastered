@@ -177,6 +177,9 @@ int remaster_emerald_box_pokemon_set_iv(
 int remaster_emerald_box_pokemon_set_ability_num(
     RemasterEmeraldBoxPokemon *pokemon,
     uint8_t ability_num);
+int remaster_emerald_box_pokemon_set_pokeball(
+    RemasterEmeraldBoxPokemon *pokemon,
+    uint8_t pokeball);
 
 uint8_t remaster_emerald_party_count(const RemasterEmeraldSave *save);
 int remaster_emerald_party_set_count(
