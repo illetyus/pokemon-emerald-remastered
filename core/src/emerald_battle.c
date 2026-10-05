@@ -5169,6 +5169,710 @@ static int battle_move_score(
     return score;
 }
 
+static int battle_ai_move_usable(
+    const RemasterEmeraldBattleMon *mon,
+    uint8_t slot)
+{
+    const RemasterEmeraldMoveInfo *move;
+    uint16_t move_id;
+
+    if (mon == 0 || slot >= REMASTER_EMERALD_MAX_MOVES)
+        return 0;
+
+    move_id = mon->moves[slot];
+    move = remaster_emerald_move_info(move_id);
+    if (move_id == 0 || move == 0 || mon->pp[slot] == 0)
+        return 0;
+
+    if (mon->disable_turns != 0 && mon->disable_move_slot == slot)
+        return 0;
+    if (mon->encore_turns != 0 && mon->encore_move_slot != slot)
+        return 0;
+    if (mon->choice_locked_move != 0
+        && mon->choice_locked_move != move_id)
+        return 0;
+    if ((mon->status2 & REMASTER_EMERALD_STATUS2_TORMENT)
+        && mon->last_move == move_id)
+        return 0;
+    if (mon->taunt_turns != 0 && move->power == 0)
+        return 0;
+
+    return 1;
+}
+
+static void battle_ai_score_add(int scores[4], uint8_t slot, int delta)
+{
+    int value;
+
+    if (slot >= 4 || scores[slot] < 0)
+        return;
+
+    value = scores[slot] + delta;
+    if (value < 0)
+        value = 0;
+    if (value > 255)
+        value = 255;
+    scores[slot] = value;
+}
+
+static int battle_ai_has_reserve(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t side)
+{
+    uint8_t slot;
+
+    if (battle == 0 || side > 1)
+        return 0;
+
+    for (slot = 0; slot < battle->party_count[side]; ++slot) {
+        if (!battle_party_slot_active(battle, side, slot)
+            && battle->parties[side][slot].hp != 0
+            && remaster_emerald_box_pokemon_species(
+                &battle->parties[side][slot].box) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+static int battle_ai_is_first_turn(
+    const RemasterEmeraldBattleState *battle,
+    const RemasterEmeraldBattleMon *mon)
+{
+    return battle != 0
+        && mon != 0
+        && (uint8_t)(battle->turn_number & 0xFFu) == mon->entered_turn;
+}
+
+static int battle_ai_stat_up_effect(uint8_t effect, uint8_t *out_stage)
+{
+    switch (effect) {
+    case EFFECT_ATTACK_UP:
+    case EFFECT_ATTACK_UP_2:
+        *out_stage = 1;
+        return 1;
+    case EFFECT_DEFENSE_UP:
+    case EFFECT_DEFENSE_UP_2:
+        *out_stage = 2;
+        return 1;
+    case EFFECT_SPEED_UP:
+    case EFFECT_SPEED_UP_2:
+        *out_stage = 3;
+        return 1;
+    case EFFECT_SPECIAL_ATTACK_UP:
+    case EFFECT_SPECIAL_ATTACK_UP_2:
+        *out_stage = 4;
+        return 1;
+    case EFFECT_SPECIAL_DEFENSE_UP:
+    case EFFECT_SPECIAL_DEFENSE_UP_2:
+        *out_stage = 5;
+        return 1;
+    case EFFECT_ACCURACY_UP:
+    case EFFECT_ACCURACY_UP_2:
+        *out_stage = 6;
+        return 1;
+    case EFFECT_EVASION_UP:
+    case EFFECT_EVASION_UP_2:
+    case EFFECT_MINIMIZE:
+        *out_stage = 7;
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+static int battle_ai_stat_down_effect(uint8_t effect, uint8_t *out_stage)
+{
+    switch (effect) {
+    case EFFECT_ATTACK_DOWN:
+    case EFFECT_ATTACK_DOWN_2:
+        *out_stage = 1;
+        return 1;
+    case EFFECT_DEFENSE_DOWN:
+    case EFFECT_DEFENSE_DOWN_2:
+        *out_stage = 2;
+        return 1;
+    case EFFECT_SPEED_DOWN:
+    case EFFECT_SPEED_DOWN_2:
+        *out_stage = 3;
+        return 1;
+    case EFFECT_SPECIAL_ATTACK_DOWN:
+    case EFFECT_SPECIAL_ATTACK_DOWN_2:
+        *out_stage = 4;
+        return 1;
+    case EFFECT_SPECIAL_DEFENSE_DOWN:
+    case EFFECT_SPECIAL_DEFENSE_DOWN_2:
+        *out_stage = 5;
+        return 1;
+    case EFFECT_ACCURACY_DOWN:
+    case EFFECT_ACCURACY_DOWN_2:
+        *out_stage = 6;
+        return 1;
+    case EFFECT_EVASION_DOWN:
+    case EFFECT_EVASION_DOWN_2:
+        *out_stage = 7;
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+static void battle_ai_apply_check_bad_move(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t target,
+    int scores[4])
+{
+    const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
+    const RemasterEmeraldBattleMon *foe = &battle->battlers[target];
+    uint8_t slot;
+
+    for (slot = 0; slot < 4; ++slot) {
+        const RemasterEmeraldMoveInfo *move;
+        uint8_t stage = 0;
+        uint8_t type_mult;
+
+        if (scores[slot] < 0)
+            continue;
+
+        move = remaster_emerald_move_info(user->moves[slot]);
+        if (move == 0)
+            continue;
+
+        type_mult = battle_type_multiplier(foe, move->type);
+        if (move->power != 0) {
+            if (foe->ability == ABILITY_VOLT_ABSORB
+                && move->type == TYPE_ELECTRIC)
+                battle_ai_score_add(scores, slot, -12);
+            else if (foe->ability == ABILITY_WATER_ABSORB
+                && move->type == TYPE_WATER)
+                battle_ai_score_add(scores, slot, -12);
+            else if (foe->ability == ABILITY_FLASH_FIRE
+                && move->type == TYPE_FIRE)
+                battle_ai_score_add(scores, slot, -12);
+            else if (foe->ability == ABILITY_WONDER_GUARD
+                && type_mult <= 10)
+                battle_ai_score_add(scores, slot, -10);
+            else if (type_mult == 0)
+                battle_ai_score_add(scores, slot, -10);
+        }
+
+        if (battle_ai_stat_up_effect(move->effect, &stage)) {
+            if (user->stat_stages[stage] >= 12)
+                battle_ai_score_add(scores, slot, -10);
+            continue;
+        }
+
+        if (battle_ai_stat_down_effect(move->effect, &stage)) {
+            if (foe->stat_stages[stage] == 0
+                || foe->ability == ABILITY_CLEAR_BODY
+                || foe->ability == ABILITY_WHITE_SMOKE
+                || (stage == 1 && foe->ability == ABILITY_HYPER_CUTTER))
+                battle_ai_score_add(scores, slot, -10);
+            continue;
+        }
+
+        switch (move->effect) {
+        case EFFECT_SLEEP:
+            if (!battle_status_allowed(
+                    battle, foe, REMASTER_EMERALD_STATUS1_SLEEP)
+                || (battle->side_status[foe->side]
+                    & REMASTER_EMERALD_SIDE_SAFEGUARD))
+                battle_ai_score_add(scores, slot, -10);
+            break;
+        case EFFECT_TOXIC:
+        case EFFECT_POISON:
+            if (!battle_status_allowed(
+                    battle, foe, REMASTER_EMERALD_STATUS1_TOXIC)
+                || (battle->side_status[foe->side]
+                    & REMASTER_EMERALD_SIDE_SAFEGUARD))
+                battle_ai_score_add(scores, slot, -10);
+            break;
+        case EFFECT_PARALYZE:
+            if (type_mult == 0
+                || !battle_status_allowed(
+                    battle, foe, REMASTER_EMERALD_STATUS1_PARALYSIS)
+                || (battle->side_status[foe->side]
+                    & REMASTER_EMERALD_SIDE_SAFEGUARD))
+                battle_ai_score_add(scores, slot, -10);
+            break;
+        case EFFECT_LIGHT_SCREEN:
+            if (battle->side_status[user->side]
+                & REMASTER_EMERALD_SIDE_LIGHT_SCREEN)
+                battle_ai_score_add(scores, slot, -8);
+            break;
+        case EFFECT_REFLECT:
+            if (battle->side_status[user->side]
+                & REMASTER_EMERALD_SIDE_REFLECT)
+                battle_ai_score_add(scores, slot, -8);
+            break;
+        case EFFECT_MIST:
+            if (battle->side_status[user->side] & REMASTER_EMERALD_SIDE_MIST)
+                battle_ai_score_add(scores, slot, -8);
+            break;
+        case EFFECT_SAFEGUARD:
+            if (battle->side_status[user->side]
+                & REMASTER_EMERALD_SIDE_SAFEGUARD)
+                battle_ai_score_add(scores, slot, -8);
+            break;
+        case EFFECT_FOCUS_ENERGY:
+            if (user->status2 & REMASTER_EMERALD_STATUS2_FOCUS_ENERGY)
+                battle_ai_score_add(scores, slot, -10);
+            break;
+        case EFFECT_CONFUSE:
+        case EFFECT_FLATTER:
+        case EFFECT_SWAGGER:
+            if ((foe->status2 & REMASTER_EMERALD_STATUS2_CONFUSION)
+                || foe->ability == ABILITY_OWN_TEMPO
+                || (battle->side_status[foe->side]
+                    & REMASTER_EMERALD_SIDE_SAFEGUARD))
+                battle_ai_score_add(scores, slot, -10);
+            break;
+        case EFFECT_SUBSTITUTE:
+            if ((user->status2 & REMASTER_EMERALD_STATUS2_SUBSTITUTE)
+                || user->pokemon.hp * 100u
+                    < user->pokemon.max_hp * 26u)
+                battle_ai_score_add(scores, slot, -10);
+            break;
+        case EFFECT_LEECH_SEED:
+            if ((foe->status3 & REMASTER_EMERALD_STATUS3_LEECH_SEED)
+                || foe->types[0] == TYPE_GRASS
+                || foe->types[1] == TYPE_GRASS)
+                battle_ai_score_add(scores, slot, -10);
+            break;
+        case EFFECT_DISABLE:
+            if (foe->disable_turns != 0)
+                battle_ai_score_add(scores, slot, -8);
+            break;
+        case EFFECT_ENCORE:
+            if (foe->encore_turns != 0)
+                battle_ai_score_add(scores, slot, -8);
+            break;
+        case EFFECT_MEAN_LOOK:
+            if (foe->status2 & REMASTER_EMERALD_STATUS2_ESCAPE_PREVENTION)
+                battle_ai_score_add(scores, slot, -10);
+            break;
+        case EFFECT_SPIKES:
+            if (battle->side_status[foe->side] & REMASTER_EMERALD_SIDE_SPIKES)
+                battle_ai_score_add(scores, slot, -10);
+            break;
+        case EFFECT_FORESIGHT:
+            if (foe->status2 & REMASTER_EMERALD_STATUS2_FORESIGHT)
+                battle_ai_score_add(scores, slot, -10);
+            break;
+        case EFFECT_PERISH_SONG:
+            if (foe->status3 & REMASTER_EMERALD_STATUS3_PERISH_SONG)
+                battle_ai_score_add(scores, slot, -10);
+            break;
+        case EFFECT_BATON_PASS:
+            if (!battle_ai_has_reserve(battle, user->side))
+                battle_ai_score_add(scores, slot, -10);
+            break;
+        case EFFECT_RAIN_DANCE:
+            if (battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_RAIN)
+                battle_ai_score_add(scores, slot, -8);
+            break;
+        case EFFECT_SUNNY_DAY:
+            if (battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_SUN)
+                battle_ai_score_add(scores, slot, -8);
+            break;
+        case EFFECT_SANDSTORM:
+            if (battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_SANDSTORM)
+                battle_ai_score_add(scores, slot, -8);
+            break;
+        case EFFECT_HAIL:
+            if (battle->weather == REMASTER_EMERALD_BATTLE_WEATHER_HAIL)
+                battle_ai_score_add(scores, slot, -8);
+            break;
+        case EFFECT_FAKE_OUT:
+            if (!battle_ai_is_first_turn(battle, user))
+                battle_ai_score_add(scores, slot, -10);
+            break;
+        case EFFECT_STOCKPILE:
+            if (user->stockpile >= 3)
+                battle_ai_score_add(scores, slot, -10);
+            break;
+        case EFFECT_TELEPORT:
+            battle_ai_score_add(scores, slot, -10);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+static uint16_t battle_ai_estimated_damage(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t target,
+    uint16_t move_id,
+    uint8_t *out_effectiveness)
+{
+    RemasterEmeraldBattleState probe;
+    RemasterEmeraldBattleDamageResult result;
+
+    if (battle == 0)
+        return 0;
+
+    probe = *battle;
+    if (!battle_calculate_damage_internal(
+            &probe,
+            battler,
+            target,
+            move_id,
+            &result,
+            1,
+            0))
+        return 0;
+
+    if (out_effectiveness != 0)
+        *out_effectiveness = result.effectiveness_tenths;
+    return result.damage;
+}
+
+static void battle_ai_apply_try_to_faint(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t target,
+    int scores[4])
+{
+    const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
+    const RemasterEmeraldBattleMon *foe = &battle->battlers[target];
+    uint16_t damage[4] = {0};
+    uint8_t effectiveness[4] = {0};
+    uint16_t best_damage = 0;
+    uint8_t slot;
+
+    for (slot = 0; slot < 4; ++slot) {
+        if (scores[slot] < 0)
+            continue;
+        damage[slot] = battle_ai_estimated_damage(
+            battle,
+            battler,
+            target,
+            user->moves[slot],
+            &effectiveness[slot]);
+        if (damage[slot] > best_damage)
+            best_damage = damage[slot];
+    }
+
+    for (slot = 0; slot < 4; ++slot) {
+        const RemasterEmeraldMoveInfo *move;
+
+        if (scores[slot] < 0)
+            continue;
+        move = remaster_emerald_move_info(user->moves[slot]);
+        if (move == 0)
+            continue;
+
+        if (damage[slot] != 0 && damage[slot] >= foe->pokemon.hp) {
+            if (move->effect != EFFECT_EXPLOSION) {
+                battle_ai_score_add(
+                    scores,
+                    slot,
+                    move->effect == EFFECT_QUICK_ATTACK ? 6 : 4);
+            }
+        } else if (damage[slot] < best_damage) {
+            battle_ai_score_add(scores, slot, -1);
+        }
+
+        if (effectiveness[slot] >= 40
+            && remaster_emerald_battle_random(&battle->rng) % 256u >= 80u)
+            battle_ai_score_add(scores, slot, 2);
+    }
+}
+
+static int battle_ai_target_faster(
+    const RemasterEmeraldBattleMon *user,
+    const RemasterEmeraldBattleMon *target)
+{
+    uint32_t user_speed;
+    uint32_t target_speed;
+
+    if (user == 0 || target == 0)
+        return 0;
+
+    user_speed = battle_apply_stage(user->pokemon.speed, user->stat_stages[3]);
+    target_speed = battle_apply_stage(
+        target->pokemon.speed, target->stat_stages[3]);
+    return target_speed > user_speed;
+}
+
+static void battle_ai_apply_check_viability(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t target,
+    int scores[4])
+{
+    const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
+    const RemasterEmeraldBattleMon *foe = &battle->battlers[target];
+    uint8_t slot;
+
+    for (slot = 0; slot < 4; ++slot) {
+        const RemasterEmeraldMoveInfo *move;
+
+        if (scores[slot] < 0)
+            continue;
+        move = remaster_emerald_move_info(user->moves[slot]);
+        if (move == 0)
+            continue;
+
+        switch (move->effect) {
+        case EFFECT_RESTORE_HP:
+        case EFFECT_SOFTBOILED:
+        case EFFECT_MORNING_SUN:
+        case EFFECT_SYNTHESIS:
+        case EFFECT_MOONLIGHT:
+            if (user->pokemon.hp >= user->pokemon.max_hp)
+                battle_ai_score_add(scores, slot, -3);
+            else if (user->pokemon.hp * 2u < user->pokemon.max_hp)
+                battle_ai_score_add(scores, slot, 2);
+            break;
+        case EFFECT_REST:
+            if (user->pokemon.hp >= user->pokemon.max_hp
+                && user->pokemon.status == 0)
+                battle_ai_score_add(scores, slot, -8);
+            else if (user->pokemon.hp * 2u < user->pokemon.max_hp)
+                battle_ai_score_add(scores, slot, 3);
+            break;
+        case EFFECT_PARALYZE:
+            if (battle_ai_target_faster(user, foe)) {
+                if (remaster_emerald_battle_random(&battle->rng) % 256u >= 20u)
+                    battle_ai_score_add(scores, slot, 3);
+            } else if (user->pokemon.hp * 100u
+                <= user->pokemon.max_hp * 70u) {
+                battle_ai_score_add(scores, slot, -1);
+            }
+            break;
+        case EFFECT_FAKE_OUT:
+            battle_ai_score_add(scores, slot, 2);
+            break;
+        case EFFECT_FACADE:
+            if (foe->pokemon.status
+                & (REMASTER_EMERALD_STATUS1_POISON
+                    | REMASTER_EMERALD_STATUS1_BURN
+                    | REMASTER_EMERALD_STATUS1_PARALYSIS
+                    | REMASTER_EMERALD_STATUS1_TOXIC))
+                battle_ai_score_add(scores, slot, 1);
+            break;
+        case EFFECT_SMELLINGSALT:
+            if (foe->pokemon.status & REMASTER_EMERALD_STATUS1_PARALYSIS)
+                battle_ai_score_add(scores, slot, 1);
+            break;
+        case EFFECT_BRICK_BREAK:
+            if (battle->side_status[foe->side]
+                & (REMASTER_EMERALD_SIDE_REFLECT
+                    | REMASTER_EMERALD_SIDE_LIGHT_SCREEN))
+                battle_ai_score_add(scores, slot, 1);
+            break;
+        case EFFECT_KNOCK_OFF:
+            if (foe->held_item != 0)
+                battle_ai_score_add(scores, slot, 1);
+            break;
+        case EFFECT_REFRESH:
+            if (user->pokemon.status
+                & (REMASTER_EMERALD_STATUS1_POISON
+                    | REMASTER_EMERALD_STATUS1_TOXIC
+                    | REMASTER_EMERALD_STATUS1_BURN
+                    | REMASTER_EMERALD_STATUS1_PARALYSIS))
+                battle_ai_score_add(scores, slot, 2);
+            else
+                battle_ai_score_add(scores, slot, -3);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+static int battle_ai_setup_effect(uint8_t effect)
+{
+    switch (effect) {
+    case EFFECT_ATTACK_UP:
+    case EFFECT_DEFENSE_UP:
+    case EFFECT_SPEED_UP:
+    case EFFECT_SPECIAL_ATTACK_UP:
+    case EFFECT_SPECIAL_DEFENSE_UP:
+    case EFFECT_ACCURACY_UP:
+    case EFFECT_EVASION_UP:
+    case EFFECT_ATTACK_DOWN:
+    case EFFECT_DEFENSE_DOWN:
+    case EFFECT_SPEED_DOWN:
+    case EFFECT_SPECIAL_ATTACK_DOWN:
+    case EFFECT_SPECIAL_DEFENSE_DOWN:
+    case EFFECT_ACCURACY_DOWN:
+    case EFFECT_EVASION_DOWN:
+    case EFFECT_CONVERSION:
+    case EFFECT_LIGHT_SCREEN:
+    case EFFECT_SPECIAL_DEFENSE_UP_2:
+    case EFFECT_FOCUS_ENERGY:
+    case EFFECT_CONFUSE:
+    case EFFECT_ATTACK_UP_2:
+    case EFFECT_DEFENSE_UP_2:
+    case EFFECT_SPEED_UP_2:
+    case EFFECT_SPECIAL_ATTACK_UP_2:
+    case EFFECT_ACCURACY_UP_2:
+    case EFFECT_EVASION_UP_2:
+    case EFFECT_ATTACK_DOWN_2:
+    case EFFECT_DEFENSE_DOWN_2:
+    case EFFECT_SPEED_DOWN_2:
+    case EFFECT_SPECIAL_ATTACK_DOWN_2:
+    case EFFECT_SPECIAL_DEFENSE_DOWN_2:
+    case EFFECT_ACCURACY_DOWN_2:
+    case EFFECT_EVASION_DOWN_2:
+    case EFFECT_REFLECT:
+    case EFFECT_POISON:
+    case EFFECT_PARALYZE:
+    case EFFECT_SUBSTITUTE:
+    case EFFECT_LEECH_SEED:
+    case EFFECT_MINIMIZE:
+    case EFFECT_CURSE:
+    case EFFECT_SWAGGER:
+    case EFFECT_YAWN:
+    case EFFECT_DEFENSE_CURL:
+    case EFFECT_TORMENT:
+    case EFFECT_FLATTER:
+    case EFFECT_WILL_O_WISP:
+    case EFFECT_INGRAIN:
+    case EFFECT_IMPRISON:
+    case EFFECT_TEETER_DANCE:
+    case EFFECT_TICKLE:
+    case EFFECT_COSMIC_POWER:
+    case EFFECT_BULK_UP:
+    case EFFECT_CALM_MIND:
+    case EFFECT_CAMOUFLAGE:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+static void battle_ai_apply_setup_first_turn(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    int scores[4])
+{
+    const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
+    uint8_t slot;
+
+    if (!battle_ai_is_first_turn(battle, user))
+        return;
+
+    for (slot = 0; slot < 4; ++slot) {
+        const RemasterEmeraldMoveInfo *move;
+
+        if (scores[slot] < 0)
+            continue;
+        move = remaster_emerald_move_info(user->moves[slot]);
+        if (move != 0
+            && battle_ai_setup_effect(move->effect)
+            && remaster_emerald_battle_random(&battle->rng) % 256u >= 80u)
+            battle_ai_score_add(scores, slot, 2);
+    }
+}
+
+static int battle_ai_risky_effect(uint8_t effect)
+{
+    switch (effect) {
+    case EFFECT_SLEEP:
+    case EFFECT_EXPLOSION:
+    case EFFECT_MIRROR_MOVE:
+    case EFFECT_OHKO:
+    case EFFECT_HIGH_CRITICAL:
+    case EFFECT_CONFUSE:
+    case EFFECT_METRONOME:
+    case EFFECT_PSYWAVE:
+    case EFFECT_COUNTER:
+    case EFFECT_DESTINY_BOND:
+    case EFFECT_SWAGGER:
+    case EFFECT_ATTRACT:
+    case EFFECT_PRESENT:
+    case EFFECT_ALL_STATS_UP_HIT:
+    case EFFECT_BELLY_DRUM:
+    case EFFECT_MIRROR_COAT:
+    case EFFECT_FOCUS_PUNCH:
+    case EFFECT_REVENGE:
+    case EFFECT_TEETER_DANCE:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+static void battle_ai_apply_risky(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    int scores[4])
+{
+    const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
+    uint8_t slot;
+
+    for (slot = 0; slot < 4; ++slot) {
+        const RemasterEmeraldMoveInfo *move;
+
+        if (scores[slot] < 0)
+            continue;
+        move = remaster_emerald_move_info(user->moves[slot]);
+        if (move != 0
+            && battle_ai_risky_effect(move->effect)
+            && remaster_emerald_battle_random(&battle->rng) % 256u >= 128u)
+            battle_ai_score_add(scores, slot, 2);
+    }
+}
+
+static int battle_ai_choose_trainer_move(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t target,
+    uint8_t *out_slot)
+{
+    const RemasterEmeraldBattleMon *user = &battle->battlers[battler];
+    uint32_t flags = battle->opponent_trainer_ai_flags;
+    int scores[4];
+    uint8_t best_slots[4];
+    uint8_t best_count = 0;
+    int best_score = -1;
+    uint8_t slot;
+
+    for (slot = 0; slot < 4; ++slot) {
+        scores[slot] = battle_ai_move_usable(user, slot) ? 100 : -1;
+    }
+
+    if (flags & REMASTER_EMERALD_AI_CHECK_BAD_MOVE)
+        battle_ai_apply_check_bad_move(
+            battle, battler, target, scores);
+    if (flags & REMASTER_EMERALD_AI_TRY_TO_FAINT)
+        battle_ai_apply_try_to_faint(
+            battle, battler, target, scores);
+    if (flags & REMASTER_EMERALD_AI_CHECK_VIABILITY)
+        battle_ai_apply_check_viability(
+            battle, battler, target, scores);
+    if (flags & REMASTER_EMERALD_AI_SETUP_FIRST_TURN)
+        battle_ai_apply_setup_first_turn(
+            battle, battler, scores);
+    if (flags & REMASTER_EMERALD_AI_RISKY)
+        battle_ai_apply_risky(
+            battle, battler, scores);
+
+    for (slot = 0; slot < 4; ++slot) {
+        if (scores[slot] < 0)
+            continue;
+        if (scores[slot] > best_score) {
+            best_score = scores[slot];
+            best_slots[0] = slot;
+            best_count = 1;
+        } else if (scores[slot] == best_score) {
+            best_slots[best_count++] = slot;
+        }
+    }
+
+    if (best_count == 0)
+        return 0;
+
+    *out_slot = best_slots[
+        remaster_emerald_battle_random(&battle->rng) % best_count];
+    return 1;
+}
+
 int remaster_emerald_battle_choose_ai_action(
     RemasterEmeraldBattleState *battle,
     uint8_t battler,
@@ -5190,19 +5894,27 @@ int remaster_emerald_battle_choose_ai_action(
         return 0;
 
     target = battle_default_target(battle, battler);
-    for (slot = 0; slot < 4; ++slot) {
-        int score = battle_move_score(
-            battle, battler, target, slot);
-        if (score > best_score
-            || (score == best_score
-                && (remaster_emerald_battle_random(&battle->rng) & 1u))) {
-            best_score = score;
-            best_slot = slot;
-        }
-    }
 
-    if (best_score == INT_MIN)
-        return 0;
+    if ((battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_TRAINER)
+        && mon->side == 1) {
+        if (!battle_ai_choose_trainer_move(
+                battle, battler, target, &best_slot))
+            return 0;
+    } else {
+        for (slot = 0; slot < 4; ++slot) {
+            int score = battle_move_score(
+                battle, battler, target, slot);
+            if (score > best_score
+                || (score == best_score
+                    && (remaster_emerald_battle_random(&battle->rng) & 1u))) {
+                best_score = score;
+                best_slot = slot;
+            }
+        }
+
+        if (best_score == INT_MIN)
+            return 0;
+    }
 
     memset(out_action, 0, sizeof(*out_action));
     out_action->kind = REMASTER_EMERALD_BATTLE_ACTION_MOVE;
