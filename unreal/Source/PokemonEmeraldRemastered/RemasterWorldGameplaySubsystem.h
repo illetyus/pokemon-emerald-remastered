@@ -265,8 +265,8 @@ public:
     UPROPERTY(BlueprintAssignable, Category="Remaster|World|Gameplay")
     FRemasterWildEncounterGenerated OnWildEncounterGenerated;
 
-    UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
-    void SetEncounterSeed(int64 Seed);
+    // Host-only entropy/test injection. Not exposed to Blueprint/presentation.
+    void SetEncounterSeed(uint32 Seed);
 
     UFUNCTION(BlueprintPure, Category="Remaster|World|Gameplay")
     FRemasterWildEncounterPresentation GetLastWildEncounter() const
