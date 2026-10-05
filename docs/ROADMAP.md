@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
 Date: 2026-10-04  
-Status: **R0-R5 and R10-R11 complete; R12 is the next implementation phase.**
+Status: **R0-R5 and R10-R12 complete; R13 is the next implementation phase.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -222,7 +222,7 @@ save compatibility.
 
 ## R12 — Encounter system
 
-**Status: NEXT.**
+**Status: COMPLETE.** See `docs/R12_ENCOUNTER_SYSTEM.md`.
 
 ### Goal
 
@@ -250,6 +250,8 @@ Port the real Emerald encounter decision path, not merely encounter tables.
 - R3/R4 world ownership remains unchanged.
 
 ## R13 — Battle core
+
+**Status: NEXT.**
 
 ### Goal
 
@@ -881,9 +883,9 @@ of successful UE compilation or Android runtime.
 
 # 14. Immediate next action
 
-The next implementation phase is **R12 — Encounter system**.
+The next implementation phase is **R13 — Battle core**.
 
-Before R12 implementation:
+Before R13 implementation:
 
 1. re-check current `main` after the R11 merge;
 2. verify open PRs do not conflict;
