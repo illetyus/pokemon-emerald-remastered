@@ -5242,42 +5242,22 @@ int remaster_emerald_battle_resolve_turn(
                 : 0;
 
             if (chosen != 0 && chosen->effect == EFFECT_BATON_PASS) {
-                uint8_t stages[REMASTER_EMERALD_BATTLE_STAT_COUNT];
-                uint32_t status2 = battle->battlers[battler].status2;
-                uint16_t substitute_hp =
-                    battle->battlers[battler].substitute_hp;
                 uint8_t slot = action->party_slot;
+                uint8_t side = battle->battlers[battler].side;
 
-                memcpy(
-                    stages,
-                    battle->battlers[battler].stat_stages,
-                    sizeof(stages));
+                if (slot >= battle->party_count[side]
+                    || battle->parties[side][slot].hp == 0
+                    || battle_party_slot_active(battle, side, slot)) {
+                    if (!battle_find_switch_slot(battle, side, &slot))
+                        break;
+                }
 
                 if (remaster_emerald_battle_use_move(
                         battle,
                         battler,
                         action->target,
-                        action->move_slot)) {
-                    uint8_t side = battle->battlers[battler].side;
-                    if (slot >= battle->party_count[side]
-                        || battle->parties[side][slot].hp == 0
-                        || battle_party_slot_active(battle, side, slot)) {
-                        if (!battle_find_switch_slot(
-                                battle, side, &slot))
-                            break;
-                    }
-
-                    if (remaster_emerald_battle_switch(
-                            battle, battler, slot)) {
-                        memcpy(
-                            battle->battlers[battler].stat_stages,
-                            stages,
-                            sizeof(stages));
-                        battle->battlers[battler].status2 = status2;
-                        battle->battlers[battler].substitute_hp =
-                            substitute_hp;
-                    }
-                }
+                        action->move_slot))
+                    battle_baton_pass(battle, battler, slot);
             } else {
                 remaster_emerald_battle_use_move(
                     battle,
