@@ -201,7 +201,7 @@ int main(void)
                 "when a usable reserve exists"))
             return 1;
 
-        battle.turn_number = 1;
+        battle.turn_number = 2;
         battle.battlers[1].stat_stages[1] = 9;
         if (!check(
                 remaster_emerald_battle_choose_ai_action(
