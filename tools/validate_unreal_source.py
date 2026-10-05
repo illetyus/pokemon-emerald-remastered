@@ -113,6 +113,39 @@ def main() -> int:
     for filename in required_runtime_files:
         require((MODULE / filename).is_file(), f"missing runtime layer: {filename}", errors)
 
+    navigation_h = (
+        MODULE / "RemasterNavigationSubsystem.h"
+    ).read_text(encoding="utf-8")
+    navigation_cpp = (
+        MODULE / "RemasterNavigationSubsystem.cpp"
+    ).read_text(encoding="utf-8")
+    require(
+        "bool RefreshFromCore()" in navigation_h
+        and "SetActiveObjective" not in navigation_h
+        and "ClearActiveObjective" not in navigation_h,
+        "R10 navigation must derive objectives from core instead of accepting Unreal-authored progression",
+        errors,
+    )
+    require(
+        '#include "remaster/emerald_quest.h"' in navigation_cpp
+        and "remaster_emerald_quest_active(Save)" in navigation_cpp
+        and "GetNativeSaveHandle()" in navigation_cpp,
+        "R10 navigation must consume the portable quest resolver and authoritative save",
+        errors,
+    )
+    require(
+        "OnGameplayMapChanged.AddDynamic(" in navigation_cpp
+        and "HandleGameplayMapChanged(" in navigation_cpp,
+        "R10 navigation must refresh presentation context after authoritative map changes",
+        errors,
+    )
+    require(
+        "remaster_emerald_flag_set(" not in navigation_cpp
+        and "remaster_emerald_var_set(" not in navigation_cpp,
+        "R10 navigation presentation must never mutate Emerald story flags/vars",
+        errors,
+    )
+
     # Guard against accidentally keying visuals by full map words. Visual
     # selection must use decoded metatile IDs while collision/elevation remain
     # gameplay/domain data.
