@@ -147,6 +147,24 @@ class R13BattleSourceContract(unittest.TestCase):
             portable,
         )
 
+    def test_faint_replacement_contract_is_explicit(self):
+        portable = R13.read_text(encoding="utf-8")
+        header = (
+            ROOT / "core/include/remaster/emerald_battle.h"
+        ).read_text(encoding="utf-8")
+
+        for symbol in (
+            "remaster_emerald_battle_needs_replacement",
+            "remaster_emerald_battle_replace_fainted",
+        ):
+            self.assertIn(symbol, header)
+            self.assertIn(symbol, portable)
+
+        self.assertIn(
+            "battle_handle_pending_replacements",
+            portable,
+        )
+
     def test_move_effect_count_is_gen3_contract(self):
         text = (VENDOR / "include/constants/battle_move_effects.h").read_text(
             encoding="utf-8"
