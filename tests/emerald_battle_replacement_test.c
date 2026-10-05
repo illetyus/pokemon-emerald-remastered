@@ -79,6 +79,7 @@ static int make_mon(
 
 static int test_trainer_replacement(void)
 {
+    static const uint16_t quick_attack[4] = {98, 0, 0, 0};
     static const uint16_t tackle[4] = {33, 0, 0, 0};
     RemasterEmeraldBattleState battle;
     RemasterEmeraldPartyPokemon player;
@@ -87,7 +88,7 @@ static int test_trainer_replacement(void)
         REMASTER_EMERALD_BATTLE_MAX_BATTLERS] = {{0}};
     uint32_t turn_after_faint;
 
-    if (!make_mon(&player, 1, 60, tackle)
+    if (!make_mon(&player, 1, 60, quick_attack)
         || !make_mon(&foes[0], 4, 5, tackle)
         || !make_mon(&foes[1], 7, 10, tackle))
         return check(0, "trainer replacement fixtures should build");
