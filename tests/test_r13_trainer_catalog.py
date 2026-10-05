@@ -32,6 +32,8 @@ class R13TrainerCatalogTest(unittest.TestCase):
             self.assertEqual(report["trainer_entry_count"], 857)
             self.assertEqual(report["max_trainer_id"], 856)
             self.assertEqual(report["party_array_count"], 856)
+            self.assertEqual(report["trainer_money_class_count"], 57)
+            self.assertEqual(report["trainer_money_default"], 5)
             self.assertEqual(
                 report["party_variant_counts"],
                 {
@@ -48,6 +50,10 @@ class R13TrainerCatalogTest(unittest.TestCase):
             self.assertIn("/* TRAINER_GABBY_AND_TY_1 */", text)
             self.assertIn('"SAWYER"', text)
             self.assertIn('"GABBY & TY"', text)
+            self.assertIn(
+                "static const uint8_t kRemasterEmeraldTrainerMoneyValues[]",
+                text,
+            )
 
 
 if __name__ == "__main__":
