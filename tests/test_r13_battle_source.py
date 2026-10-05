@@ -46,6 +46,23 @@ class R13BattleSourceContract(unittest.TestCase):
         self.assertIn(".aiFlags =", trainers)
         self.assertIn(".party =", trainers)
 
+    def test_trainer_party_construction_matches_vanillaplus(self):
+        text = (VENDOR / "src/battle_main.c").read_text(encoding="utf-8")
+        self.assertIn("static u8 CreateNPCTrainerParty", text)
+        self.assertIn(
+            "fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;",
+            text,
+        )
+        self.assertIn("personalityValue = 0x80;", text)
+        self.assertIn("personalityValue = 0x78;", text)
+        self.assertIn("personalityValue = 0x88;", text)
+        self.assertIn("personalityValue += nameHash << 8;", text)
+        self.assertIn("OT_ID_RANDOM_NO_SHINY", text)
+        self.assertIn(
+            "gBattleTypeFlags |= gTrainers[trainerNum].doubleBattle;",
+            text,
+        )
+
     def test_move_effect_count_is_gen3_contract(self):
         text = (VENDOR / "include/constants/battle_move_effects.h").read_text(
             encoding="utf-8"
