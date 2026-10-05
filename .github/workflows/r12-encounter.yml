@@ -1,0 +1,53 @@
+name: R12 Encounter
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+      - remaster/r12-**
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: r12-encounter-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  encounter-core:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build R12 targets
+        run: >-
+          cmake --build build --config Release --target
+          emerald_encounter_rng_test
+          emerald_encounter_rules_test
+          emerald_encounter_ecosystem_test
+          emerald_encounter_special_test
+          emerald_encounter_replay_test
+          unreal_cpp_embed_smoke
+
+      - name: Run R12 C regressions
+        run: >-
+          ctest --test-dir build -C Release
+          -R "r12_encounter_rng|r12_encounter_rules|r12_encounter_ecosystem|r12_encounter_special|r12_encounter_replay|unreal_cpp_embed"
+          --output-on-failure
+
+      - name: Audit pinned Vanilla+ encounter data
+        run: python -m unittest tests/test_r12_encounter_catalog.py -v
+
+      - name: Validate Unreal source boundary
+        run: python tools/validate_unreal_source.py

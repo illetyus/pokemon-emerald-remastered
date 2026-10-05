@@ -18,6 +18,52 @@ enum class ERemasterPlayerStepKind : uint8
     Connection
 };
 
+UENUM(BlueprintType)
+enum class ERemasterWildEncounterKind : uint8
+{
+    None,
+    Regular,
+    Roamer,
+    Outbreak,
+    RockSmash,
+    Fishing,
+    BattlePike,
+    BattlePyramid
+};
+
+USTRUCT(BlueprintType)
+struct FRemasterWildEncounterPresentation
+{
+    GENERATED_BODY()
+
+    UPROPERTY(BlueprintReadOnly)
+    bool bOccurred = false;
+
+    UPROPERTY(BlueprintReadOnly)
+    ERemasterWildEncounterKind Kind = ERemasterWildEncounterKind::None;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 Species = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 Level = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 Nature = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 Gender = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 AbilitySlot = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int64 RngCallsBefore = 0;
+
+    UPROPERTY(BlueprintReadOnly)
+    int64 RngCallsAfter = 0;
+};
+
 USTRUCT(BlueprintType)
 struct FRemasterPlayerStepResult
 {
@@ -64,6 +110,15 @@ struct FRemasterPlayerStepResult
 
     UPROPERTY(BlueprintReadOnly)
     int32 MapNum = -1;
+
+    UPROPERTY(BlueprintReadOnly)
+    bool bRepelWoreOff = false;
+
+    UPROPERTY(BlueprintReadOnly)
+    bool bEncounterPending = false;
+
+    UPROPERTY(BlueprintReadOnly)
+    FRemasterWildEncounterPresentation Encounter;
 };
 
 USTRUCT(BlueprintType)
@@ -189,6 +244,11 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
     FString,
     MapId);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+    FRemasterWildEncounterGenerated,
+    const FRemasterWildEncounterPresentation&,
+    Encounter);
+
 UCLASS()
 class POKEMONEMERALDREMASTERED_API URemasterWorldGameplaySubsystem
     : public UGameInstanceSubsystem
@@ -201,6 +261,18 @@ public:
 
     UPROPERTY(BlueprintAssignable, Category="Remaster|World|Gameplay")
     FRemasterGameplayMapChanged OnGameplayMapChanged;
+
+    UPROPERTY(BlueprintAssignable, Category="Remaster|World|Gameplay")
+    FRemasterWildEncounterGenerated OnWildEncounterGenerated;
+
+    // Host-only entropy/test injection. Not exposed to Blueprint/presentation.
+    void SetEncounterSeed(uint32 Seed);
+
+    UFUNCTION(BlueprintPure, Category="Remaster|World|Gameplay")
+    FRemasterWildEncounterPresentation GetLastWildEncounter() const
+    {
+        return LastWildEncounter;
+    }
 
     /*
      * Loads the map addressed by the legacy save. When bResetTemporaryState is
@@ -319,8 +391,16 @@ private:
         int32 StepDirection,
         bool bLedgeJump,
         FRemasterPlayerStepResult& OutResult);
+    bool ProcessEncounterAfterMove(
+        int32 PreviousBehavior,
+        FRemasterPlayerStepResult& OutResult);
 
     FRemasterMapIR CurrentMap;
     void* NativeObjectRuntime = nullptr;
+    void* NativeEncounterRuntime = nullptr;
+
+    UPROPERTY()
+    FRemasterWildEncounterPresentation LastWildEncounter;
+
     bool bMapReady = false;
 };

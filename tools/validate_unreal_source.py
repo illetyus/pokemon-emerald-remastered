@@ -37,6 +37,7 @@ def main() -> int:
         "RemasterEmeraldQuestEmbed.cpp": "../../../core/src/emerald_quest.c",
         "RemasterEmeraldPokemonEmbed.cpp": "../../../core/src/emerald_pokemon.c",
         "RemasterEmeraldItemsEmbed.cpp": "../../../core/src/emerald_items.c",
+        "RemasterEmeraldEncounterEmbed.cpp": "../../../core/src/emerald_encounter.c",
         "RemasterEmeraldMapEmbed.cpp": "../../../core/src/emerald_map.c",
         "RemasterEmeraldMovementEmbed.cpp": "../../../core/src/emerald_movement.c",
         "RemasterEmeraldEventsEmbed.cpp": "../../../core/src/emerald_events.c",
@@ -145,6 +146,48 @@ def main() -> int:
         "remaster_emerald_flag_set(" not in navigation_cpp
         and "remaster_emerald_var_set(" not in navigation_cpp,
         "R10 navigation presentation must never mutate Emerald story flags/vars",
+        errors,
+    )
+
+    world_gameplay_h = (
+        MODULE / "RemasterWorldGameplaySubsystem.h"
+    ).read_text(encoding="utf-8")
+    world_gameplay_cpp = (
+        MODULE / "RemasterWorldGameplaySubsystem.cpp"
+    ).read_text(encoding="utf-8")
+    require(
+        "FRemasterWildEncounterPresentation" in world_gameplay_h
+        and "OnWildEncounterGenerated" in world_gameplay_h
+        and "NativeEncounterRuntime" in world_gameplay_h,
+        "R12 world host must expose presentation-only encounter results and hold opaque portable runtime state",
+        errors,
+    )
+    require(
+        '#include "remaster/emerald_encounter.h"' in world_gameplay_cpp
+        and "remaster_emerald_encounter_runtime_init(" in world_gameplay_cpp
+        and "remaster_emerald_encounter_step(" in world_gameplay_cpp
+        and "ProcessEncounterAfterMove(" in world_gameplay_cpp,
+        "R12 moved-step adapter must call the portable encounter runtime",
+        errors,
+    )
+    require(
+        "Phase9ChooseWildSpecies" not in world_gameplay_cpp
+        and "Random()" not in world_gameplay_cpp
+        and "encounterRate *=" not in world_gameplay_cpp,
+        "R12 Unreal host must not reimplement species/RNG/encounter-rate authority",
+        errors,
+    )
+    require(
+        "void SetEncounterSeed(uint32 Seed);" in world_gameplay_h
+        and 'UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")\n    void SetEncounterSeed' not in world_gameplay_h,
+        "R12 encounter RNG seed injection must remain host-only and unavailable to Blueprint presentation",
+        errors,
+    )
+    require(
+        "remaster_emerald_encounter_restart_immunity(" in world_gameplay_cpp
+        and "remaster_emerald_encounter_roamer_move(" in world_gameplay_cpp
+        and "remaster_emerald_encounter_roamer_warp(" in world_gameplay_cpp,
+        "R12 map transitions must preserve Vanilla immunity and roamer transition semantics",
         errors,
     )
 
