@@ -456,7 +456,9 @@ static void battle_sync_battler(
         || mon->party_slot >= battle->party_count[mon->side])
         return;
 
-    mon->pokemon.status = mon->pokemon.status;
+    remaster_emerald_box_pokemon_set_held_item(
+        &mon->pokemon.box,
+        mon->held_item);
     mon->pokemon.box.checksum =
         remaster_emerald_box_pokemon_checksum(&mon->pokemon.box);
     battle->parties[mon->side][mon->party_slot] = mon->pokemon;
@@ -3389,6 +3391,9 @@ int remaster_emerald_battle_throw_ball(
     if (shakes == 4) {
         battle->caught_valid = 1;
         battle->caught_pokemon = target->pokemon;
+        remaster_emerald_box_pokemon_set_pokeball(
+            &battle->caught_pokemon.box,
+            (uint8_t)ball_item_id);
         battle->caught_pokemon.box.checksum =
             remaster_emerald_box_pokemon_checksum(
                 &battle->caught_pokemon.box);
