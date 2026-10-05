@@ -127,6 +127,10 @@ typedef struct RemasterEmeraldEncounterRuntime {
     uint8_t roamer_map_num;
     uint8_t roamer_location_valid;
     uint8_t roamer_location_history[3][2];
+
+    uint8_t wild_immunity_steps;
+    uint8_t previous_behavior;
+    uint8_t previous_behavior_valid;
 } RemasterEmeraldEncounterRuntime;
 
 typedef struct RemasterEmeraldEncounterResult {
@@ -156,6 +160,9 @@ uint32_t remaster_emerald_encounter_random32(
 void remaster_emerald_encounter_runtime_init(
     RemasterEmeraldEncounterRuntime *runtime,
     uint32_t seed);
+
+void remaster_emerald_encounter_restart_immunity(
+    RemasterEmeraldEncounterRuntime *runtime);
 
 size_t remaster_emerald_encounter_map_count(void);
 const RemasterEmeraldEncounterMapInfo *remaster_emerald_encounter_map_at(
