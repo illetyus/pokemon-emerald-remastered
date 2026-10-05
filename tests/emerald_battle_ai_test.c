@@ -163,6 +163,60 @@ int main(void)
     }
 
     {
+        static const uint16_t foe_active_moves[4] = {14, 226, 33, 0};
+        static const uint16_t foe_reserve_moves[4] = {33, 0, 0, 0};
+        RemasterEmeraldPartyPokemon player;
+        RemasterEmeraldPartyPokemon foes[2];
+
+        if (!check(
+                make_mon(&player, 1, 30, player_moves)
+                    && make_mon(&foes[0], 4, 30, foe_active_moves)
+                    && make_mon(&foes[1], 37, 30, foe_reserve_moves),
+                "prefer-baton-pass fixtures should build"))
+            return 1;
+
+        remaster_emerald_battle_state_init(
+            &battle,
+            REMASTER_EMERALD_BATTLE_TYPE_MASTER
+                | REMASTER_EMERALD_BATTLE_TYPE_TRAINER,
+            0xB4700A55u);
+        if (!check(
+                remaster_emerald_battle_start(
+                    &battle, &player, 1, foes, 2),
+                "prefer-baton-pass trainer battle should start"))
+            return 1;
+
+        battle.opponent_trainer_ai_flags =
+            REMASTER_EMERALD_AI_PREFER_BATON_PASS;
+
+        if (!check(
+                remaster_emerald_battle_choose_ai_action(
+                    &battle, 1, &action),
+                "prefer-baton-pass AI should choose a first-turn move"))
+            return 1;
+
+        if (!check(
+                action.move_slot == 0,
+                "PreferBatonPass must give first-turn Swords Dance +5 "
+                "when a usable reserve exists"))
+            return 1;
+
+        battle.turn_number = 1;
+        battle.battlers[1].stat_stages[1] = 9;
+        if (!check(
+                remaster_emerald_battle_choose_ai_action(
+                    &battle, 1, &action),
+                "prefer-baton-pass AI should choose after setup"))
+            return 1;
+
+        if (!check(
+                action.move_slot == 1,
+                "PreferBatonPass must give Baton Pass +3 when Attack "
+                "is more than two stages above neutral"))
+            return 1;
+    }
+
+    {
         static const uint16_t foe_moves[4] = {63, 98, 0, 0};
 
         if (!check(
