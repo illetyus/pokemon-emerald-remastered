@@ -372,6 +372,7 @@ enum {
     MOVE_DIG = 91,
     MOVE_MIMIC = 102,
     MOVE_METRONOME = 118,
+    MOVE_MIRROR_MOVE = 119,
     MOVE_SWIFT = 129,
     MOVE_ROCK_SLIDE = 157,
     MOVE_STRUGGLE = 165,
@@ -919,6 +920,10 @@ static void battle_clear_charge(RemasterEmeraldBattleMon *mon)
         | REMASTER_EMERALD_STATUS3_UNDERWATER);
 }
 
+static uint8_t battle_default_target(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t battler);
+
 static int battle_move_invalid_for_sleep_assist(uint16_t move_id)
 {
     const RemasterEmeraldMoveInfo *move =
@@ -928,7 +933,7 @@ static int battle_move_invalid_for_sleep_assist(uint16_t move_id)
         || move_id == 0
         || move_id == MOVE_SLEEP_TALK
         || move_id == MOVE_ASSIST
-        || move_id == 119
+        || move_id == MOVE_MIRROR_MOVE
         || move_id == MOVE_METRONOME)
         return 1;
 
@@ -1791,15 +1796,20 @@ int remaster_emerald_battle_calculate_damage(
             ? UINT16_MAX
             : power * 2u);
 
-    type_multiplier = battle_type_multiplier(defender, move_type);
+    type_multiplier = move->power == 0
+        ? 10u
+        : battle_type_multiplier(defender, move_type);
 
-    if (defender->ability == ABILITY_VOLT_ABSORB
+    if (move->power != 0
+        && defender->ability == ABILITY_VOLT_ABSORB
         && move_type == TYPE_ELECTRIC)
         type_multiplier = 0;
-    if (defender->ability == ABILITY_WATER_ABSORB
+    if (move->power != 0
+        && defender->ability == ABILITY_WATER_ABSORB
         && move_type == TYPE_WATER)
         type_multiplier = 0;
-    if (defender->ability == ABILITY_FLASH_FIRE
+    if (move->power != 0
+        && defender->ability == ABILITY_FLASH_FIRE
         && move_type == TYPE_FIRE)
         type_multiplier = 0;
     if (defender->ability == ABILITY_WONDER_GUARD
@@ -3031,13 +3041,19 @@ static int battle_can_act(
     uint16_t move_id)
 {
     RemasterEmeraldBattleMon *mon;
+    const RemasterEmeraldMoveInfo *move;
     uint32_t turns;
     uint16_t self_damage;
+    int usable_while_asleep;
 
     if (battle == 0 || !battle_valid_battler(battler))
         return 0;
 
     mon = &battle->battlers[battler];
+    move = remaster_emerald_move_info(move_id);
+    usable_while_asleep = move != 0
+        && (move->effect == EFFECT_SLEEP_TALK
+            || move->effect == EFFECT_SNORE);
 
     if (mon->status2 & REMASTER_EMERALD_STATUS2_RECHARGE) {
         mon->status2 &= ~REMASTER_EMERALD_STATUS2_RECHARGE;
@@ -3055,16 +3071,21 @@ static int battle_can_act(
         mon->pokemon.status =
             (mon->pokemon.status & ~REMASTER_EMERALD_STATUS1_SLEEP)
             | turns;
-        if (turns != 0)
-            return 0;
-        battle_event(
-            battle,
-            REMASTER_EMERALD_BATTLE_EVENT_STATUS,
-            battler,
-            battler,
-            move_id,
-            0,
-            REMASTER_EMERALD_STATUS1_SLEEP);
+        if (turns != 0) {
+            if (!usable_while_asleep)
+                return 0;
+        } else {
+            battle_event(
+                battle,
+                REMASTER_EMERALD_BATTLE_EVENT_STATUS,
+                battler,
+                battler,
+                move_id,
+                0,
+                REMASTER_EMERALD_STATUS1_SLEEP);
+            if (usable_while_asleep)
+                return 0;
+        }
     }
 
     if (mon->pokemon.status & REMASTER_EMERALD_STATUS1_FREEZE) {
@@ -3445,6 +3466,152 @@ int remaster_emerald_battle_use_move(
                 1,
                 move_id);
         battle_sync_battler(battle, attacker_id);
+        return 1;
+    }
+
+    if (move->effect == EFFECT_SNORE
+        && !(attacker->pokemon.status & REMASTER_EMERALD_STATUS1_SLEEP))
+        return 1;
+
+    if (move->effect == EFFECT_MIRROR_MOVE) {
+        uint16_t called = attacker->last_taken_move;
+        if (called == 0 || battle_move_forbidden_metronome(called))
+            return 1;
+        return battle_call_move(
+            battle,
+            attacker_id,
+            target_id,
+            move_slot,
+            called);
+    }
+
+    if (move->effect == EFFECT_METRONOME) {
+        uint16_t called = 0;
+        uint32_t attempts;
+        for (attempts = 0; attempts < 2048u; ++attempts) {
+            uint16_t candidate = (uint16_t)(
+                (remaster_emerald_battle_random(&battle->rng) & 0x01FFu)
+                + 1u);
+            if (remaster_emerald_move_info(candidate) != 0
+                && !battle_move_forbidden_metronome(candidate)) {
+                called = candidate;
+                break;
+            }
+        }
+        if (called == 0)
+            return 1;
+        return battle_call_move(
+            battle,
+            attacker_id,
+            target_id,
+            move_slot,
+            called);
+    }
+
+    if (move->effect == EFFECT_SLEEP_TALK) {
+        uint8_t candidates[4];
+        uint8_t count = 0;
+        uint8_t i;
+        if (!(attacker->pokemon.status & REMASTER_EMERALD_STATUS1_SLEEP))
+            return 1;
+        for (i = 0; i < 4; ++i) {
+            if (!battle_move_invalid_for_sleep_assist(attacker->moves[i]))
+                candidates[count++] = i;
+        }
+        if (count == 0)
+            return 1;
+        {
+            uint8_t chosen = candidates[
+                remaster_emerald_battle_random(&battle->rng) % count];
+            return battle_call_move(
+                battle,
+                attacker_id,
+                target_id,
+                move_slot,
+                attacker->moves[chosen]);
+        }
+    }
+
+    if (move->effect == EFFECT_ASSIST) {
+        uint16_t candidates[24];
+        uint8_t count = 0;
+        uint8_t p;
+        for (p = 0; p < battle->party_count[attacker->side]; ++p) {
+            uint16_t party_moves[4];
+            uint8_t party_pp[4];
+            uint8_t i;
+            if (p == attacker->party_slot)
+                continue;
+            if (remaster_emerald_box_pokemon_species(
+                    &battle->parties[attacker->side][p].box) == 0)
+                continue;
+            remaster_emerald_box_pokemon_moves(
+                &battle->parties[attacker->side][p].box,
+                party_moves,
+                party_pp);
+            for (i = 0; i < 4; ++i) {
+                uint16_t candidate = party_moves[i];
+                if (candidate != 0
+                    && !battle_move_invalid_for_sleep_assist(candidate)
+                    && !battle_move_forbidden_metronome(candidate)
+                    && count < 24)
+                    candidates[count++] = candidate;
+            }
+        }
+        if (count == 0)
+            return 1;
+        return battle_call_move(
+            battle,
+            attacker_id,
+            target_id,
+            move_slot,
+            candidates[
+                ((uint32_t)(remaster_emerald_battle_random(&battle->rng)
+                    & 0xFFu)
+                 * count)
+                >> 8u]);
+    }
+
+    if (move->effect == EFFECT_NATURE_POWER)
+        return battle_call_move(
+            battle,
+            attacker_id,
+            target_id,
+            move_slot,
+            battle_nature_power_move(battle->terrain));
+
+    if (move->effect == EFFECT_MIMIC) {
+        const RemasterEmeraldMoveInfo *copied;
+        if (target->last_move == 0
+            || target->last_move == MOVE_METRONOME
+            || target->last_move == MOVE_STRUGGLE
+            || target->last_move == MOVE_SKETCH
+            || target->last_move == MOVE_MIMIC)
+            return 1;
+        copied = remaster_emerald_move_info(target->last_move);
+        if (copied == 0)
+            return 1;
+        attacker->moves[move_slot] = target->last_move;
+        attacker->pp[move_slot] = copied->pp < 5u ? copied->pp : 5u;
+        return 1;
+    }
+
+    if (move->effect == EFFECT_SKETCH) {
+        const RemasterEmeraldMoveInfo *copied;
+        if (target->last_move == 0
+            || target->last_move == MOVE_STRUGGLE
+            || target->last_move == MOVE_SKETCH)
+            return 1;
+        copied = remaster_emerald_move_info(target->last_move);
+        if (copied == 0)
+            return 1;
+        attacker->moves[move_slot] = target->last_move;
+        attacker->pp[move_slot] = copied->pp;
+        remaster_emerald_box_pokemon_set_move(
+            &attacker->pokemon.box,
+            move_slot,
+            target->last_move,
+            copied->pp);
         return 1;
     }
 
