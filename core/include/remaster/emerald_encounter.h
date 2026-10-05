@@ -135,6 +135,7 @@ typedef struct RemasterEmeraldEncounterRuntime {
 
 typedef struct RemasterEmeraldEncounterResult {
     uint8_t occurred;
+    uint8_t repel_wore_off;
     uint8_t kind;
     uint8_t area;
     uint8_t rod;
