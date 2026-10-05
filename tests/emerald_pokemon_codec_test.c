@@ -137,7 +137,7 @@ int main(void)
         generated.personality = (uint32_t)i;
         generated.ot_id = UINT32_C(0x10203040) + (uint32_t)i;
         generated.language = 2;
-        generated.has_species = 1;
+        generated.header_flags = 0x02;
 
         for (substruct = 0; substruct < 4; ++substruct) {
             for (byte_index = 0; byte_index < 12; ++byte_index) {
