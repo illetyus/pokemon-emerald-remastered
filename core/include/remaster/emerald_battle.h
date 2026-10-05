@@ -333,6 +333,10 @@ uint32_t remaster_emerald_battle_random32(
 int remaster_emerald_battle_trainer_validate(
     const RemasterEmeraldTrainer *trainer);
 
+size_t remaster_emerald_battle_trainer_count(void);
+const RemasterEmeraldTrainer *remaster_emerald_battle_trainer_find(
+    uint16_t trainer_id);
+
 void remaster_emerald_battle_state_init(
     RemasterEmeraldBattleState *battle,
     uint32_t battle_type_flags,
