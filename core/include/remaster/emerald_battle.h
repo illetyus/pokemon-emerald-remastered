@@ -341,6 +341,10 @@ size_t remaster_emerald_battle_trainer_count(void);
 const RemasterEmeraldTrainer *remaster_emerald_battle_trainer_find(
     uint16_t trainer_id);
 
+uint32_t remaster_emerald_battle_trainer_reward(
+    uint16_t trainer_id,
+    uint8_t money_multiplier);
+
 int remaster_emerald_battle_build_trainer_party(
     RemasterEmeraldBattleRng *rng,
     uint16_t trainer_id,
