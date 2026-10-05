@@ -438,6 +438,7 @@ static int battle_load_mon(
     out->party_slot = party_slot;
     out->active = 1;
     out->fainted = pokemon->hp == 0 ? 1u : 0u;
+    out->protected_turn = 0xFFu;
     return 1;
 }
 
