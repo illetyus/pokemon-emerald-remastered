@@ -595,6 +595,22 @@ bool URemasterWorldGameplaySubsystem::LoadCurrentMapFromSave(
 
     CurrentMap = MoveTemp(Loaded);
 
+    if (!NativeEncounterRuntime)
+        return false;
+
+    RemasterEmeraldEncounterRuntime* EncounterRuntime =
+        static_cast<RemasterEmeraldEncounterRuntime*>(
+            NativeEncounterRuntime);
+    remaster_emerald_encounter_restart_immunity(EncounterRuntime);
+    if (!remaster_emerald_encounter_roamer_warp(
+            EncounterRuntime,
+            static_cast<const RemasterEmeraldSave*>(
+                SaveSubsystem->GetNativeSaveHandle())))
+    {
+        return false;
+    }
+    LastWildEncounter = FRemasterWildEncounterPresentation{};
+
     if (!ApplySavedObjectTemplateOverrides())
     {
         UE_LOG(
@@ -682,7 +698,7 @@ bool URemasterWorldGameplaySubsystem::IsObjectVisible(
 }
 
 
-void URemasterWorldGameplaySubsystem::SetEncounterSeed(int64 Seed)
+void URemasterWorldGameplaySubsystem::SetEncounterSeed(uint32 Seed)
 {
     if (!NativeEncounterRuntime)
         return;
@@ -690,7 +706,7 @@ void URemasterWorldGameplaySubsystem::SetEncounterSeed(int64 Seed)
     remaster_emerald_encounter_runtime_init(
         static_cast<RemasterEmeraldEncounterRuntime*>(
             NativeEncounterRuntime),
-        static_cast<uint32>(Seed));
+        Seed);
     LastWildEncounter = FRemasterWildEncounterPresentation{};
 }
 
@@ -1610,6 +1626,23 @@ bool URemasterWorldGameplaySubsystem::ApplyResolvedConnection(
 
     CurrentMap = MoveTemp(TargetMap);
 
+    if (!NativeEncounterRuntime)
+        return false;
+
+    {
+        RemasterEmeraldEncounterRuntime* EncounterRuntime =
+            static_cast<RemasterEmeraldEncounterRuntime*>(
+                NativeEncounterRuntime);
+        remaster_emerald_encounter_restart_immunity(EncounterRuntime);
+        if (!remaster_emerald_encounter_roamer_move(
+                EncounterRuntime,
+                Save))
+        {
+            return false;
+        }
+        LastWildEncounter = FRemasterWildEncounterPresentation{};
+    }
+
     if (!RebuildRuntimeObjectState())
     {
         UE_LOG(
@@ -2132,6 +2165,23 @@ bool URemasterWorldGameplaySubsystem::ApplyResolvedWarp(
     }
 
     CurrentMap = MoveTemp(TargetMap);
+
+    if (!NativeEncounterRuntime)
+        return false;
+
+    {
+        RemasterEmeraldEncounterRuntime* EncounterRuntime =
+            static_cast<RemasterEmeraldEncounterRuntime*>(
+                NativeEncounterRuntime);
+        remaster_emerald_encounter_restart_immunity(EncounterRuntime);
+        if (!remaster_emerald_encounter_roamer_warp(
+                EncounterRuntime,
+                Save))
+        {
+            return false;
+        }
+        LastWildEncounter = FRemasterWildEncounterPresentation{};
+    }
 
     if (!RebuildRuntimeObjectState())
     {
