@@ -66,6 +66,17 @@ class R12EncounterCatalogTest(unittest.TestCase):
         self.assertEqual(report["missing_region_sections"], [])
         self.assertEqual(report["missing_anchor_species"], [])
 
+    def test_phase9_intentionally_owns_species_and_level_selection(self) -> None:
+        source = (VENDOR / "src" / "wild_encounter.c").read_text(encoding="utf-8")
+        start = source.index("static bool8 TryGeneratePhase9WildMon")
+        end = source.index("static u16 GeneratePhase9FishingWildMon", start)
+        block = source[start:end]
+
+        self.assertIn("Phase9ChooseWildSpecies", block)
+        self.assertIn("Phase9ChooseWildLevel", block)
+        self.assertNotIn("TryGetAbilityInfluencedWildMonIndex", block)
+        self.assertNotIn("ChooseWildMonLevel", block)
+
     def test_current_phase9_fishing_does_not_reactivate_legacy_feebas_spots(self) -> None:
         source = (VENDOR / "src" / "wild_encounter.c").read_text(encoding="utf-8")
         self.assertEqual(
