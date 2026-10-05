@@ -1791,6 +1791,12 @@ static int battle_calculate_damage_internal(
         defender,
         move,
         &move_type);
+
+    if (move->effect == EFFECT_PURSUIT
+        && battle->pursuit_boost[attacker_id])
+        power = (uint16_t)(power > UINT16_MAX / 2u
+            ? UINT16_MAX
+            : power * 2u);
     if (move->effect == EFFECT_PURSUIT
         && battle->pursuit_boost[attacker_id])
         power = (uint16_t)(move->power * 2u);
@@ -3124,6 +3130,8 @@ static int battle_apply_primary_effect(
                     battle, attacker, i, move->move_id);
         }
         return 1;
+    case EFFECT_BATON_PASS:
+        return 1;
     case EFFECT_CONVERSION_2: {
         const RemasterEmeraldMoveInfo *last =
             remaster_emerald_move_info(user->last_taken_move);
@@ -4365,6 +4373,63 @@ int remaster_emerald_battle_use_move(
 
     battle_sync_battler(battle, attacker_id);
     battle_sync_battler(battle, target_id);
+    return 1;
+}
+
+static int battle_baton_pass(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t party_slot)
+{
+    RemasterEmeraldBattleMon *old;
+    uint8_t stages[REMASTER_EMERALD_BATTLE_STAT_COUNT];
+    uint32_t status2;
+    uint32_t status3;
+    uint16_t substitute_hp;
+    uint8_t perish_count;
+    uint8_t lock_on_turns;
+    uint8_t lock_on_target;
+
+    if (battle == 0
+        || !battle_valid_battler(battler)
+        || (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_ARENA))
+        return 0;
+
+    old = &battle->battlers[battler];
+    memcpy(stages, old->stat_stages, sizeof(stages));
+    status2 = old->status2
+        & (REMASTER_EMERALD_STATUS2_CONFUSION
+           | REMASTER_EMERALD_STATUS2_FOCUS_ENERGY
+           | REMASTER_EMERALD_STATUS2_SUBSTITUTE
+           | REMASTER_EMERALD_STATUS2_ESCAPE_PREVENTION
+           | REMASTER_EMERALD_STATUS2_CURSED);
+    status3 = old->status3
+        & (UINT32_C(0x00000007)
+           | REMASTER_EMERALD_STATUS3_ALWAYS_HITS
+           | REMASTER_EMERALD_STATUS3_PERISH_SONG
+           | REMASTER_EMERALD_STATUS3_ROOTED
+           | REMASTER_EMERALD_STATUS3_MUD_SPORT
+           | REMASTER_EMERALD_STATUS3_WATER_SPORT);
+    substitute_hp = old->substitute_hp;
+    perish_count = old->perish_count;
+    lock_on_turns = old->lock_on_turns;
+    lock_on_target = old->lock_on_target;
+
+    if (!remaster_emerald_battle_switch(
+            battle,
+            battler,
+            party_slot))
+        return 0;
+
+    old = &battle->battlers[battler];
+    memcpy(old->stat_stages, stages, sizeof(stages));
+    old->status2 = status2;
+    old->status3 = status3;
+    old->substitute_hp = substitute_hp;
+    old->perish_count = perish_count;
+    old->lock_on_turns = lock_on_turns;
+    old->lock_on_target = lock_on_target;
+    battle_sync_battler(battle, battler);
     return 1;
 }
 
