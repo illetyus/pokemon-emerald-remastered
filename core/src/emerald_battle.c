@@ -1,6 +1,7 @@
 #include "remaster/emerald_battle.h"
 
 #include "remaster/emerald_items.h"
+#include "remaster/emerald_state.h"
 
 #include <limits.h>
 #include <string.h>
@@ -62,6 +63,8 @@ enum {
     ABILITY_HYPER_CUTTER = 52,
     ABILITY_TRUANT = 54,
     ABILITY_HUSTLE = 55,
+    ABILITY_PLUS = 57,
+    ABILITY_MINUS = 58,
     ABILITY_SHED_SKIN = 61,
     ABILITY_GUTS = 62,
     ABILITY_MARVEL_SCALE = 63,
@@ -88,11 +91,15 @@ enum {
     HOLD_EFFECT_QUICK_CLAW = 26,
     HOLD_EFFECT_CHOICE_BAND = 29,
     HOLD_EFFECT_BUG_POWER = 31,
+    HOLD_EFFECT_SOUL_DEW = 34,
+    HOLD_EFFECT_DEEP_SEA_TOOTH = 35,
+    HOLD_EFFECT_DEEP_SEA_SCALE = 36,
     HOLD_EFFECT_FOCUS_BAND = 39,
     HOLD_EFFECT_LUCKY_EGG = 40,
     HOLD_EFFECT_SCOPE_LENS = 41,
     HOLD_EFFECT_STEEL_POWER = 42,
     HOLD_EFFECT_LEFTOVERS = 43,
+    HOLD_EFFECT_LIGHT_BALL = 45,
     HOLD_EFFECT_GROUND_POWER = 46,
     HOLD_EFFECT_ROCK_POWER = 47,
     HOLD_EFFECT_GRASS_POWER = 48,
@@ -109,6 +116,8 @@ enum {
     HOLD_EFFECT_DRAGON_POWER = 59,
     HOLD_EFFECT_NORMAL_POWER = 60,
     HOLD_EFFECT_SHELL_BELL = 62,
+    HOLD_EFFECT_METAL_POWDER = 64,
+    HOLD_EFFECT_THICK_CLUB = 65,
 
     EFFECT_HIT = 0,
     EFFECT_SLEEP = 1,
@@ -277,7 +286,17 @@ enum {
     ITEM_REPEAT_BALL = 9,
     ITEM_TIMER_BALL = 10,
     ITEM_LUXURY_BALL = 11,
-    ITEM_PREMIER_BALL = 12
+    ITEM_PREMIER_BALL = 12,
+
+    SPECIES_PIKACHU = 25,
+    SPECIES_CUBONE = 104,
+    SPECIES_MAROWAK = 105,
+    SPECIES_DITTO = 132,
+    SPECIES_CLAMPERL = 373,
+    SPECIES_LATIAS = 407,
+    SPECIES_LATIOS = 408,
+
+    FLAG_BADGE01_GET = 0x867
 };
 
 static const uint8_t kTypeChart[18][18] = {
@@ -520,6 +539,56 @@ static int battle_weather_has_effect(
     return 1;
 }
 
+static int battle_ability_on_field(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t ability)
+{
+    uint8_t i;
+
+    if (battle == 0)
+        return 0;
+
+    for (i = 0; i < REMASTER_EMERALD_BATTLE_MAX_BATTLERS; ++i) {
+        if (battle->battlers[i].active
+            && !battle->battlers[i].fainted
+            && battle->battlers[i].ability == ability)
+            return 1;
+    }
+    return 0;
+}
+
+static int battle_frontier_type(uint32_t flags)
+{
+    return (flags
+        & (REMASTER_EMERALD_BATTLE_TYPE_BATTLE_TOWER
+           | REMASTER_EMERALD_BATTLE_TYPE_DOME
+           | REMASTER_EMERALD_BATTLE_TYPE_PALACE
+           | REMASTER_EMERALD_BATTLE_TYPE_ARENA
+           | REMASTER_EMERALD_BATTLE_TYPE_FACTORY
+           | REMASTER_EMERALD_BATTLE_TYPE_PIKE
+           | REMASTER_EMERALD_BATTLE_TYPE_PYRAMID)) != 0;
+}
+
+static int battle_badge_boost_allowed(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t badge_index)
+{
+    if (battle == 0 || battler >= REMASTER_EMERALD_BATTLE_MAX_BATTLERS)
+        return 0;
+    if (battle->battlers[battler].side != 0)
+        return 0;
+    if (battle->battle_type_flags
+        & (REMASTER_EMERALD_BATTLE_TYPE_LINK
+           | REMASTER_EMERALD_BATTLE_TYPE_EREADER_TRAINER
+           | REMASTER_EMERALD_BATTLE_TYPE_RECORDED_LINK
+           | REMASTER_EMERALD_BATTLE_TYPE_SECRET_BASE))
+        return 0;
+    if (battle_frontier_type(battle->battle_type_flags))
+        return 0;
+    return (battle->player_badge_mask & (1u << badge_index)) != 0;
+}
+
 static int battle_change_stage(
     RemasterEmeraldBattleState *battle,
     uint8_t battler,
@@ -601,6 +670,9 @@ static uint32_t battle_speed(
 
     mon = &battle->battlers[battler];
     speed = battle_apply_stage(mon->pokemon.speed, mon->stat_stages[3]);
+
+    if (battle_badge_boost_allowed(battle, battler, 2))
+        speed = speed * 110u / 100u;
 
     if (mon->pokemon.status & REMASTER_EMERALD_STATUS1_PARALYSIS)
         speed /= 4u;
@@ -871,6 +943,17 @@ int remaster_emerald_battle_start_from_save(
     count = remaster_emerald_party_count(save);
     if (count == 0)
         return 0;
+
+    battle->player_badge_mask = 0;
+    for (i = 0; i < 8; ++i) {
+        int value = 0;
+        if (remaster_emerald_flag_get(
+                save,
+                (uint16_t)(FLAG_BADGE01_GET + i),
+                &value)
+            && value)
+            battle->player_badge_mask |= (uint8_t)(1u << i);
+    }
 
     memset(party, 0, sizeof(party));
     for (i = 0; i < count; ++i) {
