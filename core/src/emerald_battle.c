@@ -1211,6 +1211,38 @@ const RemasterEmeraldTrainer *remaster_emerald_battle_trainer_find(
     return &kRemasterEmeraldTrainers[trainer_id];
 }
 
+uint32_t remaster_emerald_battle_trainer_reward(
+    uint16_t trainer_id,
+    uint8_t money_multiplier)
+{
+    const RemasterEmeraldTrainer *trainer =
+        remaster_emerald_battle_trainer_find(trainer_id);
+    uint32_t reward;
+    uint8_t last_level;
+    uint8_t class_value;
+
+    if (trainer == 0
+        || trainer->party_size == 0
+        || money_multiplier == 0
+        || (size_t)trainer->trainer_class
+            >= sizeof(kRemasterEmeraldTrainerMoneyValues)
+                / sizeof(kRemasterEmeraldTrainerMoneyValues[0]))
+        return 0;
+
+    last_level = trainer->party[trainer->party_size - 1u].level;
+    class_value =
+        kRemasterEmeraldTrainerMoneyValues[trainer->trainer_class];
+
+    reward = 4u
+        * (uint32_t)last_level
+        * (uint32_t)money_multiplier
+        * (uint32_t)class_value;
+    if (trainer->double_battle)
+        reward *= 2u;
+
+    return reward;
+}
+
 int remaster_emerald_battle_trainer_validate(
     const RemasterEmeraldTrainer *trainer)
 {
