@@ -1195,6 +1195,51 @@ static void battle_entry_ability(
     }
 }
 
+int remaster_emerald_battle_trainer_validate(
+    const RemasterEmeraldTrainer *trainer)
+{
+    uint8_t i;
+    uint8_t j;
+
+    if (trainer == 0
+        || trainer->party_size == 0
+        || trainer->party_size > REMASTER_EMERALD_BATTLE_PARTY_SIZE)
+        return 0;
+
+    if ((trainer->party_flags
+            & ~(REMASTER_EMERALD_TRAINER_PARTY_CUSTOM_MOVESET
+                | REMASTER_EMERALD_TRAINER_PARTY_HELD_ITEM))
+        != 0)
+        return 0;
+
+    for (i = 0; i < trainer->party_size; ++i) {
+        const RemasterEmeraldTrainerMon *mon = &trainer->party[i];
+
+        if (mon->species == 0
+            || mon->level == 0
+            || mon->level > 100
+            || remaster_emerald_species_info(mon->species) == 0)
+            return 0;
+
+        if (!(trainer->party_flags
+                & REMASTER_EMERALD_TRAINER_PARTY_HELD_ITEM)
+            && mon->held_item != 0)
+            return 0;
+
+        for (j = 0; j < REMASTER_EMERALD_MAX_MOVES; ++j) {
+            if (!(trainer->party_flags
+                    & REMASTER_EMERALD_TRAINER_PARTY_CUSTOM_MOVESET)
+                && mon->moves[j] != 0)
+                return 0;
+            if (mon->moves[j] != 0
+                && remaster_emerald_move_info(mon->moves[j]) == 0)
+                return 0;
+        }
+    }
+
+    return 1;
+}
+
 void remaster_emerald_battle_state_init(
     RemasterEmeraldBattleState *battle,
     uint32_t battle_type_flags,
