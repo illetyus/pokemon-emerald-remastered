@@ -310,6 +310,10 @@ typedef struct RemasterEmeraldBattleState {
     uint32_t money_reward;
     uint32_t last_exp_gain;
 
+    uint16_t opponent_trainer_id;
+    uint16_t opponent_trainer_items[4];
+    uint32_t opponent_trainer_ai_flags;
+
     RemasterEmeraldBattleEvent events[REMASTER_EMERALD_BATTLE_EVENT_CAPACITY];
     size_t event_count;
 } RemasterEmeraldBattleState;
@@ -335,6 +339,18 @@ int remaster_emerald_battle_trainer_validate(
 
 size_t remaster_emerald_battle_trainer_count(void);
 const RemasterEmeraldTrainer *remaster_emerald_battle_trainer_find(
+    uint16_t trainer_id);
+
+int remaster_emerald_battle_build_trainer_party(
+    RemasterEmeraldBattleRng *rng,
+    uint16_t trainer_id,
+    RemasterEmeraldPartyPokemon out_party[
+        REMASTER_EMERALD_BATTLE_PARTY_SIZE],
+    uint8_t *out_count);
+
+int remaster_emerald_battle_start_trainer_from_save(
+    RemasterEmeraldBattleState *battle,
+    const RemasterEmeraldSave *save,
     uint16_t trainer_id);
 
 void remaster_emerald_battle_state_init(
