@@ -13,6 +13,8 @@ add_library(remaster_core STATIC
     core/src/emerald_rtc.c
     core/src/emerald_state.c
     core/src/emerald_quest.c
+    core/src/emerald_pokemon.c
+    core/src/emerald_items.c
     core/src/emerald_map.c
     core/src/emerald_movement.c
     core/src/emerald_events.c
@@ -77,6 +79,8 @@ add_executable(unreal_cpp_embed_smoke
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldRtcEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldStateEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldQuestEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldPokemonEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldItemsEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMapEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMovementEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldEventsEmbed.cpp
@@ -395,6 +399,34 @@ add_test(NAME r2_opening_commands COMMAND r2_opening_commands_test)
 
 
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
+set(R11_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/r11")
+set(R11_DOMAIN_CATALOG "${R11_GENERATED_DIR}/emerald_domain_catalog.inc")
+set(R11_DOMAIN_REPORT "${R11_GENERATED_DIR}/domain_catalog_report.json")
+file(MAKE_DIRECTORY "${R11_GENERATED_DIR}")
+
+execute_process(
+    COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tools/build_r11_domain_catalog.py"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/vanillaplus"
+        "${R11_DOMAIN_CATALOG}"
+        "${R11_DOMAIN_REPORT}"
+    RESULT_VARIABLE R11_DOMAIN_GENERATE_RESULT
+)
+if(NOT R11_DOMAIN_GENERATE_RESULT EQUAL 0)
+    message(FATAL_ERROR "Failed to generate R11 Pokémon domain catalog")
+endif()
+
+target_include_directories(remaster_core
+    PRIVATE
+        "${R11_GENERATED_DIR}"
+)
+
+target_include_directories(unreal_cpp_embed_smoke
+    PRIVATE
+        "${R11_GENERATED_DIR}"
+)
 set(R2_LITTLEROOT_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(R2_LITTLEROOT_GENERATED_C "${R2_LITTLEROOT_GENERATED_DIR}/r2_littleroot_generated.c")
 file(MAKE_DIRECTORY "${R2_LITTLEROOT_GENERATED_DIR}")
