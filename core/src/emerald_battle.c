@@ -1223,10 +1223,7 @@ uint32_t remaster_emerald_battle_trainer_reward(
 
     if (trainer == 0
         || trainer->party_size == 0
-        || money_multiplier == 0
-        || (size_t)trainer->trainer_class
-            >= sizeof(kRemasterEmeraldTrainerMoneyValues)
-                / sizeof(kRemasterEmeraldTrainerMoneyValues[0]))
+        || money_multiplier == 0)
         return 0;
 
     last_level = trainer->party[trainer->party_size - 1u].level;
