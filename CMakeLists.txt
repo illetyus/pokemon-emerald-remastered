@@ -810,6 +810,19 @@ else()
 endif()
 add_test(NAME r13_battle_trainer_contract COMMAND emerald_battle_trainer_test)
 
+
+add_executable(emerald_battle_ai_test
+    tests/emerald_battle_ai_test.c
+)
+target_link_libraries(emerald_battle_ai_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_battle_ai_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_battle_ai_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_battle_ai COMMAND emerald_battle_ai_test)
+
+
 add_test(
     NAME r13_trainer_catalog_audit
     COMMAND
