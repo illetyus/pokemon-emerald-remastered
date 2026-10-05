@@ -359,6 +359,15 @@ enum {
     SPECIES_LATIAS = 407,
     SPECIES_LATIOS = 408,
 
+    MOVE_GUST = 16,
+    MOVE_FLY = 19,
+    MOVE_SURF = 57,
+    MOVE_EARTHQUAKE = 89,
+    MOVE_DIG = 91,
+    MOVE_WHIRLPOOL = 250,
+    MOVE_DIVE = 291,
+    MOVE_BOUNCE = 340,
+
     FLAG_BADGE01_GET = 0x867
 };
 
@@ -525,6 +534,7 @@ static int battle_load_mon(
     out->entered_turn = 1;
     out->last_damage_from = 0xFFu;
     out->lock_on_target = 0xFFu;
+    out->charging_target = 0xFFu;
     return 1;
 }
 
@@ -817,6 +827,70 @@ static int battle_field_has_status3(
     return 0;
 }
 
+static int battle_is_two_turn_effect(
+    const RemasterEmeraldMoveInfo *move)
+{
+    if (move == 0)
+        return 0;
+    return move->effect == EFFECT_RAZOR_WIND
+        || move->effect == EFFECT_SKY_ATTACK
+        || move->effect == EFFECT_SKULL_BASH
+        || move->effect == EFFECT_SOLAR_BEAM
+        || move->effect == EFFECT_SEMI_INVULNERABLE;
+}
+
+static uint32_t battle_semi_invulnerable_flag(uint16_t move_id)
+{
+    if (move_id == MOVE_FLY || move_id == MOVE_BOUNCE)
+        return REMASTER_EMERALD_STATUS3_ON_AIR;
+    if (move_id == MOVE_DIG)
+        return REMASTER_EMERALD_STATUS3_UNDERGROUND;
+    if (move_id == MOVE_DIVE)
+        return REMASTER_EMERALD_STATUS3_UNDERWATER;
+    return 0;
+}
+
+static int battle_move_can_hit_semi_invulnerable(
+    const RemasterEmeraldBattleMon *defender,
+    uint16_t move_id,
+    uint8_t effect)
+{
+    if (defender == 0)
+        return 0;
+
+    if (defender->status3 & REMASTER_EMERALD_STATUS3_ON_AIR) {
+        return effect == EFFECT_GUST
+            || effect == EFFECT_TWISTER
+            || effect == EFFECT_THUNDER
+            || effect == EFFECT_SKY_UPPERCUT;
+    }
+
+    if (defender->status3 & REMASTER_EMERALD_STATUS3_UNDERGROUND) {
+        return move_id == MOVE_EARTHQUAKE
+            || effect == EFFECT_MAGNITUDE;
+    }
+
+    if (defender->status3 & REMASTER_EMERALD_STATUS3_UNDERWATER) {
+        return move_id == MOVE_SURF
+            || move_id == MOVE_WHIRLPOOL;
+    }
+
+    return 1;
+}
+
+static void battle_clear_charge(RemasterEmeraldBattleMon *mon)
+{
+    if (mon == 0)
+        return;
+    mon->charging_move = 0;
+    mon->charging_move_slot = 0;
+    mon->charging_target = 0xFFu;
+    mon->status2 &= ~REMASTER_EMERALD_STATUS2_MULTIPLETURNS;
+    mon->status3 &= ~(REMASTER_EMERALD_STATUS3_ON_AIR
+        | REMASTER_EMERALD_STATUS3_UNDERGROUND
+        | REMASTER_EMERALD_STATUS3_UNDERWATER);
+}
+
 static uint8_t battle_default_target(
     const RemasterEmeraldBattleState *battle,
     uint8_t battler)
@@ -923,6 +997,12 @@ void remaster_emerald_battle_state_init(
 
     memset(battle, 0, sizeof(*battle));
     battle->battle_type_flags = battle_type_flags;
+    battle->follow_me_target[0] = 0xFFu;
+    battle->follow_me_target[1] = 0xFFu;
+    memset(
+        battle->future_attacker,
+        0xFF,
+        sizeof(battle->future_attacker));
     remaster_emerald_battle_rng_seed(&battle->rng, seed);
 }
 
@@ -1454,6 +1534,18 @@ int remaster_emerald_battle_calculate_damage(
     if (move == 0 || !attacker->active || !defender->active)
         return 0;
 
+    if ((defender->status3
+            & (REMASTER_EMERALD_STATUS3_ON_AIR
+               | REMASTER_EMERALD_STATUS3_UNDERGROUND
+               | REMASTER_EMERALD_STATUS3_UNDERWATER))
+        && !battle_move_can_hit_semi_invulnerable(
+            defender,
+            move_id,
+            move->effect)) {
+        out_result->hit = 0;
+        return 1;
+    }
+
     if (attacker->lock_on_turns != 0
         && attacker->lock_on_target == defender_id)
         accuracy = 100;
@@ -1477,6 +1569,32 @@ int remaster_emerald_battle_calculate_damage(
         defender,
         move,
         &move_type);
+
+    if ((defender->status3 & REMASTER_EMERALD_STATUS3_ON_AIR)
+        && (move->effect == EFFECT_GUST
+            || move->effect == EFFECT_TWISTER))
+        power = (uint16_t)(power > UINT16_MAX / 2u
+            ? UINT16_MAX
+            : power * 2u);
+
+    if ((defender->status3 & REMASTER_EMERALD_STATUS3_UNDERGROUND)
+        && (move_id == MOVE_EARTHQUAKE
+            || move->effect == EFFECT_MAGNITUDE))
+        power = (uint16_t)(power > UINT16_MAX / 2u
+            ? UINT16_MAX
+            : power * 2u);
+
+    if ((defender->status3 & REMASTER_EMERALD_STATUS3_UNDERWATER)
+        && (move_id == MOVE_SURF || move_id == MOVE_WHIRLPOOL))
+        power = (uint16_t)(power > UINT16_MAX / 2u
+            ? UINT16_MAX
+            : power * 2u);
+
+    if ((defender->status3 & REMASTER_EMERALD_STATUS3_MINIMIZED)
+        && move->effect == EFFECT_FLINCH_MINIMIZE_HIT)
+        power = (uint16_t)(power > UINT16_MAX / 2u
+            ? UINT16_MAX
+            : power * 2u);
 
     type_multiplier = battle_type_multiplier(defender, move_type);
 
