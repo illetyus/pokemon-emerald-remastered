@@ -6,6 +6,7 @@ extern "C"
 #include "remaster/core.h"
 #include "remaster/emerald_object_state.h"
 #include "remaster/emerald_quest.h"
+#include "remaster/emerald_encounter.h"
 #include "remaster/emerald_pokemon.h"
 #include "remaster/emerald_items.h"
 #include "remaster/emerald_state.h"
@@ -95,6 +96,21 @@ int main()
     if (!remaster_emerald_bag_add(&save, 13, 1)
         || remaster_emerald_bag_count(&save, 13) != 1)
         return fail("R11 bag core embed mismatch");
+
+    RemasterEmeraldEncounterRng encounter_rng{};
+    remaster_emerald_encounter_rng_seed(
+        &encounter_rng,
+        UINT32_C(0x1234));
+    if (remaster_emerald_encounter_random(&encounter_rng) != 0x4DCB
+        || remaster_emerald_encounter_map_count() != 124)
+        return fail("R12 encounter C++ embed mismatch");
+
+    const RemasterEmeraldEncounterMapInfo* route101 =
+        remaster_emerald_encounter_map_find(0, 16);
+    if (route101 == nullptr
+        || route101->land.encounter_rate != 20
+        || route101->land.anchor_count != 12)
+        return fail("R12 Route101 catalog embed mismatch");
 
     const std::uint64_t hash = remaster_core_state_hash(&state);
     if (hash != UINT64_C(7218695048241891488))
