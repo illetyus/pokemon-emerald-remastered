@@ -3755,6 +3755,108 @@ static void battle_faint_check(
     RemasterEmeraldBattleState *battle,
     uint8_t battler);
 
+static int battle_mon_knows_move(
+    const RemasterEmeraldBattleMon *mon,
+    uint16_t move_id)
+{
+    uint8_t slot;
+
+    if (mon == 0 || move_id == 0)
+        return 0;
+
+    for (slot = 0; slot < REMASTER_EMERALD_MAX_MOVES; ++slot) {
+        if (mon->moves[slot] == move_id)
+            return 1;
+    }
+    return 0;
+}
+
+static int battle_evolution_method_checks_on_level_up(uint16_t method)
+{
+    switch (method) {
+    case 1:  /* EVO_FRIENDSHIP */
+    case 2:  /* EVO_FRIENDSHIP_DAY */
+    case 3:  /* EVO_FRIENDSHIP_NIGHT */
+    case 4:  /* EVO_LEVEL */
+    case 8:  /* EVO_LEVEL_ATK_GT_DEF */
+    case 9:  /* EVO_LEVEL_ATK_EQ_DEF */
+    case 10: /* EVO_LEVEL_ATK_LT_DEF */
+    case 11: /* EVO_LEVEL_SILCOON */
+    case 12: /* EVO_LEVEL_CASCOON */
+    case 13: /* EVO_LEVEL_NINJASK */
+    case 14: /* EVO_LEVEL_SHEDINJA */
+    case 15: /* EVO_BEAUTY */
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+static void battle_emit_progression_handoffs(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t old_level,
+    uint8_t new_level)
+{
+    RemasterEmeraldBattleMon *mon;
+    const RemasterEmeraldLevelUpMove *learnset;
+    const RemasterEmeraldEvolution *evolutions;
+    size_t learnset_count = 0;
+    size_t i;
+    int evolution_check = 0;
+
+    if (battle == 0
+        || !battle_valid_battler(battler)
+        || new_level <= old_level)
+        return;
+
+    mon = &battle->battlers[battler];
+    learnset = remaster_emerald_species_level_up_moves(
+        mon->species,
+        &learnset_count);
+
+    for (i = 0; i < learnset_count; ++i) {
+        if (learnset[i].level <= old_level
+            || learnset[i].level > new_level
+            || learnset[i].move_id == 0
+            || battle_mon_knows_move(mon, learnset[i].move_id))
+            continue;
+
+        battle_event(
+            battle,
+            REMASTER_EMERALD_BATTLE_EVENT_MOVE_LEARN,
+            battler,
+            battler,
+            learnset[i].move_id,
+            learnset[i].level,
+            mon->species);
+    }
+
+    evolutions = remaster_emerald_species_evolutions(mon->species);
+    if (evolutions == 0)
+        return;
+
+    for (i = 0; i < REMASTER_EMERALD_EVOLUTIONS_PER_SPECIES; ++i) {
+        if (evolutions[i].target_species != 0
+            && battle_evolution_method_checks_on_level_up(
+                evolutions[i].method)) {
+            evolution_check = 1;
+            break;
+        }
+    }
+
+    if (evolution_check) {
+        battle_event(
+            battle,
+            REMASTER_EMERALD_BATTLE_EVENT_EVOLUTION_CHECK,
+            battler,
+            battler,
+            0,
+            new_level,
+            mon->species);
+    }
+}
+
 static void battle_award_exp_for_faint(
     RemasterEmeraldBattleState *battle,
     uint8_t defeated_id)
@@ -3854,6 +3956,11 @@ static void battle_award_exp_for_faint(
                 0,
                 new_level,
                 old_level);
+            battle_emit_progression_handoffs(
+                battle,
+                i,
+                old_level,
+                new_level);
         }
 
         mon->pokemon.box.checksum =
