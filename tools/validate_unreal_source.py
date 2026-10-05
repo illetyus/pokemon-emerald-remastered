@@ -177,6 +177,19 @@ def main() -> int:
         "R12 Unreal host must not reimplement species/RNG/encounter-rate authority",
         errors,
     )
+    require(
+        "void SetEncounterSeed(uint32 Seed);" in world_gameplay_h
+        and 'UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")\n    void SetEncounterSeed' not in world_gameplay_h,
+        "R12 encounter RNG seed injection must remain host-only and unavailable to Blueprint presentation",
+        errors,
+    )
+    require(
+        "remaster_emerald_encounter_restart_immunity(" in world_gameplay_cpp
+        and "remaster_emerald_encounter_roamer_move(" in world_gameplay_cpp
+        and "remaster_emerald_encounter_roamer_warp(" in world_gameplay_cpp,
+        "R12 map transitions must preserve Vanilla immunity and roamer transition semantics",
+        errors,
+    )
 
     require(
         (MODULE / "RemasterEmeraldPokemonEmbed.cpp").is_file()
