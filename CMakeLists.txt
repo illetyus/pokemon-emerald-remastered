@@ -781,3 +781,15 @@ else()
     target_compile_options(emerald_battle_effects_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r13_battle_effects COMMAND emerald_battle_effects_test)
+
+
+add_executable(emerald_battle_move_effects_test
+    tests/emerald_battle_move_effects_test.c
+)
+target_link_libraries(emerald_battle_move_effects_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_battle_move_effects_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_battle_move_effects_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_battle_move_effects COMMAND emerald_battle_move_effects_test)
