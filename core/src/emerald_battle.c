@@ -2102,16 +2102,31 @@ int remaster_emerald_battle_calculate_damage(
 }
 
 static int battle_status_allowed(
+    const RemasterEmeraldBattleState *battle,
     const RemasterEmeraldBattleMon *target,
     uint32_t status)
 {
+    uint8_t i;
+
     if (target == 0 || target->pokemon.status != 0)
         return 0;
 
-    if ((status & REMASTER_EMERALD_STATUS1_SLEEP)
-        && (target->ability == ABILITY_INSOMNIA
-            || target->ability == ABILITY_VITAL_SPIRIT))
-        return 0;
+    if (status & REMASTER_EMERALD_STATUS1_SLEEP) {
+        if (target->ability == ABILITY_INSOMNIA
+            || target->ability == ABILITY_VITAL_SPIRIT)
+            return 0;
+        if (battle != 0 && target->ability != ABILITY_SOUNDPROOF) {
+            for (i = 0;
+                 i < REMASTER_EMERALD_BATTLE_MAX_BATTLERS;
+                 ++i) {
+                if (battle->battlers[i].active
+                    && !battle->battlers[i].fainted
+                    && (battle->battlers[i].status2
+                        & REMASTER_EMERALD_STATUS2_UPROAR))
+                    return 0;
+            }
+        }
+    }
     if ((status
             & (REMASTER_EMERALD_STATUS1_POISON
                | REMASTER_EMERALD_STATUS1_TOXIC))
@@ -2151,7 +2166,7 @@ static int battle_apply_status(
         return 0;
 
     target = &battle->battlers[target_id];
-    if (!battle_status_allowed(target, status))
+    if (!battle_status_allowed(battle, target, status))
         return 0;
 
     if (battle->side_status[target->side] & REMASTER_EMERALD_SIDE_SAFEGUARD)
