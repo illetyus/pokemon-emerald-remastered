@@ -155,6 +155,16 @@ int main(void)
             "post-encounter immunity must consume no encounter RNG"))
         return 1;
 
+    runtime_a.wild_immunity_steps = 4;
+    runtime_a.previous_behavior = 0x02;
+    runtime_a.previous_behavior_valid = 1;
+    remaster_emerald_encounter_restart_immunity(&runtime_a);
+    if (!check(
+            runtime_a.wild_immunity_steps == 0
+            && runtime_a.previous_behavior_valid == 0,
+            "map-transition immunity restart mismatch"))
+        return 1;
+
     /*
      * Repel expiry is a step script before CheckStandardWildEncounter. Even
      * with immunity already exhausted and seed-zero favorable odds, the expiry
