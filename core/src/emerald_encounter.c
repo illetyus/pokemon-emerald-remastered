@@ -1006,7 +1006,7 @@ static uint32_t r12_choose_personality(
     return personality;
 }
 
-static int r12_apply_initial_moves(
+int remaster_emerald_pokemon_apply_initial_moves(
     RemasterEmeraldBoxPokemon *pokemon,
     uint16_t species,
     uint8_t level)
@@ -1153,7 +1153,7 @@ static int r12_build_fixed_mon(
             ability_num))
         return 0;
 
-    if (!r12_apply_initial_moves(
+    if (!remaster_emerald_pokemon_apply_initial_moves(
             &out_pokemon->box,
             species,
             level))
