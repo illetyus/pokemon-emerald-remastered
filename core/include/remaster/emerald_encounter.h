@@ -256,6 +256,10 @@ int remaster_emerald_encounter_roamer_move(
     RemasterEmeraldEncounterRuntime *runtime,
     const RemasterEmeraldSave *save);
 
+int remaster_emerald_encounter_roamer_warp(
+    RemasterEmeraldEncounterRuntime *runtime,
+    const RemasterEmeraldSave *save);
+
 #ifdef __cplusplus
 }
 #endif
