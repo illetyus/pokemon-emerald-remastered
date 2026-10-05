@@ -37,12 +37,13 @@ jobs:
           emerald_encounter_rules_test
           emerald_encounter_ecosystem_test
           emerald_encounter_special_test
+          emerald_encounter_replay_test
           unreal_cpp_embed_smoke
 
       - name: Run R12 C regressions
         run: >-
           ctest --test-dir build -C Release
-          -R "r12_encounter_rng|r12_encounter_rules|r12_encounter_ecosystem|r12_encounter_special|unreal_cpp_embed"
+          -R "r12_encounter_rng|r12_encounter_rules|r12_encounter_ecosystem|r12_encounter_special|r12_encounter_replay|unreal_cpp_embed"
           --output-on-failure
 
       - name: Audit pinned Vanilla+ encounter data
