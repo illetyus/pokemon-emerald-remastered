@@ -42,21 +42,21 @@ Current remaining order:
 
 1. R13 — Battle core
 2. R16 — Vanilla+ QoL
-4. R17 — Save compatibility / migration
-5. R6 — Character / NPC presentation + asset pipeline
-6. R7 — Camera / environment presentation + asset pipeline
-7. R9 — UI / HUD / menu infrastructure
-8. R14 — Battle presentation + Pokémon asset pipeline
-9. R15 — Audio
-10. R8 — Android input infrastructure
-11. R19 — Regression / test infrastructure expansion
-12. R20 — Code / package polish
-13. R18 — Real UE 5.8.3 / Android production build on the project PC
-14. Real Unreal runtime validation
-15. BrowserStack real Android smoke
-16. R19 final Android device matrix
-17. R21 — Release Candidate
-18. R22 — Final Release
+3. R17 — Save compatibility / migration
+4. R6 — Character / NPC presentation + asset pipeline
+5. R7 — Camera / environment presentation + asset pipeline
+6. R9 — UI / HUD / menu infrastructure
+7. R14 — Battle presentation + Pokémon asset pipeline
+8. R15 — Audio
+9. R8 — Android input infrastructure
+10. R19 — Regression / test infrastructure expansion
+11. R20 — Code / package polish
+12. R18 — Real UE 5.8.3 / Android production build on the project PC
+13. Real Unreal runtime validation
+14. BrowserStack real Android smoke
+15. R19 final Android device matrix
+16. R21 — Release Candidate
+17. R22 — Final Release
 
 ## Core principles
 
