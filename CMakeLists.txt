@@ -799,6 +799,13 @@ else()
 endif()
 add_test(NAME r13_battle_trainer_contract COMMAND emerald_battle_trainer_test)
 
+add_test(
+    NAME r13_trainer_catalog_audit
+    COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_r13_trainer_catalog.py"
+)
+
 
 add_executable(emerald_battle_integration_test
     tests/emerald_battle_integration_test.c
