@@ -759,6 +759,18 @@ endif()
 add_test(NAME r13_battle_core COMMAND emerald_battle_core_test)
 
 
+add_executable(emerald_battle_trainer_test
+    tests/emerald_battle_trainer_test.c
+)
+target_link_libraries(emerald_battle_trainer_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_battle_trainer_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_battle_trainer_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_battle_trainer_contract COMMAND emerald_battle_trainer_test)
+
+
 add_executable(emerald_battle_integration_test
     tests/emerald_battle_integration_test.c
 )
