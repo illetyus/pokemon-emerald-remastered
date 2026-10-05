@@ -79,6 +79,11 @@ class R13BattleSourceContract(unittest.TestCase):
         )
         self.assertIn("SetBattledTrainersFlags();", setup)
         self.assertIn("SetMainCallback2(CB2_WhiteOut);", setup)
+        battle_util = (VENDOR / "src/battle_util.c").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("case HOLD_EFFECT_DOUBLE_PRIZE:", battle_util)
+        self.assertIn("gBattleStruct->moneyMultiplier = 2;", battle_util)
 
     def test_move_effect_count_is_gen3_contract(self):
         text = (VENDOR / "include/constants/battle_move_effects.h").read_text(
