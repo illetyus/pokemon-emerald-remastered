@@ -1,12 +1,13 @@
-# Automated Phase Execution Plan — Through Real Unreal Runtime Validation
+# Phase Execution Plan — Through Real Unreal Runtime Validation
 
 Date: 2026-10-06
 Status: active execution plan
 Canonical roadmap source: `docs/ROADMAP.md`
 
-This file defines the small, resumable execution units used by the automated
-phase controller. It does not renumber roadmap phases and does not replace the
-canonical product/architecture rules in ROADMAP/ARCHITECTURE.
+This file defines the small, resumable execution units used to execute the
+remaining roadmap. The execution map is independent of any particular chat,
+scheduler or orchestration mechanism. It does not renumber roadmap phases and
+does not replace the canonical product/architecture rules in ROADMAP/ARCHITECTURE.
 
 ## Controller contract
 
@@ -35,10 +36,10 @@ canonical product/architecture rules in ROADMAP/ARCHITECTURE.
 
 ## State transition rule
 
-At the end of a successful subphase, the same carrier task changes CURRENT_STATE
-to the next named subphase and schedules itself with a relative offset. It never
-creates a new automation. If the self-update fails, report CHAIN_BROKEN and do
-not advance repo state further.
+At the end of a successful subphase, record and report the next named subphase.
+The orchestration mechanism is non-authoritative and may change without changing
+the phase map. Do not silently execute the next subphase in the same checkpoint,
+and do not advance past a failed verification or gate.
 
 ---
 
@@ -713,9 +714,13 @@ surface, and route back to the verification/gate that detected it.
 
 # Current resume point
 
-At the time this plan was written, R16-B3 had produced commit
-`a28879b5e10934d4d57fa4e8190dda4ba885b3b2`
-(`test(r16): cover full quick-transfer safeguards`).
+R13 and R16 are complete on `main`. R17 is the active phase.
 
-The carrier should resume at **R16-B4 — Targeted verification** after confirming
-that this commit is still the live non-conflicting branch state.
+The fresh R17 working branch is `r17-save-compat-mainline`, created from the
+post-R16 `main` baseline. R17-P1 repo/scope recovery is complete. R17-P2 source
+audit identified save-format contract gaps, but its versioned contract artifact
+has not yet been committed.
+
+Resume at **R17-P2 — Source/reference contract closure**: revalidate live
+`main`/branch drift, commit the authoritative R17 save-compatibility contract,
+and only then advance to R17-I1.

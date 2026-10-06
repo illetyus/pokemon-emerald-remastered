@@ -880,16 +880,19 @@ of successful UE compilation or Android runtime.
 
 # 14. Immediate next action
 
-The next implementation phase is **R16 — Vanilla+ QoL**.
+The active implementation phase is **R17 — Save compatibility / migration**.
+R13 and R16 are complete and merged to `main`.
 
-Before R16 implementation:
+Current R17 work must proceed from the current `main` baseline and preserve the
+repo-first phase gates defined above:
 
-1. merge the accepted R13 PR after its final same-head CI is green;
-2. re-check current `main` after the R13 merge;
-3. inventory the QoL deltas present in pinned Vanilla+ relative to stock Emerald;
-4. classify each delta as accepted, rejected or already covered by earlier phases;
-5. regression-test each accepted QoL behavior before implementation;
-6. implement only on an R16 branch;
-7. merge only after green CI.
+1. complete and version the pinned Emerald/Vanilla+ save-format contract audit;
+2. regression-pin the authoritative SaveBlock/sector/checksum behavior before
+   changing implementation;
+3. implement save compatibility in small reviewable slices on the R17 branch;
+4. verify real/versioned save fixtures, corruption handling and round-trip
+   behavior;
+5. require targeted and full relevant CI before the R17 final gate;
+6. merge R17 only after its final gate and required PR checks are green.
 
 Real Unreal build and BrowserStack device execution remain deferred until R18.
