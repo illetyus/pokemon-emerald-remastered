@@ -8,7 +8,7 @@ input and platform integration.
 
 ## Project status
 
-**R0-R5 and R10-R13 are complete.**
+**R0-R5, R10-R13 and R16 are complete.**
 
 Completed foundation:
 
@@ -21,16 +21,19 @@ Completed foundation:
 - R10 — map + quest guidance derived from Emerald state;
 - R11 — Pokémon / party / item core with Gen III save-compatible binary semantics;
 - R12 — deterministic Emerald/Phase9 encounter core;
-- R13 — portable deterministic Emerald/Vanilla+ battle core.
+- R13 — portable deterministic Emerald/Vanilla+ battle core;
+- R16 — regression-pinned portable Vanilla+ QoL policy and management core.
 
 The next implementation phase is:
 
-**R16 — Vanilla+ QoL**
+**R17 — Save compatibility / migration**
 
 The phase numbers are intentionally preserved even though the remaining
 implementation order is non-numeric.
 
 R13 completion evidence: **[docs/R13_BATTLE_CORE.md](docs/R13_BATTLE_CORE.md)**
+
+R16 completion evidence: **[docs/R16_VANILLAPLUS_QOL.md](docs/R16_VANILLAPLUS_QOL.md)**
 
 ## Canonical roadmap
 
@@ -43,22 +46,21 @@ the current remaining-phase order.
 
 Current remaining order:
 
-1. R16 — Vanilla+ QoL
-2. R17 — Save compatibility / migration
-3. R6 — Character / NPC presentation + asset pipeline
-4. R7 — Camera / environment presentation + asset pipeline
-5. R9 — UI / HUD / menu infrastructure
-6. R14 — Battle presentation + Pokémon asset pipeline
-7. R15 — Audio
-8. R8 — Android input infrastructure
-9. R19 — Regression / test infrastructure expansion
-10. R20 — Code / package polish
-11. R18 — Real UE 5.8.3 / Android production build on the project PC
-12. Real Unreal runtime validation
-13. BrowserStack real Android smoke
-14. R19 final Android device matrix
-15. R21 — Release Candidate
-16. R22 — Final Release
+1. R17 — Save compatibility / migration
+2. R6 — Character / NPC presentation + asset pipeline
+3. R7 — Camera / environment presentation + asset pipeline
+4. R9 — UI / HUD / menu infrastructure
+5. R14 — Battle presentation + Pokémon asset pipeline
+6. R15 — Audio
+7. R8 — Android input infrastructure
+8. R19 — Regression / test infrastructure expansion
+9. R20 — Code / package polish
+10. R18 — Real UE 5.8.3 / Android production build on the project PC
+11. Real Unreal runtime validation
+12. BrowserStack real Android smoke
+13. R19 final Android device matrix
+14. R21 — Release Candidate
+15. R22 — Final Release
 
 ## Core principles
 
