@@ -329,6 +329,43 @@ static void test_transfer_and_items(void)
     assert(remaster_emerald_qol_quick_deposit_current_box(&save, 1)
         == REMASTER_EMERALD_QOL_TRANSFER_MAIL);
 
+    /* QOL-048: full party must reject withdraw without mutating save state. */
+    memset(&save, 0, sizeof(save));
+    for (size_t slot = 0; slot < REMASTER_EMERALD_PARTY_SIZE; ++slot) {
+        RemasterEmeraldPartyPokemon mon =
+            make_party(1, 20, 50, (uint32_t)(610 + slot));
+        assert(remaster_emerald_party_set(&save, (uint8_t)slot, &mon));
+    }
+    assert(remaster_emerald_party_set_count(
+        &save, REMASTER_EMERALD_PARTY_SIZE));
+    a = make_box(25, 10, 620);
+    assert(remaster_emerald_storage_set(&save, 0, 0, &a));
+    {
+        RemasterEmeraldSave before = save;
+        assert(remaster_emerald_qol_quick_withdraw_current_box(&save, 0)
+            == REMASTER_EMERALD_QOL_TRANSFER_PARTY_FULL);
+        assert(memcmp(&save, &before, sizeof(save)) == 0);
+    }
+
+    /* QOL-048: full current box must reject deposit without mutation. */
+    memset(&save, 0, sizeof(save));
+    p0 = make_party(1, 20, 50, 630);
+    p1 = make_party(25, 20, 50, 631);
+    assert(remaster_emerald_party_set(&save, 0, &p0));
+    assert(remaster_emerald_party_set(&save, 1, &p1));
+    assert(remaster_emerald_party_set_count(&save, 2));
+    for (size_t slot = 0; slot < REMASTER_EMERALD_STORAGE_BOX_CAPACITY; ++slot) {
+        RemasterEmeraldBoxPokemon mon =
+            make_box(1, 10, (uint32_t)(640 + slot));
+        assert(remaster_emerald_storage_set(&save, 0, slot, &mon));
+    }
+    {
+        RemasterEmeraldSave before = save;
+        assert(remaster_emerald_qol_quick_deposit_current_box(&save, 1)
+            == REMASTER_EMERALD_QOL_TRANSFER_BOX_FULL);
+        assert(memcmp(&save, &before, sizeof(save)) == 0);
+    }
+
     a = make_box(1, 10, 701);
     b = make_box(25, 10, 702);
     assert(remaster_emerald_box_pokemon_set_held_item(&a, ITEM_POTION));
