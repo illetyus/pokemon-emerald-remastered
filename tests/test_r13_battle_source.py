@@ -271,6 +271,9 @@ class R13BattleSourceContract(unittest.TestCase):
         battle_util = (VENDOR / "src/battle_util.c").read_text(
             encoding="utf-8"
         )
+        battle_pyramid = (VENDOR / "src/battle_pyramid.c").read_text(
+            encoding="utf-8"
+        )
         portable = R13.read_text(encoding="utf-8")
         header = (
             ROOT / "core/include/remaster/emerald_battle.h"
@@ -283,6 +286,15 @@ class R13BattleSourceContract(unittest.TestCase):
         self.assertIn("HOLD_EFFECT_CAN_ALWAYS_RUN", battle_util)
         self.assertIn("ABILITY_RUN_AWAY", battle_util)
         self.assertIn("gBattleStruct->runTries++", battle_util)
+        self.assertIn("B_OUTCOME_MON_FLED", battle_util)
+        self.assertIn("u8 speedVar;", battle_util)
+        self.assertIn("GetPyramidRunMultiplier()", battle_util)
+
+        self.assertIn("GetPyramidRunMultiplier(void)", battle_pyramid)
+        self.assertIn("sPyramidFloorTemplates", battle_pyramid)
+        self.assertIn(".runMultiplier = 80", battle_pyramid)
+        self.assertIn("pyramidRandoms[3] % 100", battle_pyramid)
+        self.assertIn("frontier.curChallengeBattleNum", battle_pyramid)
 
         for symbol in (
             "HOLD_EFFECT_CAN_ALWAYS_RUN",
@@ -292,12 +304,19 @@ class R13BattleSourceContract(unittest.TestCase):
             "REMASTER_EMERALD_BATTLE_TYPE_LINK",
             "REMASTER_EMERALD_BATTLE_TYPE_RECORDED_LINK",
             "REMASTER_EMERALD_BATTLE_OUTCOME_FORFEITED",
+            "REMASTER_EMERALD_BATTLE_OUTCOME_MON_FLED",
             "battle->run_tries",
+            "battle_pyramid_run_multiplier_from_save",
+            "SAVE2_FRONTIER_CUR_CHALLENGE_BATTLE_NUM",
+            "SAVE2_FRONTIER_PYRAMID_RANDOM3",
+            "uint8_t speed_var;",
         ):
             self.assertIn(symbol, portable)
 
         self.assertIn("uint8_t run_tries;", header)
+        self.assertIn("uint8_t pyramid_run_multiplier;", header)
         self.assertIn("player_speed >= foe_speed", portable)
+        self.assertIn("battle->run_tries++;", portable)
 
     def test_faint_replacement_contract_is_explicit(self):
         portable = R13.read_text(encoding="utf-8")
