@@ -526,6 +526,125 @@ static int test_fainted_action_is_cancelled_and_target_retargets(void)
         "and later moves must retarget to the surviving opposing partner");
 }
 
+
+static int test_special_run_lifecycle_matches_emerald(void)
+{
+    static const uint16_t tackle[4] = {33, 0, 0, 0};
+    RemasterEmeraldBattleState battle;
+    RemasterEmeraldPartyPokemon player;
+    RemasterEmeraldPartyPokemon foe;
+    uint64_t rng_calls;
+
+    if (!make_mon(&player, 1, 30, tackle)
+        || !make_mon(&foe, 1, 30, tackle))
+        return check(0, "special-run fixtures should build");
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER
+            | REMASTER_EMERALD_BATTLE_TYPE_FIRST,
+        0xF1A57E01u);
+    if (!remaster_emerald_battle_start(
+            &battle, &player, 1, &foe, 1))
+        return check(0, "first-battle run fixture should start");
+    if (!check(
+            !remaster_emerald_battle_try_run(&battle, 0)
+                && !battle.ended
+                && battle.outcome == REMASTER_EMERALD_BATTLE_OUTCOME_NONE
+                && battle.run_tries == 0,
+            "FIRST battle must reject ordinary escape before a run attempt"))
+        return 0;
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER
+            | REMASTER_EMERALD_BATTLE_TYPE_SAFARI,
+        0x5AFA2101u);
+    if (!remaster_emerald_battle_start(
+            &battle, &player, 1, &foe, 1))
+        return check(0, "Safari run fixture should start");
+    if (!check(
+            remaster_emerald_battle_try_run(&battle, 0)
+                && battle.ended
+                && battle.outcome == REMASTER_EMERALD_BATTLE_OUTCOME_RAN,
+            "Safari run must end the battle immediately"))
+        return 0;
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER
+            | REMASTER_EMERALD_BATTLE_TYPE_TRAINER
+            | REMASTER_EMERALD_BATTLE_TYPE_BATTLE_TOWER,
+        0xF20A71E1u);
+    if (!remaster_emerald_battle_start(
+            &battle, &player, 1, &foe, 1))
+        return check(0, "Frontier trainer run fixture should start");
+    if (!check(
+            remaster_emerald_battle_try_run(&battle, 0)
+                && battle.ended
+                && battle.outcome
+                    == REMASTER_EMERALD_BATTLE_OUTCOME_FORFEITED,
+            "running from a Frontier trainer battle must forfeit"))
+        return 0;
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER
+            | REMASTER_EMERALD_BATTLE_TYPE_LINK,
+        0x11A0B001u);
+    if (!remaster_emerald_battle_start(
+            &battle, &player, 1, &foe, 1))
+        return check(0, "link run fixture should start");
+    if (!check(
+            remaster_emerald_battle_try_run(&battle, 0)
+                && battle.ended
+                && battle.outcome == REMASTER_EMERALD_BATTLE_OUTCOME_LOST,
+            "player-side link run must resolve as a loss"))
+        return 0;
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER,
+        0xE0AA15E1u);
+    if (!remaster_emerald_battle_start(
+            &battle, &player, 1, &foe, 1))
+        return check(0, "equal-speed run fixture should start");
+    rng_calls = battle.rng.calls;
+    if (!check(
+            remaster_emerald_battle_try_run(&battle, 0)
+                && battle.outcome == REMASTER_EMERALD_BATTLE_OUTCOME_RAN
+                && battle.run_tries == 1
+                && battle.rng.calls == rng_calls,
+            "equal speed must escape without RNG and consume one run attempt"))
+        return 0;
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER
+            | REMASTER_EMERALD_BATTLE_TYPE_DOUBLE,
+        0xD0AB1E01u);
+    {
+        RemasterEmeraldPartyPokemon players[2];
+        RemasterEmeraldPartyPokemon foes[2];
+
+        if (!make_mon(&players[0], 1, 30, tackle)
+            || !make_mon(&players[1], 7, 30, tackle)
+            || !make_mon(&foes[0], 4, 30, tackle)
+            || !make_mon(&foes[1], 25, 30, tackle))
+            return check(0, "double-run fixtures should build");
+        if (!remaster_emerald_battle_start(
+                &battle, players, 2, foes, 2))
+            return check(0, "double-run fixture should start");
+    }
+    rng_calls = battle.rng.calls;
+    return check(
+        !remaster_emerald_battle_try_run(&battle, 0)
+            && !battle.ended
+            && battle.run_tries == 1
+            && battle.rng.calls == rng_calls,
+        "ordinary doubles must not use the single-battle speed escape check");
+}
+
 static int test_arena_blocks_voluntary_switch(void)
 {
     static const uint16_t tackle[4] = {33, 0, 0, 0};
@@ -579,6 +698,8 @@ int main(void)
     if (!test_pursuit_intercepts_switch())
         return 1;
     if (!test_fainted_action_is_cancelled_and_target_retargets())
+        return 1;
+    if (!test_special_run_lifecycle_matches_emerald())
         return 1;
     if (!test_arena_blocks_voluntary_switch())
         return 1;
