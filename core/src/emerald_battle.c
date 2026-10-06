@@ -3888,10 +3888,8 @@ static void battle_emit_progression_handoffs(
 {
     RemasterEmeraldBattleMon *mon;
     const RemasterEmeraldLevelUpMove *learnset;
-    const RemasterEmeraldEvolution *evolutions;
     size_t learnset_count = 0;
     size_t i;
-    int evolution_check = 0;
 
     if (battle == 0
         || !battle_valid_battler(battler)
@@ -3919,29 +3917,64 @@ static void battle_emit_progression_handoffs(
             learnset[i].level,
             mon->species);
     }
+}
 
-    evolutions = remaster_emerald_species_evolutions(mon->species);
-    if (evolutions == 0)
+static void battle_emit_post_battle_evolution_handoffs(
+    RemasterEmeraldBattleState *battle)
+{
+    uint8_t party_slot;
+
+    if (battle == 0
+        || battle->outcome != REMASTER_EMERALD_BATTLE_OUTCOME_WON)
         return;
 
-    for (i = 0; i < REMASTER_EMERALD_EVOLUTIONS_PER_SPECIES; ++i) {
-        if (evolutions[i].target_species != 0
-            && battle_evolution_method_checks_on_level_up(
-                evolutions[i].method)) {
-            evolution_check = 1;
-            break;
-        }
-    }
+    for (party_slot = 0;
+         party_slot < battle->party_count[0];
+         ++party_slot) {
+        const RemasterEmeraldPartyPokemon *mon;
+        const RemasterEmeraldEvolution *evolutions;
+        uint16_t species;
+        uint8_t battler = 0xFFu;
+        size_t i;
+        int evolution_check = 0;
 
-    if (evolution_check) {
+        if (!(battle->leveled_up_party_mask & (1u << party_slot)))
+            continue;
+
+        mon = &battle->parties[0][party_slot];
+        species = remaster_emerald_box_pokemon_species(&mon->box);
+        evolutions = remaster_emerald_species_evolutions(species);
+        if (evolutions == 0)
+            continue;
+
+        for (i = 0; i < REMASTER_EMERALD_EVOLUTIONS_PER_SPECIES; ++i) {
+            if (evolutions[i].target_species != 0
+                && battle_evolution_method_checks_on_level_up(
+                    evolutions[i].method)) {
+                evolution_check = 1;
+                break;
+            }
+        }
+        if (!evolution_check)
+            continue;
+
+        for (i = 0; i < REMASTER_EMERALD_BATTLE_MAX_BATTLERS; i += 2) {
+            if (battle->battlers[i].active
+                && battle->battlers[i].side == 0
+                && battle->battlers[i].party_slot == party_slot) {
+                battler = (uint8_t)i;
+                break;
+            }
+        }
+
         battle_event(
             battle,
             REMASTER_EMERALD_BATTLE_EVENT_EVOLUTION_CHECK,
             battler,
-            battler,
+            party_slot,
             0,
-            new_level,
-            mon->species);
+            mon->level,
+            species);
     }
 }
 
@@ -4044,6 +4077,9 @@ static void battle_award_exp_for_faint(
                 0,
                 new_level,
                 old_level);
+            if (mon->party_slot < REMASTER_EMERALD_BATTLE_PARTY_SIZE)
+                battle->leveled_up_party_mask |=
+                    (uint8_t)(1u << mon->party_slot);
             battle_emit_progression_handoffs(
                 battle,
                 i,
@@ -4088,6 +4124,8 @@ static void battle_finish_if_over(
         0,
         battle->outcome,
         0);
+
+    battle_emit_post_battle_evolution_handoffs(battle);
 }
 
 static void battle_faint_check(
