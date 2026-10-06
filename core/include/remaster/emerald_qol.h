@@ -16,6 +16,15 @@ typedef enum RemasterEmeraldQolBoxSortMode {
     REMASTER_EMERALD_QOL_BOX_SORT_TYPE = 2
 } RemasterEmeraldQolBoxSortMode;
 
+typedef enum RemasterEmeraldQolItemSortMode {
+    REMASTER_EMERALD_QOL_ITEM_SORT_NONE = 0,
+    REMASTER_EMERALD_QOL_ITEM_SORT_NAME = 1,
+    REMASTER_EMERALD_QOL_ITEM_SORT_TYPE = 2,
+    REMASTER_EMERALD_QOL_ITEM_SORT_QUANTITY = 3,
+    REMASTER_EMERALD_QOL_ITEM_SORT_VALUE = 4,
+    REMASTER_EMERALD_QOL_ITEM_SORT_COUNT = 5
+} RemasterEmeraldQolItemSortMode;
+
 typedef enum RemasterEmeraldQolTransferResult {
     REMASTER_EMERALD_QOL_TRANSFER_OK = 0,
     REMASTER_EMERALD_QOL_TRANSFER_INVALID = 1,
@@ -24,6 +33,18 @@ typedef enum RemasterEmeraldQolTransferResult {
     REMASTER_EMERALD_QOL_TRANSFER_LAST_USABLE = 4,
     REMASTER_EMERALD_QOL_TRANSFER_MAIL = 5
 } RemasterEmeraldQolTransferResult;
+
+typedef enum RemasterEmeraldQolHeldItemResult {
+    REMASTER_EMERALD_QOL_HELD_ITEM_OK = 0,
+    REMASTER_EMERALD_QOL_HELD_ITEM_INVALID = 1,
+    REMASTER_EMERALD_QOL_HELD_ITEM_EGG = 2,
+    REMASTER_EMERALD_QOL_HELD_ITEM_MAIL = 3,
+    REMASTER_EMERALD_QOL_HELD_ITEM_UNHOLDABLE = 4,
+    REMASTER_EMERALD_QOL_HELD_ITEM_ALREADY_HELD = 5,
+    REMASTER_EMERALD_QOL_HELD_ITEM_ITEM_MISSING = 6,
+    REMASTER_EMERALD_QOL_HELD_ITEM_BAG_FULL = 7,
+    REMASTER_EMERALD_QOL_HELD_ITEM_NOT_HOLDING = 8
+} RemasterEmeraldQolHeldItemResult;
 
 typedef enum RemasterEmeraldQolHmFieldUseResult {
     REMASTER_EMERALD_QOL_HM_FIELD_USE_OK = 0,
@@ -113,6 +134,40 @@ remaster_emerald_qol_quick_withdraw_current_box(
 int remaster_emerald_qol_swap_held_items(
     RemasterEmeraldBoxPokemon *a,
     RemasterEmeraldBoxPokemon *b);
+
+int remaster_emerald_qol_bag_sort(
+    RemasterEmeraldSave *save,
+    uint8_t pocket,
+    RemasterEmeraldQolItemSortMode mode);
+RemasterEmeraldQolItemSortMode remaster_emerald_qol_bag_sort_mode(
+    RemasterEmeraldSave *save,
+    uint8_t pocket);
+int remaster_emerald_qol_bag_set_sort_mode(
+    RemasterEmeraldSave *save,
+    uint8_t pocket,
+    RemasterEmeraldQolItemSortMode mode);
+int remaster_emerald_qol_bag_auto_sort_enabled(
+    RemasterEmeraldSave *save,
+    uint8_t pocket);
+int remaster_emerald_qol_bag_set_auto_sort_enabled(
+    RemasterEmeraldSave *save,
+    uint8_t pocket,
+    int enabled);
+int remaster_emerald_qol_bag_auto_sort(
+    RemasterEmeraldSave *save,
+    uint8_t pocket);
+int remaster_emerald_qol_pc_items_sort(
+    RemasterEmeraldSave *save,
+    RemasterEmeraldQolItemSortMode mode);
+
+RemasterEmeraldQolHeldItemResult remaster_emerald_qol_pc_give_held_item(
+    RemasterEmeraldSave *save,
+    uint8_t box_slot,
+    uint16_t item_id);
+RemasterEmeraldQolHeldItemResult remaster_emerald_qol_pc_take_held_item(
+    RemasterEmeraldSave *save,
+    uint8_t box_slot,
+    uint16_t *out_item_id);
 
 uint8_t remaster_emerald_qol_quick_item_count(RemasterEmeraldSave *save);
 uint16_t remaster_emerald_qol_quick_item_get(
