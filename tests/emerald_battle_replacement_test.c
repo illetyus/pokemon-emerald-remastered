@@ -456,6 +456,76 @@ static int test_pursuit_intercepts_switch(void)
         "Pursuit must resolve against the outgoing Pokémon before switch");
 }
 
+
+static int test_fainted_action_is_cancelled_and_target_retargets(void)
+{
+    static const uint16_t quick_attack[4] = {98, 0, 0, 0};
+    static const uint16_t tackle[4] = {33, 0, 0, 0};
+    RemasterEmeraldBattleState battle;
+    RemasterEmeraldPartyPokemon players[2];
+    RemasterEmeraldPartyPokemon foes[2];
+    RemasterEmeraldBattleAction actions[
+        REMASTER_EMERALD_BATTLE_MAX_BATTLERS] = {{0}};
+    uint8_t fainted_pp;
+    uint16_t partner_hp;
+    size_t retarget_event = SIZE_MAX;
+    size_t fainted_move_event = SIZE_MAX;
+    size_t i;
+
+    if (!make_mon(&players[0], 1, 60, quick_attack)
+        || !make_mon(&players[1], 7, 30, tackle)
+        || !make_mon(&foes[0], 4, 20, tackle)
+        || !make_mon(&foes[1], 25, 20, tackle))
+        return check(0, "fainted-action retarget fixtures should build");
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER
+            | REMASTER_EMERALD_BATTLE_TYPE_DOUBLE,
+        0xFA17A2E7u);
+    if (!remaster_emerald_battle_start(
+            &battle, players, 2, foes, 2))
+        return check(0, "fainted-action retarget battle should start");
+
+    battle.battlers[1].pokemon.hp = 1;
+    battle.parties[1][0].hp = 1;
+    fainted_pp = battle.battlers[1].pp[0];
+    partner_hp = battle.battlers[3].pokemon.hp;
+    remaster_emerald_battle_clear_events(&battle);
+
+    actions[0].kind = REMASTER_EMERALD_BATTLE_ACTION_MOVE;
+    actions[0].move_slot = 0;
+    actions[0].target = 1;
+    actions[1].kind = REMASTER_EMERALD_BATTLE_ACTION_MOVE;
+    actions[1].move_slot = 0;
+    actions[1].target = 0;
+    actions[2].kind = REMASTER_EMERALD_BATTLE_ACTION_MOVE;
+    actions[2].move_slot = 0;
+    actions[2].target = 1;
+
+    if (!remaster_emerald_battle_resolve_turn(&battle, actions))
+        return check(0, "fainted-action retarget turn should resolve");
+
+    for (i = 0; i < battle.event_count; ++i) {
+        if (battle.events[i].kind != REMASTER_EMERALD_BATTLE_EVENT_MOVE_USED)
+            continue;
+        if (battle.events[i].battler == 1)
+            fainted_move_event = i;
+        if (battle.events[i].battler == 2
+            && battle.events[i].target == 3)
+            retarget_event = i;
+    }
+
+    return check(
+        battle.battlers[1].fainted
+            && fainted_move_event == SIZE_MAX
+            && battle.battlers[1].pp[0] == fainted_pp
+            && retarget_event != SIZE_MAX
+            && battle.battlers[3].pokemon.hp < partner_hp,
+        "a battler fainted earlier in the turn must lose its queued action "
+        "and later moves must retarget to the surviving opposing partner");
+}
+
 static int test_arena_blocks_voluntary_switch(void)
 {
     static const uint16_t tackle[4] = {33, 0, 0, 0};
@@ -507,6 +577,8 @@ int main(void)
     if (!test_doubles_item_switch_order_matches_emerald())
         return 1;
     if (!test_pursuit_intercepts_switch())
+        return 1;
+    if (!test_fainted_action_is_cancelled_and_target_retargets())
         return 1;
     if (!test_arena_blocks_voluntary_switch())
         return 1;
