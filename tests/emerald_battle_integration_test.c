@@ -107,6 +107,32 @@ int main(void)
             "R12 should create a wild Pokemon"))
         return 1;
 
+    /*
+     * Vanilla+ Battle Pyramid floor 6 with pyramidRandoms[3] % 100 == 95
+     * selects template 15, whose runMultiplier is 80.
+     */
+    save.save_block2[0x0CB2] = 6;
+    save.save_block2[0x0CB3] = 0;
+    save.save_block2[0x0E28] = 95;
+    save.save_block2[0x0E29] = 0;
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER
+            | REMASTER_EMERALD_BATTLE_TYPE_PYRAMID,
+        0xA1B2C3D4u);
+    if (!check(
+            remaster_emerald_battle_start_from_save(
+                &battle,
+                &save,
+                &wild,
+                1),
+            "Battle Pyramid battle should start from save state"))
+        return 1;
+    if (!check(
+            battle.pyramid_run_multiplier == 80,
+            "Battle Pyramid run multiplier must derive from saved floor template"))
+        return 1;
+
     remaster_emerald_battle_state_init(
         &battle,
         REMASTER_EMERALD_BATTLE_TYPE_MASTER,
