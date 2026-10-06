@@ -6,6 +6,10 @@
 #include <cstdio>
 #include <filesystem>
 #include <system_error>
+#include <sys/stat.h>
+#if defined(_WIN32)
+#include <io.h>
+#endif
 
 /* Shared native read transport; no UE dependency or gameplay interpretation.
  * Report MISSING only for ENOENT. Never allocate an unbounded file-sized array. */
@@ -46,6 +50,22 @@ inline RemasterSaveReadResult ReadOpened(
     std::FILE* File, uint8_t* Buffer, size_t Capacity, size_t* OutSize)
 {
     *OutSize = 0;
+    // Check the opened descriptor, not the pathname: directories can be opened
+    // and seeked on some Linux filesystems, even in the oversize probe path.
+#if defined(_WIN32)
+    struct _stat64 Status;
+    const bool Regular = _fstat64(_fileno(File), &Status) == 0
+        && (Status.st_mode & _S_IFMT) == _S_IFREG;
+#else
+    struct stat Status;
+    const bool Regular = fstat(fileno(File), &Status) == 0
+        && S_ISREG(Status.st_mode);
+#endif
+    if (!Regular)
+    {
+        std::fclose(File);
+        return REMASTER_SAVE_READ_ERROR;
+    }
     if (std::fseek(File, 0, SEEK_END) != 0)
     {
         std::fclose(File);

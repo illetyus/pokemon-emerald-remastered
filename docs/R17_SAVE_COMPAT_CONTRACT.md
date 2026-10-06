@@ -763,6 +763,10 @@ copying; the core can reject them as UNSUPPORTED before using scratch bytes.
 Open ENOENT is additionally checked against filesystem status and the nearest
 existing directory ancestor, because some CRTs conflate non-directory parents
 with absence. Permission/storage errors are ERROR; directories are not saves.
+The opened descriptor must be a regular file before any seek/size probe. This
+rejects directories on filesystems where fopen/fseek can succeed and their
+reported size exceeds capacity; pathname checks alone would also introduce a
+replacement race. POSIX fstat and Windows _fstat64 check the actual descriptor.
 
 Windows uses wide paths and `_wfopen_s`; other hosts use native UTF-8 paths.
 The Unreal adapter resolves its Saved paths through IFileManager's external-app
@@ -787,7 +791,7 @@ new creation, invalid arguments/provenance and unusable raw-export statuses.
 - Final implementation: **3300 checks, 0 failures**, strict C99/C++17 and
   C/C++ ASan/UBSan. The baseline performs extra callback checks because it
   incorrectly reaches writers in rejected cases; GREEN removes those writes.
-- Native `r17_native_file_save_read`: **31 checks, 0 failures**, including
+- Native `r17_native_file_save_read`: **32 checks, 0 failures**, including
   a Unicode destination, real missing files/directories/non-directory parents,
   exact/short/oversized/zero-length files, capacity canaries and argument errors.
   Permission/storage error classification is injected into the shared opener
@@ -796,6 +800,19 @@ new creation, invalid arguments/provenance and unusable raw-export statuses.
 - Existing save/platform tests, 284-check I1 validation, 26006-check I3 export
   and 146062-check I4 metadata regressions pass. Existing first-save mocks now
   declare typed MISSING instead of using ambiguous legacy false as absence.
+
+### R17-I5-Closure-1 — Reject directory size probes
+
+Initial I5 commit `825e53f904f4f7211280a341cdd00cc512ca9184` passed Windows
+native read 31/31 and atomic write 24/24. R0 Linux CI run `37529156535` passed
+59/60 tests but failed the directory-read case: fopen/seek could expose a
+directory length larger than capacity, bypassing fread and returning OK.
+I5 therefore entered NEEDS_CLOSURE, not VERIFIED_COMPLETE.
+
+This closure requires a regular-file descriptor before measuring/copying and
+adds a zero-capacity directory probe regression. Local strict C++17 and native
+ASan/UBSan pass 32/32. The existing Linux CI failure is the observed RED;
+exact closure-HEAD Linux/Windows CI must be terminal-success before I5 closes.
 
 I5 is VERIFYING until all exact committed-HEAD relevant PR CI is terminal-success,
 including the Windows native read/atomic-write job. Success -> R17-T1;

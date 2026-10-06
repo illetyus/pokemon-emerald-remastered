@@ -747,6 +747,13 @@ and stale store checkpoints, and requires explicit source-format load selection.
 Its shared native read transport, host status/path wiring and independent
 fixtures are in section 20 of the contract.
 
+R17-I5-Closure-1 closes the concrete failure in R0 run `37529156535` at
+`825e53f904f4f7211280a341cdd00cc512ca9184`: Linux directory size probes could
+return OK. The native transport now requires an opened regular-file descriptor;
+local native C++17 and ASan/UBSan pass 32/32. Initial CI was 59/60 Linux,
+31/31 Windows read and 24/24 Windows atomic write, so I5 remains VERIFYING
+until the closure commit's complete exact-HEAD CI succeeds.
+
 Resume at **R17-I5 verification** until the exact live I5 commit's targeted and
 complete relevant PR CI are terminal-success, including Windows native file
 transport. Then the next named subphase is **R17-T1 — Compatibility fixture

@@ -57,6 +57,8 @@ int main()
     Size = 77;
     Expect(Read(Root, Buffer.data(), Buffer.size(), &Size) == REMASTER_SAVE_READ_ERROR && Size == 0,
         "directory open/read failure is ERROR, not MISSING");
+    Expect(Read(Root, nullptr, 0, &Size) == REMASTER_SAVE_READ_ERROR && Size == 0,
+        "directory cannot pass the zero-capacity oversize probe");
     Expect(Read(File / "child", Buffer.data(), Buffer.size(), &Size) == REMASTER_SAVE_READ_ERROR,
         "non-directory path component is an error");
     Expect(RemasterFileSaveRead::Read(static_cast<const char*>(nullptr), Buffer.data(), Buffer.size(), &Size)
