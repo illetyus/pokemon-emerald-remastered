@@ -45,5 +45,11 @@ jobs:
       - name: Audit pinned Vanilla+ QoL contract
         run: python -m unittest tests/test_r16_qol_source.py -v
 
+      - name: Audit exhaustive R16 decision ledger
+        run: python -m unittest tests/test_r16_qol_decisions.py -v
+
+      - name: Run R16 closure RED gates
+        run: python -m unittest tests/test_r16_qol_red.py -v
+
       - name: Validate Unreal source boundary
         run: python tools/validate_unreal_source.py
