@@ -61,6 +61,10 @@ typedef struct RemasterEmeraldSave {
 
     /* Runtime provenance only; never serialized. Zero retains legacy Vanilla+. */
     uint8_t source_is_stock;
+
+    /* Stock-only item extensions, runtime only. The encoder serializes the
+     * three source blocks above, never this sidecar or remaster preferences. */
+    uint8_t stock_item_metadata[21];
 } RemasterEmeraldSave;
 
 uint16_t remaster_emerald_checksum(const uint8_t *data, size_t size);

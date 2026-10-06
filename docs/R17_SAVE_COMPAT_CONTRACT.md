@@ -199,13 +199,13 @@ That metadata does not resize SaveBlock1. Reset/migration logic must touch only
 the 21-byte metadata footprint and must not clear the full `unused_3598[0x180]`
 region.
 
-Current remaster `emerald_qol.c` uses literal `0x3598`, which is `0x40` before
-the production Vanilla+ metadata field. This is a confirmed R17-I4 gap, not a
-reason to move production metadata or enlarge a SaveBlock. Legacy remaster
-metadata at that offset must be audited before any migration: do not assume
-those bytes are unused in the selected format or silently clear/copy them.
-Stock Emerald has no production VP5 metadata; stock import must not manufacture
-it inside an unrelated gameplay field.
+Before I4, remaster `emerald_qol.c` used literal `0x3598`, `0x40` before
+the production Vanilla+ metadata field. I4 corrects ordinary QoL access to
+`0x35D8`; the old address is reserved for an explicit provenance-gated recovery
+operation. It overlaps production Mystery Gift data and is never automatically
+copied or cleared. Stock Emerald has no production VP5 metadata: its item
+extensions live only in a runtime sidecar, never in a serialized source block.
+Section 19 defines recovery, unsupported-version and reset boundaries.
 
 ## 8. Special-sector preservation
 
@@ -302,7 +302,7 @@ or secrets.
 - R17-I3: export, untouched-byte/special-sector preservation and transactional
   write behavior.
 - R17-I4: migration boundary, compiled VP5 offset `0x35D8`, and audit of the
-  current remaster's incorrect literal `0x3598`.
+  old remaster's incorrect literal `0x3598` (section 19).
 - R17-I5: corrupt/unsupported/platform-I/O handling.
 - R17-T1: compatibility fixture matrix.
 
@@ -570,3 +570,110 @@ smoke, or power-loss durability result. Those execution environments remain
 in R18/runtime validation. I4 still owns VP5 migration and preference
 boundaries; I5 still owns MISSING versus ERROR, unsupported/corrupt input and
 explicit-format platform loading. Full R17 acceptance remains open.
+
+## 19. R17-I4 migration and metadata checkpoint
+
+### Source audit and exact footprint
+
+Pinned `src/vanillaplus_items.c` lines 30-105 define the packed version-1
+metadata and its lazy reset policy. Validity checks magic, version, count <= 4
+and each of the five sort modes < 5. Lazy reset clears exactly 21 bytes and
+seeds quick slot 0 from `registeredItem` without changing that source field.
+The remaster retains this behavior at the measured production address.
+Import/export themselves do not initialize or migrate metadata.
+
+A fresh AGBCC (`MODERN=0`) offsetof/sizeof probe against pinned `global.h`
+and the source layout types measured these Vanilla+ boundaries:
+
+| SB1 field | Offset | Size |
+| --- | ---: | ---: |
+| Mystery Gift | `0x326C` | `0x36C` |
+| Mystery Gift card metadata | `0x3580` | `0x24` |
+| Mystery Gift questionnaire | `0x35A4` | `0x8` |
+| Mystery Gift news metadata | `0x35AC` | `0x4` |
+| Mystery Gift trainer IDs | `0x35B0` | `0x28` |
+| `unused_3598` | `0x35D8` | `0x180` |
+
+Consequently the legacy remaster footprint `0x3598..0x35AC` overlaps the last
+12 card-metadata bytes, all eight questionnaire bytes and the first news byte.
+These are not reserved bytes. Stock's same numeric address is unused, but
+stock has no authoritative VP5 extension; that does not authorize synthesis.
+
+### Explicit legacy recovery
+
+`remaster_emerald_qol_recover_legacy_item_metadata` is an explicit operation for
+callers that have independently established old-remaster Vanilla+ provenance.
+It is not called by decode, encode, platform load/store or ordinary QoL access.
+Call it before ordinary lazy QoL initialization if recovery is intended.
+The legacy magic by itself cannot prove provenance inside a gameplay field.
+
+The result and mutation contract is:
+
+| Result | Meaning / mutation |
+| --- | --- |
+| INVALID | Null wrapper or invalid runtime source provenance; no mutation |
+| NOT_APPLICABLE | Stock source; no mutation or persisted VP5 synthesis |
+| CURRENT | Valid production metadata wins; no mutation |
+| UNSUPPORTED | Production VP5 magic with version other than 1; no mutation |
+| NO_LEGACY | Legacy bytes fail pinned version-1 validity; no mutation |
+| CONFLICT | Destination is not uniformly 21 bytes of 00 or FF; no mutation |
+| RECOVERED | Copy exactly 21 valid legacy bytes into the blank production footprint |
+
+Recovery does not clear legacy bytes, reset the full unused region, synchronize
+`registeredItem`, resize any source block or rewrite unrelated data. Repeating
+a successful recovery returns CURRENT. Already-overwritten Mystery Gift bytes
+cannot be reconstructed by this operation; they are retained, not repaired.
+No automatic stock-to-Vanilla+ or reverse layout conversion exists.
+
+### Version and preference boundary
+
+Unknown VP5 versions are deliberately opaque. This is explicit project
+hardening relative to pinned `GetItemMetadata`, which would reset them.
+Read APIs return neutral results, setters/registration reject and prune is a
+no-op; sorting rejects before changing Bag bytes. Version-1 malformed metadata
+and missing magic retain the source's exactly-21-byte lazy reset policy.
+Export preserves an unknown version unchanged; I5 owns whole-image/platform
+unsupported and corrupt-file reporting, rather than an implicit downgrade here.
+
+For stock saves, a zero-initialized 21-byte `stock_item_metadata` runtime
+sidecar provides the existing QoL API without placing a VP5 header in SB1.
+Only an intentional primary-item registration/unregistration may change the
+authoritative `registeredItem` field; Bag sorting changes actual item ordering
+as before. Additional quick slots and sort preferences are session state and
+are not serialized in stock Emerald exports. Decode starts a fresh sidecar
+and derives the one persisted stock primary on first QoL access. Vanilla+
+retains persistent VP5 sort modes and quick slots as accepted in QOL-021/024.
+
+This wrapper extension changes the remaster runtime allocation size only.
+SaveBlock2/SaveBlock1/PokemonStorage sizes, chunk spans and 128 KiB image size
+are unchanged. Remaster graphics/performance settings stay in Unreal config
+(`RemasterPerformanceSettings.h`, `DefaultGameUserSettings.ini`), outside the
+gameplay blocks. No new preferences format, sidecar file, UI or platform I/O
+semantics is introduced by I4.
+
+### Regression and verification evidence
+
+`r17_save_metadata_boundary` uses independently specified source offsets,
+packed metadata and two-slot/checksum fixtures. It checks every SB1 byte
+against allowed changes; SB2/storage, the other slot and special sectors are
+also compared. Cases cover production precedence and functional round-trip,
+source lazy initialization, malformed v1, all 255 unsupported byte versions,
+stock runtime state/export boundaries, explicit recovery, idempotence,
+occupied/mixed destinations at every footprint byte, invalid legacy fields,
+invalid provenance and null inputs. Existing R16 tests now use the measured
+production offset rather than asserting the old literal as authority.
+
+- Pre-I4 code, with a test-only missing-recovery shim: **146062 checks,
+  2657 failures**, RED, exit 1. The shim
+  models the absent API without changing baseline implementation behavior.
+- Final code: **146062 checks, 0 failures**, GREEN under strict C99 and C++17,
+  plus C/C++ ASan/UBSan, each with the same check totals.
+  LeakSanitizer is disabled in the ptrace workspace.
+- Existing R16 behavior/item tests and the 26006-check I3 export/transaction
+  regression pass. All 43 local core blobs matched the live baseline before
+  edits; remaining core blobs must continue to match that baseline.
+
+I4 remains VERIFYING until the atomic committed HEAD's complete relevant PR
+CI is terminal-success. Success -> R17-I5; failure -> a concrete I4 closure.
+Full R17 acceptance, real fixture acceptance and Unreal/Android execution are
+not claimed by this metadata checkpoint.

@@ -75,7 +75,8 @@ enum {
     SB1_POKE_BALLS = 0x0650,
     SB1_TM_HM = 0x0690,
     SB1_BERRIES = 0x0790,
-    SB1_VANILLAPLUS_ITEM_META = 0x3598,
+    SB1_VANILLAPLUS_ITEM_META = 0x35D8,
+    SB1_LEGACY_REMASTER_ITEM_META = 0x3598,
 
     ITEM_SLOT_BYTES = 4,
     PC_ITEMS_COUNT = 50,
@@ -1201,6 +1202,10 @@ RemasterEmeraldQolHeldItemResult remaster_emerald_qol_pc_take_held_item(
 
 static uint8_t *item_meta(RemasterEmeraldSave *save)
 {
+    if (save == 0 || save->source_is_stock > 1)
+        return 0;
+    if (save->source_is_stock)
+        return save->stock_item_metadata;
     return save->save_block1 + SB1_VANILLAPLUS_ITEM_META;
 }
 
@@ -1231,15 +1236,52 @@ static int item_meta_valid(const uint8_t *meta)
     return 1;
 }
 
+static int item_meta_unsupported(const uint8_t *meta)
+{
+    /* Explicit compatibility hardening: retain an unknown VP5 version rather
+     * than silently downgrade it as the pinned source reset routine would. */
+    return read32(meta) == VANILLAPLUS_ITEM_META_MAGIC
+        && meta[4] != VANILLAPLUS_ITEM_META_VERSION;
+}
+
+RemasterEmeraldQolMetadataRecovery
+remaster_emerald_qol_recover_legacy_item_metadata(RemasterEmeraldSave *save)
+{
+    uint8_t *meta;
+    const uint8_t *legacy;
+    size_t i;
+
+    if (save == 0 || save->source_is_stock > 1)
+        return REMASTER_EMERALD_QOL_METADATA_INVALID;
+    if (save->source_is_stock)
+        return REMASTER_EMERALD_QOL_METADATA_NOT_APPLICABLE;
+    meta = item_meta(save);
+    if (item_meta_valid(meta))
+        return REMASTER_EMERALD_QOL_METADATA_CURRENT;
+    if (item_meta_unsupported(meta))
+        return REMASTER_EMERALD_QOL_METADATA_UNSUPPORTED;
+
+    legacy = save->save_block1 + SB1_LEGACY_REMASTER_ITEM_META;
+    if (!item_meta_valid(legacy))
+        return REMASTER_EMERALD_QOL_METADATA_NO_LEGACY;
+    if (meta[0] != 0 && meta[0] != 0xFF)
+        return REMASTER_EMERALD_QOL_METADATA_CONFLICT;
+    for (i = 1; i < VANILLAPLUS_ITEM_META_BYTES; ++i) {
+        if (meta[i] != meta[0])
+            return REMASTER_EMERALD_QOL_METADATA_CONFLICT;
+    }
+    memcpy(meta, legacy, VANILLAPLUS_ITEM_META_BYTES);
+    return REMASTER_EMERALD_QOL_METADATA_RECOVERED;
+}
+
 static uint8_t *ensure_item_meta(RemasterEmeraldSave *save)
 {
     uint8_t *meta;
     uint16_t registered;
 
-    if (save == 0)
-        return 0;
-
     meta = item_meta(save);
+    if (meta == 0 || item_meta_unsupported(meta))
+        return 0;
     if (item_meta_valid(meta))
         return meta;
 
@@ -1273,11 +1315,11 @@ int remaster_emerald_qol_bag_sort(
         || !bag_view(pocket, &view))
         return 0;
 
-    count = compact_item_slots(save, &view);
-    sort_item_slots(save, &view, count, mode);
     meta = ensure_item_meta(save);
     if (meta == 0)
         return 0;
+    count = compact_item_slots(save, &view);
+    sort_item_slots(save, &view, count, mode);
     meta[VANILLAPLUS_ITEM_META_BAG_SORT_MODES + (size_t)index] = (uint8_t)mode;
     return 1;
 }
@@ -1421,6 +1463,8 @@ int remaster_emerald_qol_quick_item_register(
         return 0;
 
     meta = ensure_item_meta(save);
+    if (meta == 0)
+        return 0;
     count = meta[VANILLAPLUS_ITEM_META_QUICK_COUNT];
     for (i = 0; i < count; ++i) {
         if (read16(
@@ -1451,6 +1495,8 @@ int remaster_emerald_qol_quick_item_unregister(
         return 0;
 
     meta = ensure_item_meta(save);
+    if (meta == 0)
+        return 0;
     count = meta[VANILLAPLUS_ITEM_META_QUICK_COUNT];
     for (i = 0; i < count; ++i) {
         if (read16(
@@ -1492,6 +1538,8 @@ void remaster_emerald_qol_quick_items_prune(RemasterEmeraldSave *save)
         return;
 
     meta = ensure_item_meta(save);
+    if (meta == 0)
+        return;
     count = meta[VANILLAPLUS_ITEM_META_QUICK_COUNT];
     for (i = 0; i < count; ++i) {
         const uint16_t item_id = read16(

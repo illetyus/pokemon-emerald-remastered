@@ -730,26 +730,31 @@ R17-I2 is VERIFIED_COMPLETE at
 terminal-success; R0 portable core passed 55/55, including generated encounter
 import cases and C++ embed smoke.
 
-R17-I3 now exports each imported source layout, retains raw domain/special
-sector bytes and stages caller-visible metadata until persistent write success.
-The Unreal file transport prepares a same-directory temporary image before
-atomic replacement. Independent core and native filesystem fixtures and
-source evidence are in section 18 of `docs/R17_SAVE_COMPAT_CONTRACT.md`.
+R17-I3 is VERIFIED_COMPLETE at
+`4f5f35c12dc484c61fa4c282738bd28440311a6c`: all nine workflow runs are
+terminal-success; portable core passed 57/57 and Windows native atomic
+transport passed 24/24. Its source-format export/preservation and transactional
+write evidence is in section 18 of `docs/R17_SAVE_COMPAT_CONTRACT.md`.
 
-Resume at **R17-I3 verification** until the exact live I3 commit's targeted and
-complete relevant PR CI are terminal-success, including the Windows native
-atomic file transport job. Then the next named subphase is
-**R17-I4 — Migration/metadata boundary**. Pending/failed CI keeps I3 open and
-permits only a concrete gap-specific closure. VP5 migration, remaster-only
-preference boundaries and safe explicit-format platform loading remain I4/I5.
+R17-I4 corrects production VP5 access to the measured address, adds explicit
+non-destructive legacy recovery, keeps stock item extensions in runtime state
+and retains unknown metadata versions. Source/reset/recovery boundaries and
+independent fixtures are in section 19 of the contract.
+
+Resume at **R17-I4 verification** until the exact live I4 commit's targeted and
+complete relevant PR CI are terminal-success. Then the next named subphase is
+**R17-I5 — Corrupt/unsupported handling**. Pending/failed CI keeps I4 open and
+permits only a concrete gap-specific closure. Safe read-result semantics and
+explicit-format platform loading remain I5; T1 and final phase gates remain open.
 Real Unreal compilation/Android execution remains R18 work; native transport
 checks are not a substitute for that gate.
 
 P2 closure remeasured the production AGBCC layout: existing remaster block sizes
 `0xF44` / `0x3DC8` are correct for pinned Vanilla+; the earlier P2 contract had
 mistaken stale comments for compiled sizes. Production VP5 metadata is at
-compiled `SaveBlock1.unused_3598=0x35D8`; the remaster literal `0x3598` is an I4
-gap. Evidence and format policy are in `docs/R17_SAVE_COMPAT_CONTRACT.md`.
+compiled `SaveBlock1.unused_3598=0x35D8`; I4 confines the old remaster literal
+`0x3598` to explicit recovery rather than normal metadata access. Evidence and
+format policy are in `docs/R17_SAVE_COMPAT_CONTRACT.md`.
 I1 verified format-specific checksum spans, slot choice, sector
 IDs/signatures, rotation and the explicit counter-coherence policy. No
 gameplay/implementation change belongs to P2.

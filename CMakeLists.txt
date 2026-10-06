@@ -967,3 +967,13 @@ else()
     target_compile_options(r17_atomic_file_save_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r17_atomic_file_save COMMAND r17_atomic_file_save_test)
+
+# R17-I4: production metadata, explicit recovery and stock runtime boundary.
+add_executable(emerald_save_metadata_test tests/emerald_save_metadata_test.c)
+target_link_libraries(emerald_save_metadata_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_save_metadata_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_save_metadata_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r17_save_metadata_boundary COMMAND emerald_save_metadata_test)
