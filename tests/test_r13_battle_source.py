@@ -1,0 +1,461 @@
+import pathlib
+import re
+import unittest
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+VENDOR = ROOT / "vendor" / "vanillaplus"
+R13 = ROOT / "core" / "src" / "emerald_battle.c"
+
+
+class R13BattleSourceContract(unittest.TestCase):
+    def test_pinned_battle_sources_exist(self):
+        for rel in (
+            "src/battle_main.c",
+            "src/battle_util.c",
+            "src/battle_script_commands.c",
+            "src/battle_ai_script_commands.c",
+            "src/battle_ai_switch_items.c",
+            "src/battle_setup.c",
+            "src/data/trainers.h",
+            "src/data/trainer_parties.h",
+            "data/battle_ai_scripts.s",
+            "src/pokemon.c",
+            "include/data.h",
+            "include/constants/battle.h",
+            "include/constants/battle_ai.h",
+            "include/constants/battle_move_effects.h",
+            "include/constants/trainers.h",
+        ):
+            self.assertTrue((VENDOR / rel).is_file(), rel)
+
+    def test_trainer_contract_sources_match_gen3_shapes(self):
+        data_h = (VENDOR / "include/data.h").read_text(encoding="utf-8")
+        ai_h = (VENDOR / "include/constants/battle_ai.h").read_text(
+            encoding="utf-8"
+        )
+        trainers = (VENDOR / "src/data/trainers.h").read_text(encoding="utf-8")
+
+        self.assertIn("struct TrainerMonNoItemDefaultMoves", data_h)
+        self.assertIn("struct TrainerMonItemCustomMoves", data_h)
+        self.assertIn("struct Trainer", data_h)
+        self.assertIn("#define MAX_TRAINER_ITEMS 4", data_h)
+        self.assertIn("#define AI_SCRIPT_CHECK_BAD_MOVE", ai_h)
+        self.assertIn("#define AI_SCRIPT_TRY_TO_FAINT", ai_h)
+        self.assertIn("#define AI_SCRIPT_CHECK_VIABILITY", ai_h)
+        self.assertIn(".doubleBattle =", trainers)
+        self.assertIn(".aiFlags =", trainers)
+        self.assertIn(".party =", trainers)
+
+    def test_trainer_party_construction_matches_vanillaplus(self):
+        text = (VENDOR / "src/battle_main.c").read_text(encoding="utf-8")
+        self.assertIn("static u8 CreateNPCTrainerParty", text)
+        self.assertIn(
+            "fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;",
+            text,
+        )
+        self.assertIn("personalityValue = 0x80;", text)
+        self.assertIn("personalityValue = 0x78;", text)
+        self.assertIn("personalityValue = 0x88;", text)
+        self.assertIn("personalityValue += nameHash << 8;", text)
+        self.assertIn("OT_ID_RANDOM_NO_SHINY", text)
+        self.assertIn(
+            "gBattleTypeFlags |= gTrainers[trainerNum].doubleBattle;",
+            text,
+        )
+
+    def test_trainer_reward_and_end_lifecycle_are_pinned(self):
+        battle_main = (VENDOR / "src/battle_main.c").read_text(
+            encoding="utf-8"
+        )
+        commands = (VENDOR / "src/battle_script_commands.c").read_text(
+            encoding="utf-8"
+        )
+        setup = (VENDOR / "src/battle_setup.c").read_text(encoding="utf-8")
+
+        self.assertIn("const struct TrainerMoney gTrainerMoneyTable[]", battle_main)
+        self.assertIn(
+            "4 * lastMonLevel * gBattleStruct->moneyMultiplier",
+            commands,
+        )
+        self.assertIn("SetBattledTrainersFlags();", setup)
+        self.assertIn("SetMainCallback2(CB2_WhiteOut);", setup)
+        battle_util = (VENDOR / "src/battle_util.c").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("case HOLD_EFFECT_DOUBLE_PRIZE:", battle_util)
+        self.assertIn("gBattleStruct->moneyMultiplier = 2;", battle_util)
+
+    def test_trainer_ai_score_pipeline_is_pinned(self):
+        commands = (
+            VENDOR / "src/battle_ai_script_commands.c"
+        ).read_text(encoding="utf-8")
+        scripts = (
+            VENDOR / "data/battle_ai_scripts.s"
+        ).read_text(encoding="utf-8")
+        portable = R13.read_text(encoding="utf-8")
+
+        self.assertIn("AI_THINKING_STRUCT->score[i] = 100;", commands)
+        self.assertIn(
+            "consideredMoveArray[Random() % numOfBestMoves]",
+            commands,
+        )
+        for label in (
+            "AI_CheckBadMove:",
+            "AI_TryToFaint:",
+            "AI_CheckViability:",
+            "AI_SetupFirstTurn:",
+            "AI_Risky:",
+            "AI_PreferPowerExtremes:",
+            "AI_PreferBatonPass:",
+            "AI_HPAware:",
+            "AI_TrySunnyDayStart:",
+        ):
+            self.assertIn(label, scripts)
+
+        for helper in (
+            "battle_ai_apply_check_bad_move",
+            "battle_ai_apply_try_to_faint",
+            "battle_ai_apply_check_viability",
+            "battle_ai_apply_setup_first_turn",
+            "battle_ai_apply_risky",
+            "battle_ai_apply_prefer_power_extremes",
+            "battle_ai_apply_prefer_baton_pass",
+            "battle_ai_apply_hp_aware",
+            "battle_ai_apply_try_sunny_day_start",
+            "battle_ai_choose_trainer_move",
+        ):
+            self.assertIn(helper, portable)
+
+        for flag in (
+            "REMASTER_EMERALD_AI_CHECK_BAD_MOVE",
+            "REMASTER_EMERALD_AI_TRY_TO_FAINT",
+            "REMASTER_EMERALD_AI_CHECK_VIABILITY",
+            "REMASTER_EMERALD_AI_SETUP_FIRST_TURN",
+            "REMASTER_EMERALD_AI_RISKY",
+            "REMASTER_EMERALD_AI_PREFER_POWER_EXTREMES",
+            "REMASTER_EMERALD_AI_PREFER_BATON_PASS",
+            "REMASTER_EMERALD_AI_HP_AWARE",
+            "REMASTER_EMERALD_AI_TRY_SUNNY_DAY_START",
+        ):
+            self.assertIn(f"if (flags & {flag})", portable)
+
+    def test_trainer_ai_pipeline_matches_script_order(self):
+        portable = R13.read_text(encoding="utf-8")
+        start = portable.index("static int battle_ai_choose_trainer_move")
+        end = portable.index(
+            "int remaster_emerald_battle_choose_ai_action", start
+        )
+        pipeline = portable[start:end]
+
+        ordered = (
+            "battle_ai_apply_check_bad_move(",
+            "battle_ai_apply_try_to_faint(",
+            "battle_ai_apply_check_viability(",
+            "battle_ai_apply_setup_first_turn(",
+            "battle_ai_apply_risky(",
+            "battle_ai_apply_prefer_power_extremes(",
+            "battle_ai_apply_prefer_baton_pass(",
+            "battle_ai_apply_double_battle(",
+            "battle_ai_apply_hp_aware(",
+            "battle_ai_apply_try_sunny_day_start(",
+        )
+        positions = [pipeline.index(symbol) for symbol in ordered]
+        self.assertEqual(positions, sorted(positions))
+
+        for helper in (
+            "battle_ai_apply_check_bad_move",
+            "battle_ai_apply_try_to_faint",
+            "battle_ai_apply_check_viability",
+            "battle_ai_apply_setup_first_turn",
+            "battle_ai_apply_risky",
+            "battle_ai_apply_prefer_power_extremes",
+            "battle_ai_apply_prefer_baton_pass",
+        ):
+            helper_start = portable.index(f"static void {helper}")
+            helper_end = portable.index("\nstatic ", helper_start + 20)
+            helper_text = portable[helper_start:helper_end]
+            self.assertRegex(
+                helper_text,
+                r"(?:->|\.)side == user->side",
+                helper,
+            )
+
+    def test_trainer_switch_item_ai_is_pinned(self):
+        switch_items = (
+            VENDOR / "src/battle_ai_switch_items.c"
+        ).read_text(encoding="utf-8")
+        portable = R13.read_text(encoding="utf-8")
+
+        for source_helper in (
+            "ShouldSwitchIfPerishSong",
+            "ShouldSwitchIfWonderGuard",
+            "FindMonThatAbsorbsOpponentsMove",
+            "ShouldSwitchIfNaturalCure",
+            "GetMostSuitableMonToSwitchInto",
+            "GetAI_ItemType",
+            "ShouldUseItem",
+            "AI_TrySwitchOrUseItem",
+        ):
+            self.assertIn(source_helper, switch_items)
+
+        for portable_helper in (
+            "battle_ai_switch_is_trapped",
+            "battle_ai_find_absorbing_switch",
+            "battle_ai_find_counter_switch",
+            "battle_ai_find_suitable_switch",
+            "battle_ai_choose_switch_action",
+            "battle_ai_trainer_item_type",
+            "battle_ai_choose_item_action",
+            "battle_use_trainer_item",
+        ):
+            self.assertIn(portable_helper, portable)
+
+        for contract_symbol in (
+            "ABILITY_SHADOW_TAG",
+            "ABILITY_ARENA_TRAP",
+            "ABILITY_MAGNET_PULL",
+            "BATTLE_AI_ITEM_CURE_CONDITION",
+            "BATTLE_AI_ITEM_X_STAT",
+            "BATTLE_AI_ITEM_GUARD_SPEC",
+            "ITEM_GUARD_SPEC",
+            "ITEM_DIRE_HIT",
+            "ITEM_X_ATTACK",
+        ):
+            self.assertIn(contract_symbol, portable)
+
+        self.assertIn(
+            "case REMASTER_EMERALD_BATTLE_ACTION_ITEM:",
+            portable,
+        )
+
+    def test_turn_order_and_switch_lifecycle_match_vanillaplus(self):
+        battle_main = (VENDOR / "src/battle_main.c").read_text(
+            encoding="utf-8"
+        )
+        commands = (
+            VENDOR / "src/battle_script_commands.c"
+        ).read_text(encoding="utf-8")
+        portable = R13.read_text(encoding="utf-8")
+
+        self.assertIn("SetActionsAndBattlersTurnOrder", battle_main)
+        self.assertIn("gRandomTurnNumber = Random();", battle_main)
+        self.assertIn(
+            "B_ACTION_USE_ITEM || "
+            "gChosenActionByBattler[gActiveBattler] == B_ACTION_SWITCH",
+            battle_main,
+        )
+        self.assertIn("Cmd_jumpifnopursuitswitchdmg", commands)
+        self.assertIn("FaintClearSetData(void)", battle_main)
+
+        for symbol in (
+            "battle_resolve_pursuit_on_switch",
+            "battle_clear_fainted_state",
+            "turn_random = remaster_emerald_battle_random",
+            "REMASTER_EMERALD_BATTLE_TYPE_SAFARI",
+            "REMASTER_EMERALD_BATTLE_TYPE_ARENA",
+        ):
+            self.assertIn(symbol, portable)
+
+        self.assertRegex(
+            portable,
+            r"battle_faint_check\(battle, battler\);\s*"
+            r"if \(battle->battlers\[battler\]\.fainted\)\s*"
+            r"return 1;",
+        )
+
+
+    def test_special_escape_lifecycle_matches_vanillaplus(self):
+        battle_main = (VENDOR / "src/battle_main.c").read_text(
+            encoding="utf-8"
+        )
+        battle_util = (VENDOR / "src/battle_util.c").read_text(
+            encoding="utf-8"
+        )
+        battle_pyramid = (VENDOR / "src/battle_pyramid.c").read_text(
+            encoding="utf-8"
+        )
+        portable = R13.read_text(encoding="utf-8")
+        header = (
+            ROOT / "core/include/remaster/emerald_battle.h"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("IsRunningFromBattleImpossible", battle_main)
+        self.assertIn("BATTLE_TYPE_FIRST_BATTLE", battle_main)
+        self.assertIn("void HandleAction_Run(void)", battle_util)
+        self.assertIn("bool8 TryRunFromBattle(u8 battler)", battle_util)
+        self.assertIn("HOLD_EFFECT_CAN_ALWAYS_RUN", battle_util)
+        self.assertIn("ABILITY_RUN_AWAY", battle_util)
+        self.assertIn("gBattleStruct->runTries++", battle_util)
+        self.assertIn("B_OUTCOME_MON_FLED", battle_util)
+        self.assertIn("u8 speedVar;", battle_util)
+        self.assertIn("GetPyramidRunMultiplier()", battle_util)
+
+        self.assertIn("GetPyramidRunMultiplier(void)", battle_pyramid)
+        self.assertIn("sPyramidFloorTemplates", battle_pyramid)
+        self.assertIn(".runMultiplier = 80", battle_pyramid)
+        self.assertIn("pyramidRandoms[3] % 100", battle_pyramid)
+        self.assertIn("frontier.curChallengeBattleNum", battle_pyramid)
+
+        for symbol in (
+            "HOLD_EFFECT_CAN_ALWAYS_RUN",
+            "ABILITY_RUN_AWAY",
+            "REMASTER_EMERALD_BATTLE_TYPE_FIRST",
+            "REMASTER_EMERALD_BATTLE_TYPE_SAFARI",
+            "REMASTER_EMERALD_BATTLE_TYPE_LINK",
+            "REMASTER_EMERALD_BATTLE_TYPE_RECORDED_LINK",
+            "REMASTER_EMERALD_BATTLE_OUTCOME_FORFEITED",
+            "REMASTER_EMERALD_BATTLE_OUTCOME_MON_FLED",
+            "battle->run_tries",
+            "battle_pyramid_run_multiplier_from_save",
+            "SAVE2_FRONTIER_CUR_CHALLENGE_BATTLE_NUM",
+            "SAVE2_FRONTIER_PYRAMID_RANDOM3",
+            "uint8_t speed_var;",
+        ):
+            self.assertIn(symbol, portable)
+
+        self.assertIn("uint8_t run_tries;", header)
+        self.assertIn("uint8_t pyramid_run_multiplier;", header)
+        self.assertIn("player_speed >= foe_speed", portable)
+        self.assertIn("battle->run_tries++;", portable)
+
+    def test_faint_replacement_contract_is_explicit(self):
+        portable = R13.read_text(encoding="utf-8")
+        header = (
+            ROOT / "core/include/remaster/emerald_battle.h"
+        ).read_text(encoding="utf-8")
+
+        for symbol in (
+            "remaster_emerald_battle_needs_replacement",
+            "remaster_emerald_battle_replace_fainted",
+        ):
+            self.assertIn(symbol, header)
+            self.assertIn(symbol, portable)
+
+        self.assertIn(
+            "battle_handle_pending_replacements",
+            portable,
+        )
+
+    def test_progression_handoff_sources_are_pinned(self):
+        pokemon = (
+            VENDOR / "src/pokemon.c"
+        ).read_text(encoding="utf-8")
+        learnsets = (
+            VENDOR / "src/data/pokemon/level_up_learnsets.h"
+        ).read_text(encoding="utf-8")
+        portable = R13.read_text(encoding="utf-8")
+        header = (
+            ROOT / "core/include/remaster/emerald_battle.h"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("MonTryLearningNewMove", pokemon)
+        self.assertIn("GetEvolutionTargetSpecies", pokemon)
+        self.assertIn("LEVEL_UP_MOVE(", learnsets)
+
+        for symbol in (
+            "REMASTER_EMERALD_BATTLE_EVENT_MOVE_LEARN",
+            "REMASTER_EMERALD_BATTLE_EVENT_EVOLUTION_CHECK",
+        ):
+            self.assertIn(symbol, header)
+            self.assertIn(symbol, portable)
+
+        self.assertIn("battle_emit_progression_handoffs", portable)
+        self.assertIn(
+            "FreeResetData_ReturnToOvOrDoEvolutions",
+            (VENDOR / "src/battle_main.c").read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            "gBattleOutcome != B_OUTCOME_WON",
+            (VENDOR / "src/battle_main.c").read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            "battle_emit_post_battle_evolution_handoffs",
+            portable,
+        )
+        self.assertIn("leveled_up_party_mask", portable)
+        self.assertIn(
+            "battle->outcome != REMASTER_EMERALD_BATTLE_OUTCOME_WON",
+            portable,
+        )
+
+    def test_move_effect_count_is_gen3_contract(self):
+        text = (VENDOR / "include/constants/battle_move_effects.h").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("#define NUM_BATTLE_MOVE_EFFECTS 214", text)
+
+    def test_ultra_ball_vanillaplus_bonus_is_four_x(self):
+        text = (VENDOR / "src/battle_script_commands.c").read_text(
+            encoding="utf-8"
+        )
+        self.assertRegex(
+            text,
+            r"\[ITEM_ULTRA_BALL\s*-\s*ITEM_ULTRA_BALL\]\s*=\s*40",
+        )
+        r13 = R13.read_text(encoding="utf-8")
+        self.assertRegex(
+            r13,
+            r"case\s+ITEM_ULTRA_BALL:\s*\n\s*return\s+40;",
+        )
+
+    def test_portable_rng_uses_emerald_lcrng_constants(self):
+        r13 = R13.read_text(encoding="utf-8")
+        self.assertIn("1103515245", r13)
+        self.assertIn("24691", r13)
+
+    def test_all_used_move_effects_have_portable_handlers(self):
+        effects_text = (
+            VENDOR / "include/constants/battle_move_effects.h"
+        ).read_text(encoding="utf-8")
+        effect_names = {
+            int(match.group(2)): match.group(1)
+            for match in re.finditer(
+                r"^#define\s+(EFFECT_[A-Z0-9_]+)\s+(\d+)",
+                effects_text,
+                re.MULTILINE,
+            )
+        }
+
+        catalog = (
+            ROOT / "core" / "src" / "emerald_domain_catalog.inc"
+        ).read_text(encoding="utf-8")
+        start = catalog.index(
+            "static const RemasterEmeraldMoveInfo"
+        )
+        end = catalog.index("};", start)
+        used_effects = {
+            int(match.group(2))
+            for match in re.finditer(
+                r"\{\s*(\d+)\s*,\s*(\d+)\s*,",
+                catalog[start:end],
+            )
+        }
+
+        r13 = R13.read_text(encoding="utf-8")
+        handled = set(
+            re.findall(r"case\s+(EFFECT_[A-Z0-9_]+)", r13)
+        )
+        handled.update(
+            re.findall(r"effect\s*==\s*(EFFECT_[A-Z0-9_]+)", r13)
+        )
+
+        missing = [
+            effect_names[effect]
+            for effect in sorted(used_effects)
+            if effect_names.get(effect) not in handled
+        ]
+        self.assertEqual(
+            missing,
+            [],
+            "portable battle core is missing used move effects: "
+            + ", ".join(missing),
+        )
+
+    def test_unreal_does_not_own_battle_math(self):
+        r13 = R13.read_text(encoding="utf-8")
+        self.assertIn("remaster_emerald_battle_calculate_damage", r13)
+        self.assertIn("remaster_emerald_battle_resolve_turn", r13)
+
+
+if __name__ == "__main__":
+    unittest.main()

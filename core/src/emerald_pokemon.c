@@ -439,6 +439,22 @@ int remaster_emerald_box_pokemon_set_ability_num(
     return 1;
 }
 
+int remaster_emerald_box_pokemon_set_pokeball(
+    RemasterEmeraldBoxPokemon *pokemon,
+    uint8_t pokeball)
+{
+    uint16_t origins;
+
+    if (pokemon == 0 || pokeball > 15)
+        return 0;
+
+    origins = sub_read16(pokemon, 3, 2);
+    origins &= (uint16_t)~UINT16_C(0x7800);
+    origins |= (uint16_t)((uint16_t)pokeball << 11u);
+    sub_write16(pokemon, 3, 2, origins);
+    return 1;
+}
+
 static int decode_party_raw(
     const uint8_t *raw,
     RemasterEmeraldPartyPokemon *out,
@@ -658,6 +674,34 @@ const RemasterEmeraldEvolution *remaster_emerald_species_evolutions(
     if ((size_t)species_id >= remaster_emerald_species_info_count())
         return 0;
     return kRemasterEmeraldEvolutionTable[species_id];
+}
+
+const RemasterEmeraldLevelUpMove *remaster_emerald_species_level_up_moves(
+    uint16_t species_id,
+    size_t *out_count)
+{
+    size_t start;
+    size_t count;
+
+    if (out_count != 0)
+        *out_count = 0;
+
+    if ((size_t)species_id
+        >= sizeof(kRemasterEmeraldLevelUpMoveSlices)
+            / sizeof(kRemasterEmeraldLevelUpMoveSlices[0]))
+        return 0;
+
+    start = kRemasterEmeraldLevelUpMoveSlices[species_id][0];
+    count = kRemasterEmeraldLevelUpMoveSlices[species_id][1];
+
+    if (start + count
+        > sizeof(kRemasterEmeraldLevelUpMoves)
+            / sizeof(kRemasterEmeraldLevelUpMoves[0]))
+        return 0;
+
+    if (out_count != 0)
+        *out_count = count;
+    return count != 0 ? &kRemasterEmeraldLevelUpMoves[start] : 0;
 }
 
 uint8_t remaster_emerald_species_ability(

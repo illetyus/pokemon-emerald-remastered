@@ -1,0 +1,62 @@
+name: R13 Battle
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+      - r13-**
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: r13-battle-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  battle-core:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build R13 targets
+        run: >-
+          cmake --build build --config Release --target
+          emerald_battle_core_test
+          emerald_battle_trainer_test
+          emerald_battle_ai_test
+          emerald_battle_replacement_test
+          emerald_battle_progression_test
+          emerald_battle_replay_test
+          emerald_script_trainer_battle_test
+          emerald_battle_integration_test
+          emerald_battle_effects_test
+          emerald_battle_move_effects_test
+          unreal_cpp_embed_smoke
+
+      - name: Run R13 regressions
+        run: >-
+          ctest --test-dir build -C Release
+          -R "r13_battle_core|r13_battle_trainer_contract|r13_battle_ai|r13_battle_replacement|r13_battle_progression|r13_battle_replay|r13_trainer_catalog_audit|r13_trainer_script_bridge|r13_encounter_battle_integration|r13_battle_effects|r13_battle_move_effects|unreal_cpp_embed"
+          --output-on-failure
+
+      - name: Audit pinned Vanilla+ battle contract
+        run: >-
+          python -m unittest
+          tests/test_r13_battle_source.py
+          tests/test_convert_scripts.py
+          -v
+
+      - name: Validate Unreal source boundary
+        run: python tools/validate_unreal_source.py

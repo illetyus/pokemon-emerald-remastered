@@ -94,6 +94,11 @@ typedef struct RemasterEmeraldEvolution {
     uint16_t target_species;
 } RemasterEmeraldEvolution;
 
+typedef struct RemasterEmeraldLevelUpMove {
+    uint16_t move_id;
+    uint8_t level;
+} RemasterEmeraldLevelUpMove;
+
 typedef struct RemasterEmeraldCalculatedStats {
     uint16_t hp;
     uint16_t attack;
@@ -177,6 +182,9 @@ int remaster_emerald_box_pokemon_set_iv(
 int remaster_emerald_box_pokemon_set_ability_num(
     RemasterEmeraldBoxPokemon *pokemon,
     uint8_t ability_num);
+int remaster_emerald_box_pokemon_set_pokeball(
+    RemasterEmeraldBoxPokemon *pokemon,
+    uint8_t pokeball);
 
 uint8_t remaster_emerald_party_count(const RemasterEmeraldSave *save);
 int remaster_emerald_party_set_count(
@@ -220,9 +228,18 @@ const RemasterEmeraldMoveInfo *remaster_emerald_move_info(
 const RemasterEmeraldEvolution *remaster_emerald_species_evolutions(
     uint16_t species_id);
 
+const RemasterEmeraldLevelUpMove *remaster_emerald_species_level_up_moves(
+    uint16_t species_id,
+    size_t *out_count);
+
 uint8_t remaster_emerald_species_ability(
     uint16_t species_id,
     uint8_t ability_num);
+
+int remaster_emerald_pokemon_apply_initial_moves(
+    RemasterEmeraldBoxPokemon *pokemon,
+    uint16_t species_id,
+    uint8_t level);
 
 uint32_t remaster_emerald_experience_for_level(
     uint8_t growth_rate,

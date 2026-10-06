@@ -118,6 +118,26 @@ class ConvertScriptsInventoryTests(unittest.TestCase):
 .endm
 .macro updatefollowerpokemongraphic
 .endm
+.macro checktrainerflag trainer:req
+.endm
+.macro settrainerflag trainer:req
+.endm
+.macro cleartrainerflag trainer:req
+.endm
+.macro trainerbattle_single trainer:req, intro_text:req, lose_text:req, event_script=FALSE, music=TRUE
+.endm
+.macro trainerbattle_double trainer:req, intro_text:req, lose_text:req, not_enough:req, event_script=FALSE, music=TRUE
+.endm
+.macro trainerbattle_rematch trainer:req, intro_text:req, lose_text:req
+.endm
+.macro trainerbattle_rematch_double trainer:req, intro_text:req, lose_text:req, not_enough:req
+.endm
+.macro trainerbattle_no_intro trainer:req, lose_text:req
+.endm
+.macro trainerbattle type:req, trainer:req, local_id:req, pointer1:req, pointer2, pointer3, pointer4
+.endm
+.macro dotrainerbattle
+.endm
 """.strip()
             + "\n",
             encoding="utf-8",
@@ -335,6 +355,76 @@ class ConvertScriptsIrTests(ConvertScriptsInventoryTests):
             self.assertEqual(ops[flag_index + 1]["op"], "CALL_IF")
             self.assertEqual(ops[flag_index + 1]["condition"], "FALSE")
             self.assertEqual(ops[flag_index + 1]["target_script_id"], "TestTown_Final")
+
+    def test_trainer_commands_lower_to_flags_and_domain_requests(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_source_tree(root)
+            scripts_path = root / "data/maps/TestTown/scripts.inc"
+            with scripts_path.open("a", encoding="utf-8") as handle:
+                handle.write(
+                    "\nTestTown_EventScript_Trainer::\n"
+                    "    checktrainerflag TRAINER_SAWYER_1\n"
+                    "    trainerbattle_single TRAINER_SAWYER_1, "
+                    "TestTown_Text_Intro, TestTown_Text_Lose, "
+                    "TestTown_EventScript_AfterTrainer, TRUE\n"
+                    "    settrainerflag TRAINER_SAWYER_1\n"
+                    "    cleartrainerflag TRAINER_SAWYER_1\n"
+                    "    end\n"
+                    "\nTestTown_EventScript_AfterTrainer::\n"
+                    "    setvar VAR_TEST, 2\n"
+                    "    return\n"
+                    "\nTestTown_Text_Intro::\n"
+                    "    .string \"Fight!$\"\n"
+                    "\nTestTown_Text_Lose::\n"
+                    "    .string \"Lost!$\"\n"
+                )
+
+            ir = convert_script_closure(
+                root,
+                [Path("data/maps/TestTown/scripts.inc")],
+                entry_labels=["TestTown_EventScript_Trainer"],
+            )
+            scripts = {item["script_id"]: item for item in ir["scripts"]}
+            ops = scripts["TestTown_EventScript_Trainer"]["instructions"]
+
+            self.assertEqual(
+                ops[0],
+                {
+                    "op": "CHECK_FLAG",
+                    "flag": "(TRAINER_FLAGS_START + TRAINER_SAWYER_1)",
+                },
+            )
+            self.assertEqual(ops[1]["op"], "DOMAIN_TRAINER_BATTLE_CONFIG")
+            self.assertEqual(ops[1]["trainer"], "TRAINER_SAWYER_1")
+            self.assertEqual(
+                ops[1]["mode"],
+                "TRAINER_BATTLE_CONTINUE_SCRIPT",
+            )
+            self.assertEqual(ops[1]["local_id"], "0")
+            self.assertEqual(ops[1]["intro_text"], "TestTown_Text_Intro")
+            self.assertEqual(ops[1]["lose_text"], "TestTown_Text_Lose")
+            self.assertEqual(ops[2], {"op": "DOMAIN_TRAINER_BATTLE_START"})
+            self.assertEqual(ops[3]["op"], "CALL")
+            self.assertEqual(
+                ops[3]["target_script_id"],
+                "TestTown_EventScript_AfterTrainer",
+            )
+            self.assertEqual(
+                ops[4],
+                {
+                    "op": "SET_FLAG",
+                    "flag": "(TRAINER_FLAGS_START + TRAINER_SAWYER_1)",
+                },
+            )
+            self.assertEqual(
+                ops[5],
+                {
+                    "op": "CLEAR_FLAG",
+                    "flag": "(TRAINER_FLAGS_START + TRAINER_SAWYER_1)",
+                },
+            )
+            self.assertIn("TestTown_EventScript_AfterTrainer", scripts)
 
     def test_yesno_msgbox_emits_choice_result_step(self):
         with tempfile.TemporaryDirectory() as temp:

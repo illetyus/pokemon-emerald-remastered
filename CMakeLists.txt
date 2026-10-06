@@ -16,6 +16,7 @@ add_library(remaster_core STATIC
     core/src/emerald_pokemon.c
     core/src/emerald_items.c
     core/src/emerald_encounter.c
+    core/src/emerald_battle.c
     core/src/emerald_map.c
     core/src/emerald_movement.c
     core/src/emerald_events.c
@@ -83,6 +84,7 @@ add_executable(unreal_cpp_embed_smoke
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldPokemonEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldItemsEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldEncounterEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldBattleEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMapEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMovementEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldEventsEmbed.cpp
@@ -356,6 +358,17 @@ endif()
 
 add_test(NAME emerald_script_runtime COMMAND emerald_script_runtime_test)
 
+add_executable(emerald_script_trainer_battle_test
+    tests/emerald_script_trainer_battle_test.c
+)
+target_link_libraries(emerald_script_trainer_battle_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_script_trainer_battle_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_script_trainer_battle_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_trainer_script_bridge COMMAND emerald_script_trainer_battle_test)
+
 add_executable(emerald_script_checkpoint_test
     tests/emerald_script_checkpoint_test.c
 )
@@ -457,6 +470,35 @@ target_include_directories(remaster_core
 target_include_directories(unreal_cpp_embed_smoke
     PRIVATE
         "${R12_GENERATED_DIR}"
+)
+
+
+set(R13_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/r13")
+set(R13_TRAINER_CATALOG "${R13_GENERATED_DIR}/emerald_trainer_catalog.inc")
+set(R13_TRAINER_REPORT "${R13_GENERATED_DIR}/trainer_catalog_report.json")
+file(MAKE_DIRECTORY "${R13_GENERATED_DIR}")
+
+execute_process(
+    COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tools/build_r13_trainer_catalog.py"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/vanillaplus"
+        "${R13_TRAINER_CATALOG}"
+        "${R13_TRAINER_REPORT}"
+    RESULT_VARIABLE R13_TRAINER_GENERATE_RESULT
+)
+if(NOT R13_TRAINER_GENERATE_RESULT EQUAL 0)
+    message(FATAL_ERROR "Failed to generate R13 trainer catalog")
+endif()
+
+target_include_directories(remaster_core
+    PRIVATE
+        "${R13_GENERATED_DIR}"
+)
+
+target_include_directories(unreal_cpp_embed_smoke
+    PRIVATE
+        "${R13_GENERATED_DIR}"
 )
 set(R2_LITTLEROOT_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(R2_LITTLEROOT_GENERATED_C "${R2_LITTLEROOT_GENERATED_DIR}/r2_littleroot_generated.c")
@@ -743,3 +785,119 @@ add_test(
         "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_r12_encounter_catalog.py"
 )
+
+
+add_executable(emerald_battle_core_test
+    tests/emerald_battle_core_test.c
+)
+target_link_libraries(emerald_battle_core_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_battle_core_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_battle_core_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_battle_core COMMAND emerald_battle_core_test)
+
+
+add_executable(emerald_battle_trainer_test
+    tests/emerald_battle_trainer_test.c
+)
+target_link_libraries(emerald_battle_trainer_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_battle_trainer_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_battle_trainer_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_battle_trainer_contract COMMAND emerald_battle_trainer_test)
+
+
+add_executable(emerald_battle_ai_test
+    tests/emerald_battle_ai_test.c
+)
+target_link_libraries(emerald_battle_ai_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_battle_ai_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_battle_ai_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_battle_ai COMMAND emerald_battle_ai_test)
+
+
+add_executable(emerald_battle_replacement_test
+    tests/emerald_battle_replacement_test.c
+)
+target_link_libraries(emerald_battle_replacement_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_battle_replacement_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_battle_replacement_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_battle_replacement COMMAND emerald_battle_replacement_test)
+
+
+add_executable(emerald_battle_progression_test
+    tests/emerald_battle_progression_test.c
+)
+target_link_libraries(emerald_battle_progression_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_battle_progression_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_battle_progression_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_battle_progression COMMAND emerald_battle_progression_test)
+
+
+add_executable(emerald_battle_replay_test
+    tests/emerald_battle_replay_test.c
+)
+target_link_libraries(emerald_battle_replay_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_battle_replay_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_battle_replay_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_battle_replay COMMAND emerald_battle_replay_test)
+
+
+add_test(
+    NAME r13_trainer_catalog_audit
+    COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_r13_trainer_catalog.py"
+)
+
+
+add_executable(emerald_battle_integration_test
+    tests/emerald_battle_integration_test.c
+)
+target_link_libraries(emerald_battle_integration_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_battle_integration_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_battle_integration_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_encounter_battle_integration COMMAND emerald_battle_integration_test)
+
+
+add_executable(emerald_battle_effects_test
+    tests/emerald_battle_effects_test.c
+)
+target_link_libraries(emerald_battle_effects_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_battle_effects_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_battle_effects_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_battle_effects COMMAND emerald_battle_effects_test)
+
+
+add_executable(emerald_battle_move_effects_test
+    tests/emerald_battle_move_effects_test.c
+)
+target_link_libraries(emerald_battle_move_effects_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_battle_move_effects_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_battle_move_effects_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r13_battle_move_effects COMMAND emerald_battle_move_effects_test)
