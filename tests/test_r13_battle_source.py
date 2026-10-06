@@ -263,6 +263,42 @@ class R13BattleSourceContract(unittest.TestCase):
             r"return 1;",
         )
 
+
+    def test_special_escape_lifecycle_matches_vanillaplus(self):
+        battle_main = (VENDOR / "src/battle_main.c").read_text(
+            encoding="utf-8"
+        )
+        battle_util = (VENDOR / "src/battle_util.c").read_text(
+            encoding="utf-8"
+        )
+        portable = R13.read_text(encoding="utf-8")
+        header = (
+            ROOT / "core/include/remaster/emerald_battle.h"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("IsRunningFromBattleImpossible", battle_main)
+        self.assertIn("BATTLE_TYPE_FIRST_BATTLE", battle_main)
+        self.assertIn("void HandleAction_Run(void)", battle_util)
+        self.assertIn("bool8 TryRunFromBattle(u8 battler)", battle_util)
+        self.assertIn("HOLD_EFFECT_CAN_ALWAYS_RUN", battle_util)
+        self.assertIn("ABILITY_RUN_AWAY", battle_util)
+        self.assertIn("gBattleStruct->runTries++", battle_util)
+
+        for symbol in (
+            "HOLD_EFFECT_CAN_ALWAYS_RUN",
+            "ABILITY_RUN_AWAY",
+            "REMASTER_EMERALD_BATTLE_TYPE_FIRST",
+            "REMASTER_EMERALD_BATTLE_TYPE_SAFARI",
+            "REMASTER_EMERALD_BATTLE_TYPE_LINK",
+            "REMASTER_EMERALD_BATTLE_TYPE_RECORDED_LINK",
+            "REMASTER_EMERALD_BATTLE_OUTCOME_FORFEITED",
+            "battle->run_tries",
+        ):
+            self.assertIn(symbol, portable)
+
+        self.assertIn("uint8_t run_tries;", header)
+        self.assertIn("player_speed >= foe_speed", portable)
+
     def test_faint_replacement_contract_is_explicit(self):
         portable = R13.read_text(encoding="utf-8")
         header = (
