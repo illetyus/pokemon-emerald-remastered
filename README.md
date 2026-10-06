@@ -8,7 +8,7 @@ input and platform integration.
 
 ## Project status
 
-**R0-R5 and R10-R12 are complete.**
+**R0-R5 and R10-R13 are complete.**
 
 Completed foundation:
 
@@ -20,14 +20,17 @@ Completed foundation:
 - R5 — Unreal world-renderer source/data bridge;
 - R10 — map + quest guidance derived from Emerald state;
 - R11 — Pokémon / party / item core with Gen III save-compatible binary semantics;
-- R12 — deterministic Emerald/Phase9 encounter core.
+- R12 — deterministic Emerald/Phase9 encounter core;
+- R13 — portable deterministic Emerald/Vanilla+ battle core.
 
 The next implementation phase is:
 
-**R13 — Battle core**
+**R16 — Vanilla+ QoL**
 
 The phase numbers are intentionally preserved even though the remaining
 implementation order is non-numeric.
+
+R13 completion evidence: **[docs/R13_BATTLE_CORE.md](docs/R13_BATTLE_CORE.md)**
 
 ## Canonical roadmap
 
@@ -40,23 +43,22 @@ the current remaining-phase order.
 
 Current remaining order:
 
-1. R13 — Battle core
-2. R16 — Vanilla+ QoL
-3. R17 — Save compatibility / migration
-4. R6 — Character / NPC presentation + asset pipeline
-5. R7 — Camera / environment presentation + asset pipeline
-6. R9 — UI / HUD / menu infrastructure
-7. R14 — Battle presentation + Pokémon asset pipeline
-8. R15 — Audio
-9. R8 — Android input infrastructure
-10. R19 — Regression / test infrastructure expansion
-11. R20 — Code / package polish
-12. R18 — Real UE 5.8.3 / Android production build on the project PC
-13. Real Unreal runtime validation
-14. BrowserStack real Android smoke
-15. R19 final Android device matrix
-16. R21 — Release Candidate
-17. R22 — Final Release
+1. R16 — Vanilla+ QoL
+2. R17 — Save compatibility / migration
+3. R6 — Character / NPC presentation + asset pipeline
+4. R7 — Camera / environment presentation + asset pipeline
+5. R9 — UI / HUD / menu infrastructure
+6. R14 — Battle presentation + Pokémon asset pipeline
+7. R15 — Audio
+8. R8 — Android input infrastructure
+9. R19 — Regression / test infrastructure expansion
+10. R20 — Code / package polish
+11. R18 — Real UE 5.8.3 / Android production build on the project PC
+12. Real Unreal runtime validation
+13. BrowserStack real Android smoke
+14. R19 final Android device matrix
+15. R21 — Release Candidate
+16. R22 — Final Release
 
 ## Core principles
 
