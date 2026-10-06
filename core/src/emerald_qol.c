@@ -15,6 +15,7 @@ enum {
     ITEM_THUNDER_STONE = 96,
     ITEM_WATER_STONE = 97,
     ITEM_LEAF_STONE = 98,
+    ITEM_HEART_SCALE = 111,
     ITEM_FIRST_MAIL = 121,
     ITEM_LAST_MAIL = 132,
     ITEM_TM01 = 289,
@@ -703,6 +704,148 @@ static int decode_box_raw(
         REMASTER_EMERALD_BOX_POKEMON_BYTES,
         out,
         0);
+}
+
+
+static int move_in_list(const uint16_t *moves, size_t count, uint16_t move_id)
+{
+    size_t i;
+    for (i = 0; i < count; ++i) {
+        if (moves[i] == move_id)
+            return 1;
+    }
+    return 0;
+}
+
+size_t remaster_emerald_qol_move_relearner_candidates(
+    const RemasterEmeraldSave *save,
+    uint8_t party_slot,
+    uint16_t *out_moves,
+    size_t capacity)
+{
+    RemasterEmeraldPartyPokemon mon;
+    const RemasterEmeraldLevelUpMove *learnset;
+    uint16_t known[REMASTER_EMERALD_MAX_MOVES];
+    uint8_t pp[REMASTER_EMERALD_MAX_MOVES];
+    uint16_t emitted[256];
+    size_t learnset_count = 0;
+    size_t emitted_count = 0;
+    size_t i;
+
+    if (save == 0
+        || party_slot >= remaster_emerald_party_count(save)
+        || !remaster_emerald_party_get(save, party_slot, &mon, 0)
+        || remaster_emerald_qol_box_pokemon_is_egg(&mon.box))
+        return 0;
+
+    learnset = remaster_emerald_species_level_up_moves(
+        remaster_emerald_box_pokemon_species(&mon.box),
+        &learnset_count);
+    if (learnset == 0)
+        return 0;
+
+    remaster_emerald_box_pokemon_moves(&mon.box, known, pp);
+    for (i = 0; i < learnset_count; ++i) {
+        const uint16_t move_id = learnset[i].move_id;
+        if (learnset[i].level > mon.level
+            || move_id == 0
+            || move_in_list(known, REMASTER_EMERALD_MAX_MOVES, move_id)
+            || move_in_list(emitted, emitted_count, move_id))
+            continue;
+        if (emitted_count < sizeof(emitted) / sizeof(emitted[0]))
+            emitted[emitted_count] = move_id;
+        ++emitted_count;
+    }
+
+    if (out_moves != 0) {
+        const size_t copy_count = emitted_count < capacity
+            ? emitted_count
+            : capacity;
+        for (i = 0; i < copy_count; ++i)
+            out_moves[i] = emitted[i];
+    }
+    return emitted_count;
+}
+
+RemasterEmeraldQolMoveRelearnerStatus
+remaster_emerald_qol_move_relearner_status(
+    const RemasterEmeraldSave *save,
+    uint8_t party_slot)
+{
+    RemasterEmeraldPartyPokemon mon;
+
+    if (save == 0
+        || party_slot >= remaster_emerald_party_count(save)
+        || !remaster_emerald_party_get(save, party_slot, &mon, 0))
+        return REMASTER_EMERALD_QOL_MOVE_RELEARNER_INVALID;
+    if (remaster_emerald_qol_box_pokemon_is_egg(&mon.box))
+        return REMASTER_EMERALD_QOL_MOVE_RELEARNER_EGG;
+    if (remaster_emerald_bag_count(save, ITEM_HEART_SCALE) == 0)
+        return REMASTER_EMERALD_QOL_MOVE_RELEARNER_NO_SCALE;
+    if (remaster_emerald_qol_move_relearner_candidates(
+            save, party_slot, 0, 0) == 0)
+        return REMASTER_EMERALD_QOL_MOVE_RELEARNER_NO_MOVES;
+    return REMASTER_EMERALD_QOL_MOVE_RELEARNER_OK;
+}
+
+int remaster_emerald_qol_move_relearner_learn(
+    RemasterEmeraldSave *save,
+    uint8_t party_slot,
+    uint16_t move_id,
+    uint8_t replacement_slot)
+{
+    RemasterEmeraldPartyPokemon original;
+    RemasterEmeraldPartyPokemon updated;
+    const RemasterEmeraldMoveInfo *move_info;
+    uint16_t candidates[256];
+    uint16_t known[REMASTER_EMERALD_MAX_MOVES];
+    uint8_t pp[REMASTER_EMERALD_MAX_MOVES];
+    size_t candidate_count;
+    size_t slot;
+
+    if (move_id == 0
+        || remaster_emerald_qol_move_relearner_status(save, party_slot)
+            != REMASTER_EMERALD_QOL_MOVE_RELEARNER_OK)
+        return 0;
+
+    candidate_count = remaster_emerald_qol_move_relearner_candidates(
+        save, party_slot, candidates,
+        sizeof(candidates) / sizeof(candidates[0]));
+    if (!move_in_list(candidates, candidate_count, move_id)
+        || !remaster_emerald_party_get(save, party_slot, &original, 0))
+        return 0;
+
+    updated = original;
+    remaster_emerald_box_pokemon_moves(&updated.box, known, pp);
+    for (slot = 0; slot < REMASTER_EMERALD_MAX_MOVES; ++slot) {
+        if (known[slot] == 0)
+            break;
+    }
+    if (slot == REMASTER_EMERALD_MAX_MOVES) {
+        if (replacement_slot >= REMASTER_EMERALD_MAX_MOVES)
+            return 0;
+        slot = replacement_slot;
+    }
+
+    move_info = remaster_emerald_move_info(move_id);
+    if (move_info == 0)
+        return 0;
+
+    if (known[slot] != 0) {
+        const uint8_t shift = (uint8_t)(slot * 2u);
+        updated.box.substruct[0][8] &=
+            (uint8_t)~((uint8_t)3u << shift);
+    }
+    if (!remaster_emerald_box_pokemon_set_move(
+            &updated.box, slot, move_id, move_info->pp)
+        || !remaster_emerald_party_set(save, party_slot, &updated))
+        return 0;
+
+    if (!remaster_emerald_bag_remove(save, ITEM_HEART_SCALE, 1)) {
+        (void)remaster_emerald_party_set(save, party_slot, &original);
+        return 0;
+    }
+    return 1;
 }
 
 int remaster_emerald_qol_storage_sort_current_box(

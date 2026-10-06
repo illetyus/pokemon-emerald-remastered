@@ -357,8 +357,92 @@ static void test_quick_items(void)
     assert(remaster_emerald_qol_quick_item_count(&save) == 0);
 }
 
+
+static void test_move_relearner(void)
+{
+    enum { HEART_SCALE = 111 };
+    RemasterEmeraldSave save;
+    RemasterEmeraldPartyPokemon mon;
+    uint16_t candidates[32];
+    uint16_t moves[4];
+    uint8_t pp[4];
+    size_t count;
+    size_t i;
+    uint16_t chosen = 0;
+
+    memset(&save, 0, sizeof(save));
+    assert(remaster_emerald_qol_move_relearner_status(&save, 0)
+        == REMASTER_EMERALD_QOL_MOVE_RELEARNER_INVALID);
+
+    mon = make_party(2, 10, 20, 1234); /* Ivysaur: duplicate Growl/Leech Seed entries. */
+    assert(remaster_emerald_party_set_count(&save, 1));
+    assert(remaster_emerald_party_set(&save, 0, &mon));
+    set_egg(&mon.box);
+    assert(remaster_emerald_party_set(&save, 0, &mon));
+    assert(remaster_emerald_qol_move_relearner_status(&save, 0)
+        == REMASTER_EMERALD_QOL_MOVE_RELEARNER_EGG);
+
+    mon = make_party(2, 10, 20, 1234);
+    assert(remaster_emerald_party_set(&save, 0, &mon));
+    assert(remaster_emerald_qol_move_relearner_status(&save, 0)
+        == REMASTER_EMERALD_QOL_MOVE_RELEARNER_NO_SCALE);
+    assert(remaster_emerald_bag_add(&save, HEART_SCALE, 2));
+
+    count = remaster_emerald_qol_move_relearner_candidates(
+        &save, 0, candidates, 32);
+    assert(count > 0);
+    for (i = 0; i < count; ++i) {
+        size_t j;
+        assert(candidates[i] != 0);
+        for (j = 0; j < i; ++j)
+            assert(candidates[j] != candidates[i]);
+    }
+    chosen = candidates[0];
+
+    assert(remaster_emerald_box_pokemon_set_move(&mon.box, 0, chosen, 1));
+    assert(remaster_emerald_party_set(&save, 0, &mon));
+    count = remaster_emerald_qol_move_relearner_candidates(
+        &save, 0, candidates, 32);
+    for (i = 0; i < count; ++i)
+        assert(candidates[i] != chosen);
+
+    mon = make_party(2, 10, 20, 1234);
+    assert(remaster_emerald_party_set(&save, 0, &mon));
+    count = remaster_emerald_qol_move_relearner_candidates(
+        &save, 0, candidates, 32);
+    assert(count > 0);
+    chosen = candidates[0];
+    assert(!remaster_emerald_qol_move_relearner_learn(&save, 0, 0, 0));
+    assert(remaster_emerald_bag_count(&save, HEART_SCALE) == 2);
+    assert(remaster_emerald_qol_move_relearner_learn(&save, 0, chosen, 3));
+    assert(remaster_emerald_bag_count(&save, HEART_SCALE) == 1);
+    assert(remaster_emerald_party_get(&save, 0, &mon, 0));
+    remaster_emerald_box_pokemon_moves(&mon.box, moves, pp);
+    assert(moves[0] == chosen); /* first empty slot wins */
+    assert(pp[0] == remaster_emerald_move_info(chosen)->pp);
+
+    count = remaster_emerald_qol_move_relearner_candidates(
+        &save, 0, candidates, 32);
+    assert(count > 0);
+    chosen = candidates[0];
+    for (i = 0; i < 4; ++i)
+        assert(remaster_emerald_box_pokemon_set_move(
+            &mon.box, i, (uint16_t)(1 + i), 1));
+    mon.box.substruct[0][8] = 0xFFu;
+    assert(remaster_emerald_party_set(&save, 0, &mon));
+    assert(remaster_emerald_qol_move_relearner_learn(&save, 0, chosen, 2));
+    assert(remaster_emerald_bag_count(&save, HEART_SCALE) == 0);
+    assert(remaster_emerald_party_get(&save, 0, &mon, 0));
+    remaster_emerald_box_pokemon_moves(&mon.box, moves, pp);
+    assert(moves[2] == chosen);
+    assert(pp[2] == remaster_emerald_move_info(chosen)->pp);
+    assert((mon.box.substruct[0][8] & 0x30u) == 0);
+    assert((mon.box.substruct[0][8] & 0xCFu) == 0xCFu);
+}
+
 int main(void)
 {
+    test_move_relearner();
     test_policy();
     test_info();
     test_storage();

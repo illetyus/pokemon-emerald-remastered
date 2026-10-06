@@ -46,6 +46,14 @@ typedef enum RemasterEmeraldQolHeldItemResult {
     REMASTER_EMERALD_QOL_HELD_ITEM_NOT_HOLDING = 8
 } RemasterEmeraldQolHeldItemResult;
 
+typedef enum RemasterEmeraldQolMoveRelearnerStatus {
+    REMASTER_EMERALD_QOL_MOVE_RELEARNER_OK = 0,
+    REMASTER_EMERALD_QOL_MOVE_RELEARNER_INVALID = 1,
+    REMASTER_EMERALD_QOL_MOVE_RELEARNER_EGG = 2,
+    REMASTER_EMERALD_QOL_MOVE_RELEARNER_NO_SCALE = 3,
+    REMASTER_EMERALD_QOL_MOVE_RELEARNER_NO_MOVES = 4
+} RemasterEmeraldQolMoveRelearnerStatus;
+
 typedef enum RemasterEmeraldQolHmFieldUseResult {
     REMASTER_EMERALD_QOL_HM_FIELD_USE_OK = 0,
     REMASTER_EMERALD_QOL_HM_FIELD_USE_INVALID_ITEM = 1,
@@ -115,6 +123,21 @@ uint8_t remaster_emerald_qol_hidden_power_type(
 int remaster_emerald_qol_nickname_owned_by_player(
     const RemasterEmeraldSave *save,
     const RemasterEmeraldBoxPokemon *pokemon);
+
+RemasterEmeraldQolMoveRelearnerStatus
+remaster_emerald_qol_move_relearner_status(
+    const RemasterEmeraldSave *save,
+    uint8_t party_slot);
+size_t remaster_emerald_qol_move_relearner_candidates(
+    const RemasterEmeraldSave *save,
+    uint8_t party_slot,
+    uint16_t *out_moves,
+    size_t capacity);
+int remaster_emerald_qol_move_relearner_learn(
+    RemasterEmeraldSave *save,
+    uint8_t party_slot,
+    uint16_t move_id,
+    uint8_t replacement_slot);
 
 int remaster_emerald_qol_storage_sort_current_box(
     RemasterEmeraldSave *save,
