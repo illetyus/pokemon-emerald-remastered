@@ -1,7 +1,7 @@
 # R17-T1 — Compatibility fixture matrix
 
 Date: 2026-10-06
-State: VERIFYING until exact committed-HEAD targeted/full PR CI succeeds.
+State: VERIFIED_COMPLETE at `f0db6e28a06ebd104f9e184c475a0ec359ca31f6`; all nine PR runs terminal-success.
 Implementation baseline: `ac50b51674d5707caa0a2ac1d237d687a0af6d9e`.
 Contract: [R17_SAVE_COMPAT_CONTRACT.md](R17_SAVE_COMPAT_CONTRACT.md).
 
@@ -117,9 +117,11 @@ when the option is omitted.
 - Seven deliberately altered probe results (world, party, bag, RTC, objective,
   logical payload and special-sector byte) are all rejected by the independent
   oracle. These are test-only negative inputs, not production mutations.
-- No implementation fix was needed to make these T1 cases pass. Targeted/full
-  exact-HEAD CI, including the new CTest entry, remains the checkpoint gate.
+- No implementation fix was needed to make these T1 cases pass. Exact-HEAD CI
+  passed 61/61, including the new CTest entry; Windows read 32/32 and atomic
+  write 24/24 passed. All nine workflow runs are terminal-success.
 
-Success -> R17-V1. Pending/failing CI keeps T1 open; failure -> only a named
-gap-specific T1 closure. R17 acceptance/completion/independent final gates and
-merge/main verification remain separate, unexecuted subphases.
+T1, V1 and G1 are VERIFIED_COMPLETE at the same acceptance HEAD. Completion
+and exact CI evidence are in [R17_SAVE_COMPAT_COMPLETION.md](R17_SAVE_COMPAT_COMPLETION.md).
+D1 verification, the independent final gate and merge/main verification remain
+separate checkpoints.

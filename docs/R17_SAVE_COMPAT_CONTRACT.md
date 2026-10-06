@@ -837,3 +837,18 @@ actual local strict/sanitizer/negative-oracle results are in
 `docs/R17_SAVE_FIXTURE_MATRIX.md`. No implementation behavior changes belong to
 T1. T1 remains VERIFYING until its exact commit's targeted/full PR CI is
 terminal-success. Success -> R17-V1; any failure -> a gap-specific T1 closure.
+
+## 22. Reconciled acceptance and completion status
+
+The VERIFYING statements in sections 17-21 describe each original checkpoint
+at commit time. Subsequent exact-head CI closed I1-I5 (including the explicit
+I5-Closure-1 Linux failure) and T1. T1/V1/G1 are VERIFIED_COMPLETE at
+`f0db6e28a06ebd104f9e184c475a0ec359ca31f6`: full suite 61/61, Windows read
+32/32 and atomic write 24/24, all nine runs terminal-success. G1 reconciled
+all five ROADMAP acceptance requirements without implementation changes.
+
+[R17_SAVE_COMPAT_COMPLETION.md](R17_SAVE_COMPAT_COMPLETION.md) records the
+verified commit/run ledger, real fixture hashes, migration policy and native
+versus actual UE/runtime limits. The current D1 documentation commit must
+pass its own exact-head CI before F1; F1, PR merge and terminal-success main
+verification are not claimed in advance. Only then may R6-P1 begin.

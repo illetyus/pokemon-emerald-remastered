@@ -757,14 +757,25 @@ local native C++17 and ASan/UBSan pass 32/32. Initial CI was 59/60 Linux,
 31/31 Windows read and 24/24 Windows atomic write; the exact closure-HEAD CI
 subsequently succeeded and closed I5. The failed initial commit was not accepted.
 
-R17-T1 now versions 37 public source-backed recipes, a redacted real-derived
-semantic projection and one hash-pinned private VP019 real-save evidence fixture.
-Local strict/sanitizer matrix and actual private import/export/disk-reopen pass;
-details and limitations are in `docs/R17_SAVE_FIXTURE_MATRIX.md`.
-Resume at **R17-T1 verification** until its exact live commit's targeted/full PR
-CI is terminal-success. Then the next named subphase is **R17-V1 — Targeted/full
-CI**. Pending/failed CI keeps T1 open and permits only a concrete gap-specific
-closure. R17 acceptance/completion/independent final gates remain open.
+R17-T1 is VERIFIED_COMPLETE at
+`f0db6e28a06ebd104f9e184c475a0ec359ca31f6`: all nine workflow runs are terminal-success;
+portable full suite passes 61/61, Windows native read 32/32 and atomic write
+24/24. It versions 37 public recipes and the hash-pinned private VP019 replay
+evidence. Strict/sanitizer native import/export/disk-reopen and the independent
+byte/domain oracle pass; limits are in `docs/R17_SAVE_FIXTURE_MATRIX.md`.
+
+R17-V1 and R17-G1 are VERIFIED_COMPLETE at the same unchanged HEAD. All five
+ROADMAP acceptance requirements are reconciled against production source,
+actual real-save replay and exact-head CI. No R17 implementation RED remains.
+
+R17-D1 records the complete evidence in
+`docs/R17_SAVE_COMPAT_COMPLETION.md`. Resume at **R17-D1 verification** until
+this documentation commit's exact live CI is terminal-success; then execute
+**R17-F1 — Final Gate**. Final drift/docs/source/CI reconciliation, PR merge
+and main CI remain separate required checkpoints. If F1 passes: R17-M1 ->
+R17-M2. Only after merged main CI terminal-success is the next phase **R6-P1**.
+Pending/failing CI blocks progression and permits only a concrete closure.
+
 Real Unreal compilation/Android execution remains R18 work; native transport
 checks are not a substitute for that gate.
 

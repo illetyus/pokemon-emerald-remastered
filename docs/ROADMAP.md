@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
 Date: 2026-10-06  
-Status: **R0-R5, R10-R13 and R16 complete; R17 is the next implementation phase.**
+Status: **R0-R5, R10-R13 and R16 complete; R17 implementation acceptance verified, final/merge/main gates required.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -880,19 +880,17 @@ of successful UE compilation or Android runtime.
 
 # 14. Immediate next action
 
-The active implementation phase is **R17 — Save compatibility / migration**.
-R13 and R16 are complete and merged to `main`.
+The active phase is **R17 — Save compatibility / migration**.
+R13 and R16 are complete and merged to `main`. R17 implementation, versioned
+fixtures, real VP019 native replay, full CI and acceptance gate are verified at
+`f0db6e28a06ebd104f9e184c475a0ec359ca31f6`.
 
-Current R17 work must proceed from the current `main` baseline and preserve the
-repo-first phase gates defined above:
+Completion evidence: [R17_SAVE_COMPAT_COMPLETION.md](R17_SAVE_COMPAT_COMPLETION.md).
+Current checkpoint: R17-D1; require its exact committed-HEAD CI, then execute
+R17-F1 independent final reconciliation, R17-M1 verified PR merge and R17-M2
+terminal-success main verification. R17 is not considered merged in advance.
+The next phase is **R6-P1** only after those gates pass.
 
-1. complete and version the pinned Emerald/Vanilla+ save-format contract audit;
-2. regression-pin the authoritative SaveBlock/sector/checksum behavior before
-   changing implementation;
-3. implement save compatibility in small reviewable slices on the R17 branch;
-4. verify real/versioned save fixtures, corruption handling and round-trip
-   behavior;
-5. require targeted and full relevant CI before the R17 final gate;
-6. merge R17 only after its final gate and required PR checks are green.
-
-Real Unreal build and BrowserStack device execution remain deferred until R18.
+Real Unreal build remains R18 work. After R18 main verification, stop at
+REAL UNREAL RUNTIME VALIDATION; do not automatically run physical Android
+smoke, BrowserStack, final device matrix, R21 or R22.
