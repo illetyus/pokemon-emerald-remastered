@@ -150,7 +150,7 @@ def build_charmap(vendor: Path) -> dict[str, list[int]]:
     text = (vendor / "charmap.txt").read_text(encoding="utf-8")
     for line in text.splitlines():
         match = re.match(
-            r"^'((?:\\.|[^'])*)'\s*=\s*"
+            r"^'((?:\\.|[^'\\])*)'\s*=\s*"
             r"([0-9A-Fa-f]{2}(?:\s+[0-9A-Fa-f]{2})*)\s*$",
             line.strip(),
         )
