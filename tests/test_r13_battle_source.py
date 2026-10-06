@@ -191,18 +191,37 @@ class R13BattleSourceContract(unittest.TestCase):
             "ShouldSwitchIfWonderGuard",
             "FindMonThatAbsorbsOpponentsMove",
             "ShouldSwitchIfNaturalCure",
+            "GetMostSuitableMonToSwitchInto",
+            "GetAI_ItemType",
             "ShouldUseItem",
             "AI_TrySwitchOrUseItem",
         ):
             self.assertIn(source_helper, switch_items)
 
         for portable_helper in (
-            "battle_ai_choose_switch_action",
+            "battle_ai_switch_is_trapped",
             "battle_ai_find_absorbing_switch",
+            "battle_ai_find_counter_switch",
+            "battle_ai_find_suitable_switch",
+            "battle_ai_choose_switch_action",
+            "battle_ai_trainer_item_type",
             "battle_ai_choose_item_action",
             "battle_use_trainer_item",
         ):
             self.assertIn(portable_helper, portable)
+
+        for contract_symbol in (
+            "ABILITY_SHADOW_TAG",
+            "ABILITY_ARENA_TRAP",
+            "ABILITY_MAGNET_PULL",
+            "BATTLE_AI_ITEM_CURE_CONDITION",
+            "BATTLE_AI_ITEM_X_STAT",
+            "BATTLE_AI_ITEM_GUARD_SPEC",
+            "ITEM_GUARD_SPEC",
+            "ITEM_DIRE_HIT",
+            "ITEM_X_ATTACK",
+        ):
+            self.assertIn(contract_symbol, portable)
 
         self.assertIn(
             "case REMASTER_EMERALD_BATTLE_ACTION_ITEM:",
