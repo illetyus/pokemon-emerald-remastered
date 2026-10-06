@@ -728,6 +728,60 @@ static int battle_frontier_type(uint32_t flags)
            | REMASTER_EMERALD_BATTLE_TYPE_PYRAMID)) != 0;
 }
 
+static uint16_t battle_read16(const uint8_t *p)
+{
+    return (uint16_t)p[0] | ((uint16_t)p[1] << 8u);
+}
+
+static uint8_t battle_pyramid_run_multiplier_from_save(
+    const RemasterEmeraldSave *save)
+{
+    static const uint8_t run_multipliers[16] = {
+        128, 128, 120, 120, 112, 112, 104, 104,
+        96, 96, 88, 88, 80, 80, 80, 80
+    };
+    static const uint8_t floor_offsets[7] = {
+        0, 4, 9, 14, 19, 24, 29
+    };
+    static const uint8_t floor_options[][2] = {
+        {40, 0}, {70, 1}, {90, 2}, {100, 3},
+        {35, 1}, {55, 2}, {75, 3}, {90, 4}, {100, 10},
+        {35, 2}, {55, 3}, {75, 4}, {90, 5}, {100, 11},
+        {35, 3}, {55, 4}, {75, 5}, {90, 6}, {100, 12},
+        {35, 4}, {55, 5}, {75, 6}, {90, 7}, {100, 13},
+        {35, 5}, {55, 6}, {75, 7}, {90, 8}, {100, 14},
+        {35, 6}, {55, 7}, {75, 8}, {90, 9}, {100, 15}
+    };
+    enum {
+        SAVE2_FRONTIER_CUR_CHALLENGE_BATTLE_NUM = 0x0CB2,
+        SAVE2_FRONTIER_PYRAMID_RANDOM3 = 0x0E28
+    };
+    uint16_t floor;
+    uint16_t random_value;
+    size_t i;
+
+    if (save == 0)
+        return 128;
+
+    floor = battle_read16(
+        &save->save_block2[SAVE2_FRONTIER_CUR_CHALLENGE_BATTLE_NUM]);
+    if (floor >= sizeof(floor_offsets))
+        return 128;
+
+    random_value = (uint16_t)(
+        battle_read16(
+            &save->save_block2[SAVE2_FRONTIER_PYRAMID_RANDOM3])
+        % 100u);
+
+    for (i = floor_offsets[floor];
+         i < sizeof(floor_options) / sizeof(floor_options[0]);
+         ++i) {
+        if (random_value < floor_options[i][0])
+            return run_multipliers[floor_options[i][1]];
+    }
+    return 128;
+}
+
 static int battle_badge_boost_allowed(
     const RemasterEmeraldBattleState *battle,
     uint8_t battler,
@@ -1620,6 +1674,7 @@ void remaster_emerald_battle_state_init(
     memset(battle, 0, sizeof(*battle));
     battle->battle_type_flags = battle_type_flags;
     battle->money_multiplier = 1;
+    battle->pyramid_run_multiplier = 128;
     battle->follow_me_target[0] = 0xFFu;
     battle->follow_me_target[1] = 0xFFu;
     memset(
@@ -1788,6 +1843,10 @@ int remaster_emerald_battle_start_from_save(
         if (!remaster_emerald_party_get(save, i, &party[i], 0))
             return 0;
     }
+
+    if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_PYRAMID)
+        battle->pyramid_run_multiplier =
+            battle_pyramid_run_multiplier_from_save(save);
 
     return remaster_emerald_battle_start(
         battle,
@@ -8427,9 +8486,10 @@ int remaster_emerald_battle_try_run(
     RemasterEmeraldBattleMon *runner;
     uint8_t target;
     uint8_t i;
+    uint8_t speed_var;
+    uint8_t pyramid_multiplier;
     uint32_t player_speed;
     uint32_t foe_speed;
-    uint32_t threshold;
     int escaped = 0;
 
     if (battle == 0
@@ -8444,9 +8504,9 @@ int remaster_emerald_battle_try_run(
     target = battle_default_target(battle, battler);
 
     /*
-     * Emerald resolves link-run actions outside the ordinary escape formula.
-     * Preserve the final local outcome even though the portable outcome enum
-     * does not expose B_OUTCOME_LINK_BATTLE_RAN as a separate bit.
+     * HandleAction_Run resolves link-run actions without TryRunFromBattle().
+     * The portable enum stores the local final result rather than Emerald's
+     * additional B_OUTCOME_LINK_BATTLE_RAN bit.
      */
     if (battle->battle_type_flags
         & (REMASTER_EMERALD_BATTLE_TYPE_LINK
@@ -8474,24 +8534,126 @@ int remaster_emerald_battle_try_run(
         return 1;
     }
 
-    if (runner->side != 0)
-        return 0;
+    /*
+     * Non-player battlers use HandleAction_Run's MON_FLED path. Emerald only
+     * blocks this path for wrap / escape-prevention status.
+     */
+    if (runner->side != 0) {
+        if (runner->status2
+            & (REMASTER_EMERALD_STATUS2_WRAPPED
+               | REMASTER_EMERALD_STATUS2_ESCAPE_PREVENTION)) {
+            battle_event(
+                battle,
+                REMASTER_EMERALD_BATTLE_EVENT_RUN,
+                battler,
+                target,
+                0,
+                0,
+                0);
+            return 0;
+        }
+
+        battle->outcome = REMASTER_EMERALD_BATTLE_OUTCOME_MON_FLED;
+        battle->ended = 1;
+        battle_event(
+            battle,
+            REMASTER_EMERALD_BATTLE_EVENT_RUN,
+            battler,
+            target,
+            0,
+            1,
+            0);
+        battle_event(
+            battle,
+            REMASTER_EMERALD_BATTLE_EVENT_ENDED,
+            battler,
+            target,
+            0,
+            battle->outcome,
+            0);
+        return 1;
+    }
 
     if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_SAFARI)
-        escaped = 1;
-    else if (battle_hold_effect(runner) == HOLD_EFFECT_CAN_ALWAYS_RUN)
-        escaped = 1;
-    else if (runner->ability == ABILITY_RUN_AWAY
-        && !(battle->battle_type_flags
-            & REMASTER_EMERALD_BATTLE_TYPE_PYRAMID))
-        escaped = 1;
-
-    if (escaped)
         goto escaped;
 
     /*
-     * IsRunningFromBattleImpossible() checks these field locks before the
-     * normal TryRunFromBattle() speed calculation.
+     * Action selection handles trainer forfeits/cannot-run before
+     * IsRunningFromBattleImpossible(), so Smoke Ball and Run Away must not
+     * bypass trainer-battle rules.
+     */
+    if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_TRAINER) {
+        if (!battle_frontier_type(battle->battle_type_flags))
+            return 0;
+
+        battle->outcome = REMASTER_EMERALD_BATTLE_OUTCOME_FORFEITED;
+        battle->ended = 1;
+        battle_event(
+            battle,
+            REMASTER_EMERALD_BATTLE_EVENT_RUN,
+            battler,
+            target,
+            0,
+            1,
+            0);
+        battle_event(
+            battle,
+            REMASTER_EMERALD_BATTLE_EVENT_ENDED,
+            battler,
+            target,
+            0,
+            battle->outcome,
+            0);
+        return 1;
+    }
+
+    if (battle_hold_effect(runner) == HOLD_EFFECT_CAN_ALWAYS_RUN)
+        goto escaped;
+
+    if (runner->ability == ABILITY_RUN_AWAY) {
+        if (!(battle->battle_type_flags
+            & REMASTER_EMERALD_BATTLE_TYPE_PYRAMID))
+            goto escaped;
+
+        if (!battle_valid_battler(target)
+            || !battle->battlers[target].active
+            || battle->battlers[target].fainted)
+            return 0;
+
+        /*
+         * Battle Pyramid is the Run Away exception: runTries increments before
+         * the floor-template formula, and the u8 speedVar truncation is part
+         * of Emerald's behavior.
+         */
+        battle->run_tries++;
+        player_speed = battle_speed(battle, battler);
+        foe_speed = battle_speed(battle, target);
+        pyramid_multiplier = battle->pyramid_run_multiplier != 0
+            ? battle->pyramid_run_multiplier
+            : 128;
+        speed_var = (uint8_t)(
+            player_speed * pyramid_multiplier / foe_speed
+            + (uint32_t)battle->run_tries * 30u);
+        escaped = speed_var
+            > (remaster_emerald_battle_random(&battle->rng) & 0xFFu);
+
+        if (!escaped) {
+            battle_event(
+                battle,
+                REMASTER_EMERALD_BATTLE_EVENT_RUN,
+                battler,
+                target,
+                0,
+                0,
+                0);
+            return 0;
+        }
+        goto escaped;
+    }
+
+    /*
+     * IsRunningFromBattleImpossible() applies field locks after the always-run
+     * item / Run Away checks and before ordinary TryRunFromBattle().
      */
     if (runner->status2
             & (REMASTER_EMERALD_STATUS2_WRAPPED
@@ -8522,43 +8684,17 @@ int remaster_emerald_battle_try_run(
     if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_FIRST)
         return 0;
 
-    if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_TRAINER) {
-        if (!battle_frontier_type(battle->battle_type_flags))
-            return 0;
-
-        battle->outcome = REMASTER_EMERALD_BATTLE_OUTCOME_FORFEITED;
-        battle->ended = 1;
-        battle_event(
-            battle,
-            REMASTER_EMERALD_BATTLE_EVENT_RUN,
-            battler,
-            target,
-            0,
-            1,
-            0);
-        battle_event(
-            battle,
-            REMASTER_EMERALD_BATTLE_EVENT_ENDED,
-            battler,
-            target,
-            0,
-            battle->outcome,
-            0);
-        return 1;
-    }
-
     if (!battle_valid_battler(target)
         || !battle->battlers[target].active
         || battle->battlers[target].fainted)
         return 0;
 
     /*
-     * Emerald does not perform the ordinary speed escape check in doubles.
-     * It still consumes a run attempt, matching gBattleStruct->runTries.
+     * Ordinary doubles do not run the single-battle speed calculation, but
+     * TryRunFromBattle still increments its u8 runTries field.
      */
     if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_DOUBLE) {
-        if (battle->run_tries != UINT8_MAX)
-            battle->run_tries++;
+        battle->run_tries++;
         battle_event(
             battle,
             REMASTER_EMERALD_BATTLE_EVENT_RUN,
@@ -8573,18 +8709,26 @@ int remaster_emerald_battle_try_run(
     player_speed = battle_speed(battle, battler);
     foe_speed = battle_speed(battle, target);
 
-    if (foe_speed == 0 || player_speed >= foe_speed) {
+    if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_PYRAMID) {
+        pyramid_multiplier = battle->pyramid_run_multiplier != 0
+            ? battle->pyramid_run_multiplier
+            : 128;
+        speed_var = (uint8_t)(
+            player_speed * pyramid_multiplier / foe_speed
+            + (uint32_t)battle->run_tries * 30u);
+        escaped = speed_var
+            > (remaster_emerald_battle_random(&battle->rng) & 0xFFu);
+    } else if (player_speed >= foe_speed) {
         escaped = 1;
     } else {
-        threshold = player_speed * 128u / foe_speed
-            + (uint32_t)battle->run_tries * 30u;
-        escaped = threshold > 255u
-            || threshold
-                > (remaster_emerald_battle_random(&battle->rng) & 0xFFu);
+        speed_var = (uint8_t)(
+            player_speed * 128u / foe_speed
+            + (uint32_t)battle->run_tries * 30u);
+        escaped = speed_var
+            > (remaster_emerald_battle_random(&battle->rng) & 0xFFu);
     }
 
-    if (battle->run_tries != UINT8_MAX)
-        battle->run_tries++;
+    battle->run_tries++;
 
     if (!escaped) {
         battle_event(
