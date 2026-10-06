@@ -3772,6 +3772,73 @@ static int battle_can_act(
     return 1;
 }
 
+static void battle_clear_fainted_state(
+    RemasterEmeraldBattleState *battle,
+    uint8_t battler)
+{
+    RemasterEmeraldBattleMon *mon;
+    uint8_t i;
+    const uint32_t infatuation_bit =
+        UINT32_C(1) << (16u + battler);
+
+    if (battle == 0 || !battle_valid_battler(battler))
+        return;
+
+    mon = &battle->battlers[battler];
+    mon->pokemon.status = 0;
+    memset(mon->stat_stages, 6, sizeof(mon->stat_stages));
+    mon->status2 = 0;
+    mon->status3 = 0;
+    mon->substitute_hp = 0;
+    mon->last_move = 0;
+    mon->last_taken_move = 0;
+    mon->choice_locked_move = 0;
+    mon->last_damage = 0;
+    mon->bide_damage = 0;
+    mon->trapped_move = 0;
+    mon->last_damage_from = 0xFFu;
+    mon->last_damage_type = 0;
+    mon->last_damage_was_physical = 0;
+    mon->last_damage_turn = 0;
+    mon->protected_turn = 0xFFu;
+    mon->endure_turn = 0xFFu;
+    mon->protect_chain = 0;
+    mon->stockpile = 0;
+    mon->rollout_count = 0;
+    mon->fury_cutter_count = 0;
+    mon->trapped_turns = 0;
+    mon->rampage_turns = 0;
+    mon->uproar_turns = 0;
+    mon->bide_turns = 0;
+    mon->lock_on_turns = 0;
+    mon->lock_on_target = 0xFFu;
+    mon->perish_count = 0;
+    mon->toxic_counter = 0;
+    mon->flash_fire = 0;
+    mon->taunt_turns = 0;
+    mon->encore_turns = 0;
+    mon->encore_move_slot = 0;
+    mon->disable_turns = 0;
+    mon->disable_move_slot = 0;
+    mon->destiny_bond_turn = 0;
+    mon->grudge_turn = 0;
+    mon->charging_move = 0;
+    mon->charging_move_slot = 0;
+    mon->charging_target = 0xFFu;
+    mon->helping_hand = 0;
+    mon->magic_coat = 0;
+    mon->snatch = 0;
+    mon->imprison = 0;
+    mon->temporary_move_mask = 0;
+
+    for (i = 0; i < REMASTER_EMERALD_BATTLE_MAX_BATTLERS; ++i) {
+        if (i != battler)
+            battle->battlers[i].status2 &= ~infatuation_bit;
+    }
+
+    battle_sync_battler(battle, battler);
+}
+
 static void battle_faint_check(
     RemasterEmeraldBattleState *battle,
     uint8_t battler);
@@ -4037,7 +4104,6 @@ static void battle_faint_check(
         return;
 
     mon->fainted = 1;
-    battle_sync_battler(battle, battler);
     battle_event(
         battle,
         REMASTER_EMERALD_BATTLE_EVENT_FAINT,
@@ -4078,6 +4144,7 @@ static void battle_faint_check(
         }
     }
 
+    battle_clear_fainted_state(battle, battler);
     battle_award_exp_for_faint(battle, battler);
     battle_finish_if_over(battle);
 }
@@ -5217,8 +5284,6 @@ int remaster_emerald_battle_switch(
             party_slot))
         return 0;
 
-    battle->battlers[battler].entered_turn =
-        (uint8_t)(battle->turn_number & 0xFFu);
     battle->active_party_slot[battler] = party_slot;
     battle->battlers[battler].entered_turn =
         (uint8_t)((battle->turn_number + 1u) & 0xFFu);
@@ -5253,6 +5318,8 @@ int remaster_emerald_battle_switch(
             0,
             0);
         battle_faint_check(battle, battler);
+        if (battle->battlers[battler].fainted)
+            return 1;
     }
 
     battle_entry_ability(battle, battler);
@@ -7644,26 +7711,15 @@ static int battle_action_priority(
 {
     const RemasterEmeraldMoveInfo *move;
 
-    (void)battle;
+    if (battle == 0
+        || action == 0
+        || action->kind != REMASTER_EMERALD_BATTLE_ACTION_MOVE
+        || action->move_slot >= 4)
+        return 0;
 
-    switch (action->kind) {
-    case REMASTER_EMERALD_BATTLE_ACTION_SWITCH:
-        return 60;
-    case REMASTER_EMERALD_BATTLE_ACTION_ITEM:
-        return 50;
-    case REMASTER_EMERALD_BATTLE_ACTION_RUN:
-        return 40;
-    case REMASTER_EMERALD_BATTLE_ACTION_MOVE:
-        move = remaster_emerald_move_info(
-            battle->battlers[battler].moves[action->move_slot]);
-        if (move != 0
-            && move->effect == EFFECT_PURSUIT
-            && battle->pursuit_boost[battler])
-            return 70;
-        return move != 0 ? (int)move->priority : 0;
-    default:
-        return -100;
-    }
+    move = remaster_emerald_move_info(
+        battle->battlers[battler].moves[action->move_slot]);
+    return move != 0 ? (int)move->priority : 0;
 }
 
 static void battle_end_turn(
@@ -8019,6 +8075,61 @@ static int battle_handle_pending_replacements(
     return 1;
 }
 
+static void battle_resolve_pursuit_on_switch(
+    RemasterEmeraldBattleState *battle,
+    uint8_t switcher,
+    RemasterEmeraldBattleAction actions[
+        REMASTER_EMERALD_BATTLE_MAX_BATTLERS])
+{
+    uint8_t pursuer;
+
+    if (battle == 0
+        || actions == 0
+        || !battle_valid_battler(switcher)
+        || battle->battlers[switcher].fainted)
+        return;
+
+    for (pursuer = 0;
+         pursuer < REMASTER_EMERALD_BATTLE_MAX_BATTLERS;
+         ++pursuer) {
+        RemasterEmeraldBattleAction *action;
+        const RemasterEmeraldMoveInfo *move;
+
+        if (!battle->battlers[pursuer].active
+            || battle->battlers[pursuer].fainted
+            || battle->battlers[pursuer].side
+                == battle->battlers[switcher].side)
+            continue;
+
+        action = &actions[pursuer];
+        if (action->kind != REMASTER_EMERALD_BATTLE_ACTION_MOVE
+            || action->move_slot >= 4
+            || action->target != switcher)
+            continue;
+
+        move = remaster_emerald_move_info(
+            battle->battlers[pursuer].moves[action->move_slot]);
+        if (move == 0 || move->effect != EFFECT_PURSUIT)
+            continue;
+        if (battle->battlers[pursuer].pokemon.status
+            & (REMASTER_EMERALD_STATUS1_SLEEP
+               | REMASTER_EMERALD_STATUS1_FREEZE))
+            continue;
+
+        action->kind = REMASTER_EMERALD_BATTLE_ACTION_NONE;
+        battle->pursuit_boost[pursuer] = 1;
+        remaster_emerald_battle_use_move(
+            battle,
+            pursuer,
+            switcher,
+            action->move_slot);
+        battle->pursuit_boost[pursuer] = 0;
+
+        if (battle->battlers[switcher].fainted || battle->ended)
+            return;
+    }
+}
+
 int remaster_emerald_battle_resolve_turn(
     RemasterEmeraldBattleState *battle,
     const RemasterEmeraldBattleAction actions[
@@ -8028,6 +8139,9 @@ int remaster_emerald_battle_resolve_turn(
         REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
     uint8_t order[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
     uint8_t count = 0;
+    uint8_t sortable_start = 0;
+    uint8_t run_battler = 0xFFu;
+    uint16_t turn_random;
     uint8_t i;
     uint8_t j;
     int replacement_handled = 0;
@@ -8051,6 +8165,9 @@ int remaster_emerald_battle_resolve_turn(
         (int32_t)battle->turn_number,
         0);
 
+    /* Emerald snapshots one shared random value for Quick Claw before
+       action selection, then uses ordinary RNG only for exact speed ties. */
+    turn_random = remaster_emerald_battle_random(&battle->rng);
     memcpy(resolved, actions, sizeof(resolved));
 
     for (i = 0; i < REMASTER_EMERALD_BATTLE_MAX_BATTLERS; ++i) {
@@ -8081,36 +8198,76 @@ int remaster_emerald_battle_resolve_turn(
             remaster_emerald_battle_choose_ai_action(
                 battle, i, &resolved[i]);
         }
-
-        if (resolved[i].kind != REMASTER_EMERALD_BATTLE_ACTION_NONE)
-            order[count++] = i;
     }
 
     memset(battle->pursuit_boost, 0, sizeof(battle->pursuit_boost));
-    for (i = 0; i < count; ++i) {
-        uint8_t battler = order[i];
-        RemasterEmeraldBattleAction *action = &resolved[battler];
-        if (action->kind == REMASTER_EMERALD_BATTLE_ACTION_MOVE
-            && action->move_slot < 4) {
-            const RemasterEmeraldMoveInfo *chosen =
-                remaster_emerald_move_info(
-                    battle->battlers[battler].moves[action->move_slot]);
-            uint8_t target = action->target;
-            if ((!battle_valid_battler(target)
-                    || battle->battlers[target].side
-                        == battle->battlers[battler].side)
-                && chosen != 0)
-                target = battle_default_target(battle, battler);
-            if (chosen != 0
-                && chosen->effect == EFFECT_PURSUIT
-                && battle_valid_battler(target)
-                && resolved[target].kind
-                    == REMASTER_EMERALD_BATTLE_ACTION_SWITCH)
-                battle->pursuit_boost[battler] = 1;
+
+    if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_SAFARI) {
+        for (i = 0; i < REMASTER_EMERALD_BATTLE_MAX_BATTLERS; ++i) {
+            if (battle->battlers[i].active
+                && !battle->battlers[i].fainted
+                && resolved[i].kind != REMASTER_EMERALD_BATTLE_ACTION_NONE)
+                order[count++] = i;
+        }
+        sortable_start = count;
+    } else {
+        if (battle->battle_type_flags & REMASTER_EMERALD_BATTLE_TYPE_LINK) {
+            for (i = 0; i < REMASTER_EMERALD_BATTLE_MAX_BATTLERS; ++i) {
+                if (battle->battlers[i].active
+                    && !battle->battlers[i].fainted
+                    && resolved[i].kind
+                        == REMASTER_EMERALD_BATTLE_ACTION_RUN) {
+                    run_battler = i;
+                    break;
+                }
+            }
+        } else {
+            for (i = 0; i < REMASTER_EMERALD_BATTLE_MAX_BATTLERS; i += 2) {
+                if (battle->battlers[i].active
+                    && !battle->battlers[i].fainted
+                    && resolved[i].kind
+                        == REMASTER_EMERALD_BATTLE_ACTION_RUN)
+                    run_battler = i;
+            }
+        }
+
+        if (run_battler != 0xFFu) {
+            order[count++] = run_battler;
+            for (i = 0; i < REMASTER_EMERALD_BATTLE_MAX_BATTLERS; ++i) {
+                if (i != run_battler
+                    && battle->battlers[i].active
+                    && !battle->battlers[i].fainted
+                    && resolved[i].kind
+                        != REMASTER_EMERALD_BATTLE_ACTION_NONE)
+                    order[count++] = i;
+            }
+            sortable_start = count;
+        } else {
+            for (i = 0; i < REMASTER_EMERALD_BATTLE_MAX_BATTLERS; ++i) {
+                if (!battle->battlers[i].active
+                    || battle->battlers[i].fainted)
+                    continue;
+                if (resolved[i].kind == REMASTER_EMERALD_BATTLE_ACTION_ITEM
+                    || resolved[i].kind
+                        == REMASTER_EMERALD_BATTLE_ACTION_SWITCH)
+                    order[count++] = i;
+            }
+            sortable_start = count;
+            for (i = 0; i < REMASTER_EMERALD_BATTLE_MAX_BATTLERS; ++i) {
+                if (!battle->battlers[i].active
+                    || battle->battlers[i].fainted)
+                    continue;
+                if (resolved[i].kind != REMASTER_EMERALD_BATTLE_ACTION_NONE
+                    && resolved[i].kind
+                        != REMASTER_EMERALD_BATTLE_ACTION_ITEM
+                    && resolved[i].kind
+                        != REMASTER_EMERALD_BATTLE_ACTION_SWITCH)
+                    order[count++] = i;
+            }
         }
     }
 
-    for (i = 0; i < count; ++i) {
+    for (i = sortable_start; i < count; ++i) {
         for (j = (uint8_t)(i + 1u); j < count; ++j) {
             uint8_t a = order[i];
             uint8_t b = order[j];
@@ -8122,14 +8279,16 @@ int remaster_emerald_battle_resolve_turn(
 
             if (battle_hold_effect(&battle->battlers[a])
                     == HOLD_EFFECT_QUICK_CLAW
-                && remaster_emerald_battle_random(&battle->rng) % 100u
-                    < battle_hold_param(&battle->battlers[a]))
-                pa++;
+                && turn_random
+                    < (uint32_t)UINT16_MAX
+                        * battle_hold_param(&battle->battlers[a]) / 100u)
+                sa = UINT32_MAX;
             if (battle_hold_effect(&battle->battlers[b])
                     == HOLD_EFFECT_QUICK_CLAW
-                && remaster_emerald_battle_random(&battle->rng) % 100u
-                    < battle_hold_param(&battle->battlers[b]))
-                pb++;
+                && turn_random
+                    < (uint32_t)UINT16_MAX
+                        * battle_hold_param(&battle->battlers[b]) / 100u)
+                sb = UINT32_MAX;
 
             if (pb > pa)
                 swap = 1;
@@ -8150,7 +8309,8 @@ int remaster_emerald_battle_resolve_turn(
         uint8_t battler = order[i];
         RemasterEmeraldBattleAction *action = &resolved[battler];
 
-        if (battle->battlers[battler].fainted)
+        if (battle->battlers[battler].fainted
+            || action->kind == REMASTER_EMERALD_BATTLE_ACTION_NONE)
             continue;
 
         switch (action->kind) {
@@ -8185,15 +8345,20 @@ int remaster_emerald_battle_resolve_turn(
                     action->target,
                     action->move_slot);
             }
-
-            battle->pursuit_boost[battler] = 0;
             break;
         }
         case REMASTER_EMERALD_BATTLE_ACTION_SWITCH:
-            remaster_emerald_battle_switch(
-                battle,
-                battler,
-                action->party_slot);
+            if ((battle->battle_type_flags
+                    & REMASTER_EMERALD_BATTLE_TYPE_ARENA)
+                && !battle->battlers[battler].fainted)
+                break;
+            battle_resolve_pursuit_on_switch(
+                battle, battler, resolved);
+            if (!battle->battlers[battler].fainted && !battle->ended)
+                remaster_emerald_battle_switch(
+                    battle,
+                    battler,
+                    action->party_slot);
             break;
         case REMASTER_EMERALD_BATTLE_ACTION_ITEM:
             battle_use_trainer_item(
