@@ -46,13 +46,23 @@ R16 regression-pins the following gameplay/domain policies.
 - HM01-HM08 remain reusable.
 - HM moves may be replaced through the normal move-replacement flow.
 
+### Move Relearner
+
+- party shortcut eligibility rejects Eggs, a missing Heart Scale and Pokémon
+  with no relearnable level-up moves;
+- candidate moves are derived from the canonical species learnset up to the
+  Pokémon's current level, excluding already-known moves;
+- one Heart Scale is consumed only after a move is actually learned; cancelled
+  or rejected attempts do not consume it.
+
 ### Field QoL
 
 - Running is not gated by the old Running Shoes story flag.
 - Field poison damage stops at 1 HP.
 - Flash resolves to full visibility.
-- Fishing uses the accepted 90-frame response window with no repeated reaction
-  rounds.
+- Fishing uses the accepted 90-frame response window; rod-dependent mandatory
+  reaction rounds remain Old Rod 1, Good Rod 1-3 and Super Rod 1-6, while the
+  optional extra-round chance is exactly zero.
 - Stationary bike switching is allowed.
 - HM field access is derived from the exact Vanilla+ item + badge mapping;
   owning the badge alone or the HM alone is insufficient.
@@ -67,6 +77,9 @@ R16 regression-pins the following gameplay/domain policies.
 
 ### PC / party management
 
+- Bag sorting supports Name, Type, Quantity and Value for sortable pockets,
+  with TM/HM and Berry canonical ordering preserved; PC item sorting uses the
+  same modes over plaintext PC quantities;
 - current-box sort supports Species, Level and Type modes;
 - Eggs sort after ordinary Pokémon and empty slots sort last;
 - current-box compaction preserves occupied order;
@@ -76,12 +89,16 @@ R16 regression-pins the following gameplay/domain policies.
   box-capacity failure;
 - quick withdraw preserves party capacity and reconstructs party runtime stats
   from the canonical boxed Pokémon state;
-- ordinary held items can be moved/swapped while Mail remains excluded.
+- ordinary party held items can be moved/swapped while Mail remains excluded;
+- PC Pokémon support direct GIVE from Bag and TAKE back to Bag for ordinary
+  held items, with Egg, Mail, unholdable-item and Bag-capacity safeguards.
 
 ### Multi quick-item compatibility
 
 R16 preserves the accepted Vanilla+ Phase 5 quick-item metadata format in the
-existing SaveBlock1 reserve at `0x3598`.
+existing SaveBlock1 reserve at `0x3598`. The runtime contract is exactly 21
+bytes; initialization and updates must not overwrite the following reserve
+bytes.
 
 - no SaveBlock structure is enlarged;
 - old single `registeredItem` state migrates lazily into slot 0;
