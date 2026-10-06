@@ -717,10 +717,12 @@ surface, and route back to the verification/gate that detected it.
 R13 and R16 are complete on `main`. R17 is the active phase.
 
 The fresh R17 working branch is `r17-save-compat-mainline`, created from the
-post-R16 `main` baseline. R17-P1 repo/scope recovery is complete. R17-P2 source
-audit identified save-format contract gaps, but its versioned contract artifact
-has not yet been committed.
+post-R16 `main` baseline. R17-P1 repo/scope recovery is complete. R17-P2 is
+complete with the authoritative contract versioned in
+`docs/R17_SAVE_COMPAT_CONTRACT.md`.
 
-Resume at **R17-P2 — Source/reference contract closure**: revalidate live
-`main`/branch drift, commit the authoritative R17 save-compatibility contract,
-and only then advance to R17-I1.
+Resume at **R17-I1 — Slot/sector validation**. Start with the authoritative
+SaveBlock/checksum geometry and the regressions that currently pin the wrong
+remaster block sizes. Do not advance to domain reconstruction until I1 verifies
+slot choice, sector IDs/signatures, checksum spans, rotation and counter
+coherence.
