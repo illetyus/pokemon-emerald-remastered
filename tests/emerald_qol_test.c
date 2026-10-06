@@ -97,6 +97,10 @@ static void test_policy(void)
 {
     RemasterEmeraldSave save;
     RemasterEmeraldQolHmTool tool;
+    RemasterEmeraldQolBikeToggleState bike;
+    RemasterEmeraldPartyPokemon p0;
+    RemasterEmeraldPartyPokemon p1;
+    uint8_t actor = 0xFFu;
     const uint16_t stones[] = {
         ITEM_SUN_STONE, ITEM_MOON_STONE, ITEM_FIRE_STONE,
         ITEM_THUNDER_STONE, ITEM_WATER_STONE, ITEM_LEAF_STONE
@@ -119,12 +123,54 @@ static void test_policy(void)
     assert(remaster_emerald_qol_field_poison_hp_after_step(10) == 9);
     assert(remaster_emerald_qol_field_poison_hp_after_step(1) == 1);
     assert(remaster_emerald_qol_flash_level_after_use() == 0);
+
     assert(remaster_emerald_qol_fishing_response_frames(0) == 90);
+    assert(remaster_emerald_qol_fishing_response_frames(1) == 90);
     assert(remaster_emerald_qol_fishing_response_frames(2) == 90);
-    assert(remaster_emerald_qol_fishing_reaction_rounds(1) == 0);
-    assert(remaster_emerald_qol_bike_toggle_allowed(1));
-    assert(!remaster_emerald_qol_bike_toggle_allowed(0));
-    assert(remaster_emerald_qol_running_allowed());
+    assert(remaster_emerald_qol_fishing_response_frames(3) == 0);
+    assert(remaster_emerald_qol_fishing_required_rounds(0, 0) == 1);
+    assert(remaster_emerald_qol_fishing_required_rounds(0, 65535) == 1);
+    assert(remaster_emerald_qol_fishing_required_rounds(1, 0) == 1);
+    assert(remaster_emerald_qol_fishing_required_rounds(1, 1) == 2);
+    assert(remaster_emerald_qol_fishing_required_rounds(1, 2) == 3);
+    assert(remaster_emerald_qol_fishing_required_rounds(1, 3) == 1);
+    assert(remaster_emerald_qol_fishing_required_rounds(2, 0) == 1);
+    assert(remaster_emerald_qol_fishing_required_rounds(2, 5) == 6);
+    assert(remaster_emerald_qol_fishing_required_rounds(2, 6) == 1);
+    assert(remaster_emerald_qol_fishing_required_rounds(3, 0) == 0);
+    assert(remaster_emerald_qol_fishing_optional_round_chance(0, 0) == 0);
+    assert(remaster_emerald_qol_fishing_optional_round_chance(1, 1) == 0);
+    assert(remaster_emerald_qol_fishing_optional_round_chance(2, 0) == 0);
+
+    assert(!remaster_emerald_qol_running_requires_shoes());
+    assert(remaster_emerald_qol_running_environment_allows(0, 0));
+    assert(!remaster_emerald_qol_running_environment_allows(1, 0));
+    assert(!remaster_emerald_qol_running_environment_allows(0, 1));
+
+    memset(&bike, 0, sizeof(bike));
+    bike.r_pressed = 1;
+    bike.on_mach_bike = 1;
+    bike.mach_speed_standing = 1;
+    assert(remaster_emerald_qol_bike_toggle_allowed(&bike));
+    bike.r_pressed = 0;
+    assert(!remaster_emerald_qol_bike_toggle_allowed(&bike));
+    bike.r_pressed = 1;
+    bike.cycling_road = 1;
+    assert(!remaster_emerald_qol_bike_toggle_allowed(&bike));
+    bike.cycling_road = 0;
+    bike.player_moving = 1;
+    assert(!remaster_emerald_qol_bike_toggle_allowed(&bike));
+    bike.player_moving = 0;
+    bike.mach_speed_standing = 0;
+    assert(!remaster_emerald_qol_bike_toggle_allowed(&bike));
+    bike.on_mach_bike = 0;
+    bike.on_acro_bike = 1;
+    bike.acro_state_normal = 1;
+    assert(remaster_emerald_qol_bike_toggle_allowed(&bike));
+    bike.acro_state_normal = 0;
+    assert(!remaster_emerald_qol_bike_toggle_allowed(&bike));
+    bike.on_acro_bike = 0;
+    assert(!remaster_emerald_qol_bike_toggle_allowed(&bike));
 
     assert(remaster_emerald_qol_hm_tool(ITEM_HM01, &tool));
     assert(tool.move_id == MOVE_CUT);
@@ -136,8 +182,28 @@ static void test_policy(void)
     memset(&save, 0, sizeof(save));
     assert(remaster_emerald_bag_add(&save, ITEM_HM03, 1));
     assert(!remaster_emerald_qol_hm_access(&save, ITEM_HM03));
+    assert(remaster_emerald_qol_hm_field_use(&save, ITEM_HM03, 0, 0)
+        == REMASTER_EMERALD_QOL_HM_FIELD_USE_NO_ACCESS);
     assert(remaster_emerald_flag_set(&save, FLAG_BADGE05_GET, 1));
     assert(remaster_emerald_qol_hm_access(&save, ITEM_HM03));
+    assert(remaster_emerald_qol_hm_field_use(&save, ITEM_HM03, 0, 0)
+        == REMASTER_EMERALD_QOL_HM_FIELD_USE_NO_ACTOR);
+
+    p0 = make_party(1, 20, 50, 801);
+    p1 = make_party(25, 20, 50, 802);
+    set_egg(&p0.box);
+    assert(remaster_emerald_party_set(&save, 0, &p0));
+    assert(remaster_emerald_party_set(&save, 1, &p1));
+    assert(remaster_emerald_party_set_count(&save, 2));
+    assert(remaster_emerald_qol_hm_field_actor(&save, &actor));
+    assert(actor == 1);
+    assert(remaster_emerald_qol_hm_field_use(
+        &save, ITEM_HM03, &tool, &actor)
+        == REMASTER_EMERALD_QOL_HM_FIELD_USE_OK);
+    assert(tool.move_id == MOVE_SURF);
+    assert(actor == 1);
+    assert(remaster_emerald_qol_hm_field_use(&save, ITEM_POTION, 0, 0)
+        == REMASTER_EMERALD_QOL_HM_FIELD_USE_INVALID_ITEM);
 }
 
 static void test_info(void)
