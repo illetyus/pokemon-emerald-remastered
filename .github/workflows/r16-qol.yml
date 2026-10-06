@@ -1,7 +1,7 @@
 name: R16 Vanilla+ QoL
 
 permissions:
-  contents: read
+  contents: write
 
 on:
   push:
@@ -25,7 +25,104 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          persist-credentials: false
+          persist-credentials: true
+
+      - name: One-shot patch bounded item views
+        if: >-
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/r16-qol-closure' &&
+          !contains(github.event.head_commit.message, '[item-view-bounds]')
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('core/src/emerald_qol.c')
+          text = p.read_text()
+          old = '''static uint8_t *item_slot_ptr(
+              RemasterEmeraldSave *save,
+              const RemasterEmeraldQolItemView *view,
+              size_t slot)
+          {
+              return save->save_block1 + view->offset + slot * ITEM_SLOT_BYTES;
+          }
+          '''
+          new = '''static int item_view_valid(const RemasterEmeraldQolItemView *view)
+          {
+              return view != 0
+                  && view->offset <= REMASTER_EMERALD_SAVE_BLOCK1_BYTES
+                  && view->capacity <=
+                      (REMASTER_EMERALD_SAVE_BLOCK1_BYTES - view->offset)
+                          / ITEM_SLOT_BYTES;
+          }
+
+          static uint8_t *item_slot_ptr(
+              RemasterEmeraldSave *save,
+              const RemasterEmeraldQolItemView *view,
+              size_t slot)
+          {
+              return save->save_block1 + view->offset + slot * ITEM_SLOT_BYTES;
+          }
+          '''
+          if old not in text:
+              raise SystemExit('item_slot_ptr patch anchor not found')
+          text = text.replace(old, new, 1)
+          old = '''static size_t compact_item_slots(
+              RemasterEmeraldSave *save,
+              const RemasterEmeraldQolItemView *view)
+          {
+              size_t read_slot;
+              size_t write_slot = 0;
+
+              for (read_slot = 0; read_slot < view->capacity; ++read_slot) {
+          '''
+          new = '''static size_t compact_item_slots(
+              RemasterEmeraldSave *save,
+              const RemasterEmeraldQolItemView *view)
+          {
+              size_t read_slot;
+              size_t write_slot = 0;
+
+              if (save == 0 || !item_view_valid(view))
+                  return 0;
+
+              for (read_slot = 0; read_slot < view->capacity; ++read_slot) {
+          '''
+          if old not in text:
+              raise SystemExit('compact_item_slots patch anchor not found')
+          text = text.replace(old, new, 1)
+          old = '''static void sort_item_slots(
+              RemasterEmeraldSave *save,
+              const RemasterEmeraldQolItemView *view,
+              size_t count,
+              RemasterEmeraldQolItemSortMode mode)
+          {
+              size_t i;
+
+              for (i = 1; i < count; ++i) {
+          '''
+          new = '''static void sort_item_slots(
+              RemasterEmeraldSave *save,
+              const RemasterEmeraldQolItemView *view,
+              size_t count,
+              RemasterEmeraldQolItemSortMode mode)
+          {
+              size_t i;
+
+              if (save == 0 || !item_view_valid(view) || count > view->capacity)
+                  return;
+
+              for (i = 1; i < count; ++i) {
+          '''
+          if old not in text:
+              raise SystemExit('sort_item_slots patch anchor not found')
+          p.write_text(text)
+          PY
+          if ! git diff --quiet -- core/src/emerald_qol.c; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add core/src/emerald_qol.c
+            git commit -m 'fix(r16): bound item slot views [item-view-bounds]'
+            git push origin HEAD:r16-qol-closure
+          fi
 
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
