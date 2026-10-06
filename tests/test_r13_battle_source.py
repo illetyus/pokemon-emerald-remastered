@@ -228,6 +228,41 @@ class R13BattleSourceContract(unittest.TestCase):
             portable,
         )
 
+    def test_turn_order_and_switch_lifecycle_match_vanillaplus(self):
+        battle_main = (VENDOR / "src/battle_main.c").read_text(
+            encoding="utf-8"
+        )
+        commands = (
+            VENDOR / "src/battle_script_commands.c"
+        ).read_text(encoding="utf-8")
+        portable = R13.read_text(encoding="utf-8")
+
+        self.assertIn("SetActionsAndBattlersTurnOrder", battle_main)
+        self.assertIn("gRandomTurnNumber = Random();", battle_main)
+        self.assertIn(
+            "B_ACTION_USE_ITEM || "
+            "gChosenActionByBattler[gActiveBattler] == B_ACTION_SWITCH",
+            battle_main,
+        )
+        self.assertIn("Cmd_jumpifnopursuitswitchdmg", commands)
+        self.assertIn("FaintClearSetData(void)", battle_main)
+
+        for symbol in (
+            "battle_resolve_pursuit_on_switch",
+            "battle_clear_fainted_state",
+            "turn_random = remaster_emerald_battle_random",
+            "REMASTER_EMERALD_BATTLE_TYPE_SAFARI",
+            "REMASTER_EMERALD_BATTLE_TYPE_ARENA",
+        ):
+            self.assertIn(symbol, portable)
+
+        self.assertRegex(
+            portable,
+            r"battle_faint_check\(battle, battler\);\s*"
+            r"if \(battle->battlers\[battler\]\.fainted\)\s*"
+            r"return 1;",
+        )
+
     def test_faint_replacement_contract_is_explicit(self):
         portable = R13.read_text(encoding="utf-8")
         header = (
@@ -270,6 +305,23 @@ class R13BattleSourceContract(unittest.TestCase):
             self.assertIn(symbol, portable)
 
         self.assertIn("battle_emit_progression_handoffs", portable)
+        self.assertIn(
+            "FreeResetData_ReturnToOvOrDoEvolutions",
+            (VENDOR / "src/battle_main.c").read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            "gBattleOutcome != B_OUTCOME_WON",
+            (VENDOR / "src/battle_main.c").read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            "battle_emit_post_battle_evolution_handoffs",
+            portable,
+        )
+        self.assertIn("leveled_up_party_mask", portable)
+        self.assertIn(
+            "battle->outcome != REMASTER_EMERALD_BATTLE_OUTCOME_WON",
+            portable,
+        )
 
     def test_move_effect_count_is_gen3_contract(self):
         text = (VENDOR / "include/constants/battle_move_effects.h").read_text(
