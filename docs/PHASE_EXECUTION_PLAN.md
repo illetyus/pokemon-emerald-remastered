@@ -742,7 +742,10 @@ terminal-success; portable core passed 58/58 and Windows native atomic
 transport passed 24/24. Production VP5, explicit legacy recovery, stock runtime
 state and metadata-version boundaries are in section 19 of the contract.
 
-R17-I5 separates typed MISSING/ERROR, rejects found corrupt/unsupported images
+R17-I5 is VERIFIED_COMPLETE at
+`ac50b51674d5707caa0a2ac1d237d687a0af6d9e`: all nine workflow runs are
+terminal-success; portable core passed 60/60, Windows native read 32/32 and
+atomic write 24/24. It separates typed MISSING/ERROR, rejects corrupt/unsupported images
 and stale store checkpoints, and requires explicit source-format load selection.
 Its shared native read transport, host status/path wiring and independent
 fixtures are in section 20 of the contract.
@@ -751,14 +754,17 @@ R17-I5-Closure-1 closes the concrete failure in R0 run `37529156535` at
 `825e53f904f4f7211280a341cdd00cc512ca9184`: Linux directory size probes could
 return OK. The native transport now requires an opened regular-file descriptor;
 local native C++17 and ASan/UBSan pass 32/32. Initial CI was 59/60 Linux,
-31/31 Windows read and 24/24 Windows atomic write, so I5 remains VERIFYING
-until the closure commit's complete exact-HEAD CI succeeds.
+31/31 Windows read and 24/24 Windows atomic write; the exact closure-HEAD CI
+subsequently succeeded and closed I5. The failed initial commit was not accepted.
 
-Resume at **R17-I5 verification** until the exact live I5 commit's targeted and
-complete relevant PR CI are terminal-success, including Windows native file
-transport. Then the next named subphase is **R17-T1 — Compatibility fixture
-matrix**. Pending/failed CI keeps I5 open and permits only a concrete gap-specific
-closure. Representative real/versioned fixture acceptance and final gates remain open.
+R17-T1 now versions 37 public source-backed recipes, a redacted real-derived
+semantic projection and one hash-pinned private VP019 real-save evidence fixture.
+Local strict/sanitizer matrix and actual private import/export/disk-reopen pass;
+details and limitations are in `docs/R17_SAVE_FIXTURE_MATRIX.md`.
+Resume at **R17-T1 verification** until its exact live commit's targeted/full PR
+CI is terminal-success. Then the next named subphase is **R17-V1 — Targeted/full
+CI**. Pending/failed CI keeps T1 open and permits only a concrete gap-specific
+closure. R17 acceptance/completion/independent final gates remain open.
 Real Unreal compilation/Android execution remains R18 work; native transport
 checks are not a substitute for that gate.
 

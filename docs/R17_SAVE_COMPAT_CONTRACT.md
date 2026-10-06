@@ -820,3 +820,20 @@ failure -> a concrete I5 closure. T1 representative real/versioned fixture
 acceptance and final phase gates remain open. Native stdio tests and source
 path/status review are not real UE compilation or Android filesystem/runtime
 validation; those remain R18/runtime work.
+
+## 21. R17-T1 versioned compatibility fixtures
+
+`tests/fixtures/r17/matrix.json`, `tools/r17_save_fixture_matrix.py` and
+`tests/r17_save_fixture_probe.cpp` pin 37 public source-backed recipes and
+one private user-supplied VP019 evidence fixture. The real input is hash-pinned,
+opened read-only, replayed through portable load/store, exported into a temporary
+directory and reopened through another native process. Independent source
+geometry/domain parsing verifies whole-image and logical-domain preservation.
+The public matrix includes a redacted real-derived semantic projection; public
+CI does not claim to replay the private original.
+
+Exact fixture hashes, checkpoints, source/CTest ownership, limits, commands and
+actual local strict/sanitizer/negative-oracle results are in
+`docs/R17_SAVE_FIXTURE_MATRIX.md`. No implementation behavior changes belong to
+T1. T1 remains VERIFYING until its exact commit's targeted/full PR CI is
+terminal-success. Success -> R17-V1; any failure -> a gap-specific T1 closure.

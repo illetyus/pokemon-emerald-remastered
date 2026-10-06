@@ -999,3 +999,18 @@ else()
     target_compile_options(r17_file_save_read_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r17_native_file_save_read COMMAND r17_file_save_read_test)
+
+# R17-T1: source-backed recipes, independent byte oracle and private-save replay.
+add_executable(r17_save_fixture_probe tests/r17_save_fixture_probe.cpp)
+target_link_libraries(r17_save_fixture_probe PRIVATE remaster_core)
+target_include_directories(r17_save_fixture_probe PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r17_save_fixture_probe PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r17_save_fixture_probe PRIVATE /W4)
+else()
+    target_compile_options(r17_save_fixture_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r17_save_fixture_matrix COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r17_save_fixture_matrix.py
+    --probe $<TARGET_FILE:r17_save_fixture_probe>)
