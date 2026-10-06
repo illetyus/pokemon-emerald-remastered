@@ -180,30 +180,39 @@ int remaster_emerald_qol_hm_tool(
 {
     RemasterEmeraldQolHmTool tool;
 
+    tool.item_id = item_id;
     switch (item_id) {
     case ITEM_HM01:
-        tool = (RemasterEmeraldQolHmTool){ITEM_HM01, MOVE_CUT, FLAG_BADGE01_GET};
+        tool.move_id = MOVE_CUT;
+        tool.badge_flag = FLAG_BADGE01_GET;
         break;
     case ITEM_HM02:
-        tool = (RemasterEmeraldQolHmTool){ITEM_HM02, MOVE_FLY, FLAG_BADGE06_GET};
+        tool.move_id = MOVE_FLY;
+        tool.badge_flag = FLAG_BADGE06_GET;
         break;
     case ITEM_HM03:
-        tool = (RemasterEmeraldQolHmTool){ITEM_HM03, MOVE_SURF, FLAG_BADGE05_GET};
+        tool.move_id = MOVE_SURF;
+        tool.badge_flag = FLAG_BADGE05_GET;
         break;
     case ITEM_HM04:
-        tool = (RemasterEmeraldQolHmTool){ITEM_HM04, MOVE_STRENGTH, FLAG_BADGE04_GET};
+        tool.move_id = MOVE_STRENGTH;
+        tool.badge_flag = FLAG_BADGE04_GET;
         break;
     case ITEM_HM05:
-        tool = (RemasterEmeraldQolHmTool){ITEM_HM05, MOVE_FLASH, FLAG_BADGE02_GET};
+        tool.move_id = MOVE_FLASH;
+        tool.badge_flag = FLAG_BADGE02_GET;
         break;
     case ITEM_HM06:
-        tool = (RemasterEmeraldQolHmTool){ITEM_HM06, MOVE_ROCK_SMASH, FLAG_BADGE03_GET};
+        tool.move_id = MOVE_ROCK_SMASH;
+        tool.badge_flag = FLAG_BADGE03_GET;
         break;
     case ITEM_HM07:
-        tool = (RemasterEmeraldQolHmTool){ITEM_HM07, MOVE_WATERFALL, FLAG_BADGE08_GET};
+        tool.move_id = MOVE_WATERFALL;
+        tool.badge_flag = FLAG_BADGE08_GET;
         break;
     case ITEM_HM08:
-        tool = (RemasterEmeraldQolHmTool){ITEM_HM08, MOVE_DIVE, FLAG_BADGE07_GET};
+        tool.move_id = MOVE_DIVE;
+        tool.badge_flag = FLAG_BADGE07_GET;
         break;
     default:
         return 0;
@@ -655,7 +664,7 @@ static void quick_items_sync_primary(RemasterEmeraldSave *save)
     const uint8_t count = meta[VANILLAPLUS_ITEM_META_QUICK_COUNT];
     write16(
         save->save_block1 + SB1_REGISTERED_ITEM,
-        count == 0 ? ITEM_NONE
+        count == 0 ? (uint16_t)ITEM_NONE
                    : read16(meta + VANILLAPLUS_ITEM_META_QUICK_ITEMS));
 }
 
