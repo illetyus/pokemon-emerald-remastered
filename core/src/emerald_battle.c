@@ -357,9 +357,23 @@ enum {
     ITEM_LUXURY_BALL = 11,
     ITEM_PREMIER_BALL = 12,
     ITEM_POTION = 13,
+    ITEM_ANTIDOTE = 14,
+    ITEM_BURN_HEAL = 15,
+    ITEM_ICE_HEAL = 16,
+    ITEM_AWAKENING = 17,
+    ITEM_PARALYZE_HEAL = 18,
     ITEM_FULL_RESTORE = 19,
+    ITEM_MAX_POTION = 20,
     ITEM_HYPER_POTION = 21,
     ITEM_SUPER_POTION = 22,
+    ITEM_FULL_HEAL = 23,
+    ITEM_GUARD_SPEC = 73,
+    ITEM_DIRE_HIT = 74,
+    ITEM_X_ATTACK = 75,
+    ITEM_X_DEFEND = 76,
+    ITEM_X_SPEED = 77,
+    ITEM_X_ACCURACY = 78,
+    ITEM_X_SPECIAL = 79,
 
     SPECIES_PIKACHU = 25,
     SPECIES_FARFETCHD = 83,
@@ -7134,8 +7148,119 @@ static uint16_t battle_ai_trainer_item_heal(uint16_t item_id)
         return 50;
     case ITEM_HYPER_POTION:
         return 200;
+    case ITEM_MAX_POTION:
     case ITEM_FULL_RESTORE:
         return UINT16_MAX;
+    default:
+        return 0;
+    }
+}
+
+enum {
+    BATTLE_AI_ITEM_NOT_RECOGNIZABLE = 0,
+    BATTLE_AI_ITEM_FULL_RESTORE,
+    BATTLE_AI_ITEM_HEAL_HP,
+    BATTLE_AI_ITEM_CURE_CONDITION,
+    BATTLE_AI_ITEM_X_STAT,
+    BATTLE_AI_ITEM_GUARD_SPEC
+};
+
+static uint8_t battle_ai_trainer_item_type(uint16_t item_id)
+{
+    switch (item_id) {
+    case ITEM_FULL_RESTORE:
+        return BATTLE_AI_ITEM_FULL_RESTORE;
+    case ITEM_POTION:
+    case ITEM_MAX_POTION:
+    case ITEM_HYPER_POTION:
+    case ITEM_SUPER_POTION:
+        return BATTLE_AI_ITEM_HEAL_HP;
+    case ITEM_ANTIDOTE:
+    case ITEM_BURN_HEAL:
+    case ITEM_ICE_HEAL:
+    case ITEM_AWAKENING:
+    case ITEM_PARALYZE_HEAL:
+    case ITEM_FULL_HEAL:
+        return BATTLE_AI_ITEM_CURE_CONDITION;
+    case ITEM_DIRE_HIT:
+    case ITEM_X_ATTACK:
+    case ITEM_X_DEFEND:
+    case ITEM_X_SPEED:
+    case ITEM_X_ACCURACY:
+    case ITEM_X_SPECIAL:
+        return BATTLE_AI_ITEM_X_STAT;
+    case ITEM_GUARD_SPEC:
+        return BATTLE_AI_ITEM_GUARD_SPEC;
+    default:
+        return BATTLE_AI_ITEM_NOT_RECOGNIZABLE;
+    }
+}
+
+static uint8_t battle_ai_alive_party_count(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t side)
+{
+    uint8_t i;
+    uint8_t count = 0;
+
+    for (i = 0; i < battle->party_count[side]; ++i) {
+        if (battle->parties[side][i].hp != 0
+            && remaster_emerald_box_pokemon_species(
+                &battle->parties[side][i].box) != 0)
+            ++count;
+    }
+    return count;
+}
+
+static uint8_t battle_ai_trainer_item_count(
+    const RemasterEmeraldBattleState *battle)
+{
+    const RemasterEmeraldTrainer *trainer =
+        remaster_emerald_battle_trainer_find(
+            battle->opponent_trainer_id);
+    uint8_t i;
+    uint8_t count = 0;
+
+    if (trainer != 0) {
+        for (i = 0; i < 4; ++i) {
+            if (trainer->items[i] != 0)
+                ++count;
+        }
+        if (count != 0)
+            return count;
+    }
+
+    for (i = 0; i < 4; ++i) {
+        if (battle->opponent_trainer_items[i] != 0)
+            ++count;
+    }
+    return count;
+}
+
+static int battle_ai_item_cures_current_condition(
+    const RemasterEmeraldBattleMon *user,
+    uint16_t item_id)
+{
+    switch (item_id) {
+    case ITEM_ANTIDOTE:
+        return (user->pokemon.status
+            & (REMASTER_EMERALD_STATUS1_POISON
+               | REMASTER_EMERALD_STATUS1_TOXIC)) != 0;
+    case ITEM_BURN_HEAL:
+        return (user->pokemon.status
+            & REMASTER_EMERALD_STATUS1_BURN) != 0;
+    case ITEM_ICE_HEAL:
+        return (user->pokemon.status
+            & REMASTER_EMERALD_STATUS1_FREEZE) != 0;
+    case ITEM_AWAKENING:
+        return (user->pokemon.status
+            & REMASTER_EMERALD_STATUS1_SLEEP) != 0;
+    case ITEM_PARALYZE_HEAL:
+        return (user->pokemon.status
+            & REMASTER_EMERALD_STATUS1_PARALYSIS) != 0;
+    case ITEM_FULL_HEAL:
+        return user->pokemon.status != 0
+            || (user->status2 & REMASTER_EMERALD_STATUS2_CONFUSION) != 0;
     default:
         return 0;
     }
@@ -7147,6 +7272,10 @@ static int battle_ai_choose_item_action(
     RemasterEmeraldBattleAction *out_action)
 {
     RemasterEmeraldBattleMon *user;
+    const uint8_t valid_mons =
+        battle != 0 ? battle_ai_alive_party_count(battle, 1) : 0;
+    const uint8_t items_no =
+        battle != 0 ? battle_ai_trainer_item_count(battle) : 0;
     uint8_t i;
 
     if (battle == 0
@@ -7169,21 +7298,46 @@ static int battle_ai_choose_item_action(
 
     for (i = 0; i < 4; ++i) {
         const uint16_t item_id = battle->opponent_trainer_items[i];
+        const uint8_t item_type =
+            battle_ai_trainer_item_type(item_id);
         const uint16_t heal = battle_ai_trainer_item_heal(item_id);
         const uint16_t missing =
             (uint16_t)(user->pokemon.max_hp - user->pokemon.hp);
         int should_use = 0;
 
-        if (heal == 0)
+        if (i != 0
+            && (int)valid_mons > (int)items_no - (int)i + 1)
             continue;
+        if (item_id == 0)
+            continue;
+        if (item_type == BATTLE_AI_ITEM_NOT_RECOGNIZABLE)
+            return 0;
 
-        if (item_id == ITEM_FULL_RESTORE) {
+        switch (item_type) {
+        case BATTLE_AI_ITEM_FULL_RESTORE:
             should_use =
                 user->pokemon.hp < user->pokemon.max_hp / 4u;
-        } else {
+            break;
+        case BATTLE_AI_ITEM_HEAL_HP:
             should_use =
                 user->pokemon.hp < user->pokemon.max_hp / 4u
-                || missing > heal;
+                || (heal != UINT16_MAX && missing > heal);
+            break;
+        case BATTLE_AI_ITEM_CURE_CONDITION:
+            should_use = battle_ai_item_cures_current_condition(
+                user, item_id);
+            break;
+        case BATTLE_AI_ITEM_X_STAT:
+            should_use = battle->turn_number <= 1u;
+            break;
+        case BATTLE_AI_ITEM_GUARD_SPEC:
+            should_use =
+                battle->turn_number <= 1u
+                && !(battle->side_status[user->side]
+                    & REMASTER_EMERALD_SIDE_MIST);
+            break;
+        default:
+            break;
         }
 
         if (!should_use)
@@ -7214,8 +7368,12 @@ static int battle_use_trainer_item(
         return 0;
 
     user = &battle->battlers[battler];
+    if (user->fainted || !user->active)
+        return 0;
+
     heal = battle_ai_trainer_item_heal(item_id);
-    if (heal == 0 || user->fainted || !user->active)
+    if (battle_ai_trainer_item_type(item_id)
+        == BATTLE_AI_ITEM_NOT_RECOGNIZABLE)
         return 0;
 
     battle_event(
@@ -7227,12 +7385,67 @@ static int battle_use_trainer_item(
         item_id,
         0);
 
-    if (item_id == ITEM_FULL_RESTORE) {
+    switch (item_id) {
+    case ITEM_FULL_RESTORE:
         user->pokemon.status = 0;
+        user->status2 &= ~REMASTER_EMERALD_STATUS2_CONFUSION;
+        user->toxic_counter = 0;
         heal = user->pokemon.max_hp;
+        break;
+    case ITEM_MAX_POTION:
+        heal = user->pokemon.max_hp;
+        break;
+    case ITEM_ANTIDOTE:
+        user->pokemon.status &=
+            ~(REMASTER_EMERALD_STATUS1_POISON
+              | REMASTER_EMERALD_STATUS1_TOXIC
+              | REMASTER_EMERALD_STATUS1_TOXIC_COUNTER);
+        user->toxic_counter = 0;
+        break;
+    case ITEM_BURN_HEAL:
+        user->pokemon.status &= ~REMASTER_EMERALD_STATUS1_BURN;
+        break;
+    case ITEM_ICE_HEAL:
+        user->pokemon.status &= ~REMASTER_EMERALD_STATUS1_FREEZE;
+        break;
+    case ITEM_AWAKENING:
+        user->pokemon.status &= ~REMASTER_EMERALD_STATUS1_SLEEP;
+        break;
+    case ITEM_PARALYZE_HEAL:
+        user->pokemon.status &= ~REMASTER_EMERALD_STATUS1_PARALYSIS;
+        break;
+    case ITEM_FULL_HEAL:
+        user->pokemon.status = 0;
+        user->status2 &= ~REMASTER_EMERALD_STATUS2_CONFUSION;
+        user->toxic_counter = 0;
+        break;
+    case ITEM_X_ATTACK:
+        battle_change_stage(battle, battler, 1, 1, 0);
+        break;
+    case ITEM_X_DEFEND:
+        battle_change_stage(battle, battler, 2, 1, 0);
+        break;
+    case ITEM_X_SPEED:
+        battle_change_stage(battle, battler, 3, 1, 0);
+        break;
+    case ITEM_X_SPECIAL:
+        battle_change_stage(battle, battler, 4, 1, 0);
+        break;
+    case ITEM_X_ACCURACY:
+        battle_change_stage(battle, battler, 6, 1, 0);
+        break;
+    case ITEM_DIRE_HIT:
+        user->status2 |= REMASTER_EMERALD_STATUS2_FOCUS_ENERGY;
+        break;
+    case ITEM_GUARD_SPEC:
+        battle->side_status[user->side] |= REMASTER_EMERALD_SIDE_MIST;
+        break;
+    default:
+        break;
     }
 
-    battle_heal(battle, battler, heal, 0);
+    if (heal != 0)
+        battle_heal(battle, battler, heal, 0);
     battle_sync_battler(battle, battler);
     return 1;
 }
