@@ -556,6 +556,229 @@ int main(void)
         }
     }
 
+    {
+        static const uint16_t player_moves2[4] = {33, 0, 0, 0};
+        static const uint16_t foe_active_moves[4] = {33, 0, 0, 0};
+        static const uint16_t foe_reserve_moves[4] = {52, 0, 0, 0};
+        RemasterEmeraldPartyPokemon player;
+        RemasterEmeraldPartyPokemon foes[2];
+
+        if (!check(
+                make_mon(&player, 1, 30, player_moves2)
+                    && make_mon(&foes[0], 4, 30, foe_active_moves)
+                    && make_mon(&foes[1], 37, 30, foe_reserve_moves),
+                "trapped switch fixtures should build"))
+            return 1;
+
+        remaster_emerald_battle_state_init(
+            &battle,
+            REMASTER_EMERALD_BATTLE_TYPE_MASTER
+                | REMASTER_EMERALD_BATTLE_TYPE_TRAINER,
+            2u);
+        if (!check(
+                remaster_emerald_battle_start(
+                    &battle, &player, 1, foes, 2),
+                "trapped trainer battle should start"))
+            return 1;
+
+        battle.battlers[0].ability = 25;
+        battle.battlers[1].status2 |=
+            REMASTER_EMERALD_STATUS2_ESCAPE_PREVENTION;
+
+        if (!check(
+                remaster_emerald_battle_choose_ai_action(
+                    &battle, 1, &action),
+                "trapped trainer AI should still choose an action")
+            || !check(
+                action.kind != REMASTER_EMERALD_BATTLE_ACTION_SWITCH,
+                "escape prevention must block trainer AI switching"))
+            return 1;
+    }
+
+    {
+        static const uint16_t player_moves2[4] = {84, 0, 0, 0};
+        static const uint16_t foe_active_moves[4] = {33, 0, 0, 0};
+        static const uint16_t foe_reserve_moves[4] = {89, 0, 0, 0};
+        RemasterEmeraldPartyPokemon player;
+        RemasterEmeraldPartyPokemon foes[2];
+
+        if (!check(
+                make_mon(&player, 25, 30, player_moves2)
+                    && make_mon(&foes[0], 4, 30, foe_active_moves)
+                    && make_mon(&foes[1], 74, 30, foe_reserve_moves),
+                "counter-switch fixtures should build"))
+            return 1;
+
+        remaster_emerald_battle_state_init(
+            &battle,
+            REMASTER_EMERALD_BATTLE_TYPE_MASTER
+                | REMASTER_EMERALD_BATTLE_TYPE_TRAINER,
+            1u);
+        if (!check(
+                remaster_emerald_battle_start(
+                    &battle, &player, 1, foes, 2),
+                "counter-switch trainer battle should start"))
+            return 1;
+
+        battle.battlers[1].last_taken_move = 84;
+        battle.battlers[1].last_damage_from = 0;
+
+        if (!check(
+                remaster_emerald_battle_choose_ai_action(
+                    &battle, 1, &action),
+                "counter-switch AI should choose an action")
+            || !check(
+                action.kind == REMASTER_EMERALD_BATTLE_ACTION_SWITCH
+                    && action.party_slot == 1,
+                "trainer AI should prefer an immune reserve with a "
+                "super-effective reply"))
+            return 1;
+    }
+
+    {
+        static const uint16_t player_moves2[4] = {33, 0, 0, 0};
+        static const uint16_t foe_moves2[4] = {33, 0, 0, 0};
+        RemasterEmeraldPartyPokemon player;
+        RemasterEmeraldPartyPokemon foe;
+        RemasterEmeraldBattleAction turn_actions[
+            REMASTER_EMERALD_BATTLE_MAX_BATTLERS] = {{0}};
+
+        if (!check(
+                make_mon(&player, 1, 30, player_moves2)
+                    && make_mon(&foe, 4, 30, foe_moves2),
+                "Full Heal AI fixtures should build"))
+            return 1;
+
+        remaster_emerald_battle_state_init(
+            &battle,
+            REMASTER_EMERALD_BATTLE_TYPE_MASTER
+                | REMASTER_EMERALD_BATTLE_TYPE_TRAINER,
+            0x10101010u);
+        if (!check(
+                remaster_emerald_battle_start(
+                    &battle, &player, 1, &foe, 1),
+                "Full Heal trainer battle should start"))
+            return 1;
+
+        battle.opponent_trainer_items[0] = 23;
+        battle.battlers[1].pokemon.status =
+            REMASTER_EMERALD_STATUS1_POISON;
+
+        if (!check(
+                remaster_emerald_battle_choose_ai_action(
+                    &battle, 1, &action),
+                "Full Heal AI should choose an action")
+            || !check(
+                action.kind == REMASTER_EMERALD_BATTLE_ACTION_ITEM
+                    && action.item_id == 23,
+                "statused trainer AI should choose Full Heal"))
+            return 1;
+
+        turn_actions[1] = action;
+        if (!check(
+                remaster_emerald_battle_resolve_turn(
+                    &battle, turn_actions),
+                "Full Heal action should resolve")
+            || !check(
+                battle.battlers[1].pokemon.status == 0,
+                "Full Heal should cure trainer status"))
+            return 1;
+    }
+
+    {
+        static const uint16_t player_moves2[4] = {33, 0, 0, 0};
+        static const uint16_t foe_moves2[4] = {33, 0, 0, 0};
+        RemasterEmeraldPartyPokemon player;
+        RemasterEmeraldPartyPokemon foe;
+        RemasterEmeraldBattleAction turn_actions[
+            REMASTER_EMERALD_BATTLE_MAX_BATTLERS] = {{0}};
+
+        if (!check(
+                make_mon(&player, 1, 30, player_moves2)
+                    && make_mon(&foe, 4, 30, foe_moves2),
+                "X Attack AI fixtures should build"))
+            return 1;
+
+        remaster_emerald_battle_state_init(
+            &battle,
+            REMASTER_EMERALD_BATTLE_TYPE_MASTER
+                | REMASTER_EMERALD_BATTLE_TYPE_TRAINER,
+            0x20202020u);
+        if (!check(
+                remaster_emerald_battle_start(
+                    &battle, &player, 1, &foe, 1),
+                "X Attack trainer battle should start"))
+            return 1;
+
+        battle.opponent_trainer_items[0] = 75;
+        if (!check(
+                remaster_emerald_battle_choose_ai_action(
+                    &battle, 1, &action),
+                "X Attack AI should choose an action")
+            || !check(
+                action.kind == REMASTER_EMERALD_BATTLE_ACTION_ITEM
+                    && action.item_id == 75,
+                "trainer AI should use X Attack on its opening turn"))
+            return 1;
+
+        turn_actions[1] = action;
+        if (!check(
+                remaster_emerald_battle_resolve_turn(
+                    &battle, turn_actions),
+                "X Attack action should resolve")
+            || !check(
+                battle.battlers[1].stat_stages[1] == 7,
+                "X Attack should raise Attack by one stage"))
+            return 1;
+    }
+
+    {
+        static const uint16_t player_moves2[4] = {33, 0, 0, 0};
+        static const uint16_t foe_moves2[4] = {33, 0, 0, 0};
+        RemasterEmeraldPartyPokemon player;
+        RemasterEmeraldPartyPokemon foe;
+        RemasterEmeraldBattleAction turn_actions[
+            REMASTER_EMERALD_BATTLE_MAX_BATTLERS] = {{0}};
+
+        if (!check(
+                make_mon(&player, 1, 30, player_moves2)
+                    && make_mon(&foe, 4, 30, foe_moves2),
+                "Guard Spec AI fixtures should build"))
+            return 1;
+
+        remaster_emerald_battle_state_init(
+            &battle,
+            REMASTER_EMERALD_BATTLE_TYPE_MASTER
+                | REMASTER_EMERALD_BATTLE_TYPE_TRAINER,
+            0x30303030u);
+        if (!check(
+                remaster_emerald_battle_start(
+                    &battle, &player, 1, &foe, 1),
+                "Guard Spec trainer battle should start"))
+            return 1;
+
+        battle.opponent_trainer_items[0] = 73;
+        if (!check(
+                remaster_emerald_battle_choose_ai_action(
+                    &battle, 1, &action),
+                "Guard Spec AI should choose an action")
+            || !check(
+                action.kind == REMASTER_EMERALD_BATTLE_ACTION_ITEM
+                    && action.item_id == 73,
+                "trainer AI should use Guard Spec on its opening turn"))
+            return 1;
+
+        turn_actions[1] = action;
+        if (!check(
+                remaster_emerald_battle_resolve_turn(
+                    &battle, turn_actions),
+                "Guard Spec action should resolve")
+            || !check(
+                (battle.side_status[1] & REMASTER_EMERALD_SIDE_MIST) != 0,
+                "Guard Spec should apply the Mist side condition"))
+            return 1;
+    }
+
     puts("r13 trainer AI parity test passed");
     return 0;
 }
