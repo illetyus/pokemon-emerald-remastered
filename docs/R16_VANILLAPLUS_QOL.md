@@ -1,12 +1,12 @@
 # R16 — Vanilla+ QoL Completion Evidence
 
-Branch: `r16-vanillaplus-qol`
+Branch: `r16-qol-closure`
 
-Implementation acceptance head: `c11e52085c492a0adaf7e1de0a686cb5547ca10b`
+Implementation acceptance head: `9aa3f19cca9d4f1909fe8398a4f456db5c892f12`
 
 Dedicated acceptance run:
 
-- R16 Vanilla+ QoL #5 — run `37424844268` — SUCCESS.
+- R16 Vanilla+ QoL #35 — run `37453268881` — SUCCESS.
 
 ## Status
 
@@ -147,7 +147,7 @@ It executes:
 
 Acceptance run:
 
-- R16 Vanilla+ QoL #5 — `37424844268` — SUCCESS.
+- R16 Vanilla+ QoL #35 — `37453268881` — SUCCESS.
 
 The source audit also guards the unchanged SaveBlock1/SaveBlock2/PokémonStorage
 sizes and verifies that QoL ownership does not leak into the save structure.
