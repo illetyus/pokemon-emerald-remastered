@@ -25,11 +25,28 @@ typedef enum RemasterEmeraldQolTransferResult {
     REMASTER_EMERALD_QOL_TRANSFER_MAIL = 5
 } RemasterEmeraldQolTransferResult;
 
+typedef enum RemasterEmeraldQolHmFieldUseResult {
+    REMASTER_EMERALD_QOL_HM_FIELD_USE_OK = 0,
+    REMASTER_EMERALD_QOL_HM_FIELD_USE_INVALID_ITEM = 1,
+    REMASTER_EMERALD_QOL_HM_FIELD_USE_NO_ACCESS = 2,
+    REMASTER_EMERALD_QOL_HM_FIELD_USE_NO_ACTOR = 3
+} RemasterEmeraldQolHmFieldUseResult;
+
 typedef struct RemasterEmeraldQolHmTool {
     uint16_t item_id;
     uint16_t move_id;
     uint16_t badge_flag;
 } RemasterEmeraldQolHmTool;
+
+typedef struct RemasterEmeraldQolBikeToggleState {
+    uint8_t r_pressed;
+    uint8_t cycling_road;
+    uint8_t player_moving;
+    uint8_t on_mach_bike;
+    uint8_t on_acro_bike;
+    uint8_t mach_speed_standing;
+    uint8_t acro_state_normal;
+} RemasterEmeraldQolBikeToggleState;
 
 int remaster_emerald_qol_reusable_evolution_stone(uint16_t item_id);
 int remaster_emerald_qol_evolution_item_consumed(uint16_t item_id);
@@ -39,9 +56,18 @@ int remaster_emerald_qol_move_replaceable(uint16_t move_id);
 uint16_t remaster_emerald_qol_field_poison_hp_after_step(uint16_t hp);
 uint8_t remaster_emerald_qol_flash_level_after_use(void);
 uint16_t remaster_emerald_qol_fishing_response_frames(uint8_t rod);
-uint8_t remaster_emerald_qol_fishing_reaction_rounds(uint8_t rod);
-int remaster_emerald_qol_bike_toggle_allowed(int stationary);
-int remaster_emerald_qol_running_allowed(void);
+uint8_t remaster_emerald_qol_fishing_required_rounds(
+    uint8_t rod,
+    uint16_t emerald_random_value);
+uint8_t remaster_emerald_qol_fishing_optional_round_chance(
+    uint8_t rod,
+    uint8_t round_index);
+int remaster_emerald_qol_running_requires_shoes(void);
+int remaster_emerald_qol_running_environment_allows(
+    int underwater,
+    int metatile_disallowed);
+int remaster_emerald_qol_bike_toggle_allowed(
+    const RemasterEmeraldQolBikeToggleState *state);
 
 int remaster_emerald_qol_hm_tool(
     uint16_t item_id,
@@ -49,6 +75,15 @@ int remaster_emerald_qol_hm_tool(
 int remaster_emerald_qol_hm_access(
     const RemasterEmeraldSave *save,
     uint16_t item_id);
+int remaster_emerald_qol_hm_field_actor(
+    const RemasterEmeraldSave *save,
+    uint8_t *out_party_slot);
+RemasterEmeraldQolHmFieldUseResult
+remaster_emerald_qol_hm_field_use(
+    const RemasterEmeraldSave *save,
+    uint16_t item_id,
+    RemasterEmeraldQolHmTool *out_tool,
+    uint8_t *out_party_slot);
 
 int remaster_emerald_qol_box_pokemon_is_egg(
     const RemasterEmeraldBoxPokemon *pokemon);
