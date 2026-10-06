@@ -66,21 +66,41 @@ enum {
 
     SB2_PLAYER_NAME = 0x0000,
     SB2_PLAYER_TRAINER_ID = 0x000A,
+    SB2_ENCRYPTION_KEY = 0x00AC,
     SB1_REGISTERED_ITEM = 0x0496,
+    SB1_PC_ITEMS = 0x0498,
+    SB1_ITEMS = 0x0560,
+    SB1_KEY_ITEMS = 0x05D8,
+    SB1_POKE_BALLS = 0x0650,
+    SB1_TM_HM = 0x0690,
+    SB1_BERRIES = 0x0790,
     SB1_VANILLAPLUS_ITEM_META = 0x3598,
+
+    ITEM_SLOT_BYTES = 4,
+    PC_ITEMS_COUNT = 50,
 
     STORAGE_CURRENT_BOX = 0x0000,
     STORAGE_BOXES = 0x0004,
 
     VANILLAPLUS_ITEM_META_MAGIC = 0x35504956u,
     VANILLAPLUS_ITEM_META_VERSION = 1,
+    VANILLAPLUS_ITEM_META_AUTO_SORT_MASK = 5,
+    VANILLAPLUS_ITEM_META_BAG_SORT_MODES = 6,
     VANILLAPLUS_ITEM_META_BAG_SORT_COUNT = 5,
     VANILLAPLUS_ITEM_META_QUICK_COUNT = 11,
     VANILLAPLUS_ITEM_META_QUICK_ITEMS = 12,
     VANILLAPLUS_ITEM_META_LAST_QUICK = 20,
-    VANILLAPLUS_ITEM_META_BYTES = 21,
+    VANILLAPLUS_ITEM_META_BYTES = 24,
     VANILLAPLUS_QUICK_ITEM_MAX = 4
 };
+
+typedef struct RemasterEmeraldQolItemView {
+    size_t offset;
+    size_t capacity;
+    int encrypted_quantity;
+} RemasterEmeraldQolItemView;
+
+static uint8_t *ensure_item_meta(RemasterEmeraldSave *save);
 
 static uint16_t read16(const uint8_t *p)
 {
@@ -112,6 +132,201 @@ static void write32(uint8_t *p, uint32_t value)
 static int item_is_mail(uint16_t item_id)
 {
     return item_id >= ITEM_FIRST_MAIL && item_id <= ITEM_LAST_MAIL;
+}
+
+static int bag_view(uint8_t pocket, RemasterEmeraldQolItemView *out)
+{
+    if (out == 0)
+        return 0;
+
+    out->encrypted_quantity = 1;
+    switch ((RemasterEmeraldBagPocket)pocket) {
+    case REMASTER_EMERALD_POCKET_ITEMS:
+        out->offset = SB1_ITEMS;
+        out->capacity = 30;
+        return 1;
+    case REMASTER_EMERALD_POCKET_POKE_BALLS:
+        out->offset = SB1_POKE_BALLS;
+        out->capacity = 16;
+        return 1;
+    case REMASTER_EMERALD_POCKET_TM_HM:
+        out->offset = SB1_TM_HM;
+        out->capacity = 64;
+        return 1;
+    case REMASTER_EMERALD_POCKET_BERRIES:
+        out->offset = SB1_BERRIES;
+        out->capacity = 46;
+        return 1;
+    case REMASTER_EMERALD_POCKET_KEY_ITEMS:
+        out->offset = SB1_KEY_ITEMS;
+        out->capacity = 30;
+        return 1;
+    case REMASTER_EMERALD_POCKET_NONE:
+    default:
+        return 0;
+    }
+}
+
+static int bag_metadata_index(uint8_t pocket)
+{
+    if (pocket < REMASTER_EMERALD_POCKET_ITEMS
+        || pocket > REMASTER_EMERALD_POCKET_KEY_ITEMS)
+        return -1;
+    return (int)pocket - 1;
+}
+
+static uint16_t bag_key(const RemasterEmeraldSave *save)
+{
+    return save == 0
+        ? 0
+        : (uint16_t)read32(save->save_block2 + SB2_ENCRYPTION_KEY);
+}
+
+static uint8_t *item_slot_ptr(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldQolItemView *view,
+    size_t slot)
+{
+    return save->save_block1 + view->offset + slot * ITEM_SLOT_BYTES;
+}
+
+static uint16_t item_slot_quantity(
+    const RemasterEmeraldSave *save,
+    const uint8_t *slot,
+    int encrypted_quantity)
+{
+    const uint16_t raw = read16(slot + 2);
+    return encrypted_quantity ? (uint16_t)(raw ^ bag_key(save)) : raw;
+}
+
+static void item_slot_clear(
+    RemasterEmeraldSave *save,
+    uint8_t *slot,
+    int encrypted_quantity)
+{
+    write16(slot, ITEM_NONE);
+    write16(slot + 2, encrypted_quantity ? bag_key(save) : 0);
+}
+
+static int compare_item_slots(
+    const RemasterEmeraldSave *save,
+    const uint8_t *a,
+    const uint8_t *b,
+    RemasterEmeraldQolItemSortMode mode,
+    int encrypted_quantity)
+{
+    const uint16_t item_a = read16(a);
+    const uint16_t item_b = read16(b);
+    const RemasterEmeraldItemInfo *info_a;
+    const RemasterEmeraldItemInfo *info_b;
+    uint32_t key_a;
+    uint32_t key_b;
+
+    if (item_a == ITEM_NONE)
+        return item_b == ITEM_NONE ? 0 : 1;
+    if (item_b == ITEM_NONE)
+        return -1;
+
+    info_a = remaster_emerald_item_info(item_a);
+    info_b = remaster_emerald_item_info(item_b);
+    if (info_a == 0 || info_b == 0)
+        return item_a < item_b ? -1 : item_a > item_b;
+
+    switch (mode) {
+    case REMASTER_EMERALD_QOL_ITEM_SORT_NAME:
+        if (info_a->name_sort_rank != info_b->name_sort_rank)
+            return info_a->name_sort_rank < info_b->name_sort_rank ? -1 : 1;
+        break;
+    case REMASTER_EMERALD_QOL_ITEM_SORT_TYPE:
+        key_a = ((uint32_t)info_a->pocket << 8u) | info_a->type;
+        key_b = ((uint32_t)info_b->pocket << 8u) | info_b->type;
+        if (key_a != key_b)
+            return key_a < key_b ? -1 : 1;
+        break;
+    case REMASTER_EMERALD_QOL_ITEM_SORT_QUANTITY:
+        key_a = item_slot_quantity(save, a, encrypted_quantity);
+        key_b = item_slot_quantity(save, b, encrypted_quantity);
+        if (key_a != key_b)
+            return key_a > key_b ? -1 : 1;
+        break;
+    case REMASTER_EMERALD_QOL_ITEM_SORT_VALUE:
+        if (info_a->price != info_b->price)
+            return info_a->price > info_b->price ? -1 : 1;
+        break;
+    case REMASTER_EMERALD_QOL_ITEM_SORT_NONE:
+    case REMASTER_EMERALD_QOL_ITEM_SORT_COUNT:
+    default:
+        return 0;
+    }
+
+    return item_a < item_b ? -1 : item_a > item_b;
+}
+
+static size_t compact_item_slots(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldQolItemView *view)
+{
+    size_t read_slot;
+    size_t write_slot = 0;
+
+    for (read_slot = 0; read_slot < view->capacity; ++read_slot) {
+        uint8_t *raw = item_slot_ptr(save, view, read_slot);
+        if (read16(raw) == ITEM_NONE)
+            continue;
+        if (write_slot != read_slot) {
+            memcpy(
+                item_slot_ptr(save, view, write_slot),
+                raw,
+                ITEM_SLOT_BYTES);
+            item_slot_clear(save, raw, view->encrypted_quantity);
+        }
+        ++write_slot;
+    }
+
+    while (write_slot < view->capacity) {
+        item_slot_clear(
+            save,
+            item_slot_ptr(save, view, write_slot),
+            view->encrypted_quantity);
+        ++write_slot;
+    }
+
+    for (write_slot = 0;
+         write_slot < view->capacity
+             && read16(item_slot_ptr(save, view, write_slot)) != ITEM_NONE;
+         ++write_slot) {
+    }
+    return write_slot;
+}
+
+static void sort_item_slots(
+    RemasterEmeraldSave *save,
+    const RemasterEmeraldQolItemView *view,
+    size_t count,
+    RemasterEmeraldQolItemSortMode mode)
+{
+    size_t i;
+
+    for (i = 1; i < count; ++i) {
+        uint8_t key[ITEM_SLOT_BYTES];
+        size_t j = i;
+        memcpy(key, item_slot_ptr(save, view, i), sizeof(key));
+
+        while (j > 0
+            && compare_item_slots(
+                   save,
+                   key,
+                   item_slot_ptr(save, view, j - 1u),
+                   mode,
+                   view->encrypted_quantity) < 0) {
+            memcpy(
+                item_slot_ptr(save, view, j),
+                item_slot_ptr(save, view, j - 1u),
+                ITEM_SLOT_BYTES);
+            --j;
+        }
+        memcpy(item_slot_ptr(save, view, j), key, sizeof(key));
+    }
 }
 
 int remaster_emerald_qol_reusable_evolution_stone(uint16_t item_id)
@@ -737,6 +952,98 @@ int remaster_emerald_qol_swap_held_items(
         && remaster_emerald_box_pokemon_set_held_item(b, item_a);
 }
 
+RemasterEmeraldQolHeldItemResult remaster_emerald_qol_pc_give_held_item(
+    RemasterEmeraldSave *save,
+    uint8_t box_slot,
+    uint16_t item_id)
+{
+    RemasterEmeraldBoxPokemon mon;
+    RemasterEmeraldBoxPokemon changed;
+    const RemasterEmeraldItemInfo *info;
+    uint8_t box;
+
+    if (save == 0
+        || box_slot >= REMASTER_EMERALD_STORAGE_BOX_CAPACITY
+        || item_id == ITEM_NONE)
+        return REMASTER_EMERALD_QOL_HELD_ITEM_INVALID;
+
+    box = remaster_emerald_storage_current_box(save);
+    if (!remaster_emerald_storage_get(save, box, box_slot, &mon, 0)
+        || remaster_emerald_box_pokemon_species(&mon) == 0)
+        return REMASTER_EMERALD_QOL_HELD_ITEM_INVALID;
+    if (remaster_emerald_qol_box_pokemon_is_egg(&mon))
+        return REMASTER_EMERALD_QOL_HELD_ITEM_EGG;
+    if (remaster_emerald_box_pokemon_held_item(&mon) != ITEM_NONE)
+        return REMASTER_EMERALD_QOL_HELD_ITEM_ALREADY_HELD;
+    if (item_is_mail(item_id))
+        return REMASTER_EMERALD_QOL_HELD_ITEM_MAIL;
+
+    info = remaster_emerald_item_info(item_id);
+    if (info == 0
+        || info->pocket == REMASTER_EMERALD_POCKET_NONE)
+        return REMASTER_EMERALD_QOL_HELD_ITEM_INVALID;
+    if (info->pocket == REMASTER_EMERALD_POCKET_KEY_ITEMS
+        || info->importance != 0)
+        return REMASTER_EMERALD_QOL_HELD_ITEM_UNHOLDABLE;
+    if (remaster_emerald_bag_count(save, item_id) == 0)
+        return REMASTER_EMERALD_QOL_HELD_ITEM_ITEM_MISSING;
+
+    changed = mon;
+    if (!remaster_emerald_box_pokemon_set_held_item(&changed, item_id)
+        || !remaster_emerald_bag_remove(save, item_id, 1))
+        return REMASTER_EMERALD_QOL_HELD_ITEM_ITEM_MISSING;
+
+    if (!remaster_emerald_storage_set(save, box, box_slot, &changed)) {
+        (void)remaster_emerald_bag_add(save, item_id, 1);
+        return REMASTER_EMERALD_QOL_HELD_ITEM_INVALID;
+    }
+
+    return REMASTER_EMERALD_QOL_HELD_ITEM_OK;
+}
+
+RemasterEmeraldQolHeldItemResult remaster_emerald_qol_pc_take_held_item(
+    RemasterEmeraldSave *save,
+    uint8_t box_slot,
+    uint16_t *out_item_id)
+{
+    RemasterEmeraldBoxPokemon mon;
+    RemasterEmeraldBoxPokemon changed;
+    uint8_t box;
+    uint16_t item_id;
+
+    if (save == 0 || box_slot >= REMASTER_EMERALD_STORAGE_BOX_CAPACITY)
+        return REMASTER_EMERALD_QOL_HELD_ITEM_INVALID;
+
+    box = remaster_emerald_storage_current_box(save);
+    if (!remaster_emerald_storage_get(save, box, box_slot, &mon, 0)
+        || remaster_emerald_box_pokemon_species(&mon) == 0)
+        return REMASTER_EMERALD_QOL_HELD_ITEM_INVALID;
+    if (remaster_emerald_qol_box_pokemon_is_egg(&mon))
+        return REMASTER_EMERALD_QOL_HELD_ITEM_EGG;
+
+    item_id = remaster_emerald_box_pokemon_held_item(&mon);
+    if (item_id == ITEM_NONE)
+        return REMASTER_EMERALD_QOL_HELD_ITEM_NOT_HOLDING;
+    if (item_is_mail(item_id))
+        return REMASTER_EMERALD_QOL_HELD_ITEM_MAIL;
+    if (!remaster_emerald_bag_has_space(save, item_id, 1))
+        return REMASTER_EMERALD_QOL_HELD_ITEM_BAG_FULL;
+
+    changed = mon;
+    if (!remaster_emerald_box_pokemon_set_held_item(&changed, ITEM_NONE)
+        || !remaster_emerald_bag_add(save, item_id, 1))
+        return REMASTER_EMERALD_QOL_HELD_ITEM_BAG_FULL;
+
+    if (!remaster_emerald_storage_set(save, box, box_slot, &changed)) {
+        (void)remaster_emerald_bag_remove(save, item_id, 1);
+        return REMASTER_EMERALD_QOL_HELD_ITEM_INVALID;
+    }
+
+    if (out_item_id != 0)
+        *out_item_id = item_id;
+    return REMASTER_EMERALD_QOL_HELD_ITEM_OK;
+}
+
 static uint8_t *item_meta(RemasterEmeraldSave *save)
 {
     return save->save_block1 + SB1_VANILLAPLUS_ITEM_META;
@@ -762,7 +1069,8 @@ static int item_meta_valid(const uint8_t *meta)
         return 0;
 
     for (i = 0; i < VANILLAPLUS_ITEM_META_BAG_SORT_COUNT; ++i) {
-        if (meta[6u + i] >= 5u)
+        if (meta[VANILLAPLUS_ITEM_META_BAG_SORT_MODES + i]
+            >= REMASTER_EMERALD_QOL_ITEM_SORT_COUNT)
             return 0;
     }
     return 1;
@@ -789,6 +1097,144 @@ static uint8_t *ensure_item_meta(RemasterEmeraldSave *save)
         write16(meta + VANILLAPLUS_ITEM_META_QUICK_ITEMS, registered);
     }
     return meta;
+}
+
+int remaster_emerald_qol_bag_sort(
+    RemasterEmeraldSave *save,
+    uint8_t pocket,
+    RemasterEmeraldQolItemSortMode mode)
+{
+    RemasterEmeraldQolItemView view;
+    uint8_t *meta;
+    size_t count;
+    const int index = bag_metadata_index(pocket);
+
+    if (save == 0
+        || index < 0
+        || mode <= REMASTER_EMERALD_QOL_ITEM_SORT_NONE
+        || mode >= REMASTER_EMERALD_QOL_ITEM_SORT_COUNT
+        || pocket == REMASTER_EMERALD_POCKET_TM_HM
+        || pocket == REMASTER_EMERALD_POCKET_BERRIES
+        || !bag_view(pocket, &view))
+        return 0;
+
+    count = compact_item_slots(save, &view);
+    sort_item_slots(save, &view, count, mode);
+    meta = ensure_item_meta(save);
+    if (meta == 0)
+        return 0;
+    meta[VANILLAPLUS_ITEM_META_BAG_SORT_MODES + (size_t)index] = (uint8_t)mode;
+    return 1;
+}
+
+RemasterEmeraldQolItemSortMode remaster_emerald_qol_bag_sort_mode(
+    RemasterEmeraldSave *save,
+    uint8_t pocket)
+{
+    uint8_t *meta;
+    const int index = bag_metadata_index(pocket);
+
+    if (save == 0 || index < 0)
+        return REMASTER_EMERALD_QOL_ITEM_SORT_NONE;
+    meta = ensure_item_meta(save);
+    if (meta == 0)
+        return REMASTER_EMERALD_QOL_ITEM_SORT_NONE;
+    return (RemasterEmeraldQolItemSortMode)
+        meta[VANILLAPLUS_ITEM_META_BAG_SORT_MODES + (size_t)index];
+}
+
+int remaster_emerald_qol_bag_set_sort_mode(
+    RemasterEmeraldSave *save,
+    uint8_t pocket,
+    RemasterEmeraldQolItemSortMode mode)
+{
+    uint8_t *meta;
+    const int index = bag_metadata_index(pocket);
+
+    if (save == 0
+        || index < 0
+        || mode < REMASTER_EMERALD_QOL_ITEM_SORT_NONE
+        || mode >= REMASTER_EMERALD_QOL_ITEM_SORT_COUNT)
+        return 0;
+
+    meta = ensure_item_meta(save);
+    if (meta == 0)
+        return 0;
+    meta[VANILLAPLUS_ITEM_META_BAG_SORT_MODES + (size_t)index] = (uint8_t)mode;
+    return 1;
+}
+
+int remaster_emerald_qol_bag_auto_sort_enabled(
+    RemasterEmeraldSave *save,
+    uint8_t pocket)
+{
+    uint8_t *meta;
+    const int index = bag_metadata_index(pocket);
+
+    if (save == 0 || index < 0)
+        return 0;
+    meta = ensure_item_meta(save);
+    return meta != 0
+        && (meta[VANILLAPLUS_ITEM_META_AUTO_SORT_MASK] & (1u << index)) != 0;
+}
+
+int remaster_emerald_qol_bag_set_auto_sort_enabled(
+    RemasterEmeraldSave *save,
+    uint8_t pocket,
+    int enabled)
+{
+    uint8_t *meta;
+    const int index = bag_metadata_index(pocket);
+
+    if (save == 0
+        || index < 0
+        || pocket == REMASTER_EMERALD_POCKET_TM_HM
+        || pocket == REMASTER_EMERALD_POCKET_BERRIES)
+        return 0;
+
+    meta = ensure_item_meta(save);
+    if (meta == 0)
+        return 0;
+    if (enabled)
+        meta[VANILLAPLUS_ITEM_META_AUTO_SORT_MASK] |= (uint8_t)(1u << index);
+    else
+        meta[VANILLAPLUS_ITEM_META_AUTO_SORT_MASK] &= (uint8_t)~(1u << index);
+    return 1;
+}
+
+int remaster_emerald_qol_bag_auto_sort(
+    RemasterEmeraldSave *save,
+    uint8_t pocket)
+{
+    const RemasterEmeraldQolItemSortMode mode =
+        remaster_emerald_qol_bag_sort_mode(save, pocket);
+
+    if (save == 0 || bag_metadata_index(pocket) < 0)
+        return 0;
+    if (!remaster_emerald_qol_bag_auto_sort_enabled(save, pocket)
+        || mode == REMASTER_EMERALD_QOL_ITEM_SORT_NONE)
+        return 1;
+    return remaster_emerald_qol_bag_sort(save, pocket, mode);
+}
+
+int remaster_emerald_qol_pc_items_sort(
+    RemasterEmeraldSave *save,
+    RemasterEmeraldQolItemSortMode mode)
+{
+    RemasterEmeraldQolItemView view;
+    size_t count;
+
+    if (save == 0
+        || mode <= REMASTER_EMERALD_QOL_ITEM_SORT_NONE
+        || mode >= REMASTER_EMERALD_QOL_ITEM_SORT_COUNT)
+        return 0;
+
+    view.offset = SB1_PC_ITEMS;
+    view.capacity = PC_ITEMS_COUNT;
+    view.encrypted_quantity = 0;
+    count = compact_item_slots(save, &view);
+    sort_item_slots(save, &view, count, mode);
+    return 1;
 }
 
 uint8_t remaster_emerald_qol_quick_item_count(RemasterEmeraldSave *save)
