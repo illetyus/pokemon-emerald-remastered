@@ -3,6 +3,9 @@
 #include "remaster/emerald_qol.h"
 #include "remaster/emerald_state.h"
 
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
