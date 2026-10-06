@@ -32,7 +32,7 @@ class R16QolSourceAudit(unittest.TestCase):
         ]:
             self.assertIn(token, phase05)
 
-        for token in ["hidden power", "heart scale", "nickname"]:
+        for token in ["hidden power", "item_heart_scale", "nickname"]:
             self.assertIn(token, phase06.lower())
 
         self.assertIn("RealignTimeBasedEventsAfterRtcCorrection", phase08)
