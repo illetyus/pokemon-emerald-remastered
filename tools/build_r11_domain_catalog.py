@@ -165,6 +165,70 @@ def pair_expr(block: str, name: str, default: tuple[str, str] = ("0", "0")) -> t
     return m.group(1).strip(), m.group(2).strip()
 
 
+def parse_charmap(vendor: Path) -> dict[str, int]:
+    mapping: dict[str, int] = {}
+    text = (vendor / "charmap.txt").read_text(encoding="utf-8")
+    for raw in text.splitlines():
+        match = re.match(r"^'((?:\\.|[^'])+)'\s*=\s*([0-9A-Fa-f]{2})(?:\s|$)", raw)
+        if not match:
+            continue
+        token = match.group(1)
+        if token == r"\'":
+            token = "'"
+        elif token == r"\\":
+            token = "\\"
+        if len(token) == 1 and token not in mapping:
+            mapping[token] = int(match.group(2), 16)
+    return mapping
+
+
+def item_name(block: str) -> str:
+    match = re.search(r'\.name\s*=\s*_\("((?:\\.|[^"\\])*)"\)', block)
+    if not match:
+        raise CatalogError("item name missing")
+    return ast.literal_eval('"' + match.group(1) + '"')
+
+
+def turkish_sort_weight(encoded: int) -> int:
+    upper = [
+        1, 2, 3, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16,
+        17, 18, 20, 21, 22, 23, 25, 26, 28, 29, 30, 31, 32,
+    ]
+    lower = [
+        1, 2, 3, 5, 6, 7, 8, 10, 12, 13, 14, 15, 16,
+        17, 18, 20, 21, 22, 23, 25, 26, 28, 29, 30, 31, 32,
+    ]
+    if 0xBB <= encoded <= 0xD4:
+        return upper[encoded - 0xBB]
+    if 0xD5 <= encoded <= 0xEE:
+        return lower[encoded - 0xD5]
+    special = {
+        0x04: 4,
+        0x19: 4,
+        0x01: 9,
+        0x16: 9,
+        0x1E: 11,
+        0x09: 12,
+        0xF2: 19,
+        0xF5: 19,
+        0x05: 24,
+        0x1A: 24,
+        0xF3: 27,
+        0xF6: 27,
+        0xFF: 0,
+    }
+    return special.get(encoded, 0x100 + encoded)
+
+
+def item_name_sort_key(name: str, charmap: dict[str, int]) -> tuple[int, ...]:
+    key: list[int] = []
+    for char in name:
+        if char not in charmap:
+            raise CatalogError(f"item-name character missing from charmap: {char!r} in {name!r}")
+        key.append(turkish_sort_weight(charmap[char]))
+    return tuple(key)
+
+
 def old_unown_block(text: str) -> str:
     start = text.index("#define OLD_UNOWN_SPECIES_INFO")
     end = text.index("const struct SpeciesInfo", start)
@@ -264,11 +328,12 @@ def parse_moves(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, int]], 
     return [row or {} for row in data], missing
 
 
-def parse_items(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, int]], list[int]]:
+def parse_items(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, Any]], list[int]]:
     text = (vendor / "src/data/items.h").read_text(encoding="utf-8")
     blocks = extract_blocks(text)
+    charmap = parse_charmap(vendor)
     count = r.resolve("ITEMS_COUNT")
-    data: list[dict[str, int] | None] = [None] * count
+    data: list[dict[str, Any] | None] = [None] * count
     for symbol, block in blocks.items():
         if not symbol.startswith("ITEM_"):
             continue
@@ -280,6 +345,7 @@ def parse_items(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, int]], 
             continue
         data[item_id] = {
             "id": item_id,
+            "name": item_name(block),
             "price": r.eval_expr(field_expr(block, "price")),
             "pocket": r.eval_expr(field_expr(block, "pocket")),
             "hold_effect": r.eval_expr(field_expr(block, "holdEffect")),
@@ -290,7 +356,18 @@ def parse_items(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, int]], 
             "secondary_id": r.eval_expr(field_expr(block, "secondaryId")),
         }
     missing = [i for i, row in enumerate(data) if row is None]
-    return [row or {} for row in data], missing
+    rows = [row or {} for row in data]
+    if not missing:
+        ordered = sorted(
+            rows,
+            key=lambda row: (
+                item_name_sort_key(str(row["name"]), charmap),
+                int(row["id"]),
+            ),
+        )
+        for rank, row in enumerate(ordered):
+            row["name_sort_rank"] = rank
+    return rows, missing
 
 
 def parse_evolutions(vendor: Path, r: DefineResolver, species_count: int) -> list[list[tuple[int,int,int]]]:
@@ -378,7 +455,7 @@ def parse_level_up_learnsets(
 def render(
     species: list[dict[str, Any]],
     moves: list[dict[str, int]],
-    items: list[dict[str, int]],
+    items: list[dict[str, Any]],
     evolutions: list[list[tuple[int,int,int]]],
     level_up_moves: list[tuple[int, int]],
     level_up_slices: list[tuple[int, int]],
@@ -413,7 +490,7 @@ def render(
     for item in items:
         lines.append(
             "    {"
-            f"{item['id']},{item['price']},{item['pocket']},{item['hold_effect']},"
+            f"{item['id']},{item['price']},{item['name_sort_rank']},{item['pocket']},{item['hold_effect']},"
             f"{item['hold_effect_param']},{item['importance']},{item['type']},"
             f"{item['battle_usage']},{item['secondary_id']}"
             "},"
@@ -495,6 +572,7 @@ def main() -> int:
             "species_internal_count": len(species),
             "move_count": len(moves),
             "item_count": len(items),
+            "item_name_sort_rank_count": len(items),
             "evolution_slots_per_species": 5,
             "level_up_move_entry_count": len(level_up_moves),
             "level_up_learnset_species_count": populated_learnsets,
