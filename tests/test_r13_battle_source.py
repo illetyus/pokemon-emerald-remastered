@@ -174,7 +174,11 @@ class R13BattleSourceContract(unittest.TestCase):
             helper_start = portable.index(f"static void {helper}")
             helper_end = portable.index("\nstatic ", helper_start + 20)
             helper_text = portable[helper_start:helper_end]
-            self.assertIn(".side == user->side", helper_text, helper)
+            self.assertRegex(
+                helper_text,
+                r"(?:->|\.)side == user->side",
+                helper,
+            )
 
     def test_trainer_switch_item_ai_is_pinned(self):
         switch_items = (
