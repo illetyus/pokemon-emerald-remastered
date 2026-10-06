@@ -53,31 +53,27 @@ static void emerald_write_u32_le(uint8_t *p, uint32_t value)
     p[3] = (uint8_t)((value >> 24u) & 0xffu);
 }
 
-static size_t logical_sector_size(uint16_t id)
+static size_t logical_sector_size(uint16_t id, RemasterEmeraldSaveFormat format)
 {
-    static const size_t kSizes[REMASTER_EMERALD_MAIN_SECTORS] = {
-        REMASTER_EMERALD_SAVE_BLOCK2_BYTES,
-        REMASTER_EMERALD_SECTOR_DATA_BYTES,
-        REMASTER_EMERALD_SECTOR_DATA_BYTES,
-        REMASTER_EMERALD_SECTOR_DATA_BYTES,
-        REMASTER_EMERALD_SAVE_BLOCK1_BYTES
-            - (3u * REMASTER_EMERALD_SECTOR_DATA_BYTES),
-        REMASTER_EMERALD_SECTOR_DATA_BYTES,
-        REMASTER_EMERALD_SECTOR_DATA_BYTES,
-        REMASTER_EMERALD_SECTOR_DATA_BYTES,
-        REMASTER_EMERALD_SECTOR_DATA_BYTES,
-        REMASTER_EMERALD_SECTOR_DATA_BYTES,
-        REMASTER_EMERALD_SECTOR_DATA_BYTES,
-        REMASTER_EMERALD_SECTOR_DATA_BYTES,
-        REMASTER_EMERALD_SECTOR_DATA_BYTES,
-        REMASTER_EMERALD_STORAGE_BYTES
-            - (8u * REMASTER_EMERALD_SECTOR_DATA_BYTES)
-    };
-
-    if (id >= REMASTER_EMERALD_MAIN_SECTORS)
+    if (id >= REMASTER_EMERALD_MAIN_SECTORS
+        || (format != REMASTER_EMERALD_SAVE_FORMAT_STOCK
+            && format != REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS))
         return 0;
 
-    return kSizes[id];
+    if (id == SECTOR_ID_SAVEBLOCK2)
+        return format == REMASTER_EMERALD_SAVE_FORMAT_STOCK
+            ? REMASTER_EMERALD_STOCK_SAVE_BLOCK2_BYTES
+            : REMASTER_EMERALD_SAVE_BLOCK2_BYTES;
+    if (id == SECTOR_ID_SAVEBLOCK1_END) {
+        const size_t block1_size = format == REMASTER_EMERALD_SAVE_FORMAT_STOCK
+            ? REMASTER_EMERALD_STOCK_SAVE_BLOCK1_BYTES
+            : REMASTER_EMERALD_SAVE_BLOCK1_BYTES;
+        return block1_size - 3u * REMASTER_EMERALD_SECTOR_DATA_BYTES;
+    }
+    if (id == SECTOR_ID_STORAGE_END)
+        return REMASTER_EMERALD_STORAGE_BYTES
+            - 8u * REMASTER_EMERALD_SECTOR_DATA_BYTES;
+    return REMASTER_EMERALD_SECTOR_DATA_BYTES;
 }
 
 uint16_t remaster_emerald_checksum(const uint8_t *data, size_t size)
@@ -94,10 +90,12 @@ uint16_t remaster_emerald_checksum(const uint8_t *data, size_t size)
     return (uint16_t)((checksum >> 16u) + checksum);
 }
 
-static SlotProbe probe_slot(const uint8_t *image, uint8_t slot)
+static SlotProbe probe_slot(
+    const uint8_t *image, uint8_t slot, RemasterEmeraldSaveFormat format)
 {
     SlotProbe result;
     uint16_t physical;
+    int counter_coherent = 1;
 
     memset(&result, 0, sizeof(result));
 
@@ -112,6 +110,7 @@ static SlotProbe probe_slot(const uint8_t *image, uint8_t slot)
         size_t size;
         uint16_t expected;
         uint16_t actual;
+        uint32_t counter;
 
         if (signature != kSectorSignature)
             continue;
@@ -122,22 +121,28 @@ static SlotProbe probe_slot(const uint8_t *image, uint8_t slot)
         if (id >= REMASTER_EMERALD_MAIN_SECTORS)
             continue;
 
-        size = logical_sector_size(id);
+        size = logical_sector_size(id, format);
         expected = emerald_read_u16_le(sector + FOOTER_CHECKSUM_OFFSET);
         actual = remaster_emerald_checksum(sector, size);
 
         if (expected != actual)
             continue;
 
+        counter = emerald_read_u32_le(sector + FOOTER_COUNTER_OFFSET);
+        if (result.valid_ids == 0)
+            result.counter = counter;
+        else if (result.counter != counter)
+            counter_coherent = 0;
         result.valid_ids |= (uint16_t)(1u << id);
-        result.counter = emerald_read_u32_le(sector + FOOTER_COUNTER_OFFSET);
 
         if (id == 0)
             result.id0_physical_index = physical;
     }
 
-    result.valid =
-        result.valid_ids == (uint16_t)((1u << REMASTER_EMERALD_MAIN_SECTORS) - 1u);
+    /* Explicit R17 hardening: the source normal writer emits one counter for
+     * all 14 sections. Its original reader did not perform this coherence test. */
+    result.valid = counter_coherent
+        && result.valid_ids == (uint16_t)((1u << REMASTER_EMERALD_MAIN_SECTORS) - 1u);
 
     return result;
 }
@@ -155,7 +160,7 @@ static void copy_sector_payload(
     uint16_t id,
     const uint8_t *sector)
 {
-    size_t size = logical_sector_size(id);
+    size_t size = logical_sector_size(id, REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS);
 
     if (id == SECTOR_ID_SAVEBLOCK2) {
         memcpy(save->save_block2, sector, size);
@@ -202,7 +207,7 @@ static int reconstruct_selected_slot(
         if (id >= REMASTER_EMERALD_MAIN_SECTORS)
             continue;
 
-        size = logical_sector_size(id);
+        size = logical_sector_size(id, REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS);
         if (emerald_read_u16_le(sector + FOOTER_CHECKSUM_OFFSET)
             != remaster_emerald_checksum(sector, size))
             continue;
@@ -218,23 +223,29 @@ static int reconstruct_selected_slot(
         == (uint16_t)((1u << REMASTER_EMERALD_MAIN_SECTORS) - 1u);
 }
 
-RemasterEmeraldSaveStatus remaster_emerald_save_decode(
+RemasterEmeraldSaveStatus remaster_emerald_save_validate(
     const uint8_t *image,
     size_t image_size,
-    RemasterEmeraldSave *out_save)
+    RemasterEmeraldSaveFormat format,
+    RemasterEmeraldSaveValidation *out_validation)
 {
     SlotProbe slots[2];
     int selected = -1;
     int other_bad = 0;
 
-    if (image == 0 || out_save == 0
-        || image_size != REMASTER_EMERALD_SAVE_IMAGE_BYTES)
+    if (out_validation == 0)
         return REMASTER_EMERALD_SAVE_CORRUPT;
 
-    memset(out_save, 0, sizeof(*out_save));
+    memset(out_validation, 0, sizeof(*out_validation));
+    out_validation->status = REMASTER_EMERALD_SAVE_CORRUPT;
+    if (image == 0 || image_size != REMASTER_EMERALD_SAVE_IMAGE_BYTES
+        || (format != REMASTER_EMERALD_SAVE_FORMAT_STOCK
+            && format != REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS))
+        return out_validation->status;
+    out_validation->format = format;
 
-    slots[0] = probe_slot(image, 0);
-    slots[1] = probe_slot(image, 1);
+    slots[0] = probe_slot(image, 0, format);
+    slots[1] = probe_slot(image, 1, format);
 
     if (slots[0].valid && slots[1].valid)
         selected = counter_is_newer(slots[1].counter, slots[0].counter) ? 1 : 0;
@@ -246,25 +257,52 @@ RemasterEmeraldSaveStatus remaster_emerald_save_decode(
         other_bad = slots[0].has_signature;
     } else {
         if (!slots[0].has_signature && !slots[1].has_signature) {
-            out_save->status = REMASTER_EMERALD_SAVE_EMPTY;
-            return out_save->status;
+            out_validation->status = REMASTER_EMERALD_SAVE_EMPTY;
+            return out_validation->status;
         }
 
-        out_save->status = REMASTER_EMERALD_SAVE_CORRUPT;
-        return out_save->status;
+        return out_validation->status;
     }
 
-    out_save->selected_slot = (uint8_t)selected;
-    out_save->counter = slots[selected].counter;
-    out_save->last_written_sector = slots[selected].id0_physical_index;
-
-    if (!reconstruct_selected_slot(image, (uint8_t)selected, out_save)) {
-        out_save->status = REMASTER_EMERALD_SAVE_CORRUPT;
-        return out_save->status;
-    }
-
-    out_save->status =
+    out_validation->selected_slot = (uint8_t)selected;
+    out_validation->counter = slots[selected].counter;
+    out_validation->last_written_sector = slots[selected].id0_physical_index;
+    out_validation->status =
         other_bad ? REMASTER_EMERALD_SAVE_DEGRADED : REMASTER_EMERALD_SAVE_OK;
+    return out_validation->status;
+}
+
+RemasterEmeraldSaveStatus remaster_emerald_save_decode(
+    const uint8_t *image,
+    size_t image_size,
+    RemasterEmeraldSave *out_save)
+{
+    RemasterEmeraldSaveValidation validation;
+    RemasterEmeraldSaveStatus status;
+
+    if (image == 0 || out_save == 0
+        || image_size != REMASTER_EMERALD_SAVE_IMAGE_BYTES)
+        return REMASTER_EMERALD_SAVE_CORRUPT;
+
+    memset(out_save, 0, sizeof(*out_save));
+    status = remaster_emerald_save_validate(image, image_size,
+        REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS, &validation);
+    if (status != REMASTER_EMERALD_SAVE_OK
+        && status != REMASTER_EMERALD_SAVE_DEGRADED) {
+        out_save->status = status;
+        return status;
+    }
+
+    out_save->selected_slot = validation.selected_slot;
+    out_save->counter = validation.counter;
+    out_save->last_written_sector = validation.last_written_sector;
+
+    if (!reconstruct_selected_slot(image, validation.selected_slot, out_save)) {
+        out_save->status = REMASTER_EMERALD_SAVE_CORRUPT;
+        return out_save->status;
+    }
+
+    out_save->status = status;
 
     return out_save->status;
 }
@@ -317,7 +355,7 @@ int remaster_emerald_save_encode_next(
         uint8_t *sector =
             image + sector_index * REMASTER_EMERALD_SECTOR_BYTES;
         const uint8_t *payload = logical_payload(save, id);
-        const size_t size = logical_sector_size(id);
+        const size_t size = logical_sector_size(id, REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS);
 
         memset(sector, 0, REMASTER_EMERALD_SECTOR_BYTES);
         memcpy(sector, payload, size);

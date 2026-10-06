@@ -15,7 +15,9 @@ enum {
     REMASTER_EMERALD_MAIN_SECTORS = 14,
     REMASTER_EMERALD_SAVE_BLOCK2_BYTES = 0x0F44,
     REMASTER_EMERALD_SAVE_BLOCK1_BYTES = 0x3DC8,
-    REMASTER_EMERALD_STORAGE_BYTES = 0x83D0
+    REMASTER_EMERALD_STORAGE_BYTES = 0x83D0,
+    REMASTER_EMERALD_STOCK_SAVE_BLOCK2_BYTES = 0x0F2C,
+    REMASTER_EMERALD_STOCK_SAVE_BLOCK1_BYTES = 0x3D88
 };
 
 typedef enum RemasterEmeraldSaveStatus {
@@ -24,6 +26,21 @@ typedef enum RemasterEmeraldSaveStatus {
     REMASTER_EMERALD_SAVE_DEGRADED = 2,
     REMASTER_EMERALD_SAVE_CORRUPT = 3
 } RemasterEmeraldSaveStatus;
+
+typedef enum RemasterEmeraldSaveFormat {
+    REMASTER_EMERALD_SAVE_FORMAT_STOCK = 0,
+    REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS = 1
+} RemasterEmeraldSaveFormat;
+
+/* Read-only sector/slot validation, without gameplay-domain reconstruction.
+ * Selection fields are meaningful only for OK or DEGRADED results. */
+typedef struct RemasterEmeraldSaveValidation {
+    RemasterEmeraldSaveStatus status;
+    RemasterEmeraldSaveFormat format;
+    uint32_t counter;
+    uint16_t last_written_sector;
+    uint8_t selected_slot;
+} RemasterEmeraldSaveValidation;
 
 typedef struct RemasterEmeraldTime {
     int16_t days;
@@ -45,6 +62,15 @@ typedef struct RemasterEmeraldSave {
 
 uint16_t remaster_emerald_checksum(const uint8_t *data, size_t size);
 
+/* Callers must select the source format explicitly: zero-filled tails can
+ * satisfy both checksum geometries. This does not import stock domain state. */
+RemasterEmeraldSaveStatus remaster_emerald_save_validate(
+    const uint8_t *image,
+    size_t image_size,
+    RemasterEmeraldSaveFormat format,
+    RemasterEmeraldSaveValidation *out_validation);
+
+/* The established gameplay decoder uses the pinned Vanilla+ layout. */
 RemasterEmeraldSaveStatus remaster_emerald_save_decode(
     const uint8_t *image,
     size_t image_size,

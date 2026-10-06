@@ -196,6 +196,20 @@ endif()
 
 add_test(NAME emerald_save_compatibility COMMAND emerald_save_test)
 
+add_executable(emerald_save_validation_test
+    tests/emerald_save_validation_test.c
+)
+
+target_link_libraries(emerald_save_validation_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_save_validation_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_save_validation_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME r17_save_sector_validation COMMAND emerald_save_validation_test)
+
 
 add_executable(emerald_rtc_test
     tests/emerald_rtc_test.c

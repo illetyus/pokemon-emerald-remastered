@@ -129,7 +129,12 @@ The physical position of logical sector ID 0 is therefore the persisted rotation
 / last-written-sector reference used by the remaster model.
 
 When both slots are valid, the newer counter wins. The `UINT32_MAX -> 0`
-wraparound is treated as the forward transition.
+wraparound is treated as the forward transition. Other pairs use ordinary
+unsigned ordering, matching the production comparison rather than a general
+half-range serial-number comparison. Equal counters preserve the existing
+remaster tie-break: physical slot 0 wins. This is a deterministic policy for
+synthetic equal-counter slots; the normal alternating writer does not produce
+two complete slots with the same counter.
 
 ### Counter-coherence hardening
 
@@ -366,3 +371,47 @@ source-backed as specified above.
 This remeasurement agrees with the earlier production-layout and real-save
 evidence in `docs/R1_SAVE_RTC.md`. That historical real-save report is secondary
 evidence; no new real-save runtime validation was performed in this closure.
+
+## 16. R17-I1 checkpoint and verification boundary
+
+`remaster_emerald_save_validate` performs read-only sector/slot validation with
+an explicit `RemasterEmeraldSaveFormat`. Stock and pinned Vanilla+ use their
+own section 0/4 checksum lengths. No autodetection or heuristic layout choice
+is performed: the matrix includes a zero-tail image that validates under both
+formats, demonstrating why callers must provide format/provenance.
+
+The accepted candidate must contain all 14 IDs with valid signatures/checksums
+and a coherent counter. Selection preserves unsigned ordering, exact MAX/zero
+wrap semantics, ID-driven ordering, and logical ID 0's physical rotation.
+A damaged/incomplete/mixed-counter slot falls back only to an independently
+valid slot. The established gameplay decoder delegates validation using the
+pinned Vanilla+ format. Stock validation does not yet reconstruct stock
+gameplay state; that is R17-I2.
+
+Versioned synthetic fixture source: `tests/emerald_save_validation_test.c`,
+CTest name `r17_save_sector_validation`. Fixture sizes/footer offsets are
+literal source-backed values; fixture construction uses its own checksum,
+not production constants or the production checksum function.
+
+Local verification on the live I1 parent:
+
+- Before implementation, 100 checks ran against the existing decoder:
+  42 mixed-counter recovery/rejection checks failed; process exit was 1.
+- After implementation, 284 checks pass in both strict C99 and C++17 builds.
+- AddressSanitizer/UndefinedBehaviorSanitizer: 284 checks pass with leak
+  detection disabled because LeakSanitizer cannot run under this executor's
+  ptrace environment. This does not establish a leak-sanitizer result.
+- Existing native `emerald_save_test` and `emerald_save_platform_test` pass.
+
+The matrix covers both formats, every rotation in either slot, counter
+ordering/wrap/ties, all physical mixed-counter positions, checksum tail/padding
+boundaries, ID bounds/duplicates, bad signatures/checksums, incomplete and
+cross-format slots, explicit ambiguous-format selection, read-only probing,
+and exclusion of special-sector footers from main-slot selection.
+
+I1 verification requires the exact committed HEAD's targeted test and complete
+relevant PR CI to reach terminal-success. No later subphase starts on pending
+or failed CI. Failure -> a gap-specific I1 closure; success -> R17-I2.
+No full R17 acceptance or new real-save runtime result is claimed here.
+Domain reconstruction, export transactionality/preservation, VP5 migration,
+and platform OK/MISSING/ERROR semantics remain in I2/I3/I4/I5 respectively.
