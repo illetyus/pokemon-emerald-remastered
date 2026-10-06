@@ -312,6 +312,7 @@ typedef struct RemasterEmeraldBattleState {
     uint32_t money_reward;
     uint32_t last_exp_gain;
     uint8_t money_multiplier;
+    uint8_t leveled_up_party_mask;
 
     uint16_t opponent_trainer_id;
     uint16_t opponent_trainer_items[4];
