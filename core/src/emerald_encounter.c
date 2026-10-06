@@ -11,14 +11,14 @@ enum {
 
     R12_SB1_WEATHER = 0x002E,
 
-    R12_SB1_OUTBREAK_SPECIES = 0x2B90,
-    R12_SB1_OUTBREAK_MAP_NUM = 0x2B92,
-    R12_SB1_OUTBREAK_MAP_GROUP = 0x2B93,
-    R12_SB1_OUTBREAK_LEVEL = 0x2B94,
-    R12_SB1_OUTBREAK_MOVES = 0x2B98,
-    R12_SB1_OUTBREAK_PROBABILITY = 0x2BA1,
+    R12_SB1_OUTBREAK_SPECIES = 0x2BD0,
+    R12_SB1_OUTBREAK_MAP_NUM = 0x2BD2,
+    R12_SB1_OUTBREAK_MAP_GROUP = 0x2BD3,
+    R12_SB1_OUTBREAK_LEVEL = 0x2BD4,
+    R12_SB1_OUTBREAK_MOVES = 0x2BD8,
+    R12_SB1_OUTBREAK_PROBABILITY = 0x2BE1,
 
-    R12_SB1_ROAMER = 0x31DC,
+    R12_SB1_ROAMER = 0x321C,
 
     R12_SB2_PLAYER_GENDER = 0x0008,
     R12_SB2_TRAINER_ID = 0x000A,
@@ -1327,7 +1327,7 @@ static int r12_roamer_active(
     const RemasterEmeraldSave *save)
 {
     return save != 0
-        && save->save_block1[R12_SB1_ROAMER + 0x13] != 0;
+        && save->save_block1[remaster_emerald_save_block1_offset(save, R12_SB1_ROAMER) + 0x13] != 0;
 }
 
 static int r12_create_roamer(
@@ -1346,7 +1346,7 @@ static int r12_create_roamer(
     if (save == 0 || out_result == 0)
         return 0;
 
-    raw = save->save_block1 + R12_SB1_ROAMER;
+    raw = save->save_block1 + remaster_emerald_save_block1_offset(save, R12_SB1_ROAMER);
     packed_ivs = r12_read32(raw + 0x00);
     personality = r12_read32(raw + 0x04);
     species = r12_read16(raw + 0x08);
@@ -1390,7 +1390,7 @@ static int r12_try_roamer(
     if (remaster_emerald_encounter_random(&runtime->rng) % 4u != 0u)
         return 0;
 
-    raw = save->save_block1 + R12_SB1_ROAMER;
+    raw = save->save_block1 + remaster_emerald_save_block1_offset(save, R12_SB1_ROAMER);
     level = raw[0x0C];
 
     if (!remaster_emerald_encounter_repel_allows(save, level))
@@ -1422,18 +1422,18 @@ static int r12_try_outbreak(
     uint8_t probability;
     size_t i;
 
-    species = r12_read16(raw + R12_SB1_OUTBREAK_SPECIES);
+    species = r12_read16(raw + remaster_emerald_save_block1_offset(save, R12_SB1_OUTBREAK_SPECIES));
     if (species == 0
-        || raw[R12_SB1_OUTBREAK_MAP_NUM] != map_num
-        || raw[R12_SB1_OUTBREAK_MAP_GROUP] != map_group)
+        || raw[remaster_emerald_save_block1_offset(save, R12_SB1_OUTBREAK_MAP_NUM)] != map_num
+        || raw[remaster_emerald_save_block1_offset(save, R12_SB1_OUTBREAK_MAP_GROUP)] != map_group)
         return 0;
 
-    probability = raw[R12_SB1_OUTBREAK_PROBABILITY];
+    probability = raw[remaster_emerald_save_block1_offset(save, R12_SB1_OUTBREAK_PROBABILITY)];
     if (remaster_emerald_encounter_random(&runtime->rng) % 100u
         >= probability)
         return 0;
 
-    level = raw[R12_SB1_OUTBREAK_LEVEL];
+    level = raw[remaster_emerald_save_block1_offset(save, R12_SB1_OUTBREAK_LEVEL)];
     if (!remaster_emerald_encounter_repel_allows(save, level))
         return -1;
 
@@ -1448,7 +1448,7 @@ static int r12_try_outbreak(
 
     for (i = 0; i < 4u; ++i) {
         const uint16_t move = r12_read16(
-            raw + R12_SB1_OUTBREAK_MOVES + i * 2u);
+            raw + remaster_emerald_save_block1_offset(save, R12_SB1_OUTBREAK_MOVES) + i * 2u);
         const RemasterEmeraldMoveInfo *move_info =
             remaster_emerald_move_info(move);
         const uint8_t pp =

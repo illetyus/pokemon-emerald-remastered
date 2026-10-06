@@ -196,6 +196,20 @@ endif()
 
 add_test(NAME emerald_save_compatibility COMMAND emerald_save_test)
 
+add_executable(emerald_save_validation_test
+    tests/emerald_save_validation_test.c
+)
+
+target_link_libraries(emerald_save_validation_test PRIVATE remaster_core)
+
+if(MSVC)
+    target_compile_options(emerald_save_validation_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_save_validation_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+add_test(NAME r17_save_sector_validation COMMAND emerald_save_validation_test)
+
 
 add_executable(emerald_rtc_test
     tests/emerald_rtc_test.c
@@ -921,3 +935,82 @@ else()
     target_compile_options(emerald_battle_move_effects_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r13_battle_move_effects COMMAND emerald_battle_move_effects_test)
+
+# R17-I2: independent stock/Vanilla+ full-domain import fixture.
+add_executable(emerald_save_import_test tests/emerald_save_import_test.c)
+target_link_libraries(emerald_save_import_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_save_import_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_save_import_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r17_save_domain_import COMMAND emerald_save_import_test)
+
+# R17-I3: source-format export/preservation and persistent-write commit point.
+add_executable(emerald_save_export_test tests/emerald_save_export_test.c)
+target_link_libraries(emerald_save_export_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_save_export_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_save_export_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r17_save_export_transactionality COMMAND emerald_save_export_test)
+
+# Shared host write protocol, exercised against native filesystem failures.
+add_executable(r17_atomic_file_save_test tests/r17_atomic_file_save_test.cpp)
+target_include_directories(r17_atomic_file_save_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r17_atomic_file_save_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r17_atomic_file_save_test PRIVATE /W4)
+else()
+    target_compile_options(r17_atomic_file_save_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r17_atomic_file_save COMMAND r17_atomic_file_save_test)
+
+# R17-I4: production metadata, explicit recovery and stock runtime boundary.
+add_executable(emerald_save_metadata_test tests/emerald_save_metadata_test.c)
+target_link_libraries(emerald_save_metadata_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_save_metadata_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_save_metadata_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r17_save_metadata_boundary COMMAND emerald_save_metadata_test)
+
+# R17-I5: safe found/missing/error semantics and explicit source-format load.
+add_executable(emerald_save_io_test tests/emerald_save_io_test.c)
+target_link_libraries(emerald_save_io_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_save_io_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_save_io_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r17_save_safe_platform_io COMMAND emerald_save_io_test)
+
+add_executable(r17_file_save_read_test tests/r17_file_save_read_test.cpp)
+target_include_directories(r17_file_save_read_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/core/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r17_file_save_read_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r17_file_save_read_test PRIVATE /W4)
+else()
+    target_compile_options(r17_file_save_read_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r17_native_file_save_read COMMAND r17_file_save_read_test)
+
+# R17-T1: source-backed recipes, independent byte oracle and private-save replay.
+add_executable(r17_save_fixture_probe tests/r17_save_fixture_probe.cpp)
+target_link_libraries(r17_save_fixture_probe PRIVATE remaster_core)
+target_include_directories(r17_save_fixture_probe PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r17_save_fixture_probe PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r17_save_fixture_probe PRIVATE /W4)
+else()
+    target_compile_options(r17_save_fixture_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r17_save_fixture_matrix COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r17_save_fixture_matrix.py
+    --probe $<TARGET_FILE:r17_save_fixture_probe>)

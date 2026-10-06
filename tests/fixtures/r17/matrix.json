@@ -1,0 +1,2262 @@
+{
+  "schema_version": 1,
+  "source": {
+    "vanillaplus": {
+      "repository": "illetyus/pokezumrut-vanillaplus",
+      "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c"
+    },
+    "stock": {
+      "repository": "pret/pokeemerald",
+      "commit": "731ad5bfd6e6f265508d0efcca0ba42f9dcf5881"
+    },
+    "contract": "docs/R17_SAVE_COMPAT_CONTRACT.md",
+    "geometry_files": [
+      "src/save.c",
+      "include/global.h",
+      "include/pokemon_storage_system.h"
+    ],
+    "pokemon_oracle": "src/pokemon.c GetSubstruct/CalculateBoxMonChecksum",
+    "progression_fixture_basis": "audited R10 objective conditions and pinned flag/var identities"
+  },
+  "profiles": {
+    "new_game": {
+      "key": 0,
+      "party_count": 0,
+      "bag": false,
+      "flags": [],
+      "vars": {},
+      "objective": 0
+    },
+    "rival": {
+      "key": 0,
+      "party_count": 1,
+      "bag": true,
+      "flags": [
+        2144
+      ],
+      "vars": {},
+      "objective": 1
+    },
+    "birch": {
+      "key": 2309737967,
+      "party_count": 3,
+      "bag": true,
+      "flags": [
+        2144,
+        130
+      ],
+      "vars": {},
+      "objective": 2
+    },
+    "petalburg": {
+      "key": 2309737967,
+      "party_count": 6,
+      "bag": true,
+      "flags": [
+        2144,
+        130,
+        2145
+      ],
+      "vars": {
+        "16517": 0
+      },
+      "objective": 3
+    },
+    "roxanne": {
+      "key": 4294967295,
+      "party_count": 6,
+      "bag": true,
+      "flags": [
+        2144,
+        130,
+        2145
+      ],
+      "vars": {
+        "16517": 2
+      },
+      "objective": 4
+    },
+    "game_clear": {
+      "key": 305419896,
+      "party_count": 6,
+      "bag": true,
+      "flags": [
+        97,
+        111,
+        112,
+        129,
+        130,
+        139,
+        142,
+        143,
+        144,
+        149,
+        189,
+        207,
+        212,
+        285,
+        2145,
+        2148,
+        2151,
+        2152,
+        2153,
+        2154,
+        2155,
+        2156,
+        2157,
+        2158,
+        2228
+      ],
+      "vars": {
+        "16517": 2,
+        "16563": 1,
+        "16543": 2,
+        "16582": 2,
+        "16478": 6
+      },
+      "objective": 0
+    },
+    "user_vp019_projection": {
+      "key": 305419896,
+      "party_count": 6,
+      "bag": false,
+      "flags": [
+        32,
+        80,
+        81,
+        82,
+        86,
+        87,
+        88,
+        90,
+        96,
+        98,
+        106,
+        107,
+        109,
+        115,
+        116,
+        120,
+        127,
+        130,
+        132,
+        137,
+        139,
+        140,
+        141,
+        143,
+        144,
+        147,
+        148,
+        149,
+        159,
+        165,
+        166,
+        167,
+        168,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        193,
+        199,
+        207,
+        211,
+        214,
+        215,
+        219,
+        221,
+        225,
+        226,
+        231,
+        235,
+        244,
+        246,
+        253,
+        254,
+        257,
+        258,
+        261,
+        262,
+        265,
+        266,
+        269,
+        274,
+        275,
+        277,
+        278,
+        281,
+        288,
+        289,
+        296,
+        301,
+        303,
+        304,
+        305,
+        306,
+        313,
+        337,
+        342,
+        344,
+        348,
+        350,
+        351,
+        352,
+        355,
+        356,
+        358,
+        364,
+        367,
+        368,
+        369,
+        375,
+        376,
+        377,
+        378,
+        379,
+        383,
+        385,
+        387,
+        393,
+        395,
+        397,
+        398,
+        401,
+        402,
+        403,
+        409,
+        414,
+        415,
+        416,
+        433,
+        434,
+        460,
+        461,
+        467,
+        468,
+        469,
+        470,
+        501,
+        549,
+        616,
+        700,
+        702,
+        719,
+        720,
+        722,
+        723,
+        724,
+        725,
+        726,
+        727,
+        728,
+        730,
+        731,
+        732,
+        734,
+        735,
+        738,
+        739,
+        740,
+        742,
+        743,
+        745,
+        746,
+        747,
+        748,
+        749,
+        750,
+        751,
+        752,
+        754,
+        755,
+        756,
+        757,
+        759,
+        760,
+        761,
+        762,
+        763,
+        765,
+        766,
+        767,
+        768,
+        769,
+        770,
+        771,
+        774,
+        776,
+        777,
+        778,
+        779,
+        780,
+        784,
+        786,
+        789,
+        790,
+        791,
+        792,
+        793,
+        794,
+        795,
+        796,
+        798,
+        799,
+        802,
+        803,
+        804,
+        805,
+        806,
+        807,
+        811,
+        812,
+        814,
+        815,
+        816,
+        817,
+        818,
+        819,
+        823,
+        824,
+        826,
+        827,
+        828,
+        829,
+        830,
+        831,
+        832,
+        833,
+        834,
+        835,
+        837,
+        838,
+        840,
+        841,
+        843,
+        844,
+        845,
+        846,
+        848,
+        849,
+        851,
+        853,
+        854,
+        855,
+        856,
+        858,
+        859,
+        860,
+        861,
+        862,
+        863,
+        866,
+        867,
+        869,
+        871,
+        872,
+        874,
+        875,
+        876,
+        878,
+        879,
+        880,
+        881,
+        882,
+        883,
+        884,
+        885,
+        886,
+        887,
+        888,
+        889,
+        891,
+        892,
+        894,
+        895,
+        897,
+        898,
+        899,
+        900,
+        901,
+        902,
+        903,
+        904,
+        906,
+        909,
+        910,
+        911,
+        912,
+        915,
+        919,
+        920,
+        921,
+        922,
+        923,
+        925,
+        926,
+        927,
+        929,
+        930,
+        931,
+        932,
+        934,
+        938,
+        939,
+        940,
+        942,
+        944,
+        945,
+        949,
+        950,
+        960,
+        965,
+        967,
+        968,
+        973,
+        979,
+        983,
+        992,
+        995,
+        996,
+        997,
+        998,
+        999,
+        1001,
+        1007,
+        1008,
+        1009,
+        1011,
+        1012,
+        1015,
+        1016,
+        1019,
+        1020,
+        1045,
+        1046,
+        1048,
+        1049,
+        1050,
+        1051,
+        1058,
+        1060,
+        1091,
+        1115,
+        1117,
+        1118,
+        1137,
+        1140,
+        1141,
+        1142,
+        1146,
+        1161,
+        1264,
+        1265,
+        1266,
+        1267,
+        1290,
+        1296,
+        1300,
+        1301,
+        1316,
+        1317,
+        1324,
+        1331,
+        1337,
+        1344,
+        1345,
+        1358,
+        1374,
+        1394,
+        1416,
+        1426,
+        1459,
+        1463,
+        1471,
+        1474,
+        1476,
+        1481,
+        1482,
+        1483,
+        1484,
+        1485,
+        1486,
+        1491,
+        1492,
+        1493,
+        1494,
+        1496,
+        1497,
+        1498,
+        1507,
+        1512,
+        1545,
+        1546,
+        1547,
+        1548,
+        1553,
+        1560,
+        1567,
+        1572,
+        1573,
+        1579,
+        1582,
+        1592,
+        1598,
+        1599,
+        1600,
+        1601,
+        1602,
+        1603,
+        1606,
+        1607,
+        1612,
+        1613,
+        1614,
+        1616,
+        1617,
+        1618,
+        1619,
+        1620,
+        1621,
+        1622,
+        1624,
+        1644,
+        1649,
+        1699,
+        1705,
+        1706,
+        1714,
+        1749,
+        1750,
+        1751,
+        1752,
+        1754,
+        1756,
+        1761,
+        1763,
+        1770,
+        1771,
+        1773,
+        1781,
+        1792,
+        1793,
+        1815,
+        1816,
+        1818,
+        1825,
+        1846,
+        1850,
+        1851,
+        1852,
+        1853,
+        1854,
+        1859,
+        1877,
+        1882,
+        1883,
+        1884,
+        1885,
+        1886,
+        1891,
+        1892,
+        1895,
+        1896,
+        1897,
+        1901,
+        1906,
+        1907,
+        1908,
+        1909,
+        1911,
+        1912,
+        1915,
+        1927,
+        1928,
+        1929,
+        1930,
+        1936,
+        1957,
+        1974,
+        1975,
+        1976,
+        1977,
+        1978,
+        1979,
+        1980,
+        1981,
+        1982,
+        1983,
+        1984,
+        1985,
+        1986,
+        1987,
+        1988,
+        1989,
+        1992,
+        1995,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2032,
+        2033,
+        2034,
+        2035,
+        2036,
+        2037,
+        2049,
+        2082,
+        2144,
+        2145,
+        2146,
+        2149,
+        2151,
+        2152,
+        2153,
+        2154,
+        2159,
+        2160,
+        2161,
+        2162,
+        2163,
+        2164,
+        2166,
+        2167,
+        2168,
+        2169,
+        2192,
+        2194,
+        2197,
+        2204,
+        2205,
+        2207,
+        2209,
+        2210,
+        2211,
+        2212,
+        2214,
+        2218,
+        2231,
+        2239,
+        2240,
+        2268,
+        2274,
+        2276
+      ],
+      "vars": {
+        "16400": 105,
+        "16401": 100,
+        "16403": 106,
+        "16415": 36,
+        "16419": 1,
+        "16420": 16045,
+        "16421": 25339,
+        "16422": 26,
+        "16426": 80,
+        "16427": 2,
+        "16431": 7,
+        "16432": 7,
+        "16438": 1,
+        "16448": 7,
+        "16452": 1,
+        "16455": 32768,
+        "16456": 121,
+        "16459": 17623,
+        "16460": 46823,
+        "16462": 83,
+        "16463": 32768,
+        "16464": 4,
+        "16465": 1,
+        "16467": 2,
+        "16471": 3,
+        "16474": 8,
+        "16480": 3,
+        "16483": 2,
+        "16489": 1,
+        "16495": 2,
+        "16516": 5,
+        "16517": 6,
+        "16521": 1,
+        "16524": 2,
+        "16525": 4,
+        "16527": 1,
+        "16528": 1,
+        "16530": 7,
+        "16534": 3,
+        "16535": 1,
+        "16536": 1,
+        "16538": 6,
+        "16549": 1,
+        "16551": 5,
+        "16555": 2,
+        "16574": 2,
+        "16575": 1,
+        "16583": 2,
+        "16585": 1,
+        "16589": 2,
+        "16591": 3,
+        "16593": 5,
+        "16594": 3,
+        "16602": 2,
+        "16615": 7,
+        "16620": 11,
+        "16626": 250,
+        "16628": 250
+      },
+      "objective": 15,
+      "party": [
+        [
+          1,
+          243,
+          0,
+          909,
+          8,
+          34,
+          34,
+          0
+        ],
+        [
+          1,
+          245,
+          0,
+          2746,
+          13,
+          50,
+          50,
+          0
+        ],
+        [
+          1,
+          281,
+          0,
+          34002,
+          34,
+          93,
+          93,
+          0
+        ],
+        [
+          1,
+          65,
+          83,
+          53209,
+          39,
+          96,
+          96,
+          0
+        ],
+        [
+          1,
+          397,
+          0,
+          21970,
+          26,
+          85,
+          85,
+          0
+        ],
+        [
+          1,
+          227,
+          0,
+          7107,
+          17,
+          53,
+          53,
+          0
+        ]
+      ],
+      "world": [
+        19,
+        20,
+        0,
+        1,
+        0,
+        -1,
+        -1,
+        2,
+        0,
+        2,
+        3,
+        0,
+        6,
+        62560,
+        33,
+        259
+      ],
+      "rtc": [
+        9767,
+        23,
+        59,
+        37,
+        7,
+        8,
+        18,
+        51
+      ],
+      "bag_slots": [
+        [
+          [
+            25,
+            93
+          ],
+          [
+            32,
+            37
+          ],
+          [
+            83,
+            36
+          ],
+          [
+            22,
+            22
+          ],
+          [
+            15,
+            11
+          ],
+          [
+            17,
+            11
+          ],
+          [
+            14,
+            10
+          ],
+          [
+            18,
+            9
+          ],
+          [
+            71,
+            3
+          ],
+          [
+            39,
+            2
+          ],
+          [
+            69,
+            2
+          ],
+          [
+            81,
+            2
+          ],
+          [
+            38,
+            1
+          ],
+          [
+            68,
+            1
+          ],
+          [
+            85,
+            1
+          ],
+          [
+            94,
+            1
+          ],
+          [
+            108,
+            1
+          ],
+          [
+            110,
+            1
+          ],
+          [
+            121,
+            1
+          ],
+          [
+            181,
+            1
+          ],
+          [
+            183,
+            1
+          ],
+          [
+            184,
+            1
+          ],
+          [
+            215,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        [
+          [
+            2,
+            91
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        [
+          [
+            293,
+            1
+          ],
+          [
+            294,
+            1
+          ],
+          [
+            296,
+            1
+          ],
+          [
+            316,
+            1
+          ],
+          [
+            317,
+            1
+          ],
+          [
+            320,
+            1
+          ],
+          [
+            325,
+            1
+          ],
+          [
+            327,
+            1
+          ],
+          [
+            331,
+            1
+          ],
+          [
+            333,
+            1
+          ],
+          [
+            335,
+            1
+          ],
+          [
+            338,
+            1
+          ],
+          [
+            339,
+            1
+          ],
+          [
+            342,
+            1
+          ],
+          [
+            343,
+            1
+          ],
+          [
+            344,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        [
+          [
+            135,
+            2
+          ],
+          [
+            138,
+            2
+          ],
+          [
+            139,
+            9
+          ],
+          [
+            148,
+            7
+          ],
+          [
+            149,
+            6
+          ],
+          [
+            150,
+            9
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        [
+          [
+            262,
+            1
+          ],
+          [
+            261,
+            1
+          ],
+          [
+            259,
+            1
+          ],
+          [
+            260,
+            1
+          ],
+          [
+            270,
+            1
+          ],
+          [
+            372,
+            1
+          ],
+          [
+            267,
+            2
+          ],
+          [
+            280,
+            1
+          ],
+          [
+            279,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      ],
+      "projection": {
+        "input_sha256": "4cf20c4310a49fe4a7e0782f89deaa8e4efa45b2f46a9f443941d506fcd2a633",
+        "retained": "World/RTC/progression/party species-held-exp-level-HP-status/bag item-quantity semantics",
+        "replaced": "Trainer/Pokemon names, OT identity, personalities, unselected Pokemon fields, NPC/Mystery Gift/other opaque bytes, storage contents and encryption key are artificial. Not the original real-save image."
+      }
+    }
+  },
+  "synthetic": [
+    {
+      "id": "stock-new_game",
+      "format": "stock",
+      "profile": "new_game",
+      "sha256": "eb30891d84aa85d182690cb51ac6e02eaccd50092f6f80fb7a015a8e7da3b25c",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "fd83fbe1a3ed289699beac6f28188bb855d35900fb9a17f140d1b054b3ea5021"
+      }
+    },
+    {
+      "id": "stock-rival",
+      "format": "stock",
+      "profile": "rival",
+      "sha256": "bda5da2dc602b64a7ab42a61c816c1c9cbf2f1e8045ba1c49b7e9c434d40afc8",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "ea78853dac3800ca462b8f9cb530f1019450b2614b8727acd76b1c6d59975fb8"
+      }
+    },
+    {
+      "id": "stock-birch",
+      "format": "stock",
+      "profile": "birch",
+      "sha256": "3446a0a56a689313d8ede1b8057a2b810db987095295cc099a1a331fe58ba3c4",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "2da8bc74f8ee0704d021d9305861663a9df45044a0020426d72ca357b923c50c"
+      }
+    },
+    {
+      "id": "stock-petalburg",
+      "format": "stock",
+      "profile": "petalburg",
+      "sha256": "aeb78d0dbd03443622d947aaf9c76923372129014266a7f68bc3c4ab9cfe8f15",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "fd1ae59f0667165f83c9afe9a633feb181ede14f3139583e0254ec67bc3ec161"
+      }
+    },
+    {
+      "id": "stock-roxanne",
+      "format": "stock",
+      "profile": "roxanne",
+      "sha256": "a7ea8f27c8c55319c3db24df52c7de63349c71d288b92e526dfb77484c81286f",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "e1a40656cd9aa0bc5cd010f82c51cc852ac33faa2a3aeb9bc75585c72137198f"
+      }
+    },
+    {
+      "id": "stock-game_clear",
+      "format": "stock",
+      "profile": "game_clear",
+      "sha256": "b8fe94675b86b241764bf9e43e069a3266c9fe2b4afc13429a9a94f6b5566b34",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "8ba8eb3b8acbf48421bcca6b73398f3effeae111de00e7f9de9d9abfa10bc2b3"
+      }
+    },
+    {
+      "id": "stock-checksum-backup",
+      "format": "stock",
+      "profile": "petalburg",
+      "mode": "checksum-backup",
+      "sha256": "9a5cdc4a4dd539ce8a820e1a686cea0b82500220d415bf3f4159d676e8704dcd",
+      "expected": {
+        "load_status": 2,
+        "checkpoint": {
+          "counter": 71,
+          "slot": 1,
+          "rotation": 1
+        },
+        "output_sha256": "aeb78d0dbd03443622d947aaf9c76923372129014266a7f68bc3c4ab9cfe8f15"
+      }
+    },
+    {
+      "id": "stock-mixed-counter",
+      "format": "stock",
+      "profile": "petalburg",
+      "mode": "mixed-counter",
+      "sha256": "9036ef9a605195fc338dd02e9c00b3554e342adeb0addca73cafc424ae2ed569",
+      "expected": {
+        "load_status": 2,
+        "checkpoint": {
+          "counter": 71,
+          "slot": 1,
+          "rotation": 1
+        },
+        "output_sha256": "aeb78d0dbd03443622d947aaf9c76923372129014266a7f68bc3c4ab9cfe8f15"
+      }
+    },
+    {
+      "id": "stock-missing-section",
+      "format": "stock",
+      "profile": "petalburg",
+      "mode": "missing-section",
+      "sha256": "3a5db90891d382330d6a09bc253763a627cdcab6ceb9b2b680a888340c69b4c3",
+      "expected": {
+        "load_status": 2,
+        "checkpoint": {
+          "counter": 71,
+          "slot": 1,
+          "rotation": 1
+        },
+        "output_sha256": "aeb78d0dbd03443622d947aaf9c76923372129014266a7f68bc3c4ab9cfe8f15"
+      }
+    },
+    {
+      "id": "stock-corrupt-both",
+      "format": "stock",
+      "profile": "petalburg",
+      "mode": "corrupt-both",
+      "sha256": "21a4d8f34c21e409df82f312cebb641664552e6f5f457277b293675c1b3abef9",
+      "expected": {
+        "load_status": 3
+      }
+    },
+    {
+      "id": "stock-bad-id",
+      "format": "stock",
+      "profile": "petalburg",
+      "mode": "bad-id",
+      "sha256": "409ed1024cb81f8fb94e4965a325e85334bb958b735128f0513d57434a2b250b",
+      "expected": {
+        "load_status": 3
+      }
+    },
+    {
+      "id": "stock-bad-signature",
+      "format": "stock",
+      "profile": "petalburg",
+      "mode": "bad-signature",
+      "sha256": "f7d693d08b0d39fac300c8cb48e4c43dcbb250e6fe85343f495933225c055821",
+      "expected": {
+        "load_status": 3
+      }
+    },
+    {
+      "id": "stock-blank",
+      "format": "stock",
+      "profile": "petalburg",
+      "mode": "blank",
+      "sha256": "b5a41c3758763bbec72769fab4a2533bf2db0b6312d93d25a695f9e4b9e02260",
+      "expected": {
+        "load_status": 3
+      }
+    },
+    {
+      "id": "stock-short",
+      "format": "stock",
+      "profile": "petalburg",
+      "mode": "short",
+      "sha256": "07f1f6316a0dbf58b52f515b000cbd9f4cc0b2c76bf1895901b6cbc8c8b9d70e",
+      "expected": {
+        "load_status": 5
+      }
+    },
+    {
+      "id": "stock-fail-write",
+      "format": "stock",
+      "profile": "petalburg",
+      "mode": "fail-write",
+      "sha256": "aeb78d0dbd03443622d947aaf9c76923372129014266a7f68bc3c4ab9cfe8f15",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        }
+      }
+    },
+    {
+      "id": "stock-counter-wrap",
+      "format": "stock",
+      "profile": "petalburg",
+      "counter": 0,
+      "rotation": 13,
+      "sha256": "7f6bb4338ab3f3864bd963bd4b2d6e7447fb11cf65b03068c6fb437310f6b4cc",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 0,
+          "slot": 0,
+          "rotation": 13
+        },
+        "output_sha256": "b02a1fd212001c426dd606038e4e9c6541ea2dfb642050e209902d1ece9ff0cd"
+      }
+    },
+    {
+      "id": "vanillaplus-new_game",
+      "format": "vanillaplus",
+      "profile": "new_game",
+      "sha256": "e9bec6b6bad8baf59a577572a5a2533804f9e36dde62f409c3aa0600bb4da7c7",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "f7d8715d2a575f918a8c914e9934195f847f7a5b125c5e41f57fc41bee66a3da"
+      }
+    },
+    {
+      "id": "vanillaplus-rival",
+      "format": "vanillaplus",
+      "profile": "rival",
+      "sha256": "bf8ce5b65dd6b83af6c33690068edf7bc5cc996400700d50dc54abe07b6d8bb4",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "20f67fb950cddb14f14ddf3024e2249bd868f523d706472652d84c840c5d4b71"
+      }
+    },
+    {
+      "id": "vanillaplus-birch",
+      "format": "vanillaplus",
+      "profile": "birch",
+      "sha256": "06f160c2d3a56ba246a4ea313a95d2c9731dd0232a3035fa0ae6ee5658b8d5ea",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "53915ca5e8aee9f2ae7f410392302e6a70c76b141c789293e05e8fc6993cbc72"
+      }
+    },
+    {
+      "id": "vanillaplus-petalburg",
+      "format": "vanillaplus",
+      "profile": "petalburg",
+      "sha256": "aabf6a52f4c88efcc6c621b467b1df7b63656297815105494d0efae3b9c8f880",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "38d689bee3a018d44e093695b192ad6301a4142622aba926cd51396aad628a93"
+      }
+    },
+    {
+      "id": "vanillaplus-roxanne",
+      "format": "vanillaplus",
+      "profile": "roxanne",
+      "sha256": "ffa59dcc7c799f1c8c93303e92e5813de2e6eea67c40d57f910ca7fd5e472d6a",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "92c51293062f0bb7998a44f21bc8847126a94869d151d5034d8e4041c31fa0f0"
+      }
+    },
+    {
+      "id": "vanillaplus-game_clear",
+      "format": "vanillaplus",
+      "profile": "game_clear",
+      "sha256": "9a6a8808ed338d794338188dd9ddb6b4849995c569ece676669a70efa35d1293",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "e1d43f960cfef1741885c264ec534088ebb2655807fd9728a0a17369ffaee047"
+      }
+    },
+    {
+      "id": "vanillaplus-checksum-backup",
+      "format": "vanillaplus",
+      "profile": "petalburg",
+      "mode": "checksum-backup",
+      "sha256": "ea9d46fb0b044c2aac60c8420531b33542d5c40d6468f460c5c1592a0136168f",
+      "expected": {
+        "load_status": 2,
+        "checkpoint": {
+          "counter": 71,
+          "slot": 1,
+          "rotation": 1
+        },
+        "output_sha256": "aabf6a52f4c88efcc6c621b467b1df7b63656297815105494d0efae3b9c8f880"
+      }
+    },
+    {
+      "id": "vanillaplus-mixed-counter",
+      "format": "vanillaplus",
+      "profile": "petalburg",
+      "mode": "mixed-counter",
+      "sha256": "da25816b72abd06a9352098b603dd72801d78375243656d075ffc5b148150381",
+      "expected": {
+        "load_status": 2,
+        "checkpoint": {
+          "counter": 71,
+          "slot": 1,
+          "rotation": 1
+        },
+        "output_sha256": "aabf6a52f4c88efcc6c621b467b1df7b63656297815105494d0efae3b9c8f880"
+      }
+    },
+    {
+      "id": "vanillaplus-missing-section",
+      "format": "vanillaplus",
+      "profile": "petalburg",
+      "mode": "missing-section",
+      "sha256": "97b4527f2db8d0e8df0856fce56225b64d735db637a75fdecfa4f79e7ab12279",
+      "expected": {
+        "load_status": 2,
+        "checkpoint": {
+          "counter": 71,
+          "slot": 1,
+          "rotation": 1
+        },
+        "output_sha256": "aabf6a52f4c88efcc6c621b467b1df7b63656297815105494d0efae3b9c8f880"
+      }
+    },
+    {
+      "id": "vanillaplus-corrupt-both",
+      "format": "vanillaplus",
+      "profile": "petalburg",
+      "mode": "corrupt-both",
+      "sha256": "5b5cb36b629d7c8b8797ffd9d7ada8087b58a3ff5a7a5da4437982b3ea931853",
+      "expected": {
+        "load_status": 3
+      }
+    },
+    {
+      "id": "vanillaplus-bad-id",
+      "format": "vanillaplus",
+      "profile": "petalburg",
+      "mode": "bad-id",
+      "sha256": "8c302f7cb5800c7252291028c99d727edceda7577e8c66cd0212448eb3257468",
+      "expected": {
+        "load_status": 3
+      }
+    },
+    {
+      "id": "vanillaplus-bad-signature",
+      "format": "vanillaplus",
+      "profile": "petalburg",
+      "mode": "bad-signature",
+      "sha256": "2d00c302e2cdea141be9330e2ec218388220d1b44be89bef7afa2ed00ca76165",
+      "expected": {
+        "load_status": 3
+      }
+    },
+    {
+      "id": "vanillaplus-blank",
+      "format": "vanillaplus",
+      "profile": "petalburg",
+      "mode": "blank",
+      "sha256": "b5a41c3758763bbec72769fab4a2533bf2db0b6312d93d25a695f9e4b9e02260",
+      "expected": {
+        "load_status": 3
+      }
+    },
+    {
+      "id": "vanillaplus-short",
+      "format": "vanillaplus",
+      "profile": "petalburg",
+      "mode": "short",
+      "sha256": "1775ffe3a0305ede0ff178347a470a365173d0685920936dfd866852015d1ff0",
+      "expected": {
+        "load_status": 5
+      }
+    },
+    {
+      "id": "vanillaplus-fail-write",
+      "format": "vanillaplus",
+      "profile": "petalburg",
+      "mode": "fail-write",
+      "sha256": "aabf6a52f4c88efcc6c621b467b1df7b63656297815105494d0efae3b9c8f880",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        }
+      }
+    },
+    {
+      "id": "vanillaplus-counter-wrap",
+      "format": "vanillaplus",
+      "profile": "petalburg",
+      "counter": 0,
+      "rotation": 13,
+      "sha256": "b1810c2e0132973a249a8b90649d8d0780970b9de40bcc9ef841c31bb9f6c7d7",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 0,
+          "slot": 0,
+          "rotation": 13
+        },
+        "output_sha256": "d3161475efa56c1800eedf8155a24db26091cc0c77370d3b3aecee8fb920ff46"
+      }
+    },
+    {
+      "id": "vanillaplus-vp5",
+      "format": "vanillaplus",
+      "profile": "petalburg",
+      "mode": "vp5",
+      "sha256": "8d63f6139dabb105521f01d002f7a43113fd1d88f2ffbc50603e77ee19c51f4c",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "4efe8cab450521c6c93020422930a4b13ec302a332792a4c2f743624367889e1"
+      }
+    },
+    {
+      "id": "vanillaplus-future-vp5",
+      "format": "vanillaplus",
+      "profile": "petalburg",
+      "mode": "future-vp5",
+      "sha256": "ea03a92b1189c789ad15246c0709172a2821a96d98889d40b6afe26566667885",
+      "expected": {
+        "load_status": 5
+      }
+    },
+    {
+      "id": "vanillaplus-legacy-vp5",
+      "format": "vanillaplus",
+      "profile": "petalburg",
+      "mode": "legacy-vp5",
+      "sha256": "5007ac193b39c5589b206b1655e7d0304e1dcb434385112282947c16b4c50749",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "e640acafceb2d678da909db84b0ba65a2927de77753aaa1566280b601c308d5e"
+      }
+    },
+    {
+      "id": "stock-vp5-bytes",
+      "format": "stock",
+      "profile": "petalburg",
+      "mode": "stock-vp5-bytes",
+      "sha256": "e694257f0e42cc2be694b7f50dcef208d2d02f63568e7e20dfd56ab3d529ffb8",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "58adfad71d7ef0bc6e47d771d7ff6dcd58bc4289f090f0c08ada9f8f3de8af79"
+      }
+    },
+    {
+      "id": "vanillaplus-user-vp019-projection",
+      "format": "vanillaplus",
+      "profile": "user_vp019_projection",
+      "sha256": "1fb45138765f6ece3ae243d4a1dfce7ab3d85f0aa12f69b46de602da8809ec15",
+      "expected": {
+        "load_status": 1,
+        "checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_sha256": "6d9d20915621dfab167c61b2160a24139fb9619767cd88bdd34b6400a10aebfa"
+      }
+    }
+  ],
+  "coverage": [
+    {
+      "requirement": "sector_geometry_rotation_counter",
+      "ctest": "r17_save_sector_validation",
+      "fixture_source": "tests/emerald_save_validation_test.c",
+      "source_blob_sha": "00dae389075c703699aebbfc2d07edec9b6b14d3"
+    },
+    {
+      "requirement": "full_domain_import",
+      "ctest": "r17_save_domain_import",
+      "fixture_source": "tests/emerald_save_import_test.c",
+      "source_blob_sha": "ef7b6f400aa7a2d20fcff8326fcf914968c571c4"
+    },
+    {
+      "requirement": "untouched_export_transactionality",
+      "ctest": "r17_save_export_transactionality",
+      "fixture_source": "tests/emerald_save_export_test.c",
+      "source_blob_sha": "90ee98d64f264832db58736066bec7c2606218ae"
+    },
+    {
+      "requirement": "vp5_migration_boundary",
+      "ctest": "r17_save_metadata_boundary",
+      "fixture_source": "tests/emerald_save_metadata_test.c",
+      "source_blob_sha": "1d28dbbec8b3d84aa5ffd2f1fe49d0d72ecdc40b"
+    },
+    {
+      "requirement": "corrupt_unsupported_missing_error",
+      "ctest": "r17_save_safe_platform_io",
+      "fixture_source": "tests/emerald_save_io_test.c",
+      "source_blob_sha": "a481ef6cdd0b59589d1708b751ae489c9f4104bd"
+    },
+    {
+      "requirement": "native_write_failures",
+      "ctest": "r17_atomic_file_save",
+      "fixture_source": "tests/r17_atomic_file_save_test.cpp",
+      "source_blob_sha": "e66255b4585e4d07669a3485b0e478012cd110df"
+    },
+    {
+      "requirement": "native_read_failures",
+      "ctest": "r17_native_file_save_read",
+      "fixture_source": "tests/r17_file_save_read_test.cpp",
+      "source_blob_sha": "6440b516b8469494e08d57c09681c3cf9636f9e0"
+    }
+  ],
+  "real": [
+    {
+      "id": "user-vp019-r1-roundtrip",
+      "format": "vanillaplus",
+      "provenance": "User supplied pokemon-emerald-vp019-r1-roundtrip.srm on 2026-10-06; private original retained outside repository. VP019 identity is caller-provided, not inferred from shared signature.",
+      "sha256": "4cf20c4310a49fe4a7e0782f89deaa8e4efa45b2f46a9f443941d506fcd2a633",
+      "bytes": 131072,
+      "expected": {
+        "status": 1,
+        "input_sha256": "4cf20c4310a49fe4a7e0782f89deaa8e4efa45b2f46a9f443941d506fcd2a633",
+        "output_sha256": "db9bf9a76ace9158aed5ad68469de6c3e08dd7f848c67dc3ea6b6f4d1b05b001",
+        "source_checkpoint": {
+          "counter": 72,
+          "slot": 0,
+          "rotation": 2
+        },
+        "output_checkpoint": {
+          "counter": 73,
+          "slot": 1,
+          "rotation": 3
+        },
+        "domain_sha256": [
+          "817c29347ec7cb42e86a7a1758866c4fdcaee9fdbfde0aa979cb867fc262e9ef",
+          "59d5718c25e2090572905ba913ce8bc0d73b44d0f16a4808a3cf21ebd1786b1e",
+          "f2053781de565772d15f97e0d5223cdab3c3e6e14f1528915138d489c69340df"
+        ],
+        "special_sectors_sha256": "0fbba07a833d4dcfc7024eaf313661a0ba8f80a05c6d29b8801c612e10e60dee",
+        "objective": 15,
+        "world": [
+          19,
+          20,
+          0,
+          1,
+          0,
+          -1,
+          -1,
+          2,
+          0,
+          2,
+          3,
+          0,
+          6,
+          62560,
+          33,
+          259
+        ],
+        "rtc": [
+          9767,
+          23,
+          59,
+          37,
+          7,
+          8,
+          18,
+          51
+        ],
+        "party": [
+          [
+            1,
+            243,
+            0,
+            909,
+            8,
+            34,
+            34,
+            0
+          ],
+          [
+            1,
+            245,
+            0,
+            2746,
+            13,
+            50,
+            50,
+            0
+          ],
+          [
+            1,
+            281,
+            0,
+            34002,
+            34,
+            93,
+            93,
+            0
+          ],
+          [
+            1,
+            65,
+            83,
+            53209,
+            39,
+            96,
+            96,
+            0
+          ],
+          [
+            1,
+            397,
+            0,
+            21970,
+            26,
+            85,
+            85,
+            0
+          ],
+          [
+            1,
+            227,
+            0,
+            7107,
+            17,
+            53,
+            53,
+            0
+          ]
+        ],
+        "bag_sha256": "9541dfecea16455acacdab6913d1a40966d53b3fe1b29b4b75fdd37fd7ea2b5c",
+        "current_box": 1,
+        "writes": 1,
+        "exact_export": true,
+        "domains_preserved": true,
+        "untouched_sectors_preserved": true
+      },
+      "execution_boundary": "Native portable import/store/export/disk-reopen only; not a new ROM/emulator/UE/Android validation."
+    }
+  ]
+}

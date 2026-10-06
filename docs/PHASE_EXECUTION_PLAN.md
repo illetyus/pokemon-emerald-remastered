@@ -1,12 +1,13 @@
-# Automated Phase Execution Plan — Through Real Unreal Runtime Validation
+# Phase Execution Plan — Through Real Unreal Runtime Validation
 
 Date: 2026-10-06
 Status: active execution plan
 Canonical roadmap source: `docs/ROADMAP.md`
 
-This file defines the small, resumable execution units used by the automated
-phase controller. It does not renumber roadmap phases and does not replace the
-canonical product/architecture rules in ROADMAP/ARCHITECTURE.
+This file defines the small, resumable execution units used to execute the
+remaining roadmap. The execution map is independent of any particular chat,
+scheduler or orchestration mechanism. It does not renumber roadmap phases and
+does not replace the canonical product/architecture rules in ROADMAP/ARCHITECTURE.
 
 ## Controller contract
 
@@ -35,10 +36,10 @@ canonical product/architecture rules in ROADMAP/ARCHITECTURE.
 
 ## State transition rule
 
-At the end of a successful subphase, the same carrier task changes CURRENT_STATE
-to the next named subphase and schedules itself with a relative offset. It never
-creates a new automation. If the self-update fails, report CHAIN_BROKEN and do
-not advance repo state further.
+At the end of a successful subphase, record and report the next named subphase.
+The orchestration mechanism is non-authoritative and may change without changing
+the phase map. Do not silently execute the next subphase in the same checkpoint,
+and do not advance past a failed verification or gate.
 
 ---
 
@@ -713,9 +714,77 @@ surface, and route back to the verification/gate that detected it.
 
 # Current resume point
 
-At the time this plan was written, R16-B3 had produced commit
-`a28879b5e10934d4d57fa4e8190dda4ba885b3b2`
-(`test(r16): cover full quick-transfer safeguards`).
+R13 and R16 are complete on `main`. R17 is the active phase.
 
-The carrier should resume at **R16-B4 — Targeted verification** after confirming
-that this commit is still the live non-conflicting branch state.
+The fresh R17 working branch is `r17-save-compat-mainline`, created from the
+post-R16 `main` baseline. R17-P1 repo/scope recovery is complete. R17-P2 is
+complete with the authoritative contract versioned in
+`docs/R17_SAVE_COMPAT_CONTRACT.md`.
+
+R17-I1 is VERIFIED_COMPLETE at
+`d5d27bdd6db797d04d32a26122e18a76b3206509`: all nine workflow runs are
+terminal-success, and R0 portable core passed 54/54 tests.
+
+R17-I2 is VERIFIED_COMPLETE at
+`98cad9ff84124cea41d95c6beba8430e5ff2ff22`: all nine workflow runs are
+terminal-success; R0 portable core passed 55/55, including generated encounter
+import cases and C++ embed smoke.
+
+R17-I3 is VERIFIED_COMPLETE at
+`4f5f35c12dc484c61fa4c282738bd28440311a6c`: all nine workflow runs are
+terminal-success; portable core passed 57/57 and Windows native atomic
+transport passed 24/24. Its source-format export/preservation and transactional
+write evidence is in section 18 of `docs/R17_SAVE_COMPAT_CONTRACT.md`.
+
+R17-I4 is VERIFIED_COMPLETE at
+`d58955c4c1e4c48dd243b81b874d60463e40c7cd`: all nine workflow runs are
+terminal-success; portable core passed 58/58 and Windows native atomic
+transport passed 24/24. Production VP5, explicit legacy recovery, stock runtime
+state and metadata-version boundaries are in section 19 of the contract.
+
+R17-I5 is VERIFIED_COMPLETE at
+`ac50b51674d5707caa0a2ac1d237d687a0af6d9e`: all nine workflow runs are
+terminal-success; portable core passed 60/60, Windows native read 32/32 and
+atomic write 24/24. It separates typed MISSING/ERROR, rejects corrupt/unsupported images
+and stale store checkpoints, and requires explicit source-format load selection.
+Its shared native read transport, host status/path wiring and independent
+fixtures are in section 20 of the contract.
+
+R17-I5-Closure-1 closes the concrete failure in R0 run `37529156535` at
+`825e53f904f4f7211280a341cdd00cc512ca9184`: Linux directory size probes could
+return OK. The native transport now requires an opened regular-file descriptor;
+local native C++17 and ASan/UBSan pass 32/32. Initial CI was 59/60 Linux,
+31/31 Windows read and 24/24 Windows atomic write; the exact closure-HEAD CI
+subsequently succeeded and closed I5. The failed initial commit was not accepted.
+
+R17-T1 is VERIFIED_COMPLETE at
+`f0db6e28a06ebd104f9e184c475a0ec359ca31f6`: all nine workflow runs are terminal-success;
+portable full suite passes 61/61, Windows native read 32/32 and atomic write
+24/24. It versions 37 public recipes and the hash-pinned private VP019 replay
+evidence. Strict/sanitizer native import/export/disk-reopen and the independent
+byte/domain oracle pass; limits are in `docs/R17_SAVE_FIXTURE_MATRIX.md`.
+
+R17-V1 and R17-G1 are VERIFIED_COMPLETE at the same unchanged HEAD. All five
+ROADMAP acceptance requirements are reconciled against production source,
+actual real-save replay and exact-head CI. No R17 implementation RED remains.
+
+R17-D1 records the complete evidence in
+`docs/R17_SAVE_COMPAT_COMPLETION.md`. Resume at **R17-D1 verification** until
+this documentation commit's exact live CI is terminal-success; then execute
+**R17-F1 — Final Gate**. Final drift/docs/source/CI reconciliation, PR merge
+and main CI remain separate required checkpoints. If F1 passes: R17-M1 ->
+R17-M2. Only after merged main CI terminal-success is the next phase **R6-P1**.
+Pending/failing CI blocks progression and permits only a concrete closure.
+
+Real Unreal compilation/Android execution remains R18 work; native transport
+checks are not a substitute for that gate.
+
+P2 closure remeasured the production AGBCC layout: existing remaster block sizes
+`0xF44` / `0x3DC8` are correct for pinned Vanilla+; the earlier P2 contract had
+mistaken stale comments for compiled sizes. Production VP5 metadata is at
+compiled `SaveBlock1.unused_3598=0x35D8`; I4 confines the old remaster literal
+`0x3598` to explicit recovery rather than normal metadata access. Evidence and
+format policy are in `docs/R17_SAVE_COMPAT_CONTRACT.md`.
+I1 verified format-specific checksum spans, slot choice, sector
+IDs/signatures, rotation and the explicit counter-coherence policy. No
+gameplay/implementation change belongs to P2.

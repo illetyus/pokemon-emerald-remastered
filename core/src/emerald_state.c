@@ -180,7 +180,7 @@ int remaster_emerald_flag_get(
         || flag_id >= REMASTER_EMERALD_PERSISTENT_FLAG_COUNT)
         return 0;
 
-    value = save->save_block1[SB1_FLAGS + flag_id / 8u];
+    value = save->save_block1[remaster_emerald_save_block1_offset(save, SB1_FLAGS) + flag_id / 8u];
     *out_value = (value >> (flag_id % 8u)) & 1u;
     return 1;
 }
@@ -198,7 +198,7 @@ int remaster_emerald_flag_set(
         || flag_id >= REMASTER_EMERALD_PERSISTENT_FLAG_COUNT)
         return 0;
 
-    byte = &save->save_block1[SB1_FLAGS + flag_id / 8u];
+    byte = &save->save_block1[remaster_emerald_save_block1_offset(save, SB1_FLAGS) + flag_id / 8u];
     mask = (uint8_t)(1u << (flag_id % 8u));
 
     if (value)
@@ -223,7 +223,7 @@ int remaster_emerald_var_get(
 
     index = (uint16_t)(var_id - REMASTER_EMERALD_VARS_START);
     *out_value = state_read_u16_le(
-        save->save_block1 + SB1_VARS + (size_t)index * 2u);
+        save->save_block1 + remaster_emerald_save_block1_offset(save, SB1_VARS) + (size_t)index * 2u);
     return 1;
 }
 
@@ -241,7 +241,7 @@ int remaster_emerald_var_set(
 
     index = (uint16_t)(var_id - REMASTER_EMERALD_VARS_START);
     state_write_u16_le(
-        save->save_block1 + SB1_VARS + (size_t)index * 2u,
+        save->save_block1 + remaster_emerald_save_block1_offset(save, SB1_VARS) + (size_t)index * 2u,
         value);
     return 1;
 }
@@ -259,8 +259,8 @@ void remaster_emerald_clear_temp_field_event_data(
      * - vars 0x4000..0x400F are temporary (16 u16 values / 32 bytes)
      * Both are cleared every time a map is loaded.
      */
-    memset(save->save_block1 + SB1_FLAGS, 0, 4u);
-    memset(save->save_block1 + SB1_VARS, 0, 16u * 2u);
+    memset(save->save_block1 + remaster_emerald_save_block1_offset(save, SB1_FLAGS), 0, 4u);
+    memset(save->save_block1 + remaster_emerald_save_block1_offset(save, SB1_VARS), 0, 16u * 2u);
 }
 
 

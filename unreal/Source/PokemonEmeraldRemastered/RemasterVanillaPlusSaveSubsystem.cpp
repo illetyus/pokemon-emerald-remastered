@@ -25,9 +25,14 @@ ERemasterLegacySaveStatus ToUnrealStatus(RemasterEmeraldSaveStatus Status)
         return ERemasterLegacySaveStatus::Degraded;
     case REMASTER_EMERALD_SAVE_CORRUPT:
         return ERemasterLegacySaveStatus::Corrupt;
+    case REMASTER_EMERALD_SAVE_IO_ERROR:
+        return ERemasterLegacySaveStatus::IoError;
+    case REMASTER_EMERALD_SAVE_UNSUPPORTED:
+        return ERemasterLegacySaveStatus::Unsupported;
     case REMASTER_EMERALD_SAVE_EMPTY:
-    default:
         return ERemasterLegacySaveStatus::Empty;
+    default:
+        return ERemasterLegacySaveStatus::Corrupt;
     }
 }
 }
@@ -81,10 +86,11 @@ URemasterVanillaPlusSaveSubsystem::LoadLegacySave()
         static_cast<RemasterEmeraldSave*>(NativeSave);
 
     const RemasterEmeraldSaveStatus NativeStatus =
-        remaster_emerald_save_load_platform(
+        remaster_emerald_save_load_platform_format(
             LegacySlot,
             ScratchImage.GetData(),
             static_cast<size_t>(ScratchImage.Num()),
+            REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS,
             Save);
 
     Status = ToUnrealStatus(NativeStatus);

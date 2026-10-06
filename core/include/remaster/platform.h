@@ -24,6 +24,12 @@ typedef struct RemasterWallClock {
     int32_t second;
 } RemasterWallClock;
 
+typedef enum RemasterSaveReadResult {
+    REMASTER_SAVE_READ_OK = 0,
+    REMASTER_SAVE_READ_MISSING = 1,
+    REMASTER_SAVE_READ_ERROR = 2
+} RemasterSaveReadResult;
+
 typedef struct RemasterPlatformVTable {
     void *userdata;
 
@@ -53,6 +59,17 @@ typedef struct RemasterPlatformVTable {
         uint32_t event_id,
         int64_t arg0,
         int64_t arg1);
+
+    /* Preferred typed read. OK publishes the actual file size; bytes are
+     * copied only when it fits capacity. MISSING means confirmed absence,
+     * never an open/read/close error. Legacy save_read remains supported:
+     * positive success -> OK, ambiguous failure -> ERROR, never MISSING. */
+    RemasterSaveReadResult (*save_read_result)(
+        void *userdata,
+        const char *slot,
+        uint8_t *buffer,
+        size_t capacity,
+        size_t *out_size);
 } RemasterPlatformVTable;
 
 void remaster_platform_install(const RemasterPlatformVTable *platform);

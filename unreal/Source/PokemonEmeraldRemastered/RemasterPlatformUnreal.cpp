@@ -1,5 +1,11 @@
 #include "RemasterPlatformUnreal.h"
 
+#if PLATFORM_WINDOWS
+#include "Windows/WindowsHWrapper.h"
+#endif
+#include "RemasterAtomicSave.h"
+#include "RemasterFileSaveRead.h"
+
 #include "Engine/GameInstance.h"
 #include "RemasterFeedbackSubsystem.h"
 
@@ -29,6 +35,7 @@ void FRemasterPlatformUnreal::Install(UGameInstance* GameInstance)
     Platform.monotonic_time_ns = &MonotonicTimeNs;
     Platform.read_wall_clock = &ReadWallClock;
     Platform.save_read = &SaveRead;
+    Platform.save_read_result = &SaveReadResult;
     Platform.save_write = &SaveWrite;
     Platform.log = &Log;
     Platform.emit_presentation_event = &EmitPresentationEvent;
@@ -69,35 +76,27 @@ int FRemasterPlatformUnreal::ReadWallClock(
 }
 
 int FRemasterPlatformUnreal::SaveRead(
-    void*,
+    void* Userdata,
     const char* Slot,
     uint8* Buffer,
     size_t Capacity,
     size_t* OutSize)
 {
-    if (!Buffer || !OutSize)
-    {
-        return 0;
-    }
+    return SaveReadResult(Userdata, Slot, Buffer, Capacity, OutSize)
+        == REMASTER_SAVE_READ_OK && *OutSize <= Capacity ? 1 : 0;
+}
 
-    TArray<uint8> Bytes;
-    if (!FFileHelper::LoadFileToArray(Bytes, *SlotPath(Slot)))
-    {
-        return 0;
-    }
-
-    if (static_cast<size_t>(Bytes.Num()) > Capacity)
-    {
-        return 0;
-    }
-
-    FMemory::Memcpy(
-        Buffer,
-        Bytes.GetData(),
-        Bytes.Num());
-
-    *OutSize = static_cast<size_t>(Bytes.Num());
-    return 1;
+RemasterSaveReadResult FRemasterPlatformUnreal::SaveReadResult(
+    void*, const char* Slot, uint8* Buffer, size_t Capacity, size_t* OutSize)
+{
+    const FString Path = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(
+        *SlotPath(Slot));
+#if PLATFORM_WINDOWS
+    return RemasterFileSaveRead::Read(*Path, Buffer, Capacity, OutSize);
+#else
+    const FTCHARToUTF8 PathUtf8(*Path);
+    return RemasterFileSaveRead::Read(PathUtf8.Get(), Buffer, Capacity, OutSize);
+#endif
 }
 
 int FRemasterPlatformUnreal::SaveWrite(
@@ -106,20 +105,41 @@ int FRemasterPlatformUnreal::SaveWrite(
     const uint8* Buffer,
     size_t Size)
 {
-    if (!Buffer && Size > 0)
+    if ((!Buffer && Size > 0) || Size > static_cast<size_t>(MAX_int32))
     {
         return 0;
     }
 
     const FString Path = SlotPath(Slot);
-    IFileManager::Get().MakeDirectory(
-        *FPaths::GetPath(Path),
-        true);
+    const FString Directory = FPaths::GetPath(Path);
+    if (!IFileManager::Get().MakeDirectory(*Directory, true))
+    {
+        return 0;
+    }
+    const FString TemporaryPath = FPaths::CreateTempFilename(
+        *Directory, TEXT("remaster-save-"), TEXT(".tmp"));
+    // UE may map Saved paths to an OS-specific writable location. Native
+    // read/rename must address the same files as the engine file helper.
+    const FString NativeTemporaryPath =
+        IFileManager::Get().ConvertToAbsolutePathForExternalAppForWrite(*TemporaryPath);
+    const FString NativeDestinationPath =
+        IFileManager::Get().ConvertToAbsolutePathForExternalAppForWrite(*Path);
 
     TArray<uint8> Bytes;
     Bytes.Append(Buffer, static_cast<int32>(Size));
 
-    return FFileHelper::SaveArrayToFile(Bytes, *Path) ? 1 : 0;
+    return RemasterAtomicSave::Commit(
+        [&]() { return FFileHelper::SaveArrayToFile(Bytes, *TemporaryPath); },
+        [&]() {
+#if PLATFORM_WINDOWS
+            return RemasterAtomicSave::Replace(*NativeTemporaryPath, *NativeDestinationPath);
+#else
+            const FTCHARToUTF8 TemporaryUtf8(*NativeTemporaryPath);
+            const FTCHARToUTF8 DestinationUtf8(*NativeDestinationPath);
+            return RemasterAtomicSave::Replace(TemporaryUtf8.Get(), DestinationUtf8.Get());
+#endif
+        },
+        [&]() { IFileManager::Get().Delete(*TemporaryPath, false, true, true); }) ? 1 : 0;
 }
 
 void FRemasterPlatformUnreal::Log(

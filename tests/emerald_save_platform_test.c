@@ -12,7 +12,7 @@ typedef struct MemorySave {
     int writes;
 } MemorySave;
 
-static int save_read(
+static RemasterSaveReadResult save_read(
     void *userdata,
     const char *slot,
     uint8_t *buffer,
@@ -22,15 +22,17 @@ static int save_read(
     MemorySave *memory = (MemorySave *)userdata;
     (void)slot;
 
-    if (memory == 0 || !memory->exists || buffer == 0 || out_size == 0)
-        return 0;
+    if (memory == 0 || buffer == 0 || out_size == 0)
+        return REMASTER_SAVE_READ_ERROR;
+    if (!memory->exists)
+        return REMASTER_SAVE_READ_MISSING;
 
     if (capacity < memory->size)
-        return 0;
+        return REMASTER_SAVE_READ_ERROR;
 
     memcpy(buffer, memory->image, memory->size);
     *out_size = memory->size;
-    return 1;
+    return REMASTER_SAVE_READ_OK;
 }
 
 static int save_write(
@@ -78,7 +80,7 @@ int main(void)
     memset(&save, 0, sizeof(save));
 
     platform.userdata = &memory;
-    platform.save_read = save_read;
+    platform.save_read_result = save_read;
     platform.save_write = save_write;
     remaster_platform_install(&platform);
 

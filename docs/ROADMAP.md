@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
 Date: 2026-10-06  
-Status: **R0-R5, R10-R13 and R16 complete; R17 is the next implementation phase.**
+Status: **R0-R5, R10-R13 and R16 complete; R17 implementation acceptance verified, final/merge/main gates required.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -880,16 +880,17 @@ of successful UE compilation or Android runtime.
 
 # 14. Immediate next action
 
-The next implementation phase is **R16 — Vanilla+ QoL**.
+The active phase is **R17 — Save compatibility / migration**.
+R13 and R16 are complete and merged to `main`. R17 implementation, versioned
+fixtures, real VP019 native replay, full CI and acceptance gate are verified at
+`f0db6e28a06ebd104f9e184c475a0ec359ca31f6`.
 
-Before R16 implementation:
+Completion evidence: [R17_SAVE_COMPAT_COMPLETION.md](R17_SAVE_COMPAT_COMPLETION.md).
+Current checkpoint: R17-D1; require its exact committed-HEAD CI, then execute
+R17-F1 independent final reconciliation, R17-M1 verified PR merge and R17-M2
+terminal-success main verification. R17 is not considered merged in advance.
+The next phase is **R6-P1** only after those gates pass.
 
-1. merge the accepted R13 PR after its final same-head CI is green;
-2. re-check current `main` after the R13 merge;
-3. inventory the QoL deltas present in pinned Vanilla+ relative to stock Emerald;
-4. classify each delta as accepted, rejected or already covered by earlier phases;
-5. regression-test each accepted QoL behavior before implementation;
-6. implement only on an R16 branch;
-7. merge only after green CI.
-
-Real Unreal build and BrowserStack device execution remain deferred until R18.
+Real Unreal build remains R18 work. After R18 main verification, stop at
+REAL UNREAL RUNTIME VALIDATION; do not automatically run physical Android
+smoke, BrowserStack, final device matrix, R21 or R22.

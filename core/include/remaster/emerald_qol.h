@@ -25,6 +25,24 @@ typedef enum RemasterEmeraldQolItemSortMode {
     REMASTER_EMERALD_QOL_ITEM_SORT_COUNT = 5
 } RemasterEmeraldQolItemSortMode;
 
+typedef enum RemasterEmeraldQolMetadataRecovery {
+    REMASTER_EMERALD_QOL_METADATA_INVALID = 0,
+    REMASTER_EMERALD_QOL_METADATA_NOT_APPLICABLE = 1,
+    REMASTER_EMERALD_QOL_METADATA_CURRENT = 2,
+    REMASTER_EMERALD_QOL_METADATA_RECOVERED = 3,
+    REMASTER_EMERALD_QOL_METADATA_NO_LEGACY = 4,
+    REMASTER_EMERALD_QOL_METADATA_CONFLICT = 5,
+    REMASTER_EMERALD_QOL_METADATA_UNSUPPORTED = 6
+} RemasterEmeraldQolMetadataRecovery;
+
+/* Explicit recovery only for a known old remaster Vanilla+ save. The caller
+ * must establish provenance: 0x3598 overlaps production Mystery Gift data.
+ * Copies validated legacy v1 metadata into a uniformly 00/FF destination;
+ * never clears the old bytes, changes registeredItem or overwrites a conflict.
+ * Import/export and ordinary QoL calls never invoke this operation. */
+RemasterEmeraldQolMetadataRecovery
+remaster_emerald_qol_recover_legacy_item_metadata(RemasterEmeraldSave *save);
+
 typedef enum RemasterEmeraldQolTransferResult {
     REMASTER_EMERALD_QOL_TRANSFER_OK = 0,
     REMASTER_EMERALD_QOL_TRANSFER_INVALID = 1,
