@@ -736,16 +736,22 @@ terminal-success; portable core passed 57/57 and Windows native atomic
 transport passed 24/24. Its source-format export/preservation and transactional
 write evidence is in section 18 of `docs/R17_SAVE_COMPAT_CONTRACT.md`.
 
-R17-I4 corrects production VP5 access to the measured address, adds explicit
-non-destructive legacy recovery, keeps stock item extensions in runtime state
-and retains unknown metadata versions. Source/reset/recovery boundaries and
-independent fixtures are in section 19 of the contract.
+R17-I4 is VERIFIED_COMPLETE at
+`d58955c4c1e4c48dd243b81b874d60463e40c7cd`: all nine workflow runs are
+terminal-success; portable core passed 58/58 and Windows native atomic
+transport passed 24/24. Production VP5, explicit legacy recovery, stock runtime
+state and metadata-version boundaries are in section 19 of the contract.
 
-Resume at **R17-I4 verification** until the exact live I4 commit's targeted and
-complete relevant PR CI are terminal-success. Then the next named subphase is
-**R17-I5 — Corrupt/unsupported handling**. Pending/failed CI keeps I4 open and
-permits only a concrete gap-specific closure. Safe read-result semantics and
-explicit-format platform loading remain I5; T1 and final phase gates remain open.
+R17-I5 separates typed MISSING/ERROR, rejects found corrupt/unsupported images
+and stale store checkpoints, and requires explicit source-format load selection.
+Its shared native read transport, host status/path wiring and independent
+fixtures are in section 20 of the contract.
+
+Resume at **R17-I5 verification** until the exact live I5 commit's targeted and
+complete relevant PR CI are terminal-success, including Windows native file
+transport. Then the next named subphase is **R17-T1 — Compatibility fixture
+matrix**. Pending/failed CI keeps I5 open and permits only a concrete gap-specific
+closure. Representative real/versioned fixture acceptance and final gates remain open.
 Real Unreal compilation/Android execution remains R18 work; native transport
 checks are not a substitute for that gate.
 

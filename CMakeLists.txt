@@ -977,3 +977,25 @@ else()
     target_compile_options(emerald_save_metadata_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r17_save_metadata_boundary COMMAND emerald_save_metadata_test)
+
+# R17-I5: safe found/missing/error semantics and explicit source-format load.
+add_executable(emerald_save_io_test tests/emerald_save_io_test.c)
+target_link_libraries(emerald_save_io_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_save_io_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_save_io_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r17_save_safe_platform_io COMMAND emerald_save_io_test)
+
+add_executable(r17_file_save_read_test tests/r17_file_save_read_test.cpp)
+target_include_directories(r17_file_save_read_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/core/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r17_file_save_read_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r17_file_save_read_test PRIVATE /W4)
+else()
+    target_compile_options(r17_file_save_read_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r17_native_file_save_read COMMAND r17_file_save_read_test)

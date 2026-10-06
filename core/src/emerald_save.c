@@ -359,6 +359,13 @@ typedef struct SaveWritePlan {
     uint8_t selected_slot;
 } SaveWritePlan;
 
+static int writable_save_status(RemasterEmeraldSaveStatus status)
+{
+    return status == REMASTER_EMERALD_SAVE_EMPTY
+        || status == REMASTER_EMERALD_SAVE_OK
+        || status == REMASTER_EMERALD_SAVE_DEGRADED;
+}
+
 static int prepare_next_image(
     uint8_t *image,
     size_t image_size,
@@ -372,6 +379,7 @@ static int prepare_next_image(
     RemasterEmeraldSaveFormat format;
 
     if (image == 0 || save == 0 || save->source_is_stock > 1u
+        || !writable_save_status(save->status)
         || image_size != REMASTER_EMERALD_SAVE_IMAGE_BYTES)
         return 0;
 
@@ -490,46 +498,110 @@ void remaster_emerald_save_set_last_berry_update(
 }
 
 
+static RemasterSaveReadResult read_platform_image(
+    const RemasterPlatformVTable *platform,
+    const char *slot_name,
+    uint8_t *image,
+    size_t *size)
+{
+    RemasterSaveReadResult result;
+    *size = 0;
+    if (platform == 0)
+        return REMASTER_SAVE_READ_ERROR;
+    if (platform->save_read_result != 0) {
+        result = platform->save_read_result(platform->userdata, slot_name,
+            image, REMASTER_EMERALD_SAVE_IMAGE_BYTES, size);
+        if (result == REMASTER_SAVE_READ_OK)
+            return result;
+        *size = 0;
+        return result == REMASTER_SAVE_READ_MISSING
+            ? REMASTER_SAVE_READ_MISSING : REMASTER_SAVE_READ_ERROR;
+    }
+    if (platform->save_read != 0
+        && platform->save_read(platform->userdata, slot_name,
+            image, REMASTER_EMERALD_SAVE_IMAGE_BYTES, size) > 0)
+        return REMASTER_SAVE_READ_OK;
+    *size = 0;
+    return REMASTER_SAVE_READ_ERROR;
+}
+
+static int vp_metadata_supported(const uint8_t *metadata)
+{
+    return emerald_read_u32_le(metadata) != UINT32_C(0x35504956)
+        || metadata[4] == 1;
+}
+
+static int image_metadata_supported(
+    const uint8_t *image, const RemasterEmeraldSaveValidation *validation)
+{
+    size_t sector;
+    if (validation->format == REMASTER_EMERALD_SAVE_FORMAT_STOCK)
+        return 1;
+    /* Production SB1 VP5 lies in logical section 4, at 0x35D8-3*0xF80. */
+    sector = (size_t)validation->selected_slot * 14u
+        + (4u + validation->last_written_sector) % 14u;
+    return vp_metadata_supported(image + sector * 4096u + 0x758u);
+}
+
+static RemasterEmeraldSaveStatus clear_load_result(
+    RemasterEmeraldSave *save, RemasterEmeraldSaveStatus status,
+    RemasterEmeraldSaveFormat format)
+{
+    if (save != 0) {
+        memset(save, 0, sizeof(*save));
+        save->status = status;
+        save->source_is_stock = (uint8_t)(format == REMASTER_EMERALD_SAVE_FORMAT_STOCK);
+    }
+    return status;
+}
+
+RemasterEmeraldSaveStatus remaster_emerald_save_load_platform_format(
+    const char *slot_name,
+    uint8_t *scratch_image,
+    size_t scratch_size,
+    RemasterEmeraldSaveFormat format,
+    RemasterEmeraldSave *out_save)
+{
+    const RemasterPlatformVTable *platform = remaster_platform_get();
+    size_t size = 0;
+    RemasterSaveReadResult read_result;
+    RemasterEmeraldSaveValidation validation;
+    RemasterEmeraldSaveStatus status;
+
+    if (out_save == 0 || scratch_image == 0
+        || scratch_size < REMASTER_EMERALD_SAVE_IMAGE_BYTES)
+        return clear_load_result(out_save, REMASTER_EMERALD_SAVE_CORRUPT, format);
+    if (format != REMASTER_EMERALD_SAVE_FORMAT_STOCK
+        && format != REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS)
+        return clear_load_result(out_save, REMASTER_EMERALD_SAVE_UNSUPPORTED, format);
+
+    read_result = read_platform_image(platform,
+        slot_name != 0 ? slot_name : "emerald", scratch_image, &size);
+    if (read_result == REMASTER_SAVE_READ_MISSING)
+        return clear_load_result(out_save, REMASTER_EMERALD_SAVE_EMPTY, format);
+    if (read_result != REMASTER_SAVE_READ_OK)
+        return clear_load_result(out_save, REMASTER_EMERALD_SAVE_IO_ERROR, format);
+    if (size != REMASTER_EMERALD_SAVE_IMAGE_BYTES)
+        return clear_load_result(out_save, REMASTER_EMERALD_SAVE_UNSUPPORTED, format);
+
+    status = remaster_emerald_save_validate(scratch_image, size, format, &validation);
+    /* Raw flash probing calls signatureless slots EMPTY. A found filesystem
+     * image is not confirmed absence and cannot authorize destructive repair. */
+    if (status != REMASTER_EMERALD_SAVE_OK && status != REMASTER_EMERALD_SAVE_DEGRADED)
+        return clear_load_result(out_save, REMASTER_EMERALD_SAVE_CORRUPT, format);
+    if (!image_metadata_supported(scratch_image, &validation))
+        return clear_load_result(out_save, REMASTER_EMERALD_SAVE_UNSUPPORTED, format);
+    return remaster_emerald_save_decode_format(scratch_image, size, format, out_save);
+}
+
 RemasterEmeraldSaveStatus remaster_emerald_save_load_platform(
     const char *slot_name,
     uint8_t *scratch_image,
     size_t scratch_size,
     RemasterEmeraldSave *out_save)
 {
-    const RemasterPlatformVTable *platform = remaster_platform_get();
-    size_t size = 0;
-
-    if (out_save == 0 || scratch_image == 0
-        || scratch_size < REMASTER_EMERALD_SAVE_IMAGE_BYTES
-        || platform == 0 || platform->save_read == 0) {
-        if (out_save != 0) {
-            memset(out_save, 0, sizeof(*out_save));
-            out_save->status = REMASTER_EMERALD_SAVE_CORRUPT;
-        }
-        return REMASTER_EMERALD_SAVE_CORRUPT;
-    }
-
-    if (!platform->save_read(
-            platform->userdata,
-            slot_name != 0 ? slot_name : "emerald",
-            scratch_image,
-            REMASTER_EMERALD_SAVE_IMAGE_BYTES,
-            &size)) {
-        memset(out_save, 0, sizeof(*out_save));
-        out_save->status = REMASTER_EMERALD_SAVE_EMPTY;
-        return out_save->status;
-    }
-
-    if (size != REMASTER_EMERALD_SAVE_IMAGE_BYTES) {
-        memset(out_save, 0, sizeof(*out_save));
-        out_save->status = REMASTER_EMERALD_SAVE_CORRUPT;
-        return out_save->status;
-    }
-
-    return remaster_emerald_save_decode(
-        scratch_image,
-        size,
-        out_save);
+    return remaster_emerald_save_load_platform_format(slot_name, scratch_image,
+        scratch_size, REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS, out_save);
 }
 
 int remaster_emerald_save_store_platform(
@@ -541,24 +613,42 @@ int remaster_emerald_save_store_platform(
     const RemasterPlatformVTable *platform = remaster_platform_get();
     size_t size = 0;
     SaveWritePlan plan;
+    RemasterSaveReadResult read_result;
+    RemasterEmeraldSaveValidation validation;
+    RemasterEmeraldSaveStatus status;
+    RemasterEmeraldSaveFormat format;
 
     if (save == 0 || scratch_image == 0
         || scratch_size < REMASTER_EMERALD_SAVE_IMAGE_BYTES
-        || platform == 0 || platform->save_write == 0)
+        || platform == 0 || platform->save_write == 0
+        || save->source_is_stock > 1
+        || !writable_save_status(save->status))
+        return 0;
+    format = save->source_is_stock ? REMASTER_EMERALD_SAVE_FORMAT_STOCK
+        : REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS;
+    if (!save->source_is_stock && !vp_metadata_supported(save->save_block1 + 0x35D8))
         return 0;
 
-    if (platform->save_read == 0
-        || !platform->save_read(
-            platform->userdata,
-            slot_name != 0 ? slot_name : "emerald",
-            scratch_image,
-            REMASTER_EMERALD_SAVE_IMAGE_BYTES,
-            &size)
-        || size != REMASTER_EMERALD_SAVE_IMAGE_BYTES) {
-        memset(
-            scratch_image,
-            0xff,
-            REMASTER_EMERALD_SAVE_IMAGE_BYTES);
+    read_result = read_platform_image(platform,
+        slot_name != 0 ? slot_name : "emerald", scratch_image, &size);
+    if (read_result == REMASTER_SAVE_READ_MISSING) {
+        if (save->status != REMASTER_EMERALD_SAVE_EMPTY || save->counter != 0
+            || save->last_written_sector != 0 || save->selected_slot != 0)
+            return 0;
+        memset(scratch_image, 0xff, REMASTER_EMERALD_SAVE_IMAGE_BYTES);
+    } else if (read_result == REMASTER_SAVE_READ_OK) {
+        if (size != REMASTER_EMERALD_SAVE_IMAGE_BYTES
+            || save->status == REMASTER_EMERALD_SAVE_EMPTY)
+            return 0;
+        status = remaster_emerald_save_validate(scratch_image, size, format, &validation);
+        if ((status != REMASTER_EMERALD_SAVE_OK && status != REMASTER_EMERALD_SAVE_DEGRADED)
+            || !image_metadata_supported(scratch_image, &validation)
+            || validation.counter != save->counter
+            || validation.selected_slot != save->selected_slot
+            || validation.last_written_sector != save->last_written_sector)
+            return 0;
+    } else {
+        return 0;
     }
 
     if (!prepare_next_image(

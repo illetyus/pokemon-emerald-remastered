@@ -10,7 +10,9 @@ enum class ERemasterLegacySaveStatus : uint8
     Empty,
     Ok,
     Degraded,
-    Corrupt
+    Corrupt,
+    IoError,
+    Unsupported
 };
 
 USTRUCT(BlueprintType)

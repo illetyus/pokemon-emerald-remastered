@@ -218,13 +218,16 @@ image, because doing so would also destroy those special sectors.
 
 ## 9. Platform I/O result contract
 
-The current platform callback returns only boolean success/failure, so a missing
-save and a genuine read error are indistinguishable. R17 must introduce or wrap
-an explicit read result with at least:
+I5 adds a preferred typed `save_read_result` callback with:
 
 - FOUND / OK;
 - MISSING;
 - ERROR.
+
+The legacy boolean callback remains source-compatible after recompilation.
+Its positive result means FOUND; its ambiguous failure means ERROR and cannot
+authorize EMPTY or initial creation. The typed callback takes precedence.
+The I5 implementation/result matrix is in section 20.
 
 Required behavior:
 
@@ -236,6 +239,13 @@ Required behavior:
 - store + FOUND wrong size -> abort without write;
 - absence of a usable read path must not silently authorize overwrite of an
   existing slot.
+
+An existing filesystem image with no independently valid normal slot is
+CORRUPT even if the raw flash validator calls signatureless slots EMPTY.
+This is explicit filesystem safety policy, not a change to the pinned raw
+flash reader. New creation requires confirmed MISSING and a deliberate initial
+EMPTY checkpoint. A loaded game whose file disappeared must not silently
+initialize a replacement.
 
 R17-I5 owns the public/platform error surface. R17-I3 owns preservation and
 transactional write behavior.
@@ -677,3 +687,119 @@ I4 remains VERIFYING until the atomic committed HEAD's complete relevant PR
 CI is terminal-success. Success -> R17-I5; failure -> a concrete I4 closure.
 Full R17 acceptance, real fixture acceptance and Unreal/Android execution are
 not claimed by this metadata checkpoint.
+
+## 20. R17-I5 corrupt/unsupported/platform checkpoint
+
+### Read and public load results
+
+The production platform installs the new typed reader. Its result is distinct
+from the extended save-domain status; existing values EMPTY/OK/DEGRADED/CORRUPT
+remain 0/1/2/3, and IO_ERROR/UNSUPPORTED are appended as 4/5.
+
+| Input | Public platform-load result |
+| --- | --- |
+| Confirmed MISSING | EMPTY, zero initial checkpoint, requested source provenance |
+| Open/read/close error, unknown callback result, absent platform/reader, legacy false | IO_ERROR |
+| Found file with any size other than 128 KiB | UNSUPPORTED |
+| Unspecified/ambiguous or unknown requested format | UNSUPPORTED, before read |
+| Valid selected Vanilla+ slot with VP5 magic and version != 1 | UNSUPPORTED |
+| Found blank/signatureless file, both slots invalid, checksum/ID/signature/counter failure with no valid backup | CORRUPT |
+| Independently valid backup/current slot | OK or DEGRADED under the I1 source-backed policy |
+| Null output/scratch or insufficient scratch capacity | CORRUPT, before read |
+
+`remaster_emerald_save_load_platform_format` requires explicit stock or
+Vanilla+ selection. The UNSPECIFIED enum represents missing caller provenance;
+it never triggers checksum-based format guessing. The established older load
+API remains declared Vanilla+, not a generic autodetector. The production
+Vanilla+ subsystem now makes that selection explicitly. Failure clears
+unusable output state and retains a distinct failure status; it never fabricates
+a gameplay domain or authorizes overwrite as an EMPTY game.
+
+Pinned `src/save.c` lines 515-637 classify flash slots with no signature as
+EMPTY and select a complete valid backup. The raw validator retains those
+semantics and the explicit I1 coherence hardening. The filesystem layer knows
+the difference between a missing file and a present unimportable image, so it
+does not translate the latter into permission to recreate it.
+
+Version rejection is for the selected production VP5 extension only. Stock
+does not interpret VP5-shaped bytes at the same numeric address. Low-level
+raw decode/export can still preserve opaque future metadata for explicit
+inspection/export as defined in I4; ordinary platform load/store rejects it
+instead of silently resetting or downgrading it.
+
+### Safe store and checkpoint consistency
+
+A platform store performs all rejection checks before reaching save_write.
+
+- Only deliberate EMPTY, OK or DEGRADED caller state is writable; raw export
+  also rejects CORRUPT, IO_ERROR, UNSUPPORTED and unknown statuses.
+- Only typed MISSING plus an EMPTY counter/slot/rotation of zero can prepare
+  an initial 0xFF image. No reader, read error or legacy false can do so.
+- Found images must have exact geometry, independently valid slot selection,
+  supported source metadata and matching caller counter/slot/rotation.
+- An EMPTY caller cannot overwrite a found image, and a previously loaded game
+  cannot silently recreate a missing one. Pending future-version metadata and
+  invalid runtime source provenance are rejected.
+- A valid backup can write the ordinary next slot; data is never assembled
+  across invalid slots. The backup slot and sectors 28-31 remain byte-exact.
+- All rejected/failed writes retain the complete wrapper, including pending
+  gameplay edits, stock runtime metadata, status, counter, slot and rotation.
+  Only a successful write commits the I3 metadata plan.
+
+Checkpoint comparison catches stale state observed at the read boundary. It
+does not promise a cross-process file lock or atomic compare-and-swap against
+a concurrent writer after that read. Scratch bytes may contain partial reads
+or a prepared retry image; they are temporary, not committed save state.
+Store continues to return success/failure without introducing gameplay repair,
+new persistent fields or a new preferences format.
+
+### Production native transport and host boundary
+
+`RemasterFileSaveRead.h` is the shared production/native-test transport.
+It opens read-only, measures size without a file-sized allocation, copies only
+if the file fits the supplied capacity, checks exact read/EOF and close results,
+and initializes output size. Oversized found files publish actual size without
+copying; the core can reject them as UNSUPPORTED before using scratch bytes.
+Open ENOENT is additionally checked against filesystem status and the nearest
+existing directory ancestor, because some CRTs conflate non-directory parents
+with absence. Permission/storage errors are ERROR; directories are not saves.
+
+Windows uses wide paths and `_wfopen_s`; other hosts use native UTF-8 paths.
+The Unreal adapter resolves its Saved paths through IFileManager's external-app
+read/write path conversions so stdio read and atomic rename address the same
+physical files as the engine file helper. The I3 temporary-file protocol remains
+the commit transport. The SaveSubsystem exposes IoError and Unsupported and
+maps an unknown status to Corrupt, never Empty. Presentation still checks
+HasUsableSave; no UI or gameplay result moves into the platform layer.
+
+### Regression and verification evidence
+
+`r17_save_safe_platform_io` constructs stock/Vanilla+ sector images with an
+independent checksum/layout oracle. It covers typed/legacy precedence, explicit
+source load, MISSING/ERROR/unknown results, wrong sizes, absent callbacks,
+corruption of each of 14 sections in both slots (checksum/ID/signature/counter),
+present blank files, stale checkpoint fields, all 255 unknown VP5 byte versions,
+degraded backup save, transactional failures/retry, special-sector preservation,
+new creation, invalid arguments/provenance and unusable raw-export statuses.
+
+- Final fixture against pre-I5 code: **4118 checks, 2070 failures**, RED, exit 1.
+  Test-only shims model the absent typed callback/explicit-format API.
+- Final implementation: **3300 checks, 0 failures**, strict C99/C++17 and
+  C/C++ ASan/UBSan. The baseline performs extra callback checks because it
+  incorrectly reaches writers in rejected cases; GREEN removes those writes.
+- Native `r17_native_file_save_read`: **31 checks, 0 failures**, including
+  a Unicode destination, real missing files/directories/non-directory parents,
+  exact/short/oversized/zero-length files, capacity canaries and argument errors.
+  Permission/storage error classification is injected into the shared opener
+  classifier; it is not claimed as a real device permission/storage failure.
+  Native ASan/UBSan passes. LeakSanitizer is disabled under ptrace.
+- Existing save/platform tests, 284-check I1 validation, 26006-check I3 export
+  and 146062-check I4 metadata regressions pass. Existing first-save mocks now
+  declare typed MISSING instead of using ambiguous legacy false as absence.
+
+I5 is VERIFYING until all exact committed-HEAD relevant PR CI is terminal-success,
+including the Windows native read/atomic-write job. Success -> R17-T1;
+failure -> a concrete I5 closure. T1 representative real/versioned fixture
+acceptance and final phase gates remain open. Native stdio tests and source
+path/status review are not real UE compilation or Android filesystem/runtime
+validation; those remain R18/runtime work.

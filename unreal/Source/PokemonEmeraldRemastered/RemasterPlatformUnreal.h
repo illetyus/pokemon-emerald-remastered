@@ -28,6 +28,13 @@ private:
         size_t Capacity,
         size_t* OutSize);
 
+    static RemasterSaveReadResult SaveReadResult(
+        void* Userdata,
+        const char* Slot,
+        uint8* Buffer,
+        size_t Capacity,
+        size_t* OutSize);
+
     static int SaveWrite(
         void* Userdata,
         const char* Slot,

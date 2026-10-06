@@ -141,12 +141,13 @@ static void roundtrips(void)
 }
 typedef struct MemoryFile { int exists, fail, reads, writes; } MemoryFile;
 static MemoryFile memory;
-static int read_file(void *user, const char *name, uint8_t *buffer, size_t capacity, size_t *size)
+static RemasterSaveReadResult read_file(void *user, const char *name, uint8_t *buffer, size_t capacity, size_t *size)
 {
     MemoryFile *file = (MemoryFile *)user;
     (void)name; ++file->reads;
-    if (!file->exists || capacity < sizeof(image)) return 0;
-    memcpy(buffer, image, sizeof(image)); *size = sizeof(image); return 1;
+    if (!file->exists) return REMASTER_SAVE_READ_MISSING;
+    if (capacity < sizeof(image)) return REMASTER_SAVE_READ_ERROR;
+    memcpy(buffer, image, sizeof(image)); *size = sizeof(image); return REMASTER_SAVE_READ_OK;
 }
 static int write_file(void *user, const char *name, const uint8_t *buffer, size_t size)
 {
@@ -163,7 +164,7 @@ static void transactions(void)
     unsigned stock, c, failure;
     const uint32_t counters[] = {10, UINT32_MAX};
     memset(&platform, 0, sizeof(platform)); platform.userdata = &memory;
-    platform.save_read = read_file; platform.save_write = write_file;
+    platform.save_read_result = read_file; platform.save_write = write_file;
     remaster_platform_install(&platform);
     for (stock = 0; stock < 2; ++stock) for (c = 0; c < 2; ++c) {
         uint32_t next; unsigned rotation;

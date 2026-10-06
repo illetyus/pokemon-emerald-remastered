@@ -24,12 +24,16 @@ typedef enum RemasterEmeraldSaveStatus {
     REMASTER_EMERALD_SAVE_EMPTY = 0,
     REMASTER_EMERALD_SAVE_OK = 1,
     REMASTER_EMERALD_SAVE_DEGRADED = 2,
-    REMASTER_EMERALD_SAVE_CORRUPT = 3
+    REMASTER_EMERALD_SAVE_CORRUPT = 3,
+    REMASTER_EMERALD_SAVE_IO_ERROR = 4,
+    REMASTER_EMERALD_SAVE_UNSUPPORTED = 5
 } RemasterEmeraldSaveStatus;
 
 typedef enum RemasterEmeraldSaveFormat {
     REMASTER_EMERALD_SAVE_FORMAT_STOCK = 0,
-    REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS = 1
+    REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS = 1,
+    /* Missing/ambiguous caller provenance: requires explicit selection. */
+    REMASTER_EMERALD_SAVE_FORMAT_UNSPECIFIED = 2
 } RemasterEmeraldSaveFormat;
 
 /* Read-only sector/slot validation, without gameplay-domain reconstruction.
@@ -109,6 +113,21 @@ RemasterEmeraldSaveStatus remaster_emerald_save_load_platform(
     size_t scratch_size,
     RemasterEmeraldSave *out_save);
 
+/* Explicit format/provenance: shared signatures or checksum probing cannot
+ * unconditionally distinguish layouts. The older load API is declared VP.
+ * Only confirmed MISSING returns EMPTY. Found wrong-size/version inputs are
+ * UNSUPPORTED; found signatureless/invalid images are CORRUPT; IO is separate.
+ * Failure clears unusable output state without authorizing a new overwrite. */
+RemasterEmeraldSaveStatus remaster_emerald_save_load_platform_format(
+    const char *slot_name,
+    uint8_t *scratch_image,
+    size_t scratch_size,
+    RemasterEmeraldSaveFormat format,
+    RemasterEmeraldSave *out_save);
+
+/* Only a deliberate EMPTY initial checkpoint plus typed MISSING creates a
+ * file. Found images require independent validation, supported metadata and
+ * matching counter/slot/rotation. Failures retain the complete wrapper. */
 int remaster_emerald_save_store_platform(
     const char *slot_name,
     uint8_t *scratch_image,
