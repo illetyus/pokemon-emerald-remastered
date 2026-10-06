@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <string.h>
 
+enum {
+    TEST_ABILITY_RUN_AWAY = 50
+};
+
 static int check(int condition, const char *message)
 {
     if (!condition) {
@@ -590,6 +594,22 @@ static int test_special_run_lifecycle_matches_emerald(void)
     remaster_emerald_battle_state_init(
         &battle,
         REMASTER_EMERALD_BATTLE_TYPE_MASTER
+            | REMASTER_EMERALD_BATTLE_TYPE_TRAINER,
+        0x7AA1A001u);
+    if (!remaster_emerald_battle_start(
+            &battle, &player, 1, &foe, 1))
+        return check(0, "ordinary trainer Run Away fixture should start");
+    battle.battlers[0].ability = TEST_ABILITY_RUN_AWAY;
+    if (!check(
+            !remaster_emerald_battle_try_run(&battle, 0)
+                && !battle.ended
+                && battle.outcome == REMASTER_EMERALD_BATTLE_OUTCOME_NONE,
+            "Run Away must not bypass ordinary trainer-battle run rules"))
+        return 0;
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER
             | REMASTER_EMERALD_BATTLE_TYPE_LINK,
         0x11A0B001u);
     if (!remaster_emerald_battle_start(
@@ -616,6 +636,96 @@ static int test_special_run_lifecycle_matches_emerald(void)
                 && battle.run_tries == 1
                 && battle.rng.calls == rng_calls,
             "equal speed must escape without RNG and consume one run attempt"))
+        return 0;
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER,
+        0x8u);
+    if (!remaster_emerald_battle_start(
+            &battle, &player, 1, &foe, 1))
+        return check(0, "u8 run-speed fixture should start");
+    battle.battlers[0].pokemon.speed = 1;
+    battle.battlers[1].pokemon.speed = 100;
+    battle.run_tries = 9;
+    remaster_emerald_battle_rng_seed(&battle.rng, 0x8u);
+    if (!check(
+            !remaster_emerald_battle_try_run(&battle, 0)
+                && !battle.ended
+                && battle.run_tries == 10
+                && battle.rng.calls == 1,
+            "ordinary escape must preserve Emerald u8 speedVar truncation"))
+        return 0;
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER
+            | REMASTER_EMERALD_BATTLE_TYPE_PYRAMID,
+        0x8u);
+    if (!remaster_emerald_battle_start(
+            &battle, &player, 1, &foe, 1))
+        return check(0, "Pyramid run fixture should start");
+    battle.pyramid_run_multiplier = 80;
+    battle.battlers[0].pokemon.speed = 50;
+    battle.battlers[1].pokemon.speed = 100;
+    remaster_emerald_battle_rng_seed(&battle.rng, 0x8u);
+    if (!check(
+            !remaster_emerald_battle_try_run(&battle, 0)
+                && !battle.ended
+                && battle.run_tries == 1
+                && battle.rng.calls == 1,
+            "Battle Pyramid must use its floor-template run multiplier"))
+        return 0;
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER
+            | REMASTER_EMERALD_BATTLE_TYPE_PYRAMID,
+        0x8u);
+    if (!remaster_emerald_battle_start(
+            &battle, &player, 1, &foe, 1))
+        return check(0, "Pyramid Run Away fixture should start");
+    battle.pyramid_run_multiplier = 80;
+    battle.battlers[0].ability = TEST_ABILITY_RUN_AWAY;
+    battle.battlers[0].pokemon.speed = 50;
+    battle.battlers[1].pokemon.speed = 100;
+    remaster_emerald_battle_rng_seed(&battle.rng, 0x8u);
+    if (!check(
+            remaster_emerald_battle_try_run(&battle, 0)
+                && battle.ended
+                && battle.outcome == REMASTER_EMERALD_BATTLE_OUTCOME_RAN
+                && battle.run_tries == 1
+                && battle.rng.calls == 1,
+            "Pyramid Run Away must increment runTries before its RNG formula"))
+        return 0;
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER,
+        0xF0EF1E01u);
+    if (!remaster_emerald_battle_start(
+            &battle, &player, 1, &foe, 1))
+        return check(0, "foe-flee fixture should start");
+    if (!check(
+            remaster_emerald_battle_try_run(&battle, 1)
+                && battle.ended
+                && battle.outcome
+                    == REMASTER_EMERALD_BATTLE_OUTCOME_MON_FLED,
+            "a non-player battler run action must resolve as MON_FLED"))
+        return 0;
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER,
+        0xF0EF1E02u);
+    if (!remaster_emerald_battle_start(
+            &battle, &player, 1, &foe, 1))
+        return check(0, "trapped foe-flee fixture should start");
+    battle.battlers[1].status2 = REMASTER_EMERALD_STATUS2_WRAPPED;
+    if (!check(
+            !remaster_emerald_battle_try_run(&battle, 1)
+                && !battle.ended,
+            "wrapped non-player battlers must fail their run action"))
         return 0;
 
     remaster_emerald_battle_state_init(
