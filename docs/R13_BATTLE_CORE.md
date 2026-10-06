@@ -3,7 +3,7 @@
 Date: 2026-10-06  
 Branch: `r13-battle-core`  
 PR: #13 — R13: portable deterministic battle core  
-Acceptance implementation head before documentation: `887615d3829cb7c48ff096a2029dcfa849e25e2c`
+Acceptance implementation head before final documentation: `f6e051b8240d08a81fc19fa772db1513f8fb0eef`
 
 ## Status
 
@@ -170,17 +170,28 @@ Escape lifecycle regressions cover:
 
 - a FIRST battle rejecting ordinary escape;
 - Safari run ending immediately;
-- Battle Frontier trainer run resolving as a forfeit;
+- Battle Frontier trainer run resolving as a forfeit before ability/item
+  escape shortcuts;
+- ordinary trainer battles rejecting Run Away rather than letting the ability
+  bypass trainer-battle rules;
 - player-side link run resolving to the final local loss outcome;
+- non-player run actions resolving to `MON_FLED`, with Emerald's
+  wrap/escape-prevention failure path;
 - equal-speed single battles escaping without consuming RNG;
 - a dedicated `run_tries` counter rather than using battle turn count;
+- Emerald's `u8 speedVar` truncation/overflow semantics for escape checks;
 - ordinary doubles not using the single-battle speed escape check;
-- Run Away / always-run held-item hooks;
+- Run Away / always-run held-item ordering relative to field trapping;
+- Battle Pyramid floor-template run multipliers derived from the original
+  SaveBlock2 `curChallengeBattleNum` and `pyramidRandoms[3]` fields;
+- Battle Pyramid's special Run Away ordering, where `runTries` increments
+  before the multiplier/RNG formula;
 - field trapping checks.
 
-Special-mode lifecycle also includes the explicitly used Arena, Safari,
-Link/Recorded Link and Frontier gating in the portable battle core. Facility
-presentation and later platform/runtime integration remain outside R13.
+Special-mode lifecycle also includes the explicitly represented Arena, Safari,
+Link/Recorded Link and Frontier/Pyramid gating in the portable battle core.
+Facility world/challenge orchestration, presentation and later platform/runtime
+integration remain outside R13.
 
 ## Save-domain and presentation boundary
 
@@ -195,11 +206,11 @@ that presentation code does not own battle math or outcome calculation.
 ## Regression evidence
 
 Acceptance implementation head:
-`887615d3829cb7c48ff096a2029dcfa849e25e2c`.
+`f6e051b8240d08a81fc19fa772db1513f8fb0eef`.
 
 Dedicated R13 run:
 
-- R13 Battle #325 — run `37418751595` — SUCCESS.
+- R13 Battle #341 — run `37419838436` — SUCCESS.
 
 The job passed:
 
@@ -211,12 +222,12 @@ The job passed:
 
 Same-head earlier-phase regression gates:
 
-- R0 Core #1193 — run `37418751598` — SUCCESS;
-- R4 Overworld #290 — run `37418751674` — SUCCESS;
-- R5 World Renderer #311 — run `37418751600` — SUCCESS;
-- R10 Quest Map #208 — run `37418751614` — SUCCESS;
-- R11 Pokémon / Party / Item #208 — run `37418751661` — SUCCESS;
-- R12 Encounter #207 — run `37418751613` — SUCCESS.
+- R0 Core #1201 — run `37419838464` — SUCCESS;
+- R4 Overworld #298 — run `37419838434` — SUCCESS;
+- R5 World Renderer #319 — run `37419838466` — SUCCESS;
+- R10 Quest Map #216 — run `37419838612` — SUCCESS;
+- R11 Pokémon / Party / Item #216 — run `37419838493` — SUCCESS;
+- R12 Encounter #215 — run `37419838427` — SUCCESS.
 
 PR #13 is open and mergeable on the acceptance implementation head.
 
@@ -240,6 +251,8 @@ PR #13 is open and mergeable on the acceptance implementation head.
 - [x] progression/faint/replacement ordering;
 - [x] post-battle evolution handoff ordering;
 - [x] special escape lifecycle;
+- [x] Battle Pyramid save-derived escape multiplier and Run Away semantics;
+- [x] foe `MON_FLED` run lifecycle;
 - [x] wild capture;
 - [x] player-party/save result propagation;
 - [x] deterministic replay coverage;
