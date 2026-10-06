@@ -1,0 +1,49 @@
+name: R16 Vanilla+ QoL
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+      - r16-**
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: r16-qol-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qol-core:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build R16 targets
+        run: >-
+          cmake --build build --config Release --target
+          emerald_qol_test
+          unreal_cpp_embed_smoke
+
+      - name: Run R16 regressions
+        run: >-
+          ctest --test-dir build -C Release
+          -R "r16_qol_behavior|r16_qol_source_audit|unreal_cpp_embed"
+          --output-on-failure
+
+      - name: Audit pinned Vanilla+ QoL contract
+        run: python -m unittest tests/test_r16_qol_source.py -v
+
+      - name: Validate Unreal source boundary
+        run: python tools/validate_unreal_source.py
