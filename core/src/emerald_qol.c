@@ -182,6 +182,15 @@ static uint16_t bag_key(const RemasterEmeraldSave *save)
         : (uint16_t)read32(save->save_block2 + SB2_ENCRYPTION_KEY);
 }
 
+static int item_view_valid(const RemasterEmeraldQolItemView *view)
+{
+    return view != 0
+        && view->offset <= REMASTER_EMERALD_SAVE_BLOCK1_BYTES
+        && view->capacity <=
+            (REMASTER_EMERALD_SAVE_BLOCK1_BYTES - view->offset)
+                / ITEM_SLOT_BYTES;
+}
+
 static uint8_t *item_slot_ptr(
     RemasterEmeraldSave *save,
     const RemasterEmeraldQolItemView *view,
@@ -268,6 +277,9 @@ static size_t compact_item_slots(
 {
     size_t read_slot;
     size_t write_slot = 0;
+
+    if (save == 0 || !item_view_valid(view))
+        return 0;
 
     for (read_slot = 0; read_slot < view->capacity; ++read_slot) {
         uint8_t *raw = item_slot_ptr(save, view, read_slot);
