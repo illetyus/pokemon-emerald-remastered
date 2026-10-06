@@ -22,6 +22,7 @@ typedef enum RemasterEmeraldBagPocket {
 typedef struct RemasterEmeraldItemInfo {
     uint16_t item_id;
     uint16_t price;
+    uint16_t name_sort_rank;
     uint8_t pocket;
     uint8_t hold_effect;
     uint8_t hold_effect_param;

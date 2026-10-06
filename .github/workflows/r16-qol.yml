@@ -42,8 +42,23 @@ jobs:
           -R "r16_qol_behavior|r16_qol_source_audit|unreal_cpp_embed"
           --output-on-failure
 
+      - name: Run R16 item management regressions
+        run: |
+          cc -std=c99 -Wall -Wextra -Wpedantic -Werror \
+            -Icore/include \
+            tests/emerald_qol_items_test.c \
+            build/libremaster_core.a \
+            -o build/emerald_qol_items_test
+          ./build/emerald_qol_items_test
+
       - name: Audit pinned Vanilla+ QoL contract
         run: python -m unittest tests/test_r16_qol_source.py -v
 
+      - name: Audit exhaustive R16 decision ledger
+        run: python -m unittest tests/test_r16_qol_decisions.py -v
+
       - name: Validate Unreal source boundary
         run: python tools/validate_unreal_source.py
+
+      - name: Run R16 closure RED gates
+        run: python -m unittest tests/test_r16_qol_red.py -v

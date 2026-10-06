@@ -155,7 +155,11 @@ def field_expr(block: str, name: str, default: str = "0") -> str:
     return m.group(1).strip() if m else default
 
 
-def pair_expr(block: str, name: str, default: tuple[str, str] = ("0", "0")) -> tuple[str, str]:
+def pair_expr(
+    block: str,
+    name: str,
+    default: tuple[str, str] = ("0", "0"),
+) -> tuple[str, str]:
     m = re.search(
         rf"\.{re.escape(name)}\s*=\s*\{{\s*([^,}}]+)\s*,\s*([^,}}]+)\s*,?\s*\}}",
         block,
@@ -163,6 +167,117 @@ def pair_expr(block: str, name: str, default: tuple[str, str] = ("0", "0")) -> t
     if not m:
         return default
     return m.group(1).strip(), m.group(2).strip()
+
+
+def parse_charmap(vendor: Path) -> dict[str, tuple[int, ...]]:
+    """Parse literal chars and named {TOKENS} into encoded byte runs."""
+    mapping: dict[str, tuple[int, ...]] = {}
+    text = (vendor / "charmap.txt").read_text(encoding="utf-8")
+    byte_run = r"([0-9A-Fa-f]{2}(?:\s+[0-9A-Fa-f]{2})*)"
+
+    for original in text.splitlines():
+        raw = original.split("@", 1)[0].strip()
+        if not raw:
+            continue
+
+        char_match = re.fullmatch(
+            rf"'((?:\\.|[^'])+)'\s*=\s*{byte_run}",
+            raw,
+        )
+        if char_match:
+            token = char_match.group(1)
+            if token == r"\'":
+                token = "'"
+            elif token == r"\\":
+                token = "\\"
+            if len(token) == 1:
+                mapping.setdefault(
+                    token,
+                    tuple(int(value, 16) for value in char_match.group(2).split()),
+                )
+            continue
+
+        named_match = re.fullmatch(
+            rf"([A-Za-z_][A-Za-z0-9_]*)\s*=\s*{byte_run}",
+            raw,
+        )
+        if named_match:
+            mapping.setdefault(
+                named_match.group(1),
+                tuple(int(value, 16) for value in named_match.group(2).split()),
+            )
+
+    return mapping
+
+
+def item_name(block: str) -> str:
+    match = re.search(r'\.name\s*=\s*_\("((?:\\.|[^"\\])*)"\)', block)
+    if not match:
+        raise CatalogError("item name missing")
+    return ast.literal_eval('"' + match.group(1) + '"')
+
+
+def turkish_sort_weight(encoded: int) -> int:
+    upper = [
+        1, 2, 3, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16,
+        17, 18, 20, 21, 22, 23, 25, 26, 28, 29, 30, 31, 32,
+    ]
+    lower = [
+        1, 2, 3, 5, 6, 7, 8, 10, 12, 13, 14, 15, 16,
+        17, 18, 20, 21, 22, 23, 25, 26, 28, 29, 30, 31, 32,
+    ]
+    if 0xBB <= encoded <= 0xD4:
+        return upper[encoded - 0xBB]
+    if 0xD5 <= encoded <= 0xEE:
+        return lower[encoded - 0xD5]
+    special = {
+        0x04: 4,
+        0x19: 4,
+        0x01: 9,
+        0x16: 9,
+        0x1E: 11,
+        0x09: 12,
+        0xF2: 19,
+        0xF5: 19,
+        0x05: 24,
+        0x1A: 24,
+        0xF3: 27,
+        0xF6: 27,
+        0xFF: 0,
+    }
+    return special.get(encoded, 0x100 + encoded)
+
+
+def item_name_sort_key(
+    name: str,
+    charmap: dict[str, tuple[int, ...]],
+) -> tuple[int, ...]:
+    key: list[int] = []
+    pos = 0
+    while pos < len(name):
+        if name[pos] == "{":
+            end = name.find("}", pos + 1)
+            if end < 0:
+                raise CatalogError(f"unterminated charmap token in item name: {name!r}")
+            token = name[pos + 1 : end]
+            encoded = charmap.get(token)
+            if encoded is None:
+                raise CatalogError(
+                    f"item-name token missing from charmap: {token!r} in {name!r}"
+                )
+            pos = end + 1
+        else:
+            char = name[pos]
+            encoded = charmap.get(char)
+            if encoded is None:
+                raise CatalogError(
+                    f"item-name character missing from charmap: {char!r} in {name!r}"
+                )
+            pos += 1
+
+        key.extend(turkish_sort_weight(byte) for byte in encoded)
+
+    return tuple(key)
 
 
 def old_unown_block(text: str) -> str:
@@ -184,7 +299,10 @@ def old_unown_block(text: str) -> str:
     raise CatalogError("OLD_UNOWN_SPECIES_INFO body unterminated")
 
 
-def parse_species(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, Any]], list[int]]:
+def parse_species(
+    vendor: Path,
+    r: DefineResolver,
+) -> tuple[list[dict[str, Any]], list[int]]:
     text = (vendor / "src/data/pokemon/species_info.h").read_text(encoding="utf-8")
     blocks = extract_blocks(text)
     old = old_unown_block(text)
@@ -217,8 +335,14 @@ def parse_species(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, Any]]
             }
             continue
 
-        base_names = ["baseHP","baseAttack","baseDefense","baseSpeed","baseSpAttack","baseSpDefense"]
-        ev_names = ["evYield_HP","evYield_Attack","evYield_Defense","evYield_Speed","evYield_SpAttack","evYield_SpDefense"]
+        base_names = [
+            "baseHP", "baseAttack", "baseDefense",
+            "baseSpeed", "baseSpAttack", "baseSpDefense",
+        ]
+        ev_names = [
+            "evYield_HP", "evYield_Attack", "evYield_Defense",
+            "evYield_Speed", "evYield_SpAttack", "evYield_SpDefense",
+        ]
         types = pair_expr(block, "types")
         eggs = pair_expr(block, "eggGroups")
         abilities = pair_expr(block, "abilities")
@@ -245,7 +369,10 @@ def parse_species(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, Any]]
     return [row or {} for row in data], missing
 
 
-def parse_moves(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, int]], list[int]]:
+def parse_moves(
+    vendor: Path,
+    r: DefineResolver,
+) -> tuple[list[dict[str, int]], list[int]]:
     text = (vendor / "src/data/battle_moves.h").read_text(encoding="utf-8")
     blocks = extract_blocks(text)
     count = r.resolve("MOVES_COUNT")
@@ -256,7 +383,10 @@ def parse_moves(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, int]], 
         move_id = r.resolve(symbol)
         if move_id >= count:
             continue
-        fields = ["effect","power","type","accuracy","pp","secondaryEffectChance","target","priority","flags"]
+        fields = [
+            "effect", "power", "type", "accuracy", "pp",
+            "secondaryEffectChance", "target", "priority", "flags",
+        ]
         data[move_id] = {"id": move_id}
         for name in fields:
             data[move_id][name] = r.eval_expr(field_expr(block, name))
@@ -264,11 +394,15 @@ def parse_moves(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, int]], 
     return [row or {} for row in data], missing
 
 
-def parse_items(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, int]], list[int]]:
+def parse_items(
+    vendor: Path,
+    r: DefineResolver,
+) -> tuple[list[dict[str, Any]], list[int]]:
     text = (vendor / "src/data/items.h").read_text(encoding="utf-8")
     blocks = extract_blocks(text)
+    charmap = parse_charmap(vendor)
     count = r.resolve("ITEMS_COUNT")
-    data: list[dict[str, int] | None] = [None] * count
+    data: list[dict[str, Any] | None] = [None] * count
     for symbol, block in blocks.items():
         if not symbol.startswith("ITEM_"):
             continue
@@ -280,6 +414,7 @@ def parse_items(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, int]], 
             continue
         data[item_id] = {
             "id": item_id,
+            "name": item_name(block),
             "price": r.eval_expr(field_expr(block, "price")),
             "pocket": r.eval_expr(field_expr(block, "pocket")),
             "hold_effect": r.eval_expr(field_expr(block, "holdEffect")),
@@ -289,13 +424,29 @@ def parse_items(vendor: Path, r: DefineResolver) -> tuple[list[dict[str, int]], 
             "battle_usage": r.eval_expr(field_expr(block, "battleUsage")),
             "secondary_id": r.eval_expr(field_expr(block, "secondaryId")),
         }
+
     missing = [i for i, row in enumerate(data) if row is None]
-    return [row or {} for row in data], missing
+    rows = [row or {} for row in data]
+    if not missing:
+        ordered = sorted(
+            rows,
+            key=lambda row: (
+                item_name_sort_key(str(row["name"]), charmap),
+                int(row["id"]),
+            ),
+        )
+        for rank, row in enumerate(ordered):
+            row["name_sort_rank"] = rank
+    return rows, missing
 
 
-def parse_evolutions(vendor: Path, r: DefineResolver, species_count: int) -> list[list[tuple[int,int,int]]]:
+def parse_evolutions(
+    vendor: Path,
+    r: DefineResolver,
+    species_count: int,
+) -> list[list[tuple[int, int, int]]]:
     text = (vendor / "src/data/pokemon/evolution.h").read_text(encoding="utf-8")
-    table = [[(0,0,0) for _ in range(5)] for _ in range(species_count)]
+    table = [[(0, 0, 0) for _ in range(5)] for _ in range(species_count)]
     pattern = re.compile(r"\[(SPECIES_[A-Z0-9_]+)\]\s*=\s*\{")
     for match in pattern.finditer(text):
         species_id = r.resolve(match.group(1))
@@ -312,7 +463,7 @@ def parse_evolutions(vendor: Path, r: DefineResolver, species_count: int) -> lis
                 if depth == 0:
                     break
             end += 1
-        block = text[start:end+1]
+        block = text[start : end + 1]
         triples = re.findall(
             r"\{\s*([^,{}]+)\s*,\s*([^,{}]+)\s*,\s*([^,{}]+)\s*\}",
             block,
@@ -346,9 +497,7 @@ def parse_level_up_learnsets(
             r"LEVEL_UP_MOVE\(\s*(\d+)\s*,\s*(MOVE_[A-Z0-9_]+)\s*\)",
             match.group(2),
         ):
-            entries.append(
-                (int(item.group(1)), r.resolve(item.group(2)))
-            )
+            entries.append((int(item.group(1)), r.resolve(item.group(2))))
         arrays[match.group(1)] = entries
 
     pointer_by_species: dict[int, str] = {}
@@ -378,8 +527,8 @@ def parse_level_up_learnsets(
 def render(
     species: list[dict[str, Any]],
     moves: list[dict[str, int]],
-    items: list[dict[str, int]],
-    evolutions: list[list[tuple[int,int,int]]],
+    items: list[dict[str, Any]],
+    evolutions: list[list[tuple[int, int, int]]],
     level_up_moves: list[tuple[int, int]],
     level_up_slices: list[tuple[int, int]],
 ) -> str:
@@ -396,12 +545,18 @@ def render(
             + ",".join(str(x) for x in s["base"])
             + f",{s['types'][0]},{s['types'][1]},{s['catch']},{s['exp']},"
             + "{" + ",".join(str(x) for x in s["ev"]) + "},"
-            + f"{s['items'][0]},{s['items'][1]},{s['female_threshold']},{s['egg_cycles']},{s['friendship']},{s['growth']},"
+            + f"{s['items'][0]},{s['items'][1]},{s['female_threshold']},"
+            + f"{s['egg_cycles']},{s['friendship']},{s['growth']},"
             + "{" + ",".join(str(x) for x in s["egg_groups"]) + "},"
             + "{" + ",".join(str(x) for x in s["abilities"]) + "}"
             + "},"
         )
-    lines.extend(["};", "", "static const RemasterEmeraldMoveInfo kRemasterEmeraldMoveInfo[] = {"])
+
+    lines.extend([
+        "};",
+        "",
+        "static const RemasterEmeraldMoveInfo kRemasterEmeraldMoveInfo[] = {",
+    ])
     for m in moves:
         lines.append(
             "    {"
@@ -409,42 +564,51 @@ def render(
             f"{m['secondaryEffectChance']},{m['target']},{m['priority']},{m['flags']}"
             "},"
         )
-    lines.extend(["};", "", "const RemasterEmeraldItemInfo kRemasterEmeraldItemInfo[] = {"])
+
+    lines.extend([
+        "};",
+        "",
+        "const RemasterEmeraldItemInfo kRemasterEmeraldItemInfo[] = {",
+    ])
     for item in items:
         lines.append(
             "    {"
-            f"{item['id']},{item['price']},{item['pocket']},{item['hold_effect']},"
-            f"{item['hold_effect_param']},{item['importance']},{item['type']},"
-            f"{item['battle_usage']},{item['secondary_id']}"
+            f"{item['id']},{item['price']},{item['name_sort_rank']},{item['pocket']},"
+            f"{item['hold_effect']},{item['hold_effect_param']},{item['importance']},"
+            f"{item['type']},{item['battle_usage']},{item['secondary_id']}"
             "},"
         )
-    lines.extend(["};", "", "static const RemasterEmeraldEvolution kRemasterEmeraldEvolutionTable[][5] = {"])
+
+    lines.extend([
+        "};",
+        "",
+        "static const RemasterEmeraldEvolution kRemasterEmeraldEvolutionTable[][5] = {",
+    ])
     for row in evolutions:
         lines.append(
             "    {"
-            + ",".join("{" + ",".join(str(x) for x in triple) + "}" for triple in row)
+            + ",".join(
+                "{" + ",".join(str(x) for x in triple) + "}"
+                for triple in row
+            )
             + "},"
         )
-    lines.extend(
-        [
-            "};",
-            "",
-            "static const RemasterEmeraldLevelUpMove "
-            "kRemasterEmeraldLevelUpMoves[] = {",
-        ]
-    )
+
+    lines.extend([
+        "};",
+        "",
+        "static const RemasterEmeraldLevelUpMove kRemasterEmeraldLevelUpMoves[] = {",
+    ])
     lines.extend(
         f"    {{{move_id},{level}}},"
         for level, move_id in level_up_moves
     )
-    lines.extend(
-        [
-            "};",
-            "",
-            "static const uint16_t "
-            "kRemasterEmeraldLevelUpMoveSlices[][2] = {",
-        ]
-    )
+
+    lines.extend([
+        "};",
+        "",
+        "static const uint16_t kRemasterEmeraldLevelUpMoveSlices[][2] = {",
+    ])
     lines.extend(
         f"    {{{start},{count}}},"
         for start, count in level_up_slices
@@ -455,7 +619,10 @@ def render(
 
 def main() -> int:
     if len(sys.argv) != 4:
-        print("usage: build_r11_domain_catalog.py <vendor-root> <output.inc> <report.json>", file=sys.stderr)
+        print(
+            "usage: build_r11_domain_catalog.py <vendor-root> <output.inc> <report.json>",
+            file=sys.stderr,
+        )
         return 2
 
     vendor = Path(sys.argv[1]).resolve()
@@ -474,7 +641,8 @@ def main() -> int:
 
         if species_missing or moves_missing or items_missing:
             raise CatalogError(
-                f"missing source rows species={species_missing[:10]} moves={moves_missing[:10]} items={items_missing[:10]}"
+                f"missing source rows species={species_missing[:10]} "
+                f"moves={moves_missing[:10]} items={items_missing[:10]}"
             )
 
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -495,6 +663,7 @@ def main() -> int:
             "species_internal_count": len(species),
             "move_count": len(moves),
             "item_count": len(items),
+            "item_name_sort_rank_count": len(items),
             "evolution_slots_per_species": 5,
             "level_up_move_entry_count": len(level_up_moves),
             "level_up_learnset_species_count": populated_learnsets,

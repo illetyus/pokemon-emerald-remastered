@@ -97,6 +97,10 @@ static void test_policy(void)
 {
     RemasterEmeraldSave save;
     RemasterEmeraldQolHmTool tool;
+    RemasterEmeraldQolBikeToggleState bike;
+    RemasterEmeraldPartyPokemon p0;
+    RemasterEmeraldPartyPokemon p1;
+    uint8_t actor = 0xFFu;
     const uint16_t stones[] = {
         ITEM_SUN_STONE, ITEM_MOON_STONE, ITEM_FIRE_STONE,
         ITEM_THUNDER_STONE, ITEM_WATER_STONE, ITEM_LEAF_STONE
@@ -119,12 +123,54 @@ static void test_policy(void)
     assert(remaster_emerald_qol_field_poison_hp_after_step(10) == 9);
     assert(remaster_emerald_qol_field_poison_hp_after_step(1) == 1);
     assert(remaster_emerald_qol_flash_level_after_use() == 0);
+
     assert(remaster_emerald_qol_fishing_response_frames(0) == 90);
+    assert(remaster_emerald_qol_fishing_response_frames(1) == 90);
     assert(remaster_emerald_qol_fishing_response_frames(2) == 90);
-    assert(remaster_emerald_qol_fishing_reaction_rounds(1) == 0);
-    assert(remaster_emerald_qol_bike_toggle_allowed(1));
-    assert(!remaster_emerald_qol_bike_toggle_allowed(0));
-    assert(remaster_emerald_qol_running_allowed());
+    assert(remaster_emerald_qol_fishing_response_frames(3) == 0);
+    assert(remaster_emerald_qol_fishing_required_rounds(0, 0) == 1);
+    assert(remaster_emerald_qol_fishing_required_rounds(0, 65535) == 1);
+    assert(remaster_emerald_qol_fishing_required_rounds(1, 0) == 1);
+    assert(remaster_emerald_qol_fishing_required_rounds(1, 1) == 2);
+    assert(remaster_emerald_qol_fishing_required_rounds(1, 2) == 3);
+    assert(remaster_emerald_qol_fishing_required_rounds(1, 3) == 1);
+    assert(remaster_emerald_qol_fishing_required_rounds(2, 0) == 1);
+    assert(remaster_emerald_qol_fishing_required_rounds(2, 5) == 6);
+    assert(remaster_emerald_qol_fishing_required_rounds(2, 6) == 1);
+    assert(remaster_emerald_qol_fishing_required_rounds(3, 0) == 0);
+    assert(remaster_emerald_qol_fishing_optional_round_chance(0, 0) == 0);
+    assert(remaster_emerald_qol_fishing_optional_round_chance(1, 1) == 0);
+    assert(remaster_emerald_qol_fishing_optional_round_chance(2, 0) == 0);
+
+    assert(!remaster_emerald_qol_running_requires_shoes());
+    assert(remaster_emerald_qol_running_environment_allows(0, 0));
+    assert(!remaster_emerald_qol_running_environment_allows(1, 0));
+    assert(!remaster_emerald_qol_running_environment_allows(0, 1));
+
+    memset(&bike, 0, sizeof(bike));
+    bike.r_pressed = 1;
+    bike.on_mach_bike = 1;
+    bike.mach_speed_standing = 1;
+    assert(remaster_emerald_qol_bike_toggle_allowed(&bike));
+    bike.r_pressed = 0;
+    assert(!remaster_emerald_qol_bike_toggle_allowed(&bike));
+    bike.r_pressed = 1;
+    bike.cycling_road = 1;
+    assert(!remaster_emerald_qol_bike_toggle_allowed(&bike));
+    bike.cycling_road = 0;
+    bike.player_moving = 1;
+    assert(!remaster_emerald_qol_bike_toggle_allowed(&bike));
+    bike.player_moving = 0;
+    bike.mach_speed_standing = 0;
+    assert(!remaster_emerald_qol_bike_toggle_allowed(&bike));
+    bike.on_mach_bike = 0;
+    bike.on_acro_bike = 1;
+    bike.acro_state_normal = 1;
+    assert(remaster_emerald_qol_bike_toggle_allowed(&bike));
+    bike.acro_state_normal = 0;
+    assert(!remaster_emerald_qol_bike_toggle_allowed(&bike));
+    bike.on_acro_bike = 0;
+    assert(!remaster_emerald_qol_bike_toggle_allowed(&bike));
 
     assert(remaster_emerald_qol_hm_tool(ITEM_HM01, &tool));
     assert(tool.move_id == MOVE_CUT);
@@ -136,8 +182,28 @@ static void test_policy(void)
     memset(&save, 0, sizeof(save));
     assert(remaster_emerald_bag_add(&save, ITEM_HM03, 1));
     assert(!remaster_emerald_qol_hm_access(&save, ITEM_HM03));
+    assert(remaster_emerald_qol_hm_field_use(&save, ITEM_HM03, 0, 0)
+        == REMASTER_EMERALD_QOL_HM_FIELD_USE_NO_ACCESS);
     assert(remaster_emerald_flag_set(&save, FLAG_BADGE05_GET, 1));
     assert(remaster_emerald_qol_hm_access(&save, ITEM_HM03));
+    assert(remaster_emerald_qol_hm_field_use(&save, ITEM_HM03, 0, 0)
+        == REMASTER_EMERALD_QOL_HM_FIELD_USE_NO_ACTOR);
+
+    p0 = make_party(1, 20, 50, 801);
+    p1 = make_party(25, 20, 50, 802);
+    set_egg(&p0.box);
+    assert(remaster_emerald_party_set(&save, 0, &p0));
+    assert(remaster_emerald_party_set(&save, 1, &p1));
+    assert(remaster_emerald_party_set_count(&save, 2));
+    assert(remaster_emerald_qol_hm_field_actor(&save, &actor));
+    assert(actor == 1);
+    assert(remaster_emerald_qol_hm_field_use(
+        &save, ITEM_HM03, &tool, &actor)
+        == REMASTER_EMERALD_QOL_HM_FIELD_USE_OK);
+    assert(tool.move_id == MOVE_SURF);
+    assert(actor == 1);
+    assert(remaster_emerald_qol_hm_field_use(&save, ITEM_POTION, 0, 0)
+        == REMASTER_EMERALD_QOL_HM_FIELD_USE_INVALID_ITEM);
 }
 
 static void test_info(void)
@@ -263,6 +329,43 @@ static void test_transfer_and_items(void)
     assert(remaster_emerald_qol_quick_deposit_current_box(&save, 1)
         == REMASTER_EMERALD_QOL_TRANSFER_MAIL);
 
+    /* QOL-048: full party must reject withdraw without mutating save state. */
+    memset(&save, 0, sizeof(save));
+    for (size_t slot = 0; slot < REMASTER_EMERALD_PARTY_SIZE; ++slot) {
+        RemasterEmeraldPartyPokemon mon =
+            make_party(1, 20, 50, (uint32_t)(610 + slot));
+        assert(remaster_emerald_party_set(&save, (uint8_t)slot, &mon));
+    }
+    assert(remaster_emerald_party_set_count(
+        &save, REMASTER_EMERALD_PARTY_SIZE));
+    a = make_box(25, 10, 620);
+    assert(remaster_emerald_storage_set(&save, 0, 0, &a));
+    {
+        RemasterEmeraldSave before = save;
+        assert(remaster_emerald_qol_quick_withdraw_current_box(&save, 0)
+            == REMASTER_EMERALD_QOL_TRANSFER_PARTY_FULL);
+        assert(memcmp(&save, &before, sizeof(save)) == 0);
+    }
+
+    /* QOL-048: full current box must reject deposit without mutation. */
+    memset(&save, 0, sizeof(save));
+    p0 = make_party(1, 20, 50, 630);
+    p1 = make_party(25, 20, 50, 631);
+    assert(remaster_emerald_party_set(&save, 0, &p0));
+    assert(remaster_emerald_party_set(&save, 1, &p1));
+    assert(remaster_emerald_party_set_count(&save, 2));
+    for (size_t slot = 0; slot < REMASTER_EMERALD_STORAGE_BOX_CAPACITY; ++slot) {
+        RemasterEmeraldBoxPokemon mon =
+            make_box(1, 10, (uint32_t)(640 + slot));
+        assert(remaster_emerald_storage_set(&save, 0, slot, &mon));
+    }
+    {
+        RemasterEmeraldSave before = save;
+        assert(remaster_emerald_qol_quick_deposit_current_box(&save, 1)
+            == REMASTER_EMERALD_QOL_TRANSFER_BOX_FULL);
+        assert(memcmp(&save, &before, sizeof(save)) == 0);
+    }
+
     a = make_box(1, 10, 701);
     b = make_box(25, 10, 702);
     assert(remaster_emerald_box_pokemon_set_held_item(&a, ITEM_POTION));
@@ -291,8 +394,92 @@ static void test_quick_items(void)
     assert(remaster_emerald_qol_quick_item_count(&save) == 0);
 }
 
+
+static void test_move_relearner(void)
+{
+    enum { HEART_SCALE = 111 };
+    RemasterEmeraldSave save;
+    RemasterEmeraldPartyPokemon mon;
+    uint16_t candidates[32];
+    uint16_t moves[4];
+    uint8_t pp[4];
+    size_t count;
+    size_t i;
+    uint16_t chosen = 0;
+
+    memset(&save, 0, sizeof(save));
+    assert(remaster_emerald_qol_move_relearner_status(&save, 0)
+        == REMASTER_EMERALD_QOL_MOVE_RELEARNER_INVALID);
+
+    mon = make_party(2, 10, 20, 1234); /* Ivysaur: duplicate Growl/Leech Seed entries. */
+    assert(remaster_emerald_party_set_count(&save, 1));
+    assert(remaster_emerald_party_set(&save, 0, &mon));
+    set_egg(&mon.box);
+    assert(remaster_emerald_party_set(&save, 0, &mon));
+    assert(remaster_emerald_qol_move_relearner_status(&save, 0)
+        == REMASTER_EMERALD_QOL_MOVE_RELEARNER_EGG);
+
+    mon = make_party(2, 10, 20, 1234);
+    assert(remaster_emerald_party_set(&save, 0, &mon));
+    assert(remaster_emerald_qol_move_relearner_status(&save, 0)
+        == REMASTER_EMERALD_QOL_MOVE_RELEARNER_NO_SCALE);
+    assert(remaster_emerald_bag_add(&save, HEART_SCALE, 2));
+
+    count = remaster_emerald_qol_move_relearner_candidates(
+        &save, 0, candidates, 32);
+    assert(count > 0);
+    for (i = 0; i < count; ++i) {
+        size_t j;
+        assert(candidates[i] != 0);
+        for (j = 0; j < i; ++j)
+            assert(candidates[j] != candidates[i]);
+    }
+    chosen = candidates[0];
+
+    assert(remaster_emerald_box_pokemon_set_move(&mon.box, 0, chosen, 1));
+    assert(remaster_emerald_party_set(&save, 0, &mon));
+    count = remaster_emerald_qol_move_relearner_candidates(
+        &save, 0, candidates, 32);
+    for (i = 0; i < count; ++i)
+        assert(candidates[i] != chosen);
+
+    mon = make_party(2, 10, 20, 1234);
+    assert(remaster_emerald_party_set(&save, 0, &mon));
+    count = remaster_emerald_qol_move_relearner_candidates(
+        &save, 0, candidates, 32);
+    assert(count > 0);
+    chosen = candidates[0];
+    assert(!remaster_emerald_qol_move_relearner_learn(&save, 0, 0, 0));
+    assert(remaster_emerald_bag_count(&save, HEART_SCALE) == 2);
+    assert(remaster_emerald_qol_move_relearner_learn(&save, 0, chosen, 3));
+    assert(remaster_emerald_bag_count(&save, HEART_SCALE) == 1);
+    assert(remaster_emerald_party_get(&save, 0, &mon, 0));
+    remaster_emerald_box_pokemon_moves(&mon.box, moves, pp);
+    assert(moves[0] == chosen); /* first empty slot wins */
+    assert(pp[0] == remaster_emerald_move_info(chosen)->pp);
+
+    count = remaster_emerald_qol_move_relearner_candidates(
+        &save, 0, candidates, 32);
+    assert(count > 0);
+    chosen = candidates[0];
+    for (i = 0; i < 4; ++i)
+        assert(remaster_emerald_box_pokemon_set_move(
+            &mon.box, i, (uint16_t)(1 + i), 1));
+    mon.box.substruct[0][8] = 0xFFu;
+    assert(remaster_emerald_party_set(&save, 0, &mon));
+    assert(remaster_emerald_qol_move_relearner_learn(&save, 0, chosen, 2));
+    assert(remaster_emerald_bag_count(&save, HEART_SCALE) == 0);
+    assert(remaster_emerald_party_get(&save, 0, &mon, 0));
+    remaster_emerald_box_pokemon_moves(&mon.box, moves, pp);
+    assert(moves[2] == chosen);
+    assert(pp[2] == remaster_emerald_move_info(chosen)->pp);
+    assert((mon.box.substruct[0][8] & 0x30u) == 0);
+    assert((mon.box.substruct[0][8] & 0xCFu) == 0xCFu);
+}
+
 int main(void)
 {
+    test_move_relearner();
     test_policy();
     test_info();
     test_storage();
