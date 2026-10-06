@@ -6845,6 +6845,13 @@ static int battle_ai_find_counter_switch(
     return 0;
 }
 
+static int battle_ai_find_best_switch(
+    const RemasterEmeraldBattleState *battle,
+    uint8_t battler,
+    uint8_t target,
+    int require_super_effective,
+    uint8_t *out_slot);
+
 static int battle_ai_find_suitable_switch(
     const RemasterEmeraldBattleState *battle,
     uint8_t battler,
