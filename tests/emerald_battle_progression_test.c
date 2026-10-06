@@ -78,7 +78,7 @@ static int make_mon(
     return 1;
 }
 
-int main(void)
+static int test_win_defers_evolution_until_after_battle(void)
 {
     static const uint16_t player_moves[4] = {98, 33, 0, 0};
     static const uint16_t foe_moves[4] = {33, 0, 0, 0};
@@ -91,6 +91,11 @@ int main(void)
     int saw_level = 0;
     int saw_learn = 0;
     int saw_evolution_check = 0;
+    size_t exp_event = SIZE_MAX;
+    size_t level_event = SIZE_MAX;
+    size_t learn_event = SIZE_MAX;
+    size_t ended_event = SIZE_MAX;
+    size_t evolution_event = SIZE_MAX;
     size_t i;
 
     if (!check(
@@ -143,6 +148,22 @@ int main(void)
     for (i = 0; i < battle.event_count; ++i) {
         const RemasterEmeraldBattleEvent *event = &battle.events[i];
 
+        if (event->kind == REMASTER_EMERALD_BATTLE_EVENT_EXP
+            && exp_event == SIZE_MAX)
+            exp_event = i;
+        if (event->kind == REMASTER_EMERALD_BATTLE_EVENT_LEVEL_UP
+            && level_event == SIZE_MAX)
+            level_event = i;
+        if (event->kind == REMASTER_EMERALD_BATTLE_EVENT_MOVE_LEARN
+            && learn_event == SIZE_MAX)
+            learn_event = i;
+        if (event->kind == REMASTER_EMERALD_BATTLE_EVENT_ENDED
+            && ended_event == SIZE_MAX)
+            ended_event = i;
+        if (event->kind == REMASTER_EMERALD_BATTLE_EVENT_EVOLUTION_CHECK
+            && evolution_event == SIZE_MAX)
+            evolution_event = i;
+
         if (event->kind == REMASTER_EMERALD_BATTLE_EVENT_LEVEL_UP
             && event->battler == 0
             && event->value == 7)
@@ -172,6 +193,15 @@ int main(void)
             "level-up should hand off a normal evolution check"))
         return 1;
 
+    if (!check(
+            exp_event < level_event
+                && level_event < learn_event
+                && learn_event < ended_event
+                && ended_event < evolution_event,
+            "Emerald progression order must defer evolution until "
+            "after the battle has ended with a win"))
+        return 1;
+
     for (i = 0; i < REMASTER_EMERALD_MAX_MOVES; ++i) {
         if (!check(
                 battle.battlers[0].moves[i] != 73,
@@ -182,6 +212,97 @@ int main(void)
     if (!check(
             battle.battlers[0].species == 1,
             "battle core must not auto-evolve during handoff"))
+        return 1;
+
+    return 1;
+}
+
+static int test_loss_does_not_emit_evolution_handoff(void)
+{
+    static const uint16_t player_moves[4] = {98, 33, 0, 0};
+    static const uint16_t weak_moves[4] = {33, 0, 0, 0};
+    static const uint16_t strong_moves[4] = {98, 0, 0, 0};
+    RemasterEmeraldBattleState battle;
+    RemasterEmeraldPartyPokemon player;
+    RemasterEmeraldPartyPokemon foes[2];
+    RemasterEmeraldBattleAction actions[
+        REMASTER_EMERALD_BATTLE_MAX_BATTLERS] = {{0}};
+    uint32_t level7_exp;
+    size_t i;
+
+    if (!make_mon(&player, 1, 6, player_moves)
+        || !make_mon(&foes[0], 4, 1, weak_moves)
+        || !make_mon(&foes[1], 7, 60, strong_moves))
+        return check(0, "loss progression fixtures should build");
+
+    level7_exp = remaster_emerald_experience_for_level(
+        remaster_emerald_species_info(1)->growth_rate,
+        7);
+    if (!remaster_emerald_box_pokemon_set_experience(
+            &player.box, level7_exp - 1u))
+        return check(0, "loss progression EXP fixture should build");
+    player.box.checksum =
+        remaster_emerald_box_pokemon_checksum(&player.box);
+    foes[0].hp = 1;
+    foes[0].box.checksum =
+        remaster_emerald_box_pokemon_checksum(&foes[0].box);
+
+    remaster_emerald_battle_state_init(
+        &battle,
+        REMASTER_EMERALD_BATTLE_TYPE_MASTER
+            | REMASTER_EMERALD_BATTLE_TYPE_TRAINER,
+        0x10E50001u);
+    if (!remaster_emerald_battle_start(
+            &battle, &player, 1, foes, 2))
+        return check(0, "loss progression battle should start");
+
+    actions[0].kind = REMASTER_EMERALD_BATTLE_ACTION_MOVE;
+    actions[0].move_slot = 0;
+    actions[0].target = 1;
+    if (!remaster_emerald_battle_resolve_turn(&battle, actions))
+        return check(0, "loss progression first KO should resolve");
+
+    for (i = 0; i < battle.event_count; ++i) {
+        if (battle.events[i].kind
+            == REMASTER_EMERALD_BATTLE_EVENT_EVOLUTION_CHECK)
+            return check(
+                0,
+                "evolution handoff must not happen before battle outcome");
+    }
+
+    memset(actions, 0, sizeof(actions));
+    if (!remaster_emerald_battle_resolve_turn(&battle, actions))
+        return check(0, "loss progression replacement should resolve");
+
+    battle.battlers[0].pokemon.hp = 1;
+    battle.parties[0][0].hp = 1;
+    memset(actions, 0, sizeof(actions));
+    if (!remaster_emerald_battle_resolve_turn(&battle, actions))
+        return check(0, "loss progression losing turn should resolve");
+
+    if (!check(
+            battle.ended
+                && battle.outcome
+                    == REMASTER_EMERALD_BATTLE_OUTCOME_LOST,
+            "loss progression battle should end in defeat"))
+        return 0;
+
+    for (i = 0; i < battle.event_count; ++i) {
+        if (battle.events[i].kind
+            == REMASTER_EMERALD_BATTLE_EVENT_EVOLUTION_CHECK)
+            return check(
+                0,
+                "a battle loss must not emit post-battle evolution");
+    }
+
+    return 1;
+}
+
+int main(void)
+{
+    if (!test_win_defers_evolution_until_after_battle())
+        return 1;
+    if (!test_loss_does_not_emit_evolution_handoff())
         return 1;
 
     puts("r13 progression handoff test passed");
