@@ -304,6 +304,7 @@ typedef struct RemasterEmeraldBattleState {
     uint16_t future_move[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
     uint16_t future_damage[REMASTER_EMERALD_BATTLE_MAX_BATTLERS];
     uint32_t turn_number;
+    uint8_t run_tries;
     uint8_t outcome;
     uint8_t ended;
     uint8_t caught_valid;
