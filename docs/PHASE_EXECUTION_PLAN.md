@@ -722,7 +722,12 @@ complete with the authoritative contract versioned in
 `docs/R17_SAVE_COMPAT_CONTRACT.md`.
 
 Resume at **R17-I1 — Slot/sector validation**. Start with the authoritative
-SaveBlock/checksum geometry and the regressions that currently pin the wrong
-remaster block sizes. Do not advance to domain reconstruction until I1 verifies
-slot choice, sector IDs/signatures, checksum spans, rotation and counter
-coherence.
+compiled stock/Vanilla+ layout distinction and independent checksum fixtures.
+P2 closure remeasured the production AGBCC layout: existing remaster block sizes
+`0xF44` / `0x3DC8` are correct for pinned Vanilla+; the earlier P2 contract had
+mistaken stale comments for compiled sizes. Production VP5 metadata is at
+compiled `SaveBlock1.unused_3598=0x35D8`; the remaster literal `0x3598` is an I4
+gap. Evidence and format policy are in `docs/R17_SAVE_COMPAT_CONTRACT.md`.
+Do not advance to domain reconstruction until I1 verifies format-specific
+checksum spans, slot choice, sector IDs/signatures, rotation and the explicit
+counter-coherence policy. No gameplay/implementation change belongs to P2.
