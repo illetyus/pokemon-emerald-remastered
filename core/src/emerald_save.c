@@ -352,21 +352,32 @@ static const uint8_t *logical_payload(
         * REMASTER_EMERALD_SECTOR_DATA_BYTES;
 }
 
-int remaster_emerald_save_encode_next(
+/* Preparing scratch bytes is separate from committing caller-visible state. */
+typedef struct SaveWritePlan {
+    uint32_t counter;
+    uint16_t last_written_sector;
+    uint8_t selected_slot;
+} SaveWritePlan;
+
+static int prepare_next_image(
     uint8_t *image,
     size_t image_size,
-    RemasterEmeraldSave *save)
+    const RemasterEmeraldSave *save,
+    SaveWritePlan *plan)
 {
     uint16_t id;
     uint16_t next_rotation;
     uint32_t next_counter;
     uint8_t next_slot;
+    RemasterEmeraldSaveFormat format;
 
-    /* I2 imports stock bytes without migration. Stock export is an I3 task. */
-    if (image == 0 || save == 0 || save->source_is_stock
+    if (image == 0 || save == 0 || save->source_is_stock > 1u
         || image_size != REMASTER_EMERALD_SAVE_IMAGE_BYTES)
         return 0;
 
+    format = save->source_is_stock
+        ? REMASTER_EMERALD_SAVE_FORMAT_STOCK
+        : REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS;
     next_rotation =
         (uint16_t)((save->last_written_sector + 1u)
             % REMASTER_EMERALD_MAIN_SECTORS);
@@ -382,7 +393,7 @@ int remaster_emerald_save_encode_next(
         uint8_t *sector =
             image + sector_index * REMASTER_EMERALD_SECTOR_BYTES;
         const uint8_t *payload = logical_payload(save, id);
-        const size_t size = logical_sector_size(id, REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS);
+        const size_t size = logical_sector_size(id, format);
 
         memset(sector, 0, REMASTER_EMERALD_SECTOR_BYTES);
         memcpy(sector, payload, size);
@@ -395,11 +406,30 @@ int remaster_emerald_save_encode_next(
         emerald_write_u32_le(sector + FOOTER_COUNTER_OFFSET, next_counter);
     }
 
-    save->counter = next_counter;
-    save->last_written_sector = next_rotation;
-    save->selected_slot = next_slot;
-    save->status = REMASTER_EMERALD_SAVE_OK;
+    plan->counter = next_counter;
+    plan->last_written_sector = next_rotation;
+    plan->selected_slot = next_slot;
 
+    return 1;
+}
+
+static void commit_write_plan(RemasterEmeraldSave *save, const SaveWritePlan *plan)
+{
+    save->counter = plan->counter;
+    save->last_written_sector = plan->last_written_sector;
+    save->selected_slot = plan->selected_slot;
+    save->status = REMASTER_EMERALD_SAVE_OK;
+}
+
+int remaster_emerald_save_encode_next(
+    uint8_t *image,
+    size_t image_size,
+    RemasterEmeraldSave *save)
+{
+    SaveWritePlan plan;
+    if (!prepare_next_image(image, image_size, save, &plan))
+        return 0;
+    commit_write_plan(save, &plan);
     return 1;
 }
 
@@ -510,6 +540,7 @@ int remaster_emerald_save_store_platform(
 {
     const RemasterPlatformVTable *platform = remaster_platform_get();
     size_t size = 0;
+    SaveWritePlan plan;
 
     if (save == 0 || scratch_image == 0
         || scratch_size < REMASTER_EMERALD_SAVE_IMAGE_BYTES
@@ -530,15 +561,20 @@ int remaster_emerald_save_store_platform(
             REMASTER_EMERALD_SAVE_IMAGE_BYTES);
     }
 
-    if (!remaster_emerald_save_encode_next(
+    if (!prepare_next_image(
             scratch_image,
             REMASTER_EMERALD_SAVE_IMAGE_BYTES,
-            save))
+            save,
+            &plan))
         return 0;
 
-    return platform->save_write(
-        platform->userdata,
-        slot_name != 0 ? slot_name : "emerald",
-        scratch_image,
-        REMASTER_EMERALD_SAVE_IMAGE_BYTES);
+    if (!platform->save_write(
+            platform->userdata,
+            slot_name != 0 ? slot_name : "emerald",
+            scratch_image,
+            REMASTER_EMERALD_SAVE_IMAGE_BYTES))
+        return 0;
+
+    commit_write_plan(save, &plan);
+    return 1;
 }

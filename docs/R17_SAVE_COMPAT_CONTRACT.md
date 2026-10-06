@@ -478,10 +478,95 @@ Local verification (encounter catalog unavailable in this partial workspace):
   outbreak and roamer cases against the repository's generated catalog, as
   well as the complete relevant regression suite, on the exact committed HEAD.
 
-Stock export is deliberately guarded until I3: the existing Vanilla+ encoder
-returns failure for an imported stock wrapper without mutating image/counter.
+At the I2 checkpoint, stock export was deliberately guarded until I3: the
+existing Vanilla+ encoder returned failure for an imported stock wrapper
+without mutating image/counter. Section 18 supersedes that temporary guard.
 The legacy platform loader still selects Vanilla+; exposing explicit format
 selection through its safe I/O surface remains in I5. VP5 readers/migration
 remain an I4 gap. This checkpoint does not claim stock round-trip or full R17
 completion. I2 advances to I3 only after exact-HEAD targeted/full CI is
 terminal-success; a failing case requires a concrete I2 closure.
+
+
+## 18. R17-I3 export and write transaction checkpoint
+
+Normal export now uses the imported wrapper's explicit source layout: stock
+section 0/4 spans are 0xF2C/0xF08; pinned Vanilla+ spans are 0xF44/0xF48.
+There is no automatic stock-to-Vanilla+ conversion or VP5 synthesis. All raw
+logical block bytes, including unmodeled fields, production VP5 at 0x35D8 and
+its neighbors, remain source-layout bytes across reimport. Runtime provenance
+is not serialized. The temporary I2 stock-export guard is removed.
+
+Pinned `src/save.c` at section 15's source SHA defines the writer contract:
+`WriteSaveSectorOrSlot` increments counter/rotation and restores its backups
+on failure (lines 139-174); `HandleWriteSector` chooses slot by counter parity,
+clears all 4096 scratch bytes, copies only the logical span and writes the
+footer/checksum (lines 177-208). Export retains these writer semantics. The
+selected write slot's out-of-domain padding is deliberately canonicalized to
+zero; arbitrary old padding is not persistent gameplay data. The other main
+slot and every byte of sectors 28-31 remain unchanged on a successful normal
+write against an existing correctly sized image. Failed/wrong-size platform
+reads still need the I5 safe read-result closure below.
+
+`prepare_next_image` takes a const wrapper and produces scratch bytes plus a
+small counter/rotation/slot plan. `save_store_platform` commits that plan only
+after `save_write` returns success. The callback observes the original wrapper
+while writing; failures retain all metadata and pending domain edits. Repeated
+failed attempts prepare the same image/counter/rotation. The direct in-memory
+`save_encode_next` commits its plan when image preparation succeeds, since that
+API itself has no persistent callback. No large wrapper copy or new persistent
+field is needed for the transaction.
+
+The existing Unreal writer also wrote directly to the committed path. It now
+writes a unique same-directory temporary file, closes it through
+`FFileHelper::SaveArrayToFile`, then uses the shared `RemasterAtomicSave`
+protocol to replace the destination. POSIX uses `rename`; Windows native wide
+paths use `MoveFileExW` with replacement and write-through flags. Neither path
+deletes the committed destination before replacement. A failed prepare or
+replace attempts temporary cleanup and returns failure, so core metadata does
+not advance. The native filesystem test consumes this same protocol/replace
+primitive. A Windows MSVC job exercises its wide-path implementation; Linux
+runs it in the full portable suite. This is file transport only, not gameplay
+ownership in Unreal. Read-result semantics remain unchanged for I5.
+
+Independent versioned fixtures:
+
+- `tests/emerald_save_export_test.c`, CTest `r17_save_export_transactionality`:
+  both formats, every rotation, normal and UINT32_MAX/zero counters, three
+  sequential exports per fixture, independently checked footer/checksum/span,
+  whole logical blocks, other-slot/special-sector preservation, source padding
+  policy, failure/retry/first-write behavior, and callback-visible commit point.
+- `tests/r17_atomic_file_save_test.cpp`, CTest `r17_atomic_file_save`: native
+  temporary-directory files, Unicode destination, injected short-write/close/
+  replace failures, actual missing-source rename failure, cleanup protocol,
+  successful replacement, and first creation. Cleanup is best effort in the
+  production adapter; tests inject failure before cleanup and run with a
+  writable temporary directory.
+- The existing I2 import fixture now asserts stock export/reimport instead of
+  its former temporary rejection guard. Domain expectations remain unchanged.
+
+Local verification:
+
+- Export regression before implementation: **25990 checks, 11458 failures**,
+  exit 1; after implementation: **26006 checks, 0 failures**. More callbacks
+  execute once stock writes are supported, explaining the check-count delta.
+- Strict C99/C++17 and C/C++ ASan/UBSan export runs pass all 26006 checks.
+  LeakSanitizer remains disabled under ptrace as in section 16.
+- Native direct-write baseline: **20 checks, 8 failures**; final shared atomic
+  protocol: **24 checks, 0 failures**, including actual POSIX replacement.
+  Native C++ ASan/UBSan passes the same 24 checks.
+- Existing save compatibility/platform tests and 284-check sector validation
+  pass. Updated I2 local import mode passes **189258 checks**, excluding the
+  generated encounter cases that full CI must run.
+- Native dependencies match exact live core blobs; source/save ABI evidence
+  and canonical docs were reread before implementation. No vendor edit, ROM,
+  commercial extracted asset or workflow-generated source commit is involved.
+
+I3 is VERIFYING until the exact committed HEAD's full relevant PR CI and
+Windows native atomic transport job are terminal-success. Success -> R17-I4;
+failure -> a concrete I3 closure. Neither this native test nor the source
+adapter change is a real Unreal compile/cook/package, Android filesystem
+smoke, or power-loss durability result. Those execution environments remain
+in R18/runtime validation. I4 still owns VP5 migration and preference
+boundaries; I5 still owns MISSING versus ERROR, unsupported/corrupt input and
+explicit-format platform loading. Full R17 acceptance remains open.

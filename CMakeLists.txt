@@ -945,3 +945,25 @@ else()
     target_compile_options(emerald_save_import_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r17_save_domain_import COMMAND emerald_save_import_test)
+
+# R17-I3: source-format export/preservation and persistent-write commit point.
+add_executable(emerald_save_export_test tests/emerald_save_export_test.c)
+target_link_libraries(emerald_save_export_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_save_export_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_save_export_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r17_save_export_transactionality COMMAND emerald_save_export_test)
+
+# Shared host write protocol, exercised against native filesystem failures.
+add_executable(r17_atomic_file_save_test tests/r17_atomic_file_save_test.cpp)
+target_include_directories(r17_atomic_file_save_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r17_atomic_file_save_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r17_atomic_file_save_test PRIVATE /W4)
+else()
+    target_compile_options(r17_atomic_file_save_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r17_atomic_file_save COMMAND r17_atomic_file_save_test)

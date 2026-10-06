@@ -725,19 +725,25 @@ R17-I1 is VERIFIED_COMPLETE at
 `d5d27bdd6db797d04d32a26122e18a76b3206509`: all nine workflow runs are
 terminal-success, and R0 portable core passed 54/54 tests.
 
-R17-I2 now implements explicit-format raw reconstruction and source-aware
-flags/vars, NPC/object and encounter domains. Shared party/storage/bag/world/
-RTC readers are covered by independent import fixtures. Party count uses its
-source u8. Local/source evidence and remaining boundaries are in section 17 of
-`docs/R17_SAVE_COMPAT_CONTRACT.md`.
+R17-I2 is VERIFIED_COMPLETE at
+`98cad9ff84124cea41d95c6beba8430e5ff2ff22`: all nine workflow runs are
+terminal-success; R0 portable core passed 55/55, including generated encounter
+import cases and C++ embed smoke.
 
-Resume at **R17-I2 verification** until the exact live I2 commit's targeted and
-complete relevant PR CI are terminal-success, including the full import
-fixture with generated encounter data. Then the next named subphase is
-**R17-I3 — Export and round-trip preservation**. Pending/failed CI keeps I2 open
-and permits only a concrete gap-specific closure. Stock export is currently
-guarded; I3 must preserve each source format and close write transactionality.
-VP5 migration and safe explicit-format platform loading remain I4/I5 tasks.
+R17-I3 now exports each imported source layout, retains raw domain/special
+sector bytes and stages caller-visible metadata until persistent write success.
+The Unreal file transport prepares a same-directory temporary image before
+atomic replacement. Independent core and native filesystem fixtures and
+source evidence are in section 18 of `docs/R17_SAVE_COMPAT_CONTRACT.md`.
+
+Resume at **R17-I3 verification** until the exact live I3 commit's targeted and
+complete relevant PR CI are terminal-success, including the Windows native
+atomic file transport job. Then the next named subphase is
+**R17-I4 — Migration/metadata boundary**. Pending/failed CI keeps I3 open and
+permits only a concrete gap-specific closure. VP5 migration, remaster-only
+preference boundaries and safe explicit-format platform loading remain I4/I5.
+Real Unreal compilation/Android execution remains R18 work; native transport
+checks are not a substitute for that gate.
 
 P2 closure remeasured the production AGBCC layout: existing remaster block sizes
 `0xF44` / `0x3DC8` are correct for pinned Vanilla+; the earlier P2 contract had

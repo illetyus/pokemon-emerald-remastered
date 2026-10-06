@@ -1,5 +1,10 @@
 #include "RemasterPlatformUnreal.h"
 
+#if PLATFORM_WINDOWS
+#include "Windows/WindowsHWrapper.h"
+#endif
+#include "RemasterAtomicSave.h"
+
 #include "Engine/GameInstance.h"
 #include "RemasterFeedbackSubsystem.h"
 
@@ -106,20 +111,35 @@ int FRemasterPlatformUnreal::SaveWrite(
     const uint8* Buffer,
     size_t Size)
 {
-    if (!Buffer && Size > 0)
+    if ((!Buffer && Size > 0) || Size > static_cast<size_t>(MAX_int32))
     {
         return 0;
     }
 
     const FString Path = SlotPath(Slot);
-    IFileManager::Get().MakeDirectory(
-        *FPaths::GetPath(Path),
-        true);
+    const FString Directory = FPaths::GetPath(Path);
+    if (!IFileManager::Get().MakeDirectory(*Directory, true))
+    {
+        return 0;
+    }
+    const FString TemporaryPath = FPaths::CreateTempFilename(
+        *Directory, TEXT("remaster-save-"), TEXT(".tmp"));
 
     TArray<uint8> Bytes;
     Bytes.Append(Buffer, static_cast<int32>(Size));
 
-    return FFileHelper::SaveArrayToFile(Bytes, *Path) ? 1 : 0;
+    return RemasterAtomicSave::Commit(
+        [&]() { return FFileHelper::SaveArrayToFile(Bytes, *TemporaryPath); },
+        [&]() {
+#if PLATFORM_WINDOWS
+            return RemasterAtomicSave::Replace(*TemporaryPath, *Path);
+#else
+            const FTCHARToUTF8 TemporaryUtf8(*TemporaryPath);
+            const FTCHARToUTF8 DestinationUtf8(*Path);
+            return RemasterAtomicSave::Replace(TemporaryUtf8.Get(), DestinationUtf8.Get());
+#endif
+        },
+        [&]() { IFileManager::Get().Delete(*TemporaryPath, false, true, true); }) ? 1 : 0;
 }
 
 void FRemasterPlatformUnreal::Log(

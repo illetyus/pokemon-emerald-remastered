@@ -91,6 +91,9 @@ RemasterEmeraldSaveStatus remaster_emerald_save_decode(
     size_t image_size,
     RemasterEmeraldSave *out_save);
 
+/* Export in the imported source layout, preserving the other main slot and
+ * special sectors. On success the completed in-memory image advances metadata.
+ * Platform persistence stages that image and commits metadata only after write. */
 int remaster_emerald_save_encode_next(
     uint8_t *image,
     size_t image_size,

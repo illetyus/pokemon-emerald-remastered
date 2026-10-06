@@ -215,9 +215,15 @@ int main(void) {
         REMASTER_EMERALD_SAVE_FORMAT_STOCK,0)==REMASTER_EMERALD_SAVE_CORRUPT,"null output");
     fixture(1,0,0);
     check(remaster_emerald_save_decode_format(image,sizeof(image),
-        REMASTER_EMERALD_SAVE_FORMAT_STOCK,&save)==REMASTER_EMERALD_SAVE_OK,"stock export guard setup");
-    check(!remaster_emerald_save_encode_next(image,sizeof(image),&save)
-        &&!memcmp(before,image,sizeof(image))&&save.counter==101,"I2 stock import cannot silently export as fork");
+        REMASTER_EMERALD_SAVE_FORMAT_STOCK,&save)==REMASTER_EMERALD_SAVE_OK,"stock export setup");
+    check(remaster_emerald_save_encode_next(image,sizeof(image),&save)
+        &&save.counter==102,"stock import exports in source format");
+    check(remaster_emerald_save_decode_format(image,sizeof(image),
+        REMASTER_EMERALD_SAVE_FORMAT_STOCK,&save)==REMASTER_EMERALD_SAVE_OK
+        &&save.source_is_stock&&save.counter==102
+        &&!memcmp(save.save_block1,sb1,0x3D88)
+        &&!memcmp(save.save_block2,sb2,0xF2C)
+        &&!memcmp(save.pokemon_storage,storage,0x83D0),"stock domain bytes reimport after export");
     printf("R17 domain import: %u checks, %u failures.\n",checks,failures);
     return failures?1:0;
 }
