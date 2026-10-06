@@ -159,19 +159,55 @@ uint16_t remaster_emerald_qol_fishing_response_frames(uint8_t rod)
     return rod <= 2 ? 90u : 0u;
 }
 
-uint8_t remaster_emerald_qol_fishing_reaction_rounds(uint8_t rod)
+uint8_t remaster_emerald_qol_fishing_required_rounds(
+    uint8_t rod,
+    uint16_t emerald_random_value)
 {
-    return rod <= 2 ? 0u : 0u;
+    static const uint8_t min_round_modulus[3] = {1u, 3u, 6u};
+
+    if (rod > 2)
+        return 0;
+
+    return (uint8_t)(1u + (emerald_random_value % min_round_modulus[rod]));
 }
 
-int remaster_emerald_qol_bike_toggle_allowed(int stationary)
+uint8_t remaster_emerald_qol_fishing_optional_round_chance(
+    uint8_t rod,
+    uint8_t round_index)
 {
-    return stationary != 0;
+    if (rod > 2 || round_index >= 2)
+        return 0;
+    return 0;
 }
 
-int remaster_emerald_qol_running_allowed(void)
+int remaster_emerald_qol_running_requires_shoes(void)
 {
-    return 1;
+    return 0;
+}
+
+int remaster_emerald_qol_running_environment_allows(
+    int underwater,
+    int metatile_disallowed)
+{
+    return !underwater && !metatile_disallowed;
+}
+
+int remaster_emerald_qol_bike_toggle_allowed(
+    const RemasterEmeraldQolBikeToggleState *state)
+{
+    if (state == 0
+        || !state->r_pressed
+        || state->cycling_road
+        || state->player_moving)
+        return 0;
+
+    if (state->on_mach_bike)
+        return state->mach_speed_standing != 0;
+
+    if (state->on_acro_bike)
+        return state->acro_state_normal != 0;
+
+    return 0;
 }
 
 int remaster_emerald_qol_hm_tool(
@@ -253,6 +289,54 @@ int remaster_emerald_qol_box_pokemon_is_egg(
         | ((uint32_t)pokemon->substruct[3][6] << 16u)
         | ((uint32_t)pokemon->substruct[3][7] << 24u);
     return (int)((iv_word >> 30u) & 1u);
+}
+
+int remaster_emerald_qol_hm_field_actor(
+    const RemasterEmeraldSave *save,
+    uint8_t *out_party_slot)
+{
+    size_t slot;
+
+    if (save == 0)
+        return 0;
+
+    for (slot = 0; slot < REMASTER_EMERALD_PARTY_SIZE; ++slot) {
+        RemasterEmeraldPartyPokemon mon;
+        if (!remaster_emerald_party_get(save, slot, &mon, 0))
+            continue;
+        if (remaster_emerald_box_pokemon_species(&mon.box) != 0
+            && !remaster_emerald_qol_box_pokemon_is_egg(&mon.box)) {
+            if (out_party_slot != 0)
+                *out_party_slot = (uint8_t)slot;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+RemasterEmeraldQolHmFieldUseResult
+remaster_emerald_qol_hm_field_use(
+    const RemasterEmeraldSave *save,
+    uint16_t item_id,
+    RemasterEmeraldQolHmTool *out_tool,
+    uint8_t *out_party_slot)
+{
+    RemasterEmeraldQolHmTool tool;
+    uint8_t actor;
+
+    if (!remaster_emerald_qol_hm_tool(item_id, &tool))
+        return REMASTER_EMERALD_QOL_HM_FIELD_USE_INVALID_ITEM;
+    if (!remaster_emerald_qol_hm_access(save, item_id))
+        return REMASTER_EMERALD_QOL_HM_FIELD_USE_NO_ACCESS;
+    if (!remaster_emerald_qol_hm_field_actor(save, &actor))
+        return REMASTER_EMERALD_QOL_HM_FIELD_USE_NO_ACTOR;
+
+    if (out_tool != 0)
+        *out_tool = tool;
+    if (out_party_slot != 0)
+        *out_party_slot = actor;
+    return REMASTER_EMERALD_QOL_HM_FIELD_USE_OK;
 }
 
 uint16_t remaster_emerald_qol_total_evs(
