@@ -1,7 +1,7 @@
 name: R16 Vanilla+ QoL
 
 permissions:
-  contents: write
+  contents: read
 
 on:
   push:
@@ -25,25 +25,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-
-      - name: One-shot sync checked-in R11 catalog
-        if: >-
-          github.event_name == 'push' &&
-          github.ref == 'refs/heads/r16-qol-closure' &&
-          !contains(github.event.head_commit.message, '[r11-sync]')
-        run: |
-          cp build/generated/r11/emerald_domain_catalog.inc core/src/emerald_domain_catalog.inc
-          if ! git diff --quiet -- core/src/emerald_domain_catalog.inc; then
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add core/src/emerald_domain_catalog.inc
-            git commit -m 'chore(r16): sync generated domain catalog [r11-sync]'
-            git push origin HEAD:r16-qol-closure
-          fi
 
       - name: Build R16 targets
         run: >-
