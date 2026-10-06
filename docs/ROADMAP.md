@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
 Date: 2026-10-04  
-Status: **R0-R5 and R10-R12 complete; R13 is the next implementation phase.**
+Status: **R0-R5 and R10-R13 complete; R16 is the next implementation phase.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -123,26 +123,22 @@ Complete at source/data acceptance level.
 The phase numbers are intentionally preserved. The implementation order from
 this point is:
 
-1. R10 — Map + quest guidance
-2. R11 — Pokémon / party / item core
-3. R12 — Encounter system
-4. R13 — Battle core
-5. R16 — Vanilla+ QoL
-6. R17 — Save compatibility / migration
-7. R6 — Character / NPC presentation and asset pipeline
-8. R7 — Camera / environment presentation and asset pipeline
-9. R9 — UI / HUD / menu infrastructure
-10. R14 — Battle presentation and Pokémon asset pipeline
-11. R15 — Audio
-12. R8 — Android input infrastructure
-13. R19 — Regression / test infrastructure expansion
-14. R20 — Code / package polish
-15. R18 — Real UE 5.8.3 / Android production build on PC
-16. Real Unreal runtime validation for R6/R7/R8/R9/R14/R15
-17. BrowserStack real Android smoke test
-18. R19 final Android device matrix
-19. R21 — Release Candidate
-20. R22 — Final Release
+1. R16 — Vanilla+ QoL
+2. R17 — Save compatibility / migration
+3. R6 — Character / NPC presentation and asset pipeline
+4. R7 — Camera / environment presentation and asset pipeline
+5. R9 — UI / HUD / menu infrastructure
+6. R14 — Battle presentation and Pokémon asset pipeline
+7. R15 — Audio
+8. R8 — Android input infrastructure
+9. R19 — Regression / test infrastructure expansion
+10. R20 — Code / package polish
+11. R18 — Real UE 5.8.3 / Android production build on PC
+12. Real Unreal runtime validation for R6/R7/R8/R9/R14/R15
+13. BrowserStack real Android smoke test
+14. R19 final Android device matrix
+15. R21 — Release Candidate
+16. R22 — Final Release
 
 Do not renumber phases to match implementation order.
 
@@ -251,7 +247,7 @@ Port the real Emerald encounter decision path, not merely encounter tables.
 
 ## R13 — Battle core
 
-**Status: NEXT.**
+**Status: COMPLETE.** See `docs/R13_BATTLE_CORE.md`.
 
 ### Goal
 
@@ -883,16 +879,16 @@ of successful UE compilation or Android runtime.
 
 # 14. Immediate next action
 
-The next implementation phase is **R13 — Battle core**.
+The next implementation phase is **R16 — Vanilla+ QoL**.
 
-Before R13 implementation:
+Before R16 implementation:
 
-1. re-check current `main` after the R12 merge;
-2. verify open PRs do not conflict;
-3. inspect pinned Emerald/Vanilla+ battle state, move execution, damage, status, ability, item and RNG behavior;
-4. define the R13 deterministic acceptance contract;
-5. regression-test first;
-6. implement only on an R13 branch;
+1. merge the accepted R13 PR after its final same-head CI is green;
+2. re-check current `main` after the R13 merge;
+3. inventory the QoL deltas present in pinned Vanilla+ relative to stock Emerald;
+4. classify each delta as accepted, rejected or already covered by earlier phases;
+5. regression-test each accepted QoL behavior before implementation;
+6. implement only on an R16 branch;
 7. merge only after green CI.
 
 Real Unreal build and BrowserStack device execution remain deferred until R18.
