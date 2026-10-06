@@ -63,18 +63,20 @@ int remaster_emerald_saved_object_event_read(
     uint8_t out_record[REMASTER_EMERALD_SAVED_OBJECT_EVENT_BYTES])
 {
     size_t offset;
+    size_t size;
 
     if (save == 0 || out_record == 0
         || index >= REMASTER_EMERALD_SAVED_OBJECT_EVENT_COUNT)
         return 0;
 
-    offset = SB1_OBJECT_EVENTS
-        + index * REMASTER_EMERALD_SAVED_OBJECT_EVENT_BYTES;
+    size = save->source_is_stock ? 0x24u : (size_t)REMASTER_EMERALD_SAVED_OBJECT_EVENT_BYTES;
+    offset = SB1_OBJECT_EVENTS + index * size;
 
+    memset(out_record, 0, REMASTER_EMERALD_SAVED_OBJECT_EVENT_BYTES);
     memcpy(
         out_record,
         save->save_block1 + offset,
-        REMASTER_EMERALD_SAVED_OBJECT_EVENT_BYTES);
+        size);
     return 1;
 }
 
@@ -84,18 +86,19 @@ int remaster_emerald_saved_object_event_write(
     const uint8_t record[REMASTER_EMERALD_SAVED_OBJECT_EVENT_BYTES])
 {
     size_t offset;
+    size_t size;
 
     if (save == 0 || record == 0
         || index >= REMASTER_EMERALD_SAVED_OBJECT_EVENT_COUNT)
         return 0;
 
-    offset = SB1_OBJECT_EVENTS
-        + index * REMASTER_EMERALD_SAVED_OBJECT_EVENT_BYTES;
+    size = save->source_is_stock ? 0x24u : (size_t)REMASTER_EMERALD_SAVED_OBJECT_EVENT_BYTES;
+    offset = SB1_OBJECT_EVENTS + index * size;
 
     memcpy(
         save->save_block1 + offset,
         record,
-        REMASTER_EMERALD_SAVED_OBJECT_EVENT_BYTES);
+        size);
     return 1;
 }
 
@@ -112,15 +115,15 @@ int remaster_emerald_object_template_get(
         return 0;
 
     record = save->save_block1
-        + SB1_OBJECT_TEMPLATES
+        + remaster_emerald_save_block1_offset(save, SB1_OBJECT_TEMPLATES)
         + index * REMASTER_EMERALD_OBJECT_TEMPLATE_BYTES;
 
     memset(out_template, 0, sizeof(*out_template));
 
     out_template->local_id = record[TEMPLATE_LOCAL_ID];
-    out_template->kind = record[TEMPLATE_KIND];
-    out_template->graphics_id =
-        object_read_u16_le(record + TEMPLATE_GRAPHICS_ID);
+    out_template->kind = record[save->source_is_stock ? 2 : TEMPLATE_KIND];
+    out_template->graphics_id = save->source_is_stock
+        ? record[1] : object_read_u16_le(record + TEMPLATE_GRAPHICS_ID);
     out_template->x = object_read_s16_le(record + TEMPLATE_X);
     out_template->y = object_read_s16_le(record + TEMPLATE_Y);
     out_template->elevation = record[TEMPLATE_ELEVATION];
@@ -151,21 +154,25 @@ int remaster_emerald_object_template_set(
 
     if (save == 0 || object_template == 0
         || index >= REMASTER_EMERALD_OBJECT_TEMPLATE_COUNT
+        || (save->source_is_stock && object_template->graphics_id > 0xFFu)
         || object_template->movement_range_x > 0x0fu
         || object_template->movement_range_y > 0x0fu)
         return 0;
 
     record = save->save_block1
-        + SB1_OBJECT_TEMPLATES
+        + remaster_emerald_save_block1_offset(save, SB1_OBJECT_TEMPLATES)
         + index * REMASTER_EMERALD_OBJECT_TEMPLATE_BYTES;
 
     memset(record, 0, REMASTER_EMERALD_OBJECT_TEMPLATE_BYTES);
 
     record[TEMPLATE_LOCAL_ID] = object_template->local_id;
-    record[TEMPLATE_KIND] = object_template->kind;
-    object_write_u16_le(
-        record + TEMPLATE_GRAPHICS_ID,
-        object_template->graphics_id);
+    if (save->source_is_stock) {
+        record[1] = (uint8_t)object_template->graphics_id;
+        record[2] = object_template->kind;
+    } else {
+        record[TEMPLATE_KIND] = object_template->kind;
+        object_write_u16_le(record + TEMPLATE_GRAPHICS_ID, object_template->graphics_id);
+    }
     object_write_s16_le(record + TEMPLATE_X, object_template->x);
     object_write_s16_le(record + TEMPLATE_Y, object_template->y);
     record[TEMPLATE_ELEVATION] = object_template->elevation;
@@ -197,7 +204,7 @@ void remaster_emerald_object_templates_clear(
         return;
 
     memset(
-        save->save_block1 + SB1_OBJECT_TEMPLATES,
+        save->save_block1 + remaster_emerald_save_block1_offset(save, SB1_OBJECT_TEMPLATES),
         0,
         REMASTER_EMERALD_OBJECT_TEMPLATE_COUNT
             * REMASTER_EMERALD_OBJECT_TEMPLATE_BYTES);
@@ -241,7 +248,7 @@ int remaster_emerald_object_template_find_local_id(
     for (i = 0; i < REMASTER_EMERALD_OBJECT_TEMPLATE_COUNT; ++i) {
         const uint8_t *record =
             save->save_block1
-            + SB1_OBJECT_TEMPLATES
+            + remaster_emerald_save_block1_offset(save, SB1_OBJECT_TEMPLATES)
             + i * REMASTER_EMERALD_OBJECT_TEMPLATE_BYTES;
 
         if (record[TEMPLATE_LOCAL_ID] == local_id) {
@@ -269,7 +276,7 @@ int remaster_emerald_object_template_set_coords(
         return 0;
 
     record = save->save_block1
-        + SB1_OBJECT_TEMPLATES
+        + remaster_emerald_save_block1_offset(save, SB1_OBJECT_TEMPLATES)
         + index * REMASTER_EMERALD_OBJECT_TEMPLATE_BYTES;
 
     object_write_s16_le(record + TEMPLATE_X, x);
@@ -292,7 +299,7 @@ int remaster_emerald_object_template_set_movement_type(
         return 0;
 
     record = save->save_block1
-        + SB1_OBJECT_TEMPLATES
+        + remaster_emerald_save_block1_offset(save, SB1_OBJECT_TEMPLATES)
         + index * REMASTER_EMERALD_OBJECT_TEMPLATE_BYTES;
     record[TEMPLATE_MOVEMENT_TYPE] = movement_type;
     return 1;

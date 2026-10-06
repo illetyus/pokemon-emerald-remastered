@@ -63,7 +63,9 @@ typedef struct RemasterEmeraldObjectTemplate {
 } RemasterEmeraldObjectTemplate;
 
 /*
- * Saved live ObjectEvent records are preserved as opaque 0x28-byte records.
+ * Saved live ObjectEvent records are preserved as opaque source-layout bytes.
+ * Stock records use 0x24 bytes: reads zero-pad the 0x28-byte output and writes
+ * consume only the first 0x24 bytes. No stock-to-fork field conversion occurs.
  * The fork widened graphicsId to u16. Production save-sector evidence and
  * the resulting SaveBlock1 offsets confirm the AGBCC array stride is 0x28.
  */

@@ -505,12 +505,12 @@ static int encode_party_raw(
 
 uint8_t remaster_emerald_party_count(const RemasterEmeraldSave *save)
 {
-    uint32_t count;
+    uint8_t count;
 
     if (save == 0)
         return 0;
 
-    count = read32(save->save_block1 + SB1_PARTY_COUNT);
+    count = save->save_block1[SB1_PARTY_COUNT];
     return count <= REMASTER_EMERALD_PARTY_SIZE
         ? (uint8_t)count
         : 0;
@@ -523,7 +523,7 @@ int remaster_emerald_party_set_count(
     if (save == 0 || count > REMASTER_EMERALD_PARTY_SIZE)
         return 0;
 
-    write32(save->save_block1 + SB1_PARTY_COUNT, count);
+    save->save_block1[SB1_PARTY_COUNT] = count;
     return 1;
 }
 

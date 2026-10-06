@@ -935,3 +935,13 @@ else()
     target_compile_options(emerald_battle_move_effects_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r13_battle_move_effects COMMAND emerald_battle_move_effects_test)
+
+# R17-I2: independent stock/Vanilla+ full-domain import fixture.
+add_executable(emerald_save_import_test tests/emerald_save_import_test.c)
+target_link_libraries(emerald_save_import_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_save_import_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_save_import_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r17_save_domain_import COMMAND emerald_save_import_test)

@@ -58,6 +58,9 @@ typedef struct RemasterEmeraldSave {
     uint8_t save_block2[REMASTER_EMERALD_SAVE_BLOCK2_BYTES];
     uint8_t save_block1[REMASTER_EMERALD_SAVE_BLOCK1_BYTES];
     uint8_t pokemon_storage[REMASTER_EMERALD_STORAGE_BYTES];
+
+    /* Runtime provenance only; never serialized. Zero retains legacy Vanilla+. */
+    uint8_t source_is_stock;
 } RemasterEmeraldSave;
 
 uint16_t remaster_emerald_checksum(const uint8_t *data, size_t size);
@@ -69,6 +72,18 @@ RemasterEmeraldSaveStatus remaster_emerald_save_validate(
     size_t image_size,
     RemasterEmeraldSaveFormat format,
     RemasterEmeraldSaveValidation *out_validation);
+
+/* Explicit source layout, retained without converting persistent bytes. */
+RemasterEmeraldSaveStatus remaster_emerald_save_decode_format(
+    const uint8_t *image,
+    size_t image_size,
+    RemasterEmeraldSaveFormat format,
+    RemasterEmeraldSave *out_save);
+
+/* Maps a measured Vanilla+ SB1 field offset after the ObjectEvent array to
+ * its stock location. Shared fields before that boundary are unchanged. */
+size_t remaster_emerald_save_block1_offset(
+    const RemasterEmeraldSave *save, size_t vanillaplus_offset);
 
 /* The established gameplay decoder uses the pinned Vanilla+ layout. */
 RemasterEmeraldSaveStatus remaster_emerald_save_decode(

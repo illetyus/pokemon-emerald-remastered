@@ -158,9 +158,10 @@ static int counter_is_newer(uint32_t a, uint32_t b)
 static void copy_sector_payload(
     RemasterEmeraldSave *save,
     uint16_t id,
-    const uint8_t *sector)
+    const uint8_t *sector,
+    RemasterEmeraldSaveFormat format)
 {
-    size_t size = logical_sector_size(id, REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS);
+    size_t size = logical_sector_size(id, format);
 
     if (id == SECTOR_ID_SAVEBLOCK2) {
         memcpy(save->save_block2, sector, size);
@@ -187,7 +188,8 @@ static void copy_sector_payload(
 static int reconstruct_selected_slot(
     const uint8_t *image,
     uint8_t slot,
-    RemasterEmeraldSave *save)
+    RemasterEmeraldSave *save,
+    RemasterEmeraldSaveFormat format)
 {
     uint16_t physical;
     uint16_t copied = 0;
@@ -207,12 +209,12 @@ static int reconstruct_selected_slot(
         if (id >= REMASTER_EMERALD_MAIN_SECTORS)
             continue;
 
-        size = logical_sector_size(id, REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS);
+        size = logical_sector_size(id, format);
         if (emerald_read_u16_le(sector + FOOTER_CHECKSUM_OFFSET)
             != remaster_emerald_checksum(sector, size))
             continue;
 
-        copy_sector_payload(save, id, sector);
+        copy_sector_payload(save, id, sector, format);
         copied |= (uint16_t)(1u << id);
 
         if (id == 0)
@@ -272,21 +274,21 @@ RemasterEmeraldSaveStatus remaster_emerald_save_validate(
     return out_validation->status;
 }
 
-RemasterEmeraldSaveStatus remaster_emerald_save_decode(
+RemasterEmeraldSaveStatus remaster_emerald_save_decode_format(
     const uint8_t *image,
     size_t image_size,
+    RemasterEmeraldSaveFormat format,
     RemasterEmeraldSave *out_save)
 {
     RemasterEmeraldSaveValidation validation;
     RemasterEmeraldSaveStatus status;
 
-    if (image == 0 || out_save == 0
-        || image_size != REMASTER_EMERALD_SAVE_IMAGE_BYTES)
+    if (out_save == 0)
         return REMASTER_EMERALD_SAVE_CORRUPT;
 
     memset(out_save, 0, sizeof(*out_save));
     status = remaster_emerald_save_validate(image, image_size,
-        REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS, &validation);
+        format, &validation);
     if (status != REMASTER_EMERALD_SAVE_OK
         && status != REMASTER_EMERALD_SAVE_DEGRADED) {
         out_save->status = status;
@@ -297,7 +299,10 @@ RemasterEmeraldSaveStatus remaster_emerald_save_decode(
     out_save->counter = validation.counter;
     out_save->last_written_sector = validation.last_written_sector;
 
-    if (!reconstruct_selected_slot(image, validation.selected_slot, out_save)) {
+    out_save->source_is_stock =
+        (uint8_t)(format == REMASTER_EMERALD_SAVE_FORMAT_STOCK);
+
+    if (!reconstruct_selected_slot(image, validation.selected_slot, out_save, format)) {
         out_save->status = REMASTER_EMERALD_SAVE_CORRUPT;
         return out_save->status;
     }
@@ -305,6 +310,27 @@ RemasterEmeraldSaveStatus remaster_emerald_save_decode(
     out_save->status = status;
 
     return out_save->status;
+}
+
+RemasterEmeraldSaveStatus remaster_emerald_save_decode(
+    const uint8_t *image,
+    size_t image_size,
+    RemasterEmeraldSave *out_save)
+{
+    if (image == 0 || out_save == 0
+        || image_size != REMASTER_EMERALD_SAVE_IMAGE_BYTES)
+        return REMASTER_EMERALD_SAVE_CORRUPT;
+    return remaster_emerald_save_decode_format(image, image_size,
+        REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS, out_save);
+}
+
+size_t remaster_emerald_save_block1_offset(
+    const RemasterEmeraldSave *save, size_t vanillaplus_offset)
+{
+    /* AGBCC: 16 ObjectEvents grow from 0x24 to 0x28 in the fork. */
+    if (save != 0 && save->source_is_stock && vanillaplus_offset >= 0xCB0u)
+        return vanillaplus_offset - 0x40u;
+    return vanillaplus_offset;
 }
 
 static const uint8_t *logical_payload(
@@ -336,7 +362,8 @@ int remaster_emerald_save_encode_next(
     uint32_t next_counter;
     uint8_t next_slot;
 
-    if (image == 0 || save == 0
+    /* I2 imports stock bytes without migration. Stock export is an I3 task. */
+    if (image == 0 || save == 0 || save->source_is_stock
         || image_size != REMASTER_EMERALD_SAVE_IMAGE_BYTES)
         return 0;
 

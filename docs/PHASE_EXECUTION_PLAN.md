@@ -721,22 +721,29 @@ post-R16 `main` baseline. R17-P1 repo/scope recovery is complete. R17-P2 is
 complete with the authoritative contract versioned in
 `docs/R17_SAVE_COMPAT_CONTRACT.md`.
 
-R17-I1 now has explicit-format sector validation and counter-coherence
-hardening, pinned by `r17_save_sector_validation`. The existing gameplay
-decoder retains pinned Vanilla+ geometry; stock validation does not yet perform
-stock domain reconstruction. Source/fixture/local verification evidence is in
-section 16 of `docs/R17_SAVE_COMPAT_CONTRACT.md`.
+R17-I1 is VERIFIED_COMPLETE at
+`d5d27bdd6db797d04d32a26122e18a76b3206509`: all nine workflow runs are
+terminal-success, and R0 portable core passed 54/54 tests.
 
-Resume at **R17-I1 verification** until the exact live I1 commit's targeted and
-complete relevant PR CI are terminal-success. Then the next named subphase is
-**R17-I2 — Full domain import reconstruction**. Pending/failed CI keeps I1 open
-and permits only a concrete gap-specific closure, not I2 implementation.
+R17-I2 now implements explicit-format raw reconstruction and source-aware
+flags/vars, NPC/object and encounter domains. Shared party/storage/bag/world/
+RTC readers are covered by independent import fixtures. Party count uses its
+source u8. Local/source evidence and remaining boundaries are in section 17 of
+`docs/R17_SAVE_COMPAT_CONTRACT.md`.
+
+Resume at **R17-I2 verification** until the exact live I2 commit's targeted and
+complete relevant PR CI are terminal-success, including the full import
+fixture with generated encounter data. Then the next named subphase is
+**R17-I3 — Export and round-trip preservation**. Pending/failed CI keeps I2 open
+and permits only a concrete gap-specific closure. Stock export is currently
+guarded; I3 must preserve each source format and close write transactionality.
+VP5 migration and safe explicit-format platform loading remain I4/I5 tasks.
 
 P2 closure remeasured the production AGBCC layout: existing remaster block sizes
 `0xF44` / `0x3DC8` are correct for pinned Vanilla+; the earlier P2 contract had
 mistaken stale comments for compiled sizes. Production VP5 metadata is at
 compiled `SaveBlock1.unused_3598=0x35D8`; the remaster literal `0x3598` is an I4
 gap. Evidence and format policy are in `docs/R17_SAVE_COMPAT_CONTRACT.md`.
-I1 must verify format-specific checksum spans, slot choice, sector
+I1 verified format-specific checksum spans, slot choice, sector
 IDs/signatures, rotation and the explicit counter-coherence policy. No
 gameplay/implementation change belongs to P2.

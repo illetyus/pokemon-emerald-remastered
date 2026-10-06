@@ -415,3 +415,73 @@ or failed CI. Failure -> a gap-specific I1 closure; success -> R17-I2.
 No full R17 acceptance or new real-save runtime result is claimed here.
 Domain reconstruction, export transactionality/preservation, VP5 migration,
 and platform OK/MISSING/ERROR semantics remain in I2/I3/I4/I5 respectively.
+
+
+## 17. R17-I2 domain import checkpoint
+
+`remaster_emerald_save_decode_format` imports an explicitly selected stock or
+pinned Vanilla+ image. All logical bytes remain in their original source
+layout; no migration, metadata synthesis or persistent block expansion occurs.
+`RemasterEmeraldSave.source_is_stock` is runtime provenance appended outside
+its raw block arrays. It is never serialized. Zero-initialized existing callers
+and the established `remaster_emerald_save_decode` retain Vanilla+ behavior.
+Flags/vars, NPC templates, saved opaque ObjectEvents and encounter persistent
+fields now select the measured source layout. Other owned readers use shared
+party/storage, bag, world/warps, encryption-key and RTC offsets. Raw PC item,
+box-name/wallpaper, follower and otherwise unmodeled block bytes are retained.
+
+The layout-only AGBCC probe used section 15's unchanged pinned sources/compiler
+and emitted these additional constants:
+
+| Expression | Pinned Vanilla+ | Stock Emerald |
+| --- | ---: | ---: |
+| `offsetof(SaveBlock1, playerPartyCount)` | `0x234` | `0x234` |
+| `sizeof(playerPartyCount)` | **1** | **1** |
+| `offsetof(SaveBlock1, objectEventTemplates)` | `0xCB0` | `0xC70` |
+| `sizeof(ObjectEventTemplate)` | `0x18` | `0x18` |
+| template `graphicsId` offset / size | `0x2` / 2 | `0x1` / 1 |
+| template `kind` offset | `0x1` | `0x2` |
+| `offsetof(SaveBlock1, outbreakPokemonSpecies)` | `0x2BD0` | `0x2B90` |
+| `offsetof(SaveBlock1, outbreakPokemonProbability)` | `0x2BE1` | `0x2BA1` |
+| `offsetof(SaveBlock1, roamer)` | `0x321C` | `0x31DC` |
+| `sizeof(Roamer)` | `0x1C` | `0x1C` |
+
+This closes two additional production import errors: party count previously
+read padding as part of a u32, and outbreak/roamer readers used stock offsets
+against Vanilla+ blocks. Party-count writes now modify only the source u8.
+The existing encounter-special fixture now uses measured Vanilla+ offsets;
+its encounter mechanics and expected outcomes are unchanged. Stock template
+writes reject graphics IDs above 255 rather than truncating them. Opaque stock
+ObjectEvent reads copy 0x24 source bytes and zero-pad the 0x28-byte output;
+writes consume only 0x24 bytes, preserving the following record/template.
+
+Versioned independent synthetic fixture: `tests/emerald_save_import_test.c`,
+CTest `r17_save_domain_import`. It builds source bytes/checksums without the
+production domain setters or layout constants. It exercises both formats,
+both selected slots and every rotation; all persistent flags/vars, all six
+party records, 420 storage records, five bag pockets, world/warps/currency,
+RTC, NPC templates, objective derivation and progression mutations, raw-block
+preservation, invalid API parameters, and outbreak/roamer reconstruction.
+No new real-save/emulator validation is claimed.
+
+Local verification (encounter catalog unavailable in this partial workspace):
+
+- Before implementation, the final fixture against exact pre-I2 sources with
+  `R17_BASELINE`/`R17_NO_ENCOUNTERS`: **189257 checks, 16103 failures**, exit 1.
+- After implementation, with only `R17_NO_ENCOUNTERS`: **189257 checks,
+  0 failures** in strict C99 and C++17 builds.
+- C and C++ ASan/UBSan runs pass the same 189257 checks; LeakSanitizer is disabled
+  because this execution environment uses ptrace, as recorded in section 16.
+- Eleven existing native save/platform/sector/state/quest/quest-save/Pokemon-
+  codec/party-storage/bag/object-state/RTC tests pass.
+- CI's normal CMake target defines neither local-only switch. It must run the
+  outbreak and roamer cases against the repository's generated catalog, as
+  well as the complete relevant regression suite, on the exact committed HEAD.
+
+Stock export is deliberately guarded until I3: the existing Vanilla+ encoder
+returns failure for an imported stock wrapper without mutating image/counter.
+The legacy platform loader still selects Vanilla+; exposing explicit format
+selection through its safe I/O surface remains in I5. VP5 readers/migration
+remain an I4 gap. This checkpoint does not claim stock round-trip or full R17
+completion. I2 advances to I3 only after exact-HEAD targeted/full CI is
+terminal-success; a failing case requires a concrete I2 closure.
