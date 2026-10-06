@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
-Date: 2026-10-04  
-Status: **R0-R5 and R10-R13 complete; R16 is the next implementation phase.**
+Date: 2026-10-06  
+Status: **R0-R5, R10-R13 and R16 complete; R17 is the next implementation phase.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -123,22 +123,21 @@ Complete at source/data acceptance level.
 The phase numbers are intentionally preserved. The implementation order from
 this point is:
 
-1. R16 — Vanilla+ QoL
-2. R17 — Save compatibility / migration
-3. R6 — Character / NPC presentation and asset pipeline
-4. R7 — Camera / environment presentation and asset pipeline
-5. R9 — UI / HUD / menu infrastructure
-6. R14 — Battle presentation and Pokémon asset pipeline
-7. R15 — Audio
-8. R8 — Android input infrastructure
-9. R19 — Regression / test infrastructure expansion
-10. R20 — Code / package polish
-11. R18 — Real UE 5.8.3 / Android production build on PC
-12. Real Unreal runtime validation for R6/R7/R8/R9/R14/R15
-13. BrowserStack real Android smoke test
-14. R19 final Android device matrix
-15. R21 — Release Candidate
-16. R22 — Final Release
+1. R17 — Save compatibility / migration
+2. R6 — Character / NPC presentation and asset pipeline
+3. R7 — Camera / environment presentation and asset pipeline
+4. R9 — UI / HUD / menu infrastructure
+5. R14 — Battle presentation and Pokémon asset pipeline
+6. R15 — Audio
+7. R8 — Android input infrastructure
+8. R19 — Regression / test infrastructure expansion
+9. R20 — Code / package polish
+10. R18 — Real UE 5.8.3 / Android production build on PC
+11. Real Unreal runtime validation for R6/R7/R8/R9/R14/R15
+12. BrowserStack real Android smoke test
+13. R19 final Android device matrix
+14. R21 — Release Candidate
+15. R22 — Final Release
 
 Do not renumber phases to match implementation order.
 
@@ -296,6 +295,8 @@ Unreal must not calculate these outcomes.
 - no presentation dependency in the core.
 
 ## R16 — Vanilla+ QoL
+
+**Status: COMPLETE.** See `docs/R16_VANILLAPLUS_QOL.md`.
 
 ### Goal
 
