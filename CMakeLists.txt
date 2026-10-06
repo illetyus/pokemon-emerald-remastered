@@ -15,6 +15,7 @@ add_library(remaster_core STATIC
     core/src/emerald_quest.c
     core/src/emerald_pokemon.c
     core/src/emerald_items.c
+    core/src/emerald_qol.c
     core/src/emerald_encounter.c
     core/src/emerald_battle.c
     core/src/emerald_map.c
@@ -83,6 +84,7 @@ add_executable(unreal_cpp_embed_smoke
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldQuestEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldPokemonEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldItemsEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldQolEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldEncounterEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldBattleEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldMapEmbed.cpp
@@ -709,6 +711,24 @@ else()
     target_compile_options(emerald_domain_catalog_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r11_domain_catalog COMMAND emerald_domain_catalog_test)
+
+add_executable(emerald_qol_test
+    tests/emerald_qol_test.c
+)
+target_link_libraries(emerald_qol_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_qol_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_qol_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r16_qol_behavior COMMAND emerald_qol_test)
+
+add_test(
+    NAME r16_qol_source_audit
+    COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_r16_qol_source.py"
+)
 
 
 add_test(
