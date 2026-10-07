@@ -1,0 +1,1092 @@
+{
+  "identity_count": 121,
+  "phase": "R6-I3A",
+  "records": [
+    {
+      "graphics_id": 4,
+      "graphics_name": "OBJ_EVENT_GFX_QUINTY_PLUMP",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 5,
+      "graphics_name": "OBJ_EVENT_GFX_NINJA_BOY",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299518,
+      "source_asset_name": "Ninja Boy",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299518/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 6,
+      "graphics_name": "OBJ_EVENT_GFX_TWIN",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 7,
+      "graphics_name": "OBJ_EVENT_GFX_BOY_1",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 8,
+      "graphics_name": "OBJ_EVENT_GFX_GIRL_1",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 9,
+      "graphics_name": "OBJ_EVENT_GFX_BOY_2",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 10,
+      "graphics_name": "OBJ_EVENT_GFX_GIRL_2",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 11,
+      "graphics_name": "OBJ_EVENT_GFX_LITTLE_BOY",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 12,
+      "graphics_name": "OBJ_EVENT_GFX_LITTLE_GIRL",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 13,
+      "graphics_name": "OBJ_EVENT_GFX_BOY_3",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 14,
+      "graphics_name": "OBJ_EVENT_GFX_GIRL_3",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 15,
+      "graphics_name": "OBJ_EVENT_GFX_RICH_BOY",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299528,
+      "source_asset_name": "Rich Boy",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299528/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 16,
+      "graphics_name": "OBJ_EVENT_GFX_WOMAN_1",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 17,
+      "graphics_name": "OBJ_EVENT_GFX_FAT_MAN",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 18,
+      "graphics_name": "OBJ_EVENT_GFX_POKEFAN_F",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299521,
+      "source_asset_name": "Pok\u00e9 Fan (Female)",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299521/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 19,
+      "graphics_name": "OBJ_EVENT_GFX_MAN_1",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 20,
+      "graphics_name": "OBJ_EVENT_GFX_WOMAN_2",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 21,
+      "graphics_name": "OBJ_EVENT_GFX_EXPERT_M",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299508,
+      "source_asset_name": "Expert (Male)",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299508/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 22,
+      "graphics_name": "OBJ_EVENT_GFX_EXPERT_F",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299507,
+      "source_asset_name": "Expert (Female)",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299507/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 23,
+      "graphics_name": "OBJ_EVENT_GFX_MAN_2",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 24,
+      "graphics_name": "OBJ_EVENT_GFX_WOMAN_3",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 25,
+      "graphics_name": "OBJ_EVENT_GFX_POKEFAN_M",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299522,
+      "source_asset_name": "Pok\u00e9 Fan (Male)",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299522/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 26,
+      "graphics_name": "OBJ_EVENT_GFX_WOMAN_4",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 27,
+      "graphics_name": "OBJ_EVENT_GFX_COOK",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 28,
+      "graphics_name": "OBJ_EVENT_GFX_LINK_RECEPTIONIST",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 29,
+      "graphics_name": "OBJ_EVENT_GFX_OLD_MAN",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 30,
+      "graphics_name": "OBJ_EVENT_GFX_OLD_WOMAN",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 31,
+      "graphics_name": "OBJ_EVENT_GFX_CAMPER",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299503,
+      "source_asset_name": "Camper",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299503/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 32,
+      "graphics_name": "OBJ_EVENT_GFX_PICNICKER",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299520,
+      "source_asset_name": "Picnicker",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299520/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 33,
+      "graphics_name": "OBJ_EVENT_GFX_MAN_3",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 34,
+      "graphics_name": "OBJ_EVENT_GFX_WOMAN_5",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 35,
+      "graphics_name": "OBJ_EVENT_GFX_YOUNGSTER",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299541,
+      "source_asset_name": "Youngster",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299541/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 36,
+      "graphics_name": "OBJ_EVENT_GFX_BUG_CATCHER",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299501,
+      "source_asset_name": "Bug Catcher",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299501/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 37,
+      "graphics_name": "OBJ_EVENT_GFX_PSYCHIC_M",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 38,
+      "graphics_name": "OBJ_EVENT_GFX_SCHOOL_KID_M",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 39,
+      "graphics_name": "OBJ_EVENT_GFX_MANIAC",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299523,
+      "source_asset_name": "Pok\u00e9 Maniac",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299523/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 40,
+      "graphics_name": "OBJ_EVENT_GFX_HEX_MANIAC",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 42,
+      "graphics_name": "OBJ_EVENT_GFX_SWIMMER_M",
+      "planned_action": "download_inspect_components_before_mapping",
+      "source_asset_id": 299535,
+      "source_asset_name": "Swimmer",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299535/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_combined_needs_inspection"
+    },
+    {
+      "graphics_id": 43,
+      "graphics_name": "OBJ_EVENT_GFX_SWIMMER_F",
+      "planned_action": "download_inspect_components_before_mapping",
+      "source_asset_id": 299535,
+      "source_asset_name": "Swimmer",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299535/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_combined_needs_inspection"
+    },
+    {
+      "graphics_id": 44,
+      "graphics_name": "OBJ_EVENT_GFX_BLACK_BELT",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 45,
+      "graphics_name": "OBJ_EVENT_GFX_BEAUTY",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299499,
+      "source_asset_name": "Beauty",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299499/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 46,
+      "graphics_name": "OBJ_EVENT_GFX_SCIENTIST_1",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 47,
+      "graphics_name": "OBJ_EVENT_GFX_LASS",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299517,
+      "source_asset_name": "Lass",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299517/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 48,
+      "graphics_name": "OBJ_EVENT_GFX_GENTLEMAN",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299512,
+      "source_asset_name": "Gentleman",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299512/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 49,
+      "graphics_name": "OBJ_EVENT_GFX_SAILOR",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299530,
+      "source_asset_name": "Sailor",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299530/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 50,
+      "graphics_name": "OBJ_EVENT_GFX_FISHERMAN",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299509,
+      "source_asset_name": "Fisherman",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299509/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 51,
+      "graphics_name": "OBJ_EVENT_GFX_RUNNING_TRIATHLETE_M",
+      "planned_action": "download_inspect_components_before_mapping",
+      "source_asset_id": 299537,
+      "source_asset_name": "Triathlete",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299537/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_combined_needs_inspection"
+    },
+    {
+      "graphics_id": 52,
+      "graphics_name": "OBJ_EVENT_GFX_RUNNING_TRIATHLETE_F",
+      "planned_action": "download_inspect_components_before_mapping",
+      "source_asset_id": 299537,
+      "source_asset_name": "Triathlete",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299537/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_combined_needs_inspection"
+    },
+    {
+      "graphics_id": 53,
+      "graphics_name": "OBJ_EVENT_GFX_TUBER_F",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299539,
+      "source_asset_name": "Tuber (Girl)",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299539/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 54,
+      "graphics_name": "OBJ_EVENT_GFX_TUBER_M",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 299538,
+      "source_asset_name": "Tuber (Boy)",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299538/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 55,
+      "graphics_name": "OBJ_EVENT_GFX_HIKER",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 56,
+      "graphics_name": "OBJ_EVENT_GFX_CYCLING_TRIATHLETE_M",
+      "planned_action": "download_inspect_components_before_mapping",
+      "source_asset_id": 299537,
+      "source_asset_name": "Triathlete",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299537/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_combined_needs_inspection"
+    },
+    {
+      "graphics_id": 57,
+      "graphics_name": "OBJ_EVENT_GFX_CYCLING_TRIATHLETE_F",
+      "planned_action": "download_inspect_components_before_mapping",
+      "source_asset_id": 299537,
+      "source_asset_name": "Triathlete",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299537/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_combined_needs_inspection"
+    },
+    {
+      "graphics_id": 58,
+      "graphics_name": "OBJ_EVENT_GFX_NURSE",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 64,
+      "graphics_name": "OBJ_EVENT_GFX_PROF_BIRCH",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296314,
+      "source_asset_name": "Professor Birch",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296314/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 65,
+      "graphics_name": "OBJ_EVENT_GFX_MAN_4",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 66,
+      "graphics_name": "OBJ_EVENT_GFX_MAN_5",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 67,
+      "graphics_name": "OBJ_EVENT_GFX_REPORTER_M",
+      "planned_action": "download_inspect_components_before_mapping",
+      "source_asset_id": 299514,
+      "source_asset_name": "Interviewers",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299514/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_combined_needs_inspection"
+    },
+    {
+      "graphics_id": 68,
+      "graphics_name": "OBJ_EVENT_GFX_REPORTER_F",
+      "planned_action": "download_inspect_components_before_mapping",
+      "source_asset_id": 299514,
+      "source_asset_name": "Interviewers",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299514/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_combined_needs_inspection"
+    },
+    {
+      "graphics_id": 69,
+      "graphics_name": "OBJ_EVENT_GFX_BARD",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 70,
+      "graphics_name": "OBJ_EVENT_GFX_ANABEL",
+      "planned_action": "research_non_oras_or_legacy_source_before_asset_binding",
+      "source_family": "unresolved",
+      "status": "secondary_source_required"
+    },
+    {
+      "graphics_id": 71,
+      "graphics_name": "OBJ_EVENT_GFX_TUCKER",
+      "planned_action": "research_non_oras_or_legacy_source_before_asset_binding",
+      "source_family": "unresolved",
+      "status": "secondary_source_required"
+    },
+    {
+      "graphics_id": 72,
+      "graphics_name": "OBJ_EVENT_GFX_GRETA",
+      "planned_action": "research_non_oras_or_legacy_source_before_asset_binding",
+      "source_family": "unresolved",
+      "status": "secondary_source_required"
+    },
+    {
+      "graphics_id": 73,
+      "graphics_name": "OBJ_EVENT_GFX_SPENSER",
+      "planned_action": "research_non_oras_or_legacy_source_before_asset_binding",
+      "source_family": "unresolved",
+      "status": "secondary_source_required"
+    },
+    {
+      "graphics_id": 74,
+      "graphics_name": "OBJ_EVENT_GFX_NOLAND",
+      "planned_action": "research_non_oras_or_legacy_source_before_asset_binding",
+      "source_family": "unresolved",
+      "status": "secondary_source_required"
+    },
+    {
+      "graphics_id": 75,
+      "graphics_name": "OBJ_EVENT_GFX_LUCY",
+      "planned_action": "research_non_oras_or_legacy_source_before_asset_binding",
+      "source_family": "unresolved",
+      "status": "secondary_source_required"
+    },
+    {
+      "graphics_id": 83,
+      "graphics_name": "OBJ_EVENT_GFX_MART_EMPLOYEE",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 84,
+      "graphics_name": "OBJ_EVENT_GFX_ROOFTOP_SALE_WOMAN",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 85,
+      "graphics_name": "OBJ_EVENT_GFX_TEALA",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 99,
+      "graphics_name": "OBJ_EVENT_GFX_ARTIST",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 100,
+      "graphics_name": "OBJ_EVENT_GFX_RIVAL_BRENDAN_NORMAL",
+      "planned_action": "reuse_player_model_with_npc_or_rival_state_policy",
+      "reuse_model_id": "character.brendan.oras_overworld",
+      "source_family": "oras_player_asset",
+      "status": "reuse_verified_player_base"
+    },
+    {
+      "graphics_id": 101,
+      "graphics_name": "OBJ_EVENT_GFX_RIVAL_BRENDAN_MACH_BIKE",
+      "planned_action": "reuse_player_model_with_npc_or_rival_state_policy",
+      "reuse_model_id": "character.brendan.oras_overworld",
+      "source_family": "oras_player_asset",
+      "status": "reuse_verified_player_base"
+    },
+    {
+      "graphics_id": 102,
+      "graphics_name": "OBJ_EVENT_GFX_RIVAL_BRENDAN_ACRO_BIKE",
+      "planned_action": "reuse_player_model_with_npc_or_rival_state_policy",
+      "reuse_model_id": "character.brendan.oras_overworld",
+      "source_family": "oras_player_asset",
+      "status": "reuse_verified_player_base"
+    },
+    {
+      "graphics_id": 103,
+      "graphics_name": "OBJ_EVENT_GFX_RIVAL_BRENDAN_SURFING",
+      "planned_action": "reuse_player_model_with_npc_or_rival_state_policy",
+      "reuse_model_id": "character.brendan.oras_overworld",
+      "source_family": "oras_player_asset",
+      "status": "reuse_verified_player_base"
+    },
+    {
+      "graphics_id": 104,
+      "graphics_name": "OBJ_EVENT_GFX_RIVAL_BRENDAN_FIELD_MOVE",
+      "planned_action": "reuse_player_model_with_npc_or_rival_state_policy",
+      "reuse_model_id": "character.brendan.oras_overworld",
+      "source_family": "oras_player_asset",
+      "status": "reuse_verified_player_base"
+    },
+    {
+      "graphics_id": 105,
+      "graphics_name": "OBJ_EVENT_GFX_RIVAL_MAY_NORMAL",
+      "planned_action": "reuse_player_model_with_npc_or_rival_state_policy",
+      "reuse_model_id": "character.may.oras_overworld",
+      "source_family": "oras_player_asset",
+      "status": "reuse_verified_player_base"
+    },
+    {
+      "graphics_id": 106,
+      "graphics_name": "OBJ_EVENT_GFX_RIVAL_MAY_MACH_BIKE",
+      "planned_action": "reuse_player_model_with_npc_or_rival_state_policy",
+      "reuse_model_id": "character.may.oras_overworld",
+      "source_family": "oras_player_asset",
+      "status": "reuse_verified_player_base"
+    },
+    {
+      "graphics_id": 107,
+      "graphics_name": "OBJ_EVENT_GFX_RIVAL_MAY_ACRO_BIKE",
+      "planned_action": "reuse_player_model_with_npc_or_rival_state_policy",
+      "reuse_model_id": "character.may.oras_overworld",
+      "source_family": "oras_player_asset",
+      "status": "reuse_verified_player_base"
+    },
+    {
+      "graphics_id": 108,
+      "graphics_name": "OBJ_EVENT_GFX_RIVAL_MAY_SURFING",
+      "planned_action": "reuse_player_model_with_npc_or_rival_state_policy",
+      "reuse_model_id": "character.may.oras_overworld",
+      "source_family": "oras_player_asset",
+      "status": "reuse_verified_player_base"
+    },
+    {
+      "graphics_id": 109,
+      "graphics_name": "OBJ_EVENT_GFX_RIVAL_MAY_FIELD_MOVE",
+      "planned_action": "reuse_player_model_with_npc_or_rival_state_policy",
+      "reuse_model_id": "character.may.oras_overworld",
+      "source_family": "oras_player_asset",
+      "status": "reuse_verified_player_base"
+    },
+    {
+      "graphics_id": 110,
+      "graphics_name": "OBJ_EVENT_GFX_CAMERAMAN",
+      "planned_action": "download_inspect_components_before_mapping",
+      "source_asset_id": 299514,
+      "source_asset_name": "Interviewers",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299514/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_combined_needs_inspection"
+    },
+    {
+      "graphics_id": 115,
+      "graphics_name": "OBJ_EVENT_GFX_SCIENTIST_2",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 116,
+      "graphics_name": "OBJ_EVENT_GFX_DEVON_EMPLOYEE",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 117,
+      "graphics_name": "OBJ_EVENT_GFX_AQUA_MEMBER_M",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296317,
+      "source_asset_name": "Team Aqua Grunt (Male)",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296317/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 118,
+      "graphics_name": "OBJ_EVENT_GFX_AQUA_MEMBER_F",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296316,
+      "source_asset_name": "Team Aqua Grunt (Female)",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296316/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 119,
+      "graphics_name": "OBJ_EVENT_GFX_MAGMA_MEMBER_M",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296326,
+      "source_asset_name": "Team Magma Grunt (Male)",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296326/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 120,
+      "graphics_name": "OBJ_EVENT_GFX_MAGMA_MEMBER_F",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296324,
+      "source_asset_name": "Team Magma Grunt (Female)",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296324/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 121,
+      "graphics_name": "OBJ_EVENT_GFX_SIDNEY",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296309,
+      "source_asset_name": "Sidney",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296309/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 122,
+      "graphics_name": "OBJ_EVENT_GFX_PHOEBE",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296308,
+      "source_asset_name": "Phoebe",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296308/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 123,
+      "graphics_name": "OBJ_EVENT_GFX_GLACIA",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296331,
+      "source_asset_name": "Glacia",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296331/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 124,
+      "graphics_name": "OBJ_EVENT_GFX_DRAKE",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296323,
+      "source_asset_name": "Drake",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296323/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 125,
+      "graphics_name": "OBJ_EVENT_GFX_ROXANNE",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296327,
+      "source_asset_name": "Roxanne",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296327/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 126,
+      "graphics_name": "OBJ_EVENT_GFX_BRAWLY",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296311,
+      "source_asset_name": "Brawly",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296311/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 127,
+      "graphics_name": "OBJ_EVENT_GFX_WATTSON",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296330,
+      "source_asset_name": "Wattson",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296330/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 128,
+      "graphics_name": "OBJ_EVENT_GFX_FLANNERY",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296297,
+      "source_asset_name": "Flannery",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296297/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 129,
+      "graphics_name": "OBJ_EVENT_GFX_NORMAN",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296313,
+      "source_asset_name": "Norman",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296313/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 130,
+      "graphics_name": "OBJ_EVENT_GFX_WINONA",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296310,
+      "source_asset_name": "Winona",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296310/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 131,
+      "graphics_name": "OBJ_EVENT_GFX_LIZA",
+      "planned_action": "download_inspect_components_before_mapping",
+      "source_asset_id": 296325,
+      "source_asset_name": "Liza & Tate",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296325/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_combined_needs_inspection"
+    },
+    {
+      "graphics_id": 132,
+      "graphics_name": "OBJ_EVENT_GFX_TATE",
+      "planned_action": "download_inspect_components_before_mapping",
+      "source_asset_id": 296325,
+      "source_asset_name": "Liza & Tate",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296325/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_combined_needs_inspection"
+    },
+    {
+      "graphics_id": 133,
+      "graphics_name": "OBJ_EVENT_GFX_WALLACE",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296329,
+      "source_asset_name": "Wallace",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296329/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 134,
+      "graphics_name": "OBJ_EVENT_GFX_STEVEN",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296334,
+      "source_asset_name": "Steven",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296334/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 135,
+      "graphics_name": "OBJ_EVENT_GFX_WALLY",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296336,
+      "source_asset_name": "Wally",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296336/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 136,
+      "graphics_name": "OBJ_EVENT_GFX_LITTLE_BOY_3",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 139,
+      "graphics_name": "OBJ_EVENT_GFX_HOT_SPRINGS_OLD_WOMAN",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 189,
+      "graphics_name": "OBJ_EVENT_GFX_GAMEBOY_KID",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 190,
+      "graphics_name": "OBJ_EVENT_GFX_CONTEST_JUDGE",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 195,
+      "graphics_name": "OBJ_EVENT_GFX_ARCHIE",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296332,
+      "source_asset_name": "Archie",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296332/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 196,
+      "graphics_name": "OBJ_EVENT_GFX_MAXIE",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296333,
+      "source_asset_name": "Maxie",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296333/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 213,
+      "graphics_name": "OBJ_EVENT_GFX_TUBER_M_SWIMMING",
+      "planned_action": "download_inspect_components_before_mapping",
+      "source_asset_id": 299538,
+      "source_asset_name": "Tuber (Boy)",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299538/",
+      "source_section": "Trainer Classes",
+      "status": "oras_public_combined_needs_inspection"
+    },
+    {
+      "graphics_id": 215,
+      "graphics_name": "OBJ_EVENT_GFX_MOM",
+      "planned_action": "download_verify_and_store_private",
+      "source_asset_id": 296685,
+      "source_asset_name": "Player's Mother",
+      "source_family": "oras_models_resource",
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296685/",
+      "source_section": "Unique NPCs (Overworld)",
+      "status": "oras_public_exact"
+    },
+    {
+      "graphics_id": 216,
+      "graphics_name": "OBJ_EVENT_GFX_LINK_BRENDAN",
+      "planned_action": "reuse_player_model_with_npc_or_rival_state_policy",
+      "reuse_model_id": "character.brendan.oras_overworld",
+      "source_family": "oras_player_asset",
+      "status": "reuse_verified_player_base"
+    },
+    {
+      "graphics_id": 217,
+      "graphics_name": "OBJ_EVENT_GFX_LINK_MAY",
+      "planned_action": "reuse_player_model_with_npc_or_rival_state_policy",
+      "reuse_model_id": "character.may.oras_overworld",
+      "source_family": "oras_player_asset",
+      "status": "reuse_verified_player_base"
+    },
+    {
+      "graphics_id": 218,
+      "graphics_name": "OBJ_EVENT_GFX_JUAN",
+      "planned_action": "research_non_oras_or_legacy_source_before_asset_binding",
+      "source_family": "unresolved",
+      "status": "secondary_source_required"
+    },
+    {
+      "graphics_id": 219,
+      "graphics_name": "OBJ_EVENT_GFX_SCOTT",
+      "planned_action": "research_non_oras_or_legacy_source_before_asset_binding",
+      "source_family": "unresolved",
+      "status": "secondary_source_required"
+    },
+    {
+      "graphics_id": 223,
+      "graphics_name": "OBJ_EVENT_GFX_MYSTERY_GIFT_MAN",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 227,
+      "graphics_name": "OBJ_EVENT_GFX_UNION_ROOM_NURSE",
+      "planned_action": "inspect_owned_oras_data_or_map_to_verified_shared_family",
+      "source_family": "oras_unresolved",
+      "status": "oras_extract_or_family_map_required"
+    },
+    {
+      "graphics_id": 230,
+      "graphics_name": "OBJ_EVENT_GFX_RED",
+      "planned_action": "research_non_oras_or_legacy_source_before_asset_binding",
+      "source_family": "unresolved",
+      "status": "secondary_source_required"
+    },
+    {
+      "graphics_id": 231,
+      "graphics_name": "OBJ_EVENT_GFX_LEAF",
+      "planned_action": "research_non_oras_or_legacy_source_before_asset_binding",
+      "source_family": "unresolved",
+      "status": "secondary_source_required"
+    },
+    {
+      "graphics_id": 234,
+      "graphics_name": "OBJ_EVENT_GFX_BRANDON",
+      "planned_action": "research_non_oras_or_legacy_source_before_asset_binding",
+      "source_family": "unresolved",
+      "status": "secondary_source_required"
+    },
+    {
+      "graphics_id": 235,
+      "graphics_name": "OBJ_EVENT_GFX_LINK_RS_BRENDAN",
+      "planned_action": "research_non_oras_or_legacy_source_before_asset_binding",
+      "source_family": "unresolved",
+      "status": "secondary_source_required"
+    },
+    {
+      "graphics_id": 236,
+      "graphics_name": "OBJ_EVENT_GFX_LINK_RS_MAY",
+      "planned_action": "research_non_oras_or_legacy_source_before_asset_binding",
+      "source_family": "unresolved",
+      "status": "secondary_source_required"
+    }
+  ],
+  "schema_version": 1,
+  "source_catalog": {
+    "game": "Pok\u00e9mon Omega Ruby / Alpha Sapphire",
+    "game_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/",
+    "generic_gap_policy": "Use owned ORAS source data with a compatible importer, or explicit shared-family mapping after visual verification.",
+    "generic_overworld_npc_section_present": false,
+    "human_sections": {
+      "Playable Characters": 2,
+      "Playable Characters (Overworld)": 6,
+      "Trainer Classes": 50,
+      "Unique NPCs": 5,
+      "Unique NPCs (Overworld)": 33
+    },
+    "observed_asset_total": 295,
+    "site": "The Models Resource"
+  },
+  "status_counts": {
+    "oras_extract_or_family_map_required": 45,
+    "oras_public_combined_needs_inspection": 12,
+    "oras_public_exact": 39,
+    "reuse_verified_player_base": 12,
+    "secondary_source_required": 13
+  }
+}
