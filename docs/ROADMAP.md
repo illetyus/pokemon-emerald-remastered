@@ -525,6 +525,9 @@ silently ignored.
 
 ## R15 — Audio
 
+Preparation/pilot status: [R15_AUDIO_PREPARATION.md](R15_AUDIO_PREPARATION.md).
+The 12-species modern listening pilot is ready; full asset and runtime gates remain open.
+
 ### Goal
 
 Preserve Emerald audio identity while replacing playback infrastructure.

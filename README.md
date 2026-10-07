@@ -137,3 +137,5 @@ BrowserStack real-device smoke stage.
 
 A future self-hosted runner, if used at all, must never execute untrusted public
 fork PR code with host or secret access.
+
+R15 audio preparation and 12-species listening pilot: [status and open gates](docs/R15_AUDIO_PREPARATION.md). R15 is not yet complete.

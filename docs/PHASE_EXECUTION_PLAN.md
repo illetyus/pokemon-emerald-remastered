@@ -407,6 +407,10 @@ Main HEAD + CI terminal-success. Pass -> R15-P1.
 
 # R15 — Audio
 
+Current preparation/pilot evidence: [R15_AUDIO_PREPARATION.md](R15_AUDIO_PREPARATION.md).
+P1/P2 and 12-species pilot prepared; R15 completion remains gated by listening,
+full assets, cry-mode processing, host attachment and actual engine/device tests.
+
 ### R15-P1 — Semantic audio inventory
 Inventory gameplay/presentation music, SFX, jingle, cry and ambience IDs/events
 and existing playback bridge surfaces.
