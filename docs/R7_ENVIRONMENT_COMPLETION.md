@@ -1,6 +1,6 @@
 # R7 Environment and Camera — Source and Preparation Acceptance
 
-Status: **implementation prepared; hosted acceptance pending first publication**.
+Status: **pre-real-Unreal source/preparation implementation and acceptance VERIFIED_COMPLETE on the R7 branch; merge/main gates pending**.
 This checkpoint covers pre-real-Unreal code, deterministic metadata, explicit
 fallbacks and source budget validation. It does not assert a rendered 3D scene,
 licensed Unreal/UHT compilation, commercial model acquisition or Android execution.
@@ -102,7 +102,15 @@ No all-world budget or high-FPS claim is made.
 Local checks passed: 21 R7 Python tests; all 202 Python regressions; 53 shared
 native presentation checks under GCC C++17 with warnings as errors; deterministic
 package regeneration/integrity verification; Unreal source authority validation;
-clean diff formatting. Hosted full CMake/CTest acceptance is pending publication.
+clean diff formatting. Hosted run [37601156961](https://github.com/illetyus/pokemon-emerald-remastered/actions/runs/37601156961)
+completed successfully at implementation commit
+`0e9133de277bb9f884e7d32105cead205b9034f1`: 21 R7 Python tests, all 202 Python
+regressions, deterministic package/source guards and **63/63 CMake/CTest checks**.
+Both jobs reached terminal success. All 23 implementation/evidence blobs match
+the verified local source bytes; the comparison contains no core/vendor edits.
+Independent raw-word verification reconstructed 324,579 active tiles across all
+441 layouts and checked map type/weather/layout metadata for all 518 maps.
+The final documentation checkpoint must also pass CI at its exact branch HEAD.
 The shared C++ helper is genuinely compiled, while the Unreal actor/UHT layer is
 source checked only.
 
@@ -111,9 +119,9 @@ GraniteCave_1F, Route105 and Underwater_Route124. Route105 is a source `MAP_TYPE
 with water metatiles; its map type is preserved rather than relabeled as an ocean
 route. All 441 layouts and all 518 maps are also audited, beyond this sample set.
 
-R7-P1/P2, I1–I7 and T1 are implemented in the pre-real-Unreal scope. V1/G1 await
-hosted acceptance; D1/F1 are this evidence and the independent regression/source
-reconciliation. R7-M1/M2 remain PR/merge/main gates.
+R7-P1/P2, I1–I7, T1, V1/G1 and D1/F1 are VERIFIED_COMPLETE in the
+pre-real-Unreal scope, supported by source coverage, hosted regression acceptance
+and independent raw-source/blob reconciliation. R7-M1/M2 remain PR/merge/main gates.
 
 The user explicitly authorized R7 before the R6 merge/main gates. R7 is therefore
 prepared on dependent branch `r7-environment-presentation` based on verified R6

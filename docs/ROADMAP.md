@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
 Date: 2026-10-07
-Status: **R0-R5, R10-R13, R16 and R17 complete; R6 source/preparation acceptance verified; R7 implementation prepared for hosted acceptance on dependent branch; R6/R7 merge/main gates pending.**
+Status: **R0-R5, R10-R13, R16 and R17 complete; R6 source/preparation acceptance verified; R7 source/preparation acceptance verified on dependent branch; R6/R7 merge/main gates pending.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -391,8 +391,8 @@ The repository stores only:
 
 ## R7 — Camera / environment presentation + environment asset pipeline
 
-Current checkpoint: pre-real-Unreal implementation prepared; hosted acceptance
-pending. See [R7_ENVIRONMENT_COMPLETION.md](R7_ENVIRONMENT_COMPLETION.md) for full
+Current checkpoint: pre-real-Unreal implementation and hosted acceptance verified
+on the dependent R7 branch; merge/main gates pending. See [R7_ENVIRONMENT_COMPLETION.md](R7_ENVIRONMENT_COMPLETION.md) for full
 source identity/fallback coverage, camera/environment changes, budgets and limits.
 
 ### Goal
@@ -899,7 +899,10 @@ R7 implementation covers all 518 maps, 441 layouts and 18,403 explicit fallback
 identities; actual modern 3D model/import/device readiness is not asserted.
 
 Completion evidence: [R7_ENVIRONMENT_COMPLETION.md](R7_ENVIRONMENT_COMPLETION.md).
-Current checkpoint: **R7-V1/G1 hosted full regression acceptance**.
+Current checkpoint: **R7-D1/F1 evidence and exact documentation-head CI**.
+Implementation commit `0e9133de277bb9f884e7d32105cead205b9034f1` passed
+[hosted run 37601156961](https://github.com/illetyus/pokemon-emerald-remastered/actions/runs/37601156961):
+all 202 Python tests and 63/63 portable CMake/CTest checks.
 The earlier PR/merge/main boundary remains; integrate R6 then R7 when those gates
 are authorized. Next preparation phase is R9; this R7-only request does not start
 it automatically. R6 evidence remains [R6_PRESENTATION_COMPLETION.md](R6_PRESENTATION_COMPLETION.md).
