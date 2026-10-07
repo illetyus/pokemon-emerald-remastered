@@ -187,4 +187,3 @@ PR creation, merge and main changes remain outside the current authorization.
 After the separately authorized R6-M1 merge and R6-M2 main CI gate, the next
 roadmap phase is R7-P1. Source preparation acceptance is not real Unreal runtime
 acceptance; the external R18 checks above remain mandatory.
-
