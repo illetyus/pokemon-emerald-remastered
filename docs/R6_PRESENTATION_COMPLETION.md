@@ -1,6 +1,6 @@
 # R6 Character Presentation — Source and Preparation Acceptance
 
-Status: **implementation complete; hosted CI/final gate verification pending**.
+Status: **pre-real-Unreal implementation and acceptance VERIFIED_COMPLETE on the R6 branch; merge/main gates pending**.
 This closes the pre-real-Unreal scope. Actual import, animation/retarget validation,
 normalized model output and Android execution remain explicit R18/local asset work.
 No playable Unreal or Android result is asserted.
@@ -150,8 +150,9 @@ not runtime tamper protection.
 - Shared R6 C++ read-only adapter and load-generation test passed.
 - 48 existing standalone native C regressions passed through direct GCC builds.
 - Unreal source architecture validator passed; generated package is byte deterministic.
-- Full CMake/CTest matrix is delegated to the dedicated R6 CI workflow; local CMake
-  is unavailable. Native builds above do not substitute for the hosted matrix.
+- Hosted full CMake/CTest: **62/62 passed**, including the shared R6 adapter,
+  Unreal C++ core embedding, R4 and earlier save/script/battle/QoL regressions.
+  Local CMake is unavailable; this result is from the hosted CI job.
 
 `r6-character-presentation.yml` runs R6/public metadata tests, all Python regressions,
 full portable CMake/CTest including Unreal C++ core embedding, and source guards.
@@ -162,6 +163,28 @@ shared retarget compatibility, prop completeness, cook validation, Android FPS/m
 and device results remain untested. Missing local assets are accepted through the
 explicit fallback contract. No Pokemon asset pipeline is duplicated here.
 
-The branch's final gate requires terminal-success hosted CI and unchanged upstream
-heads. PR creation, merge and main changes remain outside the current authorization.
-After that separately authorized merge/main gate, the next roadmap phase is R7-P1.
+## Hosted acceptance and final gate evidence
+
+Verified implementation commit: [f9dbf2d20bb6bd38ae921a9aa2225aa969c984b8](https://github.com/illetyus/pokemon-emerald-remastered/commit/f9dbf2d20bb6bd38ae921a9aa2225aa969c984b8).
+[CI run 37596293052](https://github.com/illetyus/pokemon-emerald-remastered/actions/runs/37596293052)
+completed with **success**, both required jobs passed:
+
+| Gate | Result |
+| --- | --- |
+| source-and-package | 52 targeted R6 tests, all 181 Python regressions, package/preparation jobs, architecture guards: passed |
+| portable-regressions | Full CMake compilation and 62/62 CTest checks: passed |
+| Published bytes | All 34 changed blob hashes match locally verified files |
+| Branch ancestry | Direct parent is b33f30d; ahead 1 / behind 0 at implementation acceptance |
+| Public boundary | No new commercial/archive/model/image/Unreal binary paths |
+| Main boundary | Main remains a7ed422da7817c05aa1eac21bdbca6bd6edced5e |
+
+R6-I3/I4/I5/I6, T1, V1 and G1 are closed for source/preparation acceptance.
+D1 records this evidence. This documentation-only checkpoint reconciles the
+roadmap and execution plan; its exact HEAD CI must also be terminal-success
+before any separately authorized merge.
+
+PR creation, merge and main changes remain outside the current authorization.
+After the separately authorized R6-M1 merge and R6-M2 main CI gate, the next
+roadmap phase is R7-P1. Source preparation acceptance is not real Unreal runtime
+acceptance; the external R18 checks above remain mandatory.
+

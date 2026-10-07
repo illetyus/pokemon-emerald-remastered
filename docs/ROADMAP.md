@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
 Date: 2026-10-06  
-Status: **R0-R5, R10-R13 and R16 complete; R17 implementation acceptance verified, final/merge/main gates required.**
+Status: **R0-R5, R10-R13, R16 and R17 complete; R6 pre-real-Unreal implementation/acceptance verified on branch; R6 merge/main gates pending.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -341,6 +341,12 @@ Make save compatibility a release-grade contract.
 - compatibility fixtures are versioned and regression-tested.
 
 ## R6 — Character / NPC presentation + character asset pipeline
+
+**Status: pre-real-Unreal source/preparation acceptance VERIFIED_COMPLETE on
+`r6-character-presentation`; merge/main gates pending.** See
+[R6_PRESENTATION_COMPLETION.md](R6_PRESENTATION_COMPLETION.md) for source choices,
+explicit fallbacks, local asset workflow, 181 Python / 62 CTest results and
+remaining engine/device validation.
 
 ### Goal
 
@@ -880,16 +886,19 @@ of successful UE compilation or Android runtime.
 
 # 14. Immediate next action
 
-The active phase is **R17 — Save compatibility / migration**.
-R13 and R16 are complete and merged to `main`. R17 implementation, versioned
-fixtures, real VP019 native replay, full CI and acceptance gate are verified at
-`f0db6e28a06ebd104f9e184c475a0ec359ca31f6`.
+The active phase is **R6 — Character / NPC presentation**.
+R17 is merged at main `a7ed422da7817c05aa1eac21bdbca6bd6edced5e`.
+R6 source/preparation acceptance is verified at implementation commit
+`f9dbf2d20bb6bd38ae921a9aa2225aa969c984b8` with terminal-success hosted CI.
+All 681 identities have explicit fallback coverage; 139 human identities have
+source or source-gap/deferred decisions. Normalized commercial outputs, clips
+and actual Unreal/device validation are not asserted.
 
-Completion evidence: [R17_SAVE_COMPAT_COMPLETION.md](R17_SAVE_COMPAT_COMPLETION.md).
-Current checkpoint: R17-D1; require its exact committed-HEAD CI, then execute
-R17-F1 independent final reconciliation, R17-M1 verified PR merge and R17-M2
-terminal-success main verification. R17 is not considered merged in advance.
-The next phase is **R6-P1** only after those gates pass.
+Completion evidence: [R6_PRESENTATION_COMPLETION.md](R6_PRESENTATION_COMPLETION.md).
+Current checkpoint: **R6-D1/F1 documentation reconciliation and exact-head CI**.
+PR/merge/main changes remain outside the current authorization. Once separately
+authorized, execute R6-M1 verified branch/PR merge, then R6-M2 terminal-success
+main CI. Only then advance to R7-P1.
 
 Real Unreal build remains R18 work. After R18 main verification, stop at
 REAL UNREAL RUNTIME VALIDATION; do not automatically run physical Android
