@@ -6,6 +6,7 @@
 #include "Engine/LocalPlayer.h"
 #include "InputCoreTypes.h"
 #include "RemasterInputConfig.h"
+#include "RemasterUISubsystem.h"
 #include "RemasterOverworldPawn.h"
 
 extern "C"
@@ -39,6 +40,8 @@ void ARemasterPlayerController::BeginPlay()
     {
         OverworldPawn->SyncFromAuthoritativeState();
     }
+    if (auto* UI = GetGameInstance()->GetSubsystem<URemasterUISubsystem>())
+        UI->StartNativePresentation();
 }
 
 void ARemasterPlayerController::SetupInputComponent()
@@ -48,173 +51,99 @@ void ARemasterPlayerController::SetupInputComponent()
     if (!InputComponent)
         return;
 
-    if (InputConfig)
+    bool MoveBound = false, InteractBound = false, CancelBound = false;
+    bool MenuBound = false, MapBound = false, QuestBound = false, QuickBound = false;
+    auto* Enhanced = Cast<UEnhancedInputComponent>(InputComponent);
+    if (Enhanced && InputConfig && InputConfig->MappingContext.LoadSynchronous())
     {
-        if (UEnhancedInputComponent* Enhanced =
-                Cast<UEnhancedInputComponent>(InputComponent))
+        if (UInputAction* Action = InputConfig->Move.LoadSynchronous())
         {
-            if (UInputAction* Action =
-                    InputConfig->Move.LoadSynchronous())
-            {
-                Enhanced->BindAction(
-                    Action,
-                    ETriggerEvent::Started,
-                    this,
-                    &ARemasterPlayerController::HandleMove);
-            }
-
-            if (UInputAction* Action =
-                    InputConfig->Interact.LoadSynchronous())
-            {
-                Enhanced->BindAction(
-                    Action,
-                    ETriggerEvent::Started,
-                    this,
-                    &ARemasterPlayerController::HandleInteract);
-            }
-
-            if (UInputAction* Action =
-                    InputConfig->Cancel.LoadSynchronous())
-            {
-                Enhanced->BindAction(
-                    Action,
-                    ETriggerEvent::Started,
-                    this,
-                    &ARemasterPlayerController::HandleCancel);
-            }
-
-            if (UInputAction* Action =
-                    InputConfig->Menu.LoadSynchronous())
-            {
-                Enhanced->BindAction(
-                    Action,
-                    ETriggerEvent::Started,
-                    this,
-                    &ARemasterPlayerController::HandleMenu);
-            }
-
-            if (UInputAction* Action =
-                    InputConfig->Map.LoadSynchronous())
-            {
-                Enhanced->BindAction(
-                    Action,
-                    ETriggerEvent::Started,
-                    this,
-                    &ARemasterPlayerController::HandleMap);
-            }
-
-            if (UInputAction* Action =
-                    InputConfig->Quest.LoadSynchronous())
-            {
-                Enhanced->BindAction(
-                    Action,
-                    ETriggerEvent::Started,
-                    this,
-                    &ARemasterPlayerController::HandleQuest);
-            }
-
-            if (UInputAction* Action =
-                    InputConfig->QuickItem.LoadSynchronous())
-            {
-                Enhanced->BindAction(
-                    Action,
-                    ETriggerEvent::Started,
-                    this,
-                    &ARemasterPlayerController::HandleQuickItem);
-            }
-
-            return;
+            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleMove);
+            MoveBound = true;
         }
-
-        UE_LOG(
-            LogTemp,
-            Warning,
-            TEXT("RemasterPlayerController falling back to direct key bindings."));
+        if (UInputAction* Action = InputConfig->Interact.LoadSynchronous())
+        {
+            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleInteract);
+            InteractBound = true;
+        }
+        if (UInputAction* Action = InputConfig->Cancel.LoadSynchronous())
+        {
+            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleCancel);
+            CancelBound = true;
+        }
+        if (UInputAction* Action = InputConfig->Menu.LoadSynchronous())
+        {
+            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleMenu);
+            MenuBound = true;
+        }
+        if (UInputAction* Action = InputConfig->Map.LoadSynchronous())
+        {
+            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleMap);
+            MapBound = true;
+        }
+        if (UInputAction* Action = InputConfig->Quest.LoadSynchronous())
+        {
+            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleQuest);
+            QuestBound = true;
+        }
+        if (UInputAction* Action = InputConfig->QuickItem.LoadSynchronous())
+        {
+            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleQuickItem);
+            QuickBound = true;
+        }
     }
-
-    InputComponent->BindKey(
-        EKeys::Up,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::StepUp);
-    InputComponent->BindKey(
-        EKeys::W,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::StepUp);
-    InputComponent->BindKey(
-        EKeys::Gamepad_DPad_Up,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::StepUp);
-
-    InputComponent->BindKey(
-        EKeys::Down,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::StepDown);
-    InputComponent->BindKey(
-        EKeys::S,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::StepDown);
-    InputComponent->BindKey(
-        EKeys::Gamepad_DPad_Down,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::StepDown);
-
-    InputComponent->BindKey(
-        EKeys::Left,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::StepLeft);
-    InputComponent->BindKey(
-        EKeys::A,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::StepLeft);
-    InputComponent->BindKey(
-        EKeys::Gamepad_DPad_Left,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::StepLeft);
-
-    InputComponent->BindKey(
-        EKeys::Right,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::StepRight);
-    InputComponent->BindKey(
-        EKeys::D,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::StepRight);
-    InputComponent->BindKey(
-        EKeys::Gamepad_DPad_Right,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::StepRight);
-
-    InputComponent->BindKey(
-        EKeys::Enter,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::InteractFallback);
-    InputComponent->BindKey(
-        EKeys::SpaceBar,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::InteractFallback);
-    InputComponent->BindKey(
-        EKeys::Gamepad_FaceButton_Bottom,
-        IE_Pressed,
-        this,
-        &ARemasterPlayerController::InteractFallback);
+    if (!MoveBound)
+    {
+        InputComponent->BindKey(EKeys::Up, IE_Pressed, this, &ARemasterPlayerController::StepUp);
+        InputComponent->BindKey(EKeys::W, IE_Pressed, this, &ARemasterPlayerController::StepUp);
+        InputComponent->BindKey(EKeys::Gamepad_DPad_Up, IE_Pressed, this, &ARemasterPlayerController::StepUp);
+        InputComponent->BindKey(EKeys::Down, IE_Pressed, this, &ARemasterPlayerController::StepDown);
+        InputComponent->BindKey(EKeys::S, IE_Pressed, this, &ARemasterPlayerController::StepDown);
+        InputComponent->BindKey(EKeys::Gamepad_DPad_Down, IE_Pressed, this, &ARemasterPlayerController::StepDown);
+        InputComponent->BindKey(EKeys::Left, IE_Pressed, this, &ARemasterPlayerController::StepLeft);
+        InputComponent->BindKey(EKeys::A, IE_Pressed, this, &ARemasterPlayerController::StepLeft);
+        InputComponent->BindKey(EKeys::Gamepad_DPad_Left, IE_Pressed, this, &ARemasterPlayerController::StepLeft);
+        InputComponent->BindKey(EKeys::Right, IE_Pressed, this, &ARemasterPlayerController::StepRight);
+        InputComponent->BindKey(EKeys::D, IE_Pressed, this, &ARemasterPlayerController::StepRight);
+        InputComponent->BindKey(EKeys::Gamepad_DPad_Right, IE_Pressed, this, &ARemasterPlayerController::StepRight);
+    }
+    if (!InteractBound)
+    {
+        InputComponent->BindKey(EKeys::Enter, IE_Pressed, this, &ARemasterPlayerController::InteractFallback);
+        InputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &ARemasterPlayerController::InteractFallback);
+        InputComponent->BindKey(EKeys::Gamepad_FaceButton_Bottom, IE_Pressed, this, &ARemasterPlayerController::InteractFallback);
+    }
+    if (!CancelBound)
+    {
+        InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &ARemasterPlayerController::CancelFallback);
+        InputComponent->BindKey(EKeys::Gamepad_FaceButton_Right, IE_Pressed, this, &ARemasterPlayerController::CancelFallback);
+    }
+    if (!MenuBound)
+    {
+        InputComponent->BindKey(EKeys::Tab, IE_Pressed, this, &ARemasterPlayerController::MenuFallback);
+        InputComponent->BindKey(EKeys::Gamepad_Special_Right, IE_Pressed, this, &ARemasterPlayerController::MenuFallback);
+    }
+    if (!MapBound)
+    {
+        InputComponent->BindKey(EKeys::M, IE_Pressed, this, &ARemasterPlayerController::MapFallback);
+    }
+    if (!QuestBound)
+    {
+        InputComponent->BindKey(EKeys::Q, IE_Pressed, this, &ARemasterPlayerController::QuestFallback);
+    }
+    if (!QuickBound)
+    {
+        InputComponent->BindKey(EKeys::R, IE_Pressed, this, &ARemasterPlayerController::QuickItemFallback);
+        InputComponent->BindKey(EKeys::Gamepad_FaceButton_Top, IE_Pressed, this, &ARemasterPlayerController::QuickItemFallback);
+    }
 }
 
 void ARemasterPlayerController::StepDirection(int32 Direction)
 {
+    const ERemasterUiAction UiDirection = Direction == REMASTER_EMERALD_DIR_NORTH ? ERemasterUiAction::Up
+        : Direction == REMASTER_EMERALD_DIR_SOUTH ? ERemasterUiAction::Down
+        : Direction == REMASTER_EMERALD_DIR_WEST ? ERemasterUiAction::Left : ERemasterUiAction::Right;
+    if (RouteUI(UiDirection)) return;
     UGameInstance* GI = GetGameInstance();
     if (!GI)
         return;
@@ -242,6 +171,8 @@ void ARemasterPlayerController::StepDirection(int32 Direction)
         OverworldPawn->ApplyAuthoritativeStep(Result);
     }
 
+    if (auto* UI = GI->GetSubsystem<URemasterUISubsystem>())
+        UI->NotifyCoreStep(!Result.ScriptId.IsEmpty(), Result.bEncounterPending, Result.bRepelWoreOff);
     BP_OnWorldStep(Result);
 }
 
@@ -269,37 +200,37 @@ void ARemasterPlayerController::HandleMove(
 void ARemasterPlayerController::HandleInteract(
     const FInputActionValue&)
 {
-    BP_OnInteract();
+    if (!RouteUI(ERemasterUiAction::Confirm)) BP_OnInteract();
 }
 
 void ARemasterPlayerController::HandleCancel(
     const FInputActionValue&)
 {
-    BP_OnCancel();
+    if (!RouteUI(ERemasterUiAction::Cancel)) BP_OnCancel();
 }
 
 void ARemasterPlayerController::HandleMenu(
     const FInputActionValue&)
 {
-    BP_OnMenu();
+    if (!RouteUI(ERemasterUiAction::Menu)) BP_OnMenu();
 }
 
 void ARemasterPlayerController::HandleMap(
     const FInputActionValue&)
 {
-    BP_OnMap();
+    if (!RouteUI(ERemasterUiAction::Map)) BP_OnMap();
 }
 
 void ARemasterPlayerController::HandleQuest(
     const FInputActionValue&)
 {
-    BP_OnQuest();
+    if (!RouteUI(ERemasterUiAction::Quest)) BP_OnQuest();
 }
 
 void ARemasterPlayerController::HandleQuickItem(
     const FInputActionValue&)
 {
-    BP_OnQuickItem();
+    if (!RouteUI(ERemasterUiAction::QuickItem)) BP_OnQuickItem();
 }
 
 void ARemasterPlayerController::StepUp()
@@ -324,5 +255,17 @@ void ARemasterPlayerController::StepRight()
 
 void ARemasterPlayerController::InteractFallback()
 {
-    BP_OnInteract();
+    if (!RouteUI(ERemasterUiAction::Confirm)) BP_OnInteract();
 }
+
+bool ARemasterPlayerController::RouteUI(ERemasterUiAction Action)
+{
+    if (auto* UI = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterUISubsystem>() : nullptr)
+        return UI->SubmitAction(Action);
+    return false;
+}
+void ARemasterPlayerController::CancelFallback() { if (!RouteUI(ERemasterUiAction::Cancel)) RouteUI(ERemasterUiAction::Menu); }
+void ARemasterPlayerController::MenuFallback() { RouteUI(ERemasterUiAction::Menu); }
+void ARemasterPlayerController::MapFallback() { RouteUI(ERemasterUiAction::Map); }
+void ARemasterPlayerController::QuestFallback() { RouteUI(ERemasterUiAction::Quest); }
+void ARemasterPlayerController::QuickItemFallback() { RouteUI(ERemasterUiAction::QuickItem); }

@@ -1,0 +1,16 @@
+{
+  "schema": "r9-ui-expectations-v1",
+  "source_pin": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+  "frames": [
+    {"screen": 0, "title": "LittlerootTown", "modal": false, "body_contains": ["54321", "Takım 1"]},
+    {"screen": 1, "title": "Menü", "modal": true, "row_contains": ["Takım", "Çanta", "Harita", "Görev", "Ayarlar", "Kayıt"]},
+    {"screen": 2, "title": "Harita", "modal": true, "body_contains": ["Konum: LittlerootTown"]},
+    {"screen": 3, "title": "Görev", "modal": true, "body_contains": ["Konum: LittlerootTown"]},
+    {"screen": 4, "title": "Takım", "modal": true, "row_contains": ["Ğ", "HP 23/30"]},
+    {"screen": 5, "title": "Çanta", "modal": true, "body_contains": ["Cep 1"], "row_contains": ["× 5", "× 2", "Ada göre sırala"]},
+    {"screen": 7, "title": "Özet", "modal": true, "body_contains": ["IV 20 · EV 1", "Toplam EV 21", "HP 23/30"], "row_contains": ["Takma ad", "Hareket hatırlatıcı"]},
+    {"screen": 8, "title": "Ayarlar", "modal": true, "row_contains": ["Metin hızı", "Menü tuş tekrarı", "Saat ayarı"]},
+    {"screen": 9, "title": "Saat ayarı", "modal": true, "body_contains": ["12:34"], "row_contains": ["Saat ayarını uygula"]},
+    {"screen": 10, "title": "Kayıt / Yükle", "modal": true, "row_contains": ["Kaydet", "Yükle"]}
+  ]
+}

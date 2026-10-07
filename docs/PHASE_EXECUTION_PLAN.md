@@ -831,3 +831,23 @@ reconciliation verified all 324,579 active tiles and all 518 map records; all
 before any separately authorized R6/R7 M1/M2 integration. D1/F1 evidence, actual-engine deferrals and dependency details:
 `docs/R7_ENVIRONMENT_COMPLETION.md`. Next preparation phase after R7 is R9; do not
 start it under this R7-only instruction.
+
+## R9 direct-authorization checkpoint — 2026-10-07
+
+The user's next-phase completion instruction supersedes the R7-only resume
+restriction for R9 source/preparation. Dependent branch `r9-ui-presentation`
+starts from verified R7 head `32850179f41be4c12e2921d956fa52f7f0f0536b`.
+R6/R7/R9 PR/merge/main boundaries remain separately authorized integration gates.
+
+R9-P1/P2, I1-I8 UI infrastructure, T1 and D1 are IMPLEMENTED; hosted V1/G1 and
+final publication F1 reconciliation are pending. Shared native screen/action
+model, const core views, staged native commands, typed script request hooks,
+native UMG safe-area/scroll/marker shell and per-action input fallbacks are ready.
+Actual script resource/naming/field-effect hosts, R6/R7/R15 animation/audio timing
+and real Unreal/UHT/touch/Android checks remain explicit integration/runtime work.
+
+Local acceptance: 10 R9 Python tests, all 212 Python regressions, 215 native UI
+checks and the 10-screen native fixture matrix passed. Deterministic names and
+Unreal authority guards passed. D1/F1 details: `docs/R9_UI_COMPLETION.md`.
+Main is `a7ed422da7817c05aa1eac21bdbca6bd6edced5e`; next preparation phase is R14,
+which does not start under this R9-only instruction.

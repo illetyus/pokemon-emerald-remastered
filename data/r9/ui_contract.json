@@ -1,0 +1,30 @@
+{
+  "schema": "r9-ui-consumer-v1",
+  "scope": "pre-real-Unreal source and preparation",
+  "source_pin": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+  "required_screens": ["Hud", "Menu", "Map", "Quest", "Party", "Bag", "Summary", "Settings", "Rtc", "SaveLoad", "Dialogue"],
+  "actions": ["Up", "Down", "Left", "Right", "Confirm", "Cancel", "Menu", "Map", "Quest", "QuickItem"],
+  "authority": {
+    "view": "const core state, metadata getters on isolated copies",
+    "commands": "existing native APIs, staged save copy, revision plus whole-domain fingerprint",
+    "host": ["R17 save/load", "R1 RTC correction", "script resource resolution", "nickname text entry", "field item dispatch", "script/battle busy lifetime"],
+    "forbidden": ["UI story flags or vars", "UI stat formulas", "UI item effects", "UI VM run", "UI audio/movement/delay completions", "timer-generated world steps"]
+  },
+  "presentation": {
+    "clock_hz": 60,
+    "fast_text_glyphs_per_tick": 4,
+    "normal_text_glyphs_per_tick": 1,
+    "repeat_initial_ticks": 24,
+    "repeat_interval_ticks": 3,
+    "core_poll_hz": 4,
+    "touch_row_minimum_slate_units": 64,
+    "region_grid": [28, 15],
+    "maximum_screen_stack": 16
+  },
+  "qol": {
+    "implemented_ui": ["QOL-025", "QOL-026", "QOL-027 eligibility and entry hook", "QOL-028", "QOL-029 menu scope", "QOL-032", "QOL-042"],
+    "host_entry_only": ["QOL-012 repel prompt", "QOL-030 field-move presentation", "QOL-031 Pokemon Center presentation/fanfare"],
+    "ledger_policy": "R16 REJECTED means outside portable R16 gameplay core; ledger decisions are unchanged"
+  },
+  "deferred_validation": ["UE 5.8 UHT/module build", "real UMG rendering and DPI", "Android touch/device checks", "host resource and entry-hook integration", "R15 audio barriers", "imported region artwork"]
+}

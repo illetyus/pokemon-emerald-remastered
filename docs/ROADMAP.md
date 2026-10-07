@@ -448,6 +448,11 @@ presentation-only 3D visual assets
 
 ## R9 — UI / HUD / menu infrastructure
 
+Source/preparation implementation on dependent `r9-ui-presentation` branch:
+[R9 UI completion evidence](R9_UI_COMPLETION.md). This checkpoint provides the
+shared native model and source UMG/input integration; real engine/device and
+host-entry integration checks remain explicit. PR/merge/main gates are separate.
+
 ### Goal
 
 Provide modern presentation for Emerald information without duplicating
