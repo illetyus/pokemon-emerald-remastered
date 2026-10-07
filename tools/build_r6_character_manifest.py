@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 SCHEMA_VERSION = 1
+OVERRIDES_MANIFEST_PATH = "data/r6/character_presentation_overrides.json"
 ALLOWED_KINDS = {"human", "pokemon_overworld", "special_object"}
 LOGICAL_ID_RE = re.compile(r"^[a-z0-9][a-z0-9_.-]*$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -362,7 +363,7 @@ def build_manifest(vendor: Path, overrides_path: Path) -> dict[str, Any]:
                 ),
             },
             {
-                "path": overrides_path.as_posix(),
+                "path": OVERRIDES_MANIFEST_PATH,
                 "sha256": sha256_file(overrides_path),
             },
         ],

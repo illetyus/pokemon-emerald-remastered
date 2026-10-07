@@ -111,6 +111,12 @@ class R6CharacterManifestTests(unittest.TestCase):
             self.assertEqual(entry["source_family"], "oras")
             self.assertEqual(entry["model_id"], "character.brendan")
             self.assertEqual(entry["fallback_id"], "fallback.human")
+            serialized = json.dumps(manifest, sort_keys=True)
+            self.assertNotIn(str(Path(tmp)), serialized)
+            self.assertEqual(
+                manifest["source_files"][2]["path"],
+                "data/r6/character_presentation_overrides.json",
+            )
 
     def test_machine_paths_are_rejected_as_logical_ids(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
