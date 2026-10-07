@@ -69,6 +69,7 @@ class POKEMONEMERALDREMASTERED_API URemasterCharacterCatalogSubsystem
 
 public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+    uint32 GetCatalogRevision() const { return CatalogRevision; }
 
     UFUNCTION(BlueprintCallable, Category="Remaster|Character|Presentation")
     bool ReloadCatalog();
@@ -99,6 +100,7 @@ public:
         FRemasterCharacterPresentationEntry& OutEntry) const;
 
 private:
+    uint32 CatalogRevision = 0;
     bool bCatalogReady = false;
     FString ContentSha256;
     TMap<int32, FRemasterCharacterPresentationEntry> EntriesById;

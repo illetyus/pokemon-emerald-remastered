@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -113,6 +114,21 @@ class ManifestError(ValueError):
     pass
 
 
+def strict_json_loads(text: str) -> Any:
+    def object_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ManifestError(f"duplicate JSON key: {key}")
+            result[key] = value
+        return result
+
+    def constant(value: str) -> None:
+        raise ManifestError(f"non-finite JSON constant: {value}")
+
+    return json.loads(text, object_pairs_hook=object_pairs, parse_constant=constant)
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -127,6 +143,7 @@ def canonical_sha256(value: Any) -> str:
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=False,
+        allow_nan=False,
     ).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
 
@@ -250,8 +267,8 @@ def default_record(graphics_name: str, graphics_id: int) -> dict[str, Any]:
 
 
 def load_overrides(path: Path) -> dict[str, dict[str, Any]]:
-    data = json.loads(path.read_text(encoding="utf-8"))
-    if data.get("schema_version") != SCHEMA_VERSION:
+    data = strict_json_loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict) or type(data.get("schema_version")) is not int or data["schema_version"] != SCHEMA_VERSION:
         raise ManifestError("unsupported R6 override schema")
     overrides = data.get("overrides")
     if not isinstance(overrides, dict):
@@ -282,8 +299,12 @@ def validate_hashes(values: Any, field: str, graphics_name: str) -> None:
 
 def validate_record(record: dict[str, Any]) -> None:
     name = record["graphics_name"]
-    if record["schema_version"] != SCHEMA_VERSION:
+    if type(record["schema_version"]) is not int or record["schema_version"] != SCHEMA_VERSION:
         raise ManifestError(f"{name}: wrong record schema")
+    if type(record["graphics_id"]) is not int or not 0 <= record["graphics_id"] <= 65535:
+        raise ManifestError(f"{name}: invalid graphics_id")
+    if not isinstance(name, str) or not re.fullmatch(r"OBJ_EVENT_GFX_[A-Z0-9_]+", name):
+        raise ManifestError("invalid graphics_name")
     if record["presentation_kind"] not in ALLOWED_KINDS:
         raise ManifestError(f"{name}: invalid presentation_kind")
     for field in (
@@ -306,10 +327,18 @@ def validate_record(record: dict[str, Any]) -> None:
         value = record[field]
         if not isinstance(value, (int, float)) or isinstance(value, bool):
             raise ManifestError(f"{name}: {field} must be numeric")
+        if not math.isfinite(value) or abs(value) > 1.0e6:
+            raise ManifestError(f"{name}: {field} must be finite and bounded")
     if float(record["scale"]) <= 0.0:
         raise ManifestError(f"{name}: scale must be positive")
     validate_hashes(record["source_sha256"], "source_sha256", name)
     validate_hashes(record["normalized_sha256"], "normalized_sha256", name)
+    if record["source_family"] != "project_placeholder" and (
+        not record["source_sha256"] or record["provenance_id"] == "project.placeholder.r6"
+    ):
+        raise ManifestError(f"{name}: non-placeholder source needs hash and provenance")
+    if record["normalized_sha256"] and not record["source_sha256"]:
+        raise ManifestError(f"{name}: normalized output needs source hash")
 
 
 def build_manifest(vendor: Path, overrides_path: Path) -> dict[str, Any]:
@@ -379,6 +408,8 @@ def build_manifest(vendor: Path, overrides_path: Path) -> dict[str, Any]:
 
 
 def resolve_entry(manifest: dict[str, Any], graphics_id: int) -> dict[str, Any] | None:
+    if not isinstance(graphics_id, int) or isinstance(graphics_id, bool) or graphics_id < 0:
+        return None
     entries = manifest.get("entries", [])
     if (
         isinstance(graphics_id, int)
@@ -408,7 +439,7 @@ def main() -> int:
     manifest = build_manifest(vendor, overrides_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
-        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        json.dumps(manifest, indent=2, sort_keys=True, allow_nan=False) + "\n",
         encoding="utf-8",
     )
     return 0

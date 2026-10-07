@@ -1,4 +1,5 @@
 #include "RemasterWorldGameplaySubsystem.h"
+#include "RemasterCharacterPresentationRead.h"
 
 #include "HAL/UnrealMemory.h"
 #include "RemasterVanillaPlusSaveSubsystem.h"
@@ -649,6 +650,63 @@ bool URemasterWorldGameplaySubsystem::LoadCurrentMapFromSave(
         CurrentMap.WarpEvents.Num(),
         CurrentMap.CoordEvents.Num());
 
+    return true;
+}
+
+bool URemasterWorldGameplaySubsystem::GetObjectPresentationSnapshots(
+    TArray<FRemasterObjectPresentationSnapshot>& OutSnapshots) const
+{
+    OutSnapshots.Reset();
+    const URemasterVanillaPlusSaveSubsystem* SaveSubsystem = GetGameInstance()
+        ? GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>() : nullptr;
+    if (!bMapReady || !NativeObjectRuntime || !SaveSubsystem || !SaveSubsystem->HasUsableSave())
+        return false;
+    const RemasterEmeraldSave* Save =
+        static_cast<const RemasterEmeraldSave*>(SaveSubsystem->GetNativeSaveHandle());
+    TArray<RemasterEmeraldObjectEventDef> Events;
+    if (!BuildRuntimeObjectEvents(CurrentMap, Events))
+        return false;
+    RemasterCharacterPresentation::Snapshot Read[REMASTER_EMERALD_RUNTIME_OBJECT_COUNT];
+    size_t Count = 0;
+    if (!RemasterCharacterPresentation::ReadSnapshots(
+        static_cast<const RemasterEmeraldObjectRuntime*>(NativeObjectRuntime), Save,
+        Events.GetData(), static_cast<size_t>(Events.Num()), Read,
+        REMASTER_EMERALD_RUNTIME_OBJECT_COUNT, Count))
+        return false;
+    for (size_t Index = 0; Index < Count; ++Index)
+    {
+        FRemasterObjectPresentationSnapshot Snapshot;
+        Snapshot.LocalId = Read[Index].LocalId;
+        const FRemasterObjectEventIR* Event = CurrentMap.ObjectEvents.FindByPredicate(
+            [&Read, Index](const FRemasterObjectEventIR& Candidate)
+            { return Candidate.LocalId == Read[Index].LocalId; });
+        if (!Event)
+            continue;
+        Snapshot.GraphicsId = Event->GraphicsIdNum;
+        Snapshot.X = Read[Index].X;
+        Snapshot.Y = Read[Index].Y;
+        Snapshot.Elevation = Read[Index].Elevation;
+        Snapshot.bVisible = Read[Index].Visible;
+        OutSnapshots.Add(Snapshot);
+    }
+    return true;
+}
+
+bool URemasterWorldGameplaySubsystem::GetPlayerBasePresentationGraphicsName(
+    FString& OutName) const
+{
+    OutName.Reset();
+    const URemasterVanillaPlusSaveSubsystem* SaveSubsystem = GetGameInstance()
+        ? GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>() : nullptr;
+    if (!SaveSubsystem || !SaveSubsystem->HasUsableSave())
+        return false;
+    const RemasterEmeraldSave* Save =
+        static_cast<const RemasterEmeraldSave*>(SaveSubsystem->GetNativeSaveHandle());
+    uint8 Gender = 0;
+    if (!Save || !remaster_emerald_player_gender_get(Save, &Gender) || Gender > 1)
+        return false;
+    OutName = Gender == 0 ? TEXT("OBJ_EVENT_GFX_BRENDAN_NORMAL")
+                         : TEXT("OBJ_EVENT_GFX_MAY_NORMAL");
     return true;
 }
 

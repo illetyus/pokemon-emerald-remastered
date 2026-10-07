@@ -5,6 +5,8 @@
 #include "Misc/Paths.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
+#include <cmath>
+#include <limits>
 
 namespace
 {
@@ -24,6 +26,8 @@ int32 IntFieldDefault(
 {
     double Value = 0.0;
     return Object->TryGetNumberField(Name, Value)
+        && std::isfinite(Value) && std::trunc(Value) == Value
+        && Value >= 0 && Value <= 65535
         ? static_cast<int32>(Value)
         : DefaultValue;
 }
@@ -35,6 +39,7 @@ float FloatFieldDefault(
 {
     double Value = 0.0;
     return Object->TryGetNumberField(Name, Value)
+        && std::isfinite(Value) && std::abs(Value) <= 1.0e6
         ? static_cast<float>(Value)
         : DefaultValue;
 }
@@ -115,10 +120,20 @@ bool IsAllowedKind(const FString& Kind)
 
 bool IsEntryValid(const FRemasterCharacterPresentationEntry& Entry)
 {
+    if (!Entry.GraphicsName.StartsWith(TEXT("OBJ_EVENT_GFX_")))
+        return false;
+    for (const TCHAR Character : Entry.GraphicsName)
+        if (!((Character >= TEXT('A') && Character <= TEXT('Z'))
+            || (Character >= TEXT('0') && Character <= TEXT('9'))
+            || Character == TEXT('_')))
+            return false;
     if (Entry.GraphicsId < 0
         || Entry.GraphicsName.IsEmpty()
         || !IsAllowedKind(Entry.PresentationKind)
-        || Entry.Scale <= 0.0f)
+        || Entry.Scale <= 0.0f
+        || !FMath::IsFinite(Entry.Scale)
+        || !FMath::IsFinite(Entry.GroundOffsetCm)
+        || !FMath::IsFinite(Entry.YawOffsetDeg))
     {
         return false;
     }
@@ -144,7 +159,10 @@ bool IsEntryValid(const FRemasterCharacterPresentationEntry& Entry)
     }
 
     return AreHashesValid(Entry.SourceSha256)
-        && AreHashesValid(Entry.NormalizedSha256);
+        && AreHashesValid(Entry.NormalizedSha256)
+        && (Entry.SourceFamily == TEXT("project_placeholder")
+            || (!Entry.SourceSha256.IsEmpty() && Entry.ProvenanceId != TEXT("project.placeholder.r6")))
+        && (Entry.NormalizedSha256.IsEmpty() || !Entry.SourceSha256.IsEmpty());
 }
 }
 
@@ -174,6 +192,7 @@ FString URemasterCharacterCatalogSubsystem::GetManifestPath() const
 
 bool URemasterCharacterCatalogSubsystem::ReloadCatalog()
 {
+    ++CatalogRevision;
     bCatalogReady = false;
     ContentSha256.Reset();
     EntriesById.Reset();
@@ -203,6 +222,7 @@ bool URemasterCharacterCatalogSubsystem::ReloadCatalog()
     if (ExpectedCount <= 0
         || ExpectedMin < 0
         || ExpectedMax < ExpectedMin
+        || ExpectedCount != ExpectedMax - ExpectedMin + 1
         || !IsSha256(ContentSha256))
     {
         return false;
@@ -249,9 +269,9 @@ bool URemasterCharacterCatalogSubsystem::ReloadCatalog()
         Entry.Scale =
             FloatFieldDefault(Object, TEXT("scale"), -1.0f);
         Entry.GroundOffsetCm =
-            FloatFieldDefault(Object, TEXT("ground_offset_cm"), 0.0f);
+            FloatFieldDefault(Object, TEXT("ground_offset_cm"), std::numeric_limits<float>::quiet_NaN());
         Entry.YawOffsetDeg =
-            FloatFieldDefault(Object, TEXT("yaw_offset_deg"), 0.0f);
+            FloatFieldDefault(Object, TEXT("yaw_offset_deg"), std::numeric_limits<float>::quiet_NaN());
         Entry.LodProfile =
             StringField(Object, TEXT("lod_profile"));
         Entry.FallbackId =

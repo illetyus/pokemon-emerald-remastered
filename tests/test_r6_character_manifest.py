@@ -97,6 +97,8 @@ class R6CharacterManifestTests(unittest.TestCase):
                         "overrides": {
                             "OBJ_EVENT_GFX_BRENDAN_NORMAL": {
                                 "source_family": "oras",
+                                "source_sha256": ["a" * 64],
+                                "provenance_id": "provenance.test.fixture",
                                 "skeleton_family": "player_male",
                                 "model_id": "character.brendan",
                                 "animation_set_id": "human.player_male",

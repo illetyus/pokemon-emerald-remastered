@@ -7,6 +7,7 @@
 #include "RemasterOverworldPawn.h"
 #include "RemasterPlayerController.h"
 #include "RemasterWorldActor.h"
+#include "RemasterNpcPresentationWorld.h"
 
 AR0GameMode::AR0GameMode()
 {
@@ -62,6 +63,12 @@ void AR0GameMode::StartPlay()
     if (OverworldPawn)
     {
         OverworldPawn->SyncFromAuthoritativeState();
+    }
+
+    if (!TActorIterator<ARemasterNpcPresentationWorld>(World))
+    {
+        World->SpawnActor<ARemasterNpcPresentationWorld>(
+            ARemasterNpcPresentationWorld::StaticClass(), FTransform::Identity);
     }
 
     ARemasterCameraRig* CameraRig = nullptr;

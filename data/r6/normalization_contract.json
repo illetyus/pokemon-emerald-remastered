@@ -1,0 +1,64 @@
+{
+  "android_status": "untested",
+  "calibration_policy": "source_unit_declaration_not_enough_for_final_scale_verify_against_world_tile",
+  "coordinate_target": {
+    "forward_axis": "X",
+    "ground_origin": "feet_contact_plane",
+    "transforms": "bake_only_after_review_keep_skin_bind_consistent",
+    "unit": "centimeter",
+    "up_axis": "Z"
+  },
+  "input_policy": "local_source_expected_archive_and_submodel_sha256_required",
+  "lod_profiles": {
+    "mobile_character": {
+      "lod_triangle_ratios": [
+        1.0,
+        0.5,
+        0.25
+      ],
+      "maximum_bones_per_vertex": 4,
+      "maximum_material_slots": 4,
+      "shadow_policy": "platform_quality_setting",
+      "status": "budget_targets_unmeasured",
+      "update_rate_optimization": true
+    },
+    "mobile_object": {
+      "lod_triangle_ratios": [
+        1.0,
+        0.5
+      ],
+      "status": "budget_targets_unmeasured"
+    }
+  },
+  "material_profile": {
+    "commercial_textures": "local_only",
+    "default_blend": "opaque",
+    "id": "material.mobile_character",
+    "masked_only_when_source_requires": true,
+    "mobile_compression_target": "ASTC_device_validation_required",
+    "normal_maps": "optional",
+    "texture_max_dimension": 1024,
+    "two_sided_default": false
+  },
+  "phase": "R6-I5",
+  "runtime_gate": [
+    "normalized_hash_matches_manifest_and_binding",
+    "local_unreal_import_validated",
+    "explicit_model_id_exact_match"
+  ],
+  "schema_version": 1,
+  "stages": [
+    "hash_and_archive_preflight",
+    "select_verified_submodel",
+    "review_source_unit_axis_bind_pose_and_weight_integrity",
+    "normalize_axes_units_ground_and_yaw_with_recorded_matrix",
+    "build_mobile_materials_and_lods",
+    "export_mesh_and_record_normalized_sha256",
+    "import_and_validate_engine_asset",
+    "stage_manifest_and_binding_receipt",
+    "android_device_acceptance"
+  ],
+  "status": "recipe_ready_outputs_pending",
+  "tool_policy": "record_exact_dcc_exporter_engine_versions_in_local_receipt",
+  "unreal_runtime_status": "untested"
+}

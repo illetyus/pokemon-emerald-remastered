@@ -2,6 +2,10 @@
 
 Status: **R6-I3C-1 complete — single-model named-source bindings only**
 
+This is the historical first mapping slice. Its unresolved/next-step notes are
+superseded by [R6_PRESENTATION_COMPLETION.md](R6_PRESENTATION_COMPLETION.md) and
+`data/r6/npc_presentation_plan.json`. The original 16 source records remain fixed.
+
 ## Scope and evidence
 
 The existing I3A exact-counterpart inventory and I3B acquisition audit select

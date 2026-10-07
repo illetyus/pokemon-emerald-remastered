@@ -8,6 +8,8 @@
 class ARemasterWorldActor;
 class UStaticMeshComponent;
 class USceneComponent;
+class USkeletalMeshComponent;
+class URemasterCharacterVisualComponent;
 
 UCLASS()
 class POKEMONEMERALDREMASTERED_API ARemasterOverworldPawn : public APawn
@@ -34,8 +36,14 @@ protected:
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<UStaticMeshComponent> PresentationMesh;
 
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<USkeletalMeshComponent> CharacterMesh;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<URemasterCharacterVisualComponent> CharacterVisual;
+
     UPROPERTY(EditAnywhere, Category="Remaster|World|Player")
-    float PlayerHeightOffset = 50.0f;
+    float PlayerHeightOffset = 0.0f;
 
 private:
     UFUNCTION()

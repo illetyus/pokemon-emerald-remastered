@@ -103,13 +103,21 @@ class R6NpcModelMappingTests(unittest.TestCase):
                 with self.subTest(name=r["graphics_name"], field=key):
                     self.assertEqual(r[key], value)
 
-    def test_source_gaps_and_ambiguous_packages_stay_on_placeholder(self) -> None:
+    def test_historical_gaps_require_explicit_verified_selection_or_placeholder(self) -> None:
+        plan = json.loads((DATA / "npc_presentation_plan.json").read_text())
+        decisions = {r["graphics_name"]: r for r in plan["records"]}
         for name, finding in self.acquisition["identity_findings"].items():
             if finding["resolution"] == "source_gap" or "unresolved" in finding["resolution"]:
                 with self.subTest(name=name):
-                    self.assertNotIn(name, self.overrides["overrides"])
-                    self.assertEqual(self.entries[name]["model_id"], "fallback.human")
-                    self.assertEqual(self.entries[name]["source_family"], "project_placeholder")
+                    decision = decisions[name]
+                    if decision["decision"] == "selected_source":
+                        self.assertRegex(decision["source_submodel_sha256"], r"^[0-9a-f]{64}$")
+                        self.assertEqual(self.entries[name]["model_id"], decision["model_id"])
+                        self.assertTrue(decision["reason"])
+                    else:
+                        self.assertNotIn(name, self.overrides["overrides"])
+                        self.assertEqual(self.entries[name]["model_id"], "fallback.human")
+                        self.assertEqual(self.entries[name]["source_family"], "project_placeholder")
 
     def test_order_uniqueness_and_full_identity_coverage_are_preserved(self) -> None:
         for field in ("graphics_id", "graphics_name", "presentation_id", "model_id", "provenance_id"):

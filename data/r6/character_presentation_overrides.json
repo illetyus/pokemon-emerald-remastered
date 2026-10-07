@@ -424,6 +424,540 @@
         "8a5f0eeee5d9a7bb81c76d34a24fb238ae7573e1afa99725bb48adcd7241ddbe"
       ],
       "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_AQUA_MEMBER_F": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.aqua_member_f.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.aqua_member_f",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296316",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "985d124d9a5f989dd879a54b3c8320e31ac0c6113b2b40d3cca5018ec5757ab0"
+      ]
+    },
+    "OBJ_EVENT_GFX_AQUA_MEMBER_M": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.aqua_member_m.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.aqua_member_m",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296317",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "9ec48465b1850b9bb24f1a87ddc25772ea3c151d87c7c5e634915ddde7a3066a"
+      ]
+    },
+    "OBJ_EVENT_GFX_BEAUTY": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.beauty.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.beauty",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299499",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "b53e1a6052e0988622657fe575e0c79c64ec8fc2ceb03d55f968ff2662f1de53"
+      ]
+    },
+    "OBJ_EVENT_GFX_BUG_CATCHER": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.bug_catcher.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.bug_catcher",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299501",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "470413f1eb53882cb4e4d4cb029761bf7eba37744d47d399310a1891ed121b2a"
+      ]
+    },
+    "OBJ_EVENT_GFX_CAMERAMAN": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.cameraman.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.cameraman",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299514",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "9a12ddb7864006992ebbd88327fd31a5545bec4bfc96b0b1819e8f6e862570c8"
+      ]
+    },
+    "OBJ_EVENT_GFX_CAMPER": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.camper.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.camper",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299503",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "5fdb15fe05359519d7fdf930fb4199d39daf46b7c6da3227f4682bc5c38e3896"
+      ]
+    },
+    "OBJ_EVENT_GFX_EXPERT_F": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.expert_f.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.expert_f",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299507",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "058ab49fc29d6bcf47a703a5e4313f178d43c08fadefa866497b10f10035aaac"
+      ]
+    },
+    "OBJ_EVENT_GFX_EXPERT_M": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.expert_m.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.expert_m",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299508",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "01f451762c6f45090011dd2ac8723e0492cae394be1ab1c7444084b9e3146086"
+      ]
+    },
+    "OBJ_EVENT_GFX_FISHERMAN": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.fisherman.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.fisherman",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299509",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "18336c8cd6880a1d91f4a7800655c5ba63053ac5253ced86048e79d02967bdde"
+      ]
+    },
+    "OBJ_EVENT_GFX_GENTLEMAN": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.gentleman.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.gentleman",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299512",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "ed2dc0b0c97294179ebc1e3f90cdea0eab30b2400180825c4f6b6706a6dda13b"
+      ]
+    },
+    "OBJ_EVENT_GFX_LASS": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.lass.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.lass",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299517",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "8cfbdd168990b33598ea27f05c97dd7b4a8a4cfe2ef9f14d343713649f43bae1"
+      ]
+    },
+    "OBJ_EVENT_GFX_LINK_BRENDAN": {
+      "animation_set_id": "fallback.human",
+      "model_id": "character.brendan.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.link_brendan",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "skeleton_family": "player_male",
+      "source_family": "oras",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ]
+    },
+    "OBJ_EVENT_GFX_LINK_MAY": {
+      "animation_set_id": "fallback.human",
+      "model_id": "character.may.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.link_may",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "skeleton_family": "player_female",
+      "source_family": "oras",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ]
+    },
+    "OBJ_EVENT_GFX_LIZA": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.liza.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.liza",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296325",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "2ac3f300f2dfde46c8744f8ae40392426f51ec18d55babd8f6b8a8ff28c4ccd5"
+      ]
+    },
+    "OBJ_EVENT_GFX_MAGMA_MEMBER_F": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.magma_member_f.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.magma_member_f",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296324",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "e91fddfddb1040d5b2d699223fd1950aa655da8624ab69b969d2c231c34aff32"
+      ]
+    },
+    "OBJ_EVENT_GFX_MAGMA_MEMBER_M": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.magma_member_m.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.magma_member_m",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296326",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "ba3125981d29a8eed95a73a86564f56ecf106af33e8e40e3e7514a8815df3d49"
+      ]
+    },
+    "OBJ_EVENT_GFX_MANIAC": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.maniac.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.maniac",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299523",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "f1084266cf61396c2b780b65734b1118e8a2e51357f78e2c0a17336afe7ef359"
+      ]
+    },
+    "OBJ_EVENT_GFX_NINJA_BOY": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.ninja_boy.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.ninja_boy",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299518",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "212f0311bde495df15e5f53f1e5a517fe49355ffe8d8c17f438ca7af87a0d528"
+      ]
+    },
+    "OBJ_EVENT_GFX_PICNICKER": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.picnicker.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.picnicker",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299520",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "18f1243431587ceadc34a2a594c98a32298a37dcb3ec2183aa7db8129e0de667"
+      ]
+    },
+    "OBJ_EVENT_GFX_POKEFAN_F": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.pokefan_f.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.pokefan_f",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299521",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "f5cff038ccaaadd62cb79252249a6a5a16127534b1cc418d98a7be0bc00f0df4"
+      ]
+    },
+    "OBJ_EVENT_GFX_POKEFAN_M": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.pokefan_m.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.pokefan_m",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299522",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "c23c92f378b1456faf49fd33423fbc80b5458b15f30120c72b157aa40eabf68c"
+      ]
+    },
+    "OBJ_EVENT_GFX_REPORTER_F": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.reporter_f.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.reporter_f",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299514",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "9a12ddb7864006992ebbd88327fd31a5545bec4bfc96b0b1819e8f6e862570c8"
+      ]
+    },
+    "OBJ_EVENT_GFX_RICH_BOY": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.rich_boy.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.rich_boy",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299528",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "9cfebcecd888c4e394c6400655c8d8c31b4be5e7d03af077c0354e075157517f"
+      ]
+    },
+    "OBJ_EVENT_GFX_RIVAL_BRENDAN_ACRO_BIKE": {
+      "animation_set_id": "fallback.human",
+      "model_id": "character.brendan.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.rival_brendan_acro_bike",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "skeleton_family": "player_male",
+      "source_family": "oras",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ]
+    },
+    "OBJ_EVENT_GFX_RIVAL_BRENDAN_FIELD_MOVE": {
+      "animation_set_id": "fallback.human",
+      "model_id": "character.brendan.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.rival_brendan_field_move",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "skeleton_family": "player_male",
+      "source_family": "oras",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ]
+    },
+    "OBJ_EVENT_GFX_RIVAL_BRENDAN_MACH_BIKE": {
+      "animation_set_id": "fallback.human",
+      "model_id": "character.brendan.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.rival_brendan_mach_bike",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "skeleton_family": "player_male",
+      "source_family": "oras",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ]
+    },
+    "OBJ_EVENT_GFX_RIVAL_BRENDAN_NORMAL": {
+      "animation_set_id": "fallback.human",
+      "model_id": "character.brendan.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.rival_brendan_normal",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "skeleton_family": "player_male",
+      "source_family": "oras",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ]
+    },
+    "OBJ_EVENT_GFX_RIVAL_BRENDAN_SURFING": {
+      "animation_set_id": "fallback.human",
+      "model_id": "character.brendan.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.rival_brendan_surfing",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "skeleton_family": "player_male",
+      "source_family": "oras",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ]
+    },
+    "OBJ_EVENT_GFX_RIVAL_MAY_ACRO_BIKE": {
+      "animation_set_id": "fallback.human",
+      "model_id": "character.may.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.rival_may_acro_bike",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "skeleton_family": "player_female",
+      "source_family": "oras",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ]
+    },
+    "OBJ_EVENT_GFX_RIVAL_MAY_FIELD_MOVE": {
+      "animation_set_id": "fallback.human",
+      "model_id": "character.may.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.rival_may_field_move",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "skeleton_family": "player_female",
+      "source_family": "oras",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ]
+    },
+    "OBJ_EVENT_GFX_RIVAL_MAY_MACH_BIKE": {
+      "animation_set_id": "fallback.human",
+      "model_id": "character.may.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.rival_may_mach_bike",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "skeleton_family": "player_female",
+      "source_family": "oras",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ]
+    },
+    "OBJ_EVENT_GFX_RIVAL_MAY_NORMAL": {
+      "animation_set_id": "fallback.human",
+      "model_id": "character.may.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.rival_may_normal",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "skeleton_family": "player_female",
+      "source_family": "oras",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ]
+    },
+    "OBJ_EVENT_GFX_RIVAL_MAY_SURFING": {
+      "animation_set_id": "fallback.human",
+      "model_id": "character.may.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.rival_may_surfing",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "skeleton_family": "player_female",
+      "source_family": "oras",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ]
+    },
+    "OBJ_EVENT_GFX_RUNNING_TRIATHLETE_M": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.running_triathlete_m.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.running_triathlete_m",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299537",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "f89778d5a8127c0a134cad92ae405a558ff4fe7d6a9a1c530dad4575d177e7c7"
+      ]
+    },
+    "OBJ_EVENT_GFX_SAILOR": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.sailor.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.sailor",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299530",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "4c6766c12cbcf7b51c79db9b2c2b0092e27f25691e5210307b628dcf25bea063"
+      ]
+    },
+    "OBJ_EVENT_GFX_SWIMMER_F": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.swimmer_f.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.swimmer_f",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299535",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "2adc4f7dfbe997129fa2e6db71cffdb7e0c3ae8b7440035703dc968dd093dd76"
+      ]
+    },
+    "OBJ_EVENT_GFX_TATE": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.tate.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.tate",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296325",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "2ac3f300f2dfde46c8744f8ae40392426f51ec18d55babd8f6b8a8ff28c4ccd5"
+      ]
+    },
+    "OBJ_EVENT_GFX_TUBER_F": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.tuber_f.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.tuber_f",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299539",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "fbac01da97ef498cc4e7d09f1c80629be9ccfecf7ecb4dfc0ceca5b02b0d12c1"
+      ]
+    },
+    "OBJ_EVENT_GFX_TUBER_M": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.tuber_m.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.tuber_m",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299538",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "0a2867911d3ee38e020a6e55e218632e2fb9d0391e328e3f1f5c7571293c6a31"
+      ]
+    },
+    "OBJ_EVENT_GFX_TUBER_M_SWIMMING": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.tuber_m.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.tuber_m_swimming",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299538",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "0a2867911d3ee38e020a6e55e218632e2fb9d0391e328e3f1f5c7571293c6a31"
+      ]
+    },
+    "OBJ_EVENT_GFX_WALLY": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.wally.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.wally",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296336",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "8cdf82c1f3c21c893c8e86a57b8b306ef02098b02f197ef1e9a90b14f064af7d"
+      ]
+    },
+    "OBJ_EVENT_GFX_YOUNGSTER": {
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "model_id": "character.youngster.oras_overworld",
+      "normalized_sha256": [],
+      "presentation_id": "npc.youngster",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.299541",
+      "skeleton_family": "special_human",
+      "source_family": "oras",
+      "source_sha256": [
+        "a456158c2f0d64735d9a259d6c683069b41fc8677eae563163fc4543b851ff43"
+      ]
     }
   }
 }
