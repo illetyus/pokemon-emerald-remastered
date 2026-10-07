@@ -47,7 +47,7 @@ class SourceCoverage(unittest.TestCase):
     def test_missing_quality_and_imports_stay_explicit(self):
         self.assertEqual(self.catalog['counts']['approved_modern_cries'],0)
         self.assertEqual(self.catalog['counts']['verified_unreal_audio_imports'],0)
-        for c in self.catalog['cries']: self.assertIn(c['modern'],['pilot_candidate_pending_listening','missing_pending_pilot'])
+        for c in self.catalog['cries']: self.assertIn(c['modern'],['pilot_candidate_pending_listening','missing_pending_pilot','prepared_local_normal_only_not_imported'])
         for s in self.catalog['songs'][1:]: self.assertEqual(s['modern'],'missing_local_render')
     def test_authority_boundary(self):
         module=ROOT/'unreal/Source/PokemonEmeraldRemastered'

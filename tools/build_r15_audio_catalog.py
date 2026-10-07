@@ -55,6 +55,13 @@ def build():
     remap = {resolver.resolve(symbol):int(index) for symbol,index in re.findall(
         r'\[(SPECIES_\w+)\s*-\s*277\]\s*=\s*(\d+)', (VENDOR/'src/data/pokemon/cry_ids.h').read_text())}
     species = json.loads((ROOT/'data/r14/species_audit.json').read_text())['species']
+    selection_path = ROOT/'data/r15/modern_selection.json'
+    selected = selection_path.is_file() and json.loads(selection_path.read_text()).get('pilot_style_approved') is True
+    pack_path = ROOT/'data/r15/modern_pack_evidence.json'
+    pack = json.loads(pack_path.read_text()) if pack_path.is_file() else {}
+    prepared = {r['national_dex'] for r in pack.get('species', [])}
+    if prepared and (prepared != set(range(1,387)) or pack.get('source_commit') != 'ef687b18f0ce17169b4b4c09175819f7ade92f0f'):
+        raise ValueError('invalid full modern pack evidence')
     rows = []
     for s in species:
         core = s['core_species']; idx = core-1 if core <= 251 else remap[core]
@@ -65,7 +72,7 @@ def build():
             'identity':f'cry.{s["national_dex"]}','cry_table_index':idx,'cry_symbol':symbol,
             'source_pcm':{'path':path,'sha256':sha(file)},
             'original':'source_pcm_available_not_verified_hardware_render',
-            'modern':'pilot_candidate_pending_listening' if s['national_dex'] in PILOT else 'missing_pending_pilot',
+            'modern':'prepared_local_normal_only_not_imported' if s['national_dex'] in prepared else 'pilot_candidate_pending_listening' if s['national_dex'] in PILOT else 'missing_pending_pilot',
             'form_policy':'shared_species_cry; visual form and shiny keys do not multiply cry assets'})
     modes = [{'id':resolver.resolve(s),'source_symbol':s} for s in re.findall(
         r'#define\s+(CRY_MODE_\w+)\s+', (VENDOR/'include/constants/sound.h').read_text())]
@@ -78,7 +85,8 @@ def build():
         'source_hashes':{p:sha(VENDOR/p) for p in sources},
         'counts':{'song_table_entries':len(songs),'species_cries':len(rows),'cry_modes':len(modes),
                   'fanfares':len(fanfares),'categories':categories,'modern_pilot_candidates':len(PILOT),
-                  'verified_unreal_audio_imports':0,'approved_modern_cries':0},
+                  'verified_unreal_audio_imports':0,'approved_modern_cries':0,
+                  'modern_prepared_normal_cries':len(prepared),'pilot_style_approved':selected},
         'songs':songs,'cries':rows,'cry_modes':modes,'fanfares':fanfares,
         'ambience':{'policy':'source weather/ambient SE_* IDs; no invented authoritative event IDs',
                     'candidate_song_ids':[s['source_id'] for s in songs if any(x in s['source_symbol'] for x in ['rain','thunderstorm','downpour'])]},

@@ -11,7 +11,7 @@ void URemasterAudioSubsystem::Initialize(FSubsystemCollectionBase& Collection) {
         GConfig->GetFloat(TEXT("Remaster.Audio"),TEXT("Music"),Levels.music,GGameUserSettingsIni);
         GConfig->GetFloat(TEXT("Remaster.Audio"),TEXT("Sfx"),Levels.sfx,GGameUserSettingsIni);
         GConfig->GetFloat(TEXT("Remaster.Audio"),TEXT("Ambience"),Levels.ambience,GGameUserSettingsIni);
-        int32 Pack=0;GConfig->GetInt(TEXT("Remaster.Audio"),TEXT("Pack"),Pack,GGameUserSettingsIni);
+        int32 Pack=1;GConfig->GetInt(TEXT("Remaster.Audio"),TEXT("Pack"),Pack,GGameUserSettingsIni);
         SelectedPack=Pack==1?ERemasterAudioPack::Modern:ERemasterAudioPack::Original;
     }
     Levels.Sanitize();

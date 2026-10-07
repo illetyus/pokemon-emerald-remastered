@@ -1,19 +1,66 @@
 {
-  "schema": "r15-audio-contract-v1",
-  "profiles": ["original", "modern"],
-  "public_payloads": "tools, source identities, hashes, metadata and tests only",
-  "modern_source": {"repository": "PokeAPI/cries", "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f", "path": "cries/pokemon/latest/{national_dex}.ogg", "rights": "Audio copyright The Pokemon Company; repository CC0 does not change this"},
-  "pilot_species": [6, 25, 94, 125, 150, 201, 252, 282, 306, 351, 384, 386],
-  "pilot_gate": "12-species comparative listening before approving the 386-species modern pack",
-  "original_baseline": "pinned Emerald source PCM; hardware engine rendering not yet certified",
-  "local_format": {"sample_rate": 48000, "bit_depth": 16, "channels": [1, 2], "resampling": "deterministic ffmpeg; never labelled restoration"},
-  "cry_variants": "cry.{national_dex}.mode.{0..12}; require exact preprocessed or authored mode, no normal-mode substitution",
-  "loop": "integer decoded PCM frame positions; locally authored loop asset must be runtime verified",
-  "settings": {"master": 1.0, "music": 0.8, "sfx": 0.8, "ambience": 0.6, "storage": "GameUserSettings, separate from gameplay save"},
-  "concurrency": {"one_shot_limit": 16, "policy": "drop new lowest-priority or replace oldest lower-priority; completed components removed", "cry_priority": 10, "sfx_priority": 5, "ambience_priority": 1},
-  "lifecycle": "background/focus loss pauses active components and blocks new playback; resume only after both clear; detach on shutdown",
-  "authority": "presentation only; no RNG, battle mutation, audio-duration wait completion or core asset paths",
-  "missing": "return explicit failure; optional same-semantic-ID original profile fallback only",
   "ai": "optional offline experiment after pilot; not enabled or required",
-  "runtime_gates": ["UHT and Unreal build", "source cry-mode fidelity", "intro and loop seam listening", "Android cook, focus callback attachment, latency and memory"]
+  "authority": "presentation only; no RNG, battle mutation, audio-duration wait completion or core asset paths",
+  "concurrency": {
+    "ambience_priority": 1,
+    "cry_priority": 10,
+    "one_shot_limit": 16,
+    "policy": "drop new lowest-priority or replace oldest lower-priority; completed components removed",
+    "sfx_priority": 5
+  },
+  "cry_variants": "cry.{national_dex}.mode.{0..12}; require exact preprocessed or authored mode, no normal-mode substitution",
+  "default_profile": "modern",
+  "lifecycle": "background/focus loss pauses active components and blocks new playback; resume only after both clear; detach on shutdown",
+  "local_format": {
+    "bit_depth": 16,
+    "channels": [
+      1,
+      2
+    ],
+    "resampling": "deterministic ffmpeg; never labelled restoration",
+    "sample_rate": 48000
+  },
+  "loop": "integer decoded PCM frame positions; locally authored loop asset must be runtime verified",
+  "missing": "return explicit failure; optional same-semantic-ID original profile fallback only",
+  "modern_source": {
+    "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+    "path": "cries/pokemon/latest/{national_dex}.ogg",
+    "repository": "PokeAPI/cries",
+    "rights": "Audio copyright The Pokemon Company; repository CC0 does not change this"
+  },
+  "original_baseline": "pinned Emerald source PCM; hardware engine rendering not yet certified",
+  "pilot_gate": "passed: user preferred the modern candidate on 2026-10-07; individual full-pack listening remains unverified",
+  "pilot_species": [
+    6,
+    25,
+    94,
+    125,
+    150,
+    201,
+    252,
+    282,
+    306,
+    351,
+    384,
+    386
+  ],
+  "profiles": [
+    "original",
+    "modern"
+  ],
+  "public_payloads": "tools, source identities, hashes, metadata and tests only",
+  "runtime_gates": [
+    "UHT and Unreal build",
+    "source cry-mode fidelity",
+    "intro and loop seam listening",
+    "Android cook, focus callback attachment, latency and memory"
+  ],
+  "schema": "r15-audio-contract-v1",
+  "settings": {
+    "ambience": 0.6,
+    "master": 1.0,
+    "music": 0.8,
+    "sfx": 0.8,
+    "storage": "GameUserSettings, separate from gameplay save"
+  }
 }

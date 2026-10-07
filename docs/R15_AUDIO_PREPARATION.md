@@ -2,7 +2,8 @@
 
 Status: P1 inventory and P2 source/payload contract implemented. A 12-species
 listening pilot and presentation resolver/settings/lifecycle scaffolding exist.
-**R15 is not complete.** Modern quality acceptance, the full 386-species pack,
+**R15 is not complete.** The modern direction was selected after the pilot.
+The 386 normal-cry pack is prepared; remaining work includes
 rendered music/FX, cry-mode processing, real host/platform attachment and Unreal /
 Android validation remain open. No merge to main is authorized by this step.
 
@@ -68,7 +69,9 @@ Reproduce after fetching exactly the pinned modern source files into ignored
 python tools/build_r15_audio_pilot.py --modern local/r15/pilot_sources --output /absolute/private/new-empty-folder
 ```
 
-Listen before approving modern pack expansion. Assess recognizable identity,
+The user approved the modern sound direction on 2026-10-07 and authorized the
+386-species normal-cry expansion. Individual full-pack listening is not claimed.
+Assess recognizable identity,
 timbre, attack, duration, noise and unwanted new tones. Handle exceptions per
 species; 386 species are not presumed approved from twelve metadata probes.
 
@@ -118,8 +121,9 @@ after terminal success. Real UE/UHT has not run.
 
 ## Remaining work / gates
 
-1. Listen to the pilot; select global modern direction and species exceptions.
-2. Acquire/process all 386 approved cries privately; derive all 13 source modes
+1. Modern direction selected and 386 normal cries prepared. Retain any
+   subsequently reported species exceptions.
+2. Derive all 13 source modes
    using a verified render or authored equivalent; assess source cry fidelity.
 3. Render 271 music records plus source effects/jingles as needed; measure exact
    intro/loop frames and check seams/context mix. Preserve source fanfare waits.
@@ -134,7 +138,7 @@ P1/P2: implemented. I1/I4/I5: source scaffolding implemented and portable tests.
 I2/I3/I6: partial; assets/rendering/mode and host/platform gates remain.
 T1/V1: targeted tests implemented. G1/D1/F1/M1/M2: incomplete.
 
-## Verified implementation CI
+## Prior preparation implementation CI
 
 Implementation commit: `8342d1b1fecbc6c2ea3ede63ff6c573bc44cb72b`, sole parent
 R14 `4dc33027e738242d5c514caf7818db00e20bcb0f`. All 21 source/document blobs
@@ -145,3 +149,40 @@ Python regressions and all 67 CMake/CTest tests. Local R15 C++ policy checks: 5,
 This proves source/portable checks, not Unreal/UHT, subjective quality or Android
 runtime acceptance. A later documentation-only commit preserves this exact
 implementation and its evidence.
+
+## Approved modern direction and 386 normal cries
+
+On 2026-10-07 the user preferred the modern pilot. `modern_selection.json`
+records this style choice separately from individual-file listening or Unreal
+import approval. New audio settings default to Modern; saved explicit Original
+choices remain respected and both profile maps remain available.
+
+All 386 OGG files were read at the same pinned commit. GitHub tree and file-content
+receipts cover exactly Dex 1..386; every locally transferred byte stream matches
+its Git blob SHA and byte length. Content and PCM SHA256 hashes are retained.
+386 normal cries are prepared in PCM16/48k/mono with the selected pilot's gain
+policy, preserved duration and masters. There are no missing normal cries and
+no full-scale PCM samples in the prepared files. Individual listening of all
+386 files is not claimed.
+
+The private ZIP contains `masters/`, `normal/`, complete semantic manifest,
+source receipts, local probe, measurements and a use guide. The manifest has
+5,627 known semantics: 386 normal cry candidates and 5,241 explicit missing
+records (4,632 other cry modes and 609 song/effect/jingle/phoneme records). It
+does not copy normal cries into special modes. All engine readiness flags remain
+false. Public `modern_pack_evidence.json` contains metadata only.
+
+Reproduce using a complete pinned-tree receipt dictionary (decimal Dex keys,
+commit/SHA/size), followed by:
+
+```
+python tools/fetch_r15_modern_cries.py --receipts RECEIPTS.json --output local/r15/modern_sources_386
+python tools/build_r15_modern_pack.py --source local/r15/modern_sources_386 --output /absolute/private/empty-folder --public-evidence data/r15/modern_pack_evidence.json
+python tools/build_r15_audio_catalog.py --check
+```
+
+Measured aggregate normal PCM is 33,866,250 bytes (352.7734375 seconds), not a
+resident-memory benchmark. Actual import, per-device loading/cache limits,
+source special-mode fidelity, other audio assets and host/platform attachment
+remain open. Source regressions include five additional selection/receipt/
+coverage tests.

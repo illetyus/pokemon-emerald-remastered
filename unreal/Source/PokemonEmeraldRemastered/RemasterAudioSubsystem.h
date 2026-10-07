@@ -64,7 +64,7 @@ private:
     UPROPERTY() TObjectPtr<UAudioComponent> MusicComponent;
     UPROPERTY() TArray<TObjectPtr<UAudioComponent>> RetiringMusic;
     UPROPERTY() TArray<FRemasterAudioVoice> Voices;
-    ERemasterAudioPack SelectedPack=ERemasterAudioPack::Original;
+    ERemasterAudioPack SelectedPack=ERemasterAudioPack::Modern;
     RemasterAudio::Settings Levels;
     RemasterAudio::Policy Policy;
     uint64 NextVoice=0;
