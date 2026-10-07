@@ -216,6 +216,214 @@
         "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
       ],
       "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_FLANNERY": {
+      "presentation_id": "npc.flannery",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.flannery.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296297",
+      "source_sha256": [
+        "3605e5e85788b427e6faa40f5e152e687b6587abf2c1f642698bfde5d7534f16"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_PHOEBE": {
+      "presentation_id": "npc.phoebe",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.phoebe.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296308",
+      "source_sha256": [
+        "82e7186a4ad4124b5cbe2b9a15b0ea8c34acde05684c0cc1fcf520ad2da6b56d"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_SIDNEY": {
+      "presentation_id": "npc.sidney",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.sidney.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296309",
+      "source_sha256": [
+        "177fd27119f3ed914efcdba9251ac17d9927cbff0dda5e42aaa92ffe21f05a7d"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_WINONA": {
+      "presentation_id": "npc.winona",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.winona.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296310",
+      "source_sha256": [
+        "984cfe456e22eafc87c08fbf88ec2ecbb312b1113088bd3ce456abf09b368f7d"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_BRAWLY": {
+      "presentation_id": "npc.brawly",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.brawly.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296311",
+      "source_sha256": [
+        "d95ab4bef4097642c84f7f73cfcb7aa3ea6b1931b26a2f33e3c383c753e42117"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_NORMAN": {
+      "presentation_id": "npc.norman",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.norman.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296313",
+      "source_sha256": [
+        "4c58478201d49e0c4caa9cb752afc0fae1f7dcbdcad4b4292e11f03dfd2c5846"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_PROF_BIRCH": {
+      "presentation_id": "npc.prof_birch",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.prof_birch.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296314",
+      "source_sha256": [
+        "33d4e516b2c5ea36fb210d3d90acbec6494043a1232a7de054596f5523cc9231"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_DRAKE": {
+      "presentation_id": "npc.drake",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.drake.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296323",
+      "source_sha256": [
+        "2772f85a981fe2a2e98a93049906c371567492914c0c36842781048195d30275"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_ROXANNE": {
+      "presentation_id": "npc.roxanne",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.roxanne.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296327",
+      "source_sha256": [
+        "8ecfabc339f96384d9cc00e6237302ad2022aa9c4427305ed2f812230b09ab89"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_WALLACE": {
+      "presentation_id": "npc.wallace",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.wallace.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296329",
+      "source_sha256": [
+        "6777ab40b176126b00761a8fcd0ca9d5e4561f4259ef35d9479857f3d47e987d"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_WATTSON": {
+      "presentation_id": "npc.wattson",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.wattson.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296330",
+      "source_sha256": [
+        "1ad737d8d84435a24c2d1e12215c67648b9391c13161e40311c38455c15329ac"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_GLACIA": {
+      "presentation_id": "npc.glacia",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.glacia.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296331",
+      "source_sha256": [
+        "cf1c10502e4c66c99f1bf2d41b4cf84ead29db5fa296f150f6d5e4398ded41d3"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_ARCHIE": {
+      "presentation_id": "npc.archie",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.archie.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296332",
+      "source_sha256": [
+        "5586b4abeb346d12f4b03a18a73f410f6e1cec14efb7fed04bf04af87489ffbe"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_MAXIE": {
+      "presentation_id": "npc.maxie",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.maxie.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296333",
+      "source_sha256": [
+        "4e07b8b0757a6296ac6b3c476b16f397051850c872db032b94aa87594e544d11"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_STEVEN": {
+      "presentation_id": "npc.steven",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.steven.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296334",
+      "source_sha256": [
+        "46aad39d00ac1d0e39fb641707de5f32005ea6d15eebfe0387eaeb4f2ab987b8"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_MOM": {
+      "presentation_id": "npc.mom",
+      "source_family": "oras",
+      "skeleton_family": "special_human",
+      "model_id": "character.mom.oras_overworld",
+      "animation_set_id": "fallback.human",
+      "fallback_id": "fallback.human",
+      "provenance_id": "provenance.r6.npc.oras.models_resource.296685",
+      "source_sha256": [
+        "8a5f0eeee5d9a7bb81c76d34a24fb238ae7573e1afa99725bb48adcd7241ddbe"
+      ],
+      "normalized_sha256": []
     }
   }
 }
