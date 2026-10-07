@@ -133,3 +133,15 @@ after terminal success. Real UE/UHT has not run.
 P1/P2: implemented. I1/I4/I5: source scaffolding implemented and portable tests.
 I2/I3/I6: partial; assets/rendering/mode and host/platform gates remain.
 T1/V1: targeted tests implemented. G1/D1/F1/M1/M2: incomplete.
+
+## Verified implementation CI
+
+Implementation commit: `8342d1b1fecbc6c2ea3ede63ff6c573bc44cb72b`, sole parent
+R14 `4dc33027e738242d5c514caf7818db00e20bcb0f`. All 21 source/document blobs
+match the local tested bytes; no core/vendor changes or audio binary additions.
+[Implementation workflow 37654758027](https://github.com/illetyus/pokemon-emerald-remastered/actions/runs/37654758027)
+completed successfully. Both jobs succeeded: 20 targeted R15 tests, all 256
+Python regressions and all 67 CMake/CTest tests. Local R15 C++ policy checks: 5,746.
+This proves source/portable checks, not Unreal/UHT, subjective quality or Android
+runtime acceptance. A later documentation-only commit preserves this exact
+implementation and its evidence.
