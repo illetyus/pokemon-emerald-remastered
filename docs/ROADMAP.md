@@ -895,22 +895,20 @@ of successful UE compilation or Android runtime.
 
 # 14. Immediate next action
 
-The active preparation phase is **R7 — Environment / camera presentation**.
-The user directly authorized R7 before R6 merge/main, so this work is prepared on
-`r7-environment-presentation`, based on verified R6 head
-`db8c50c76365bd656fc5db3bad2eba25a336b83c`.
-Main remains R17 at `a7ed422da7817c05aa1eac21bdbca6bd6edced5e`.
-R7 implementation covers all 518 maps, 441 layouts and 18,403 explicit fallback
-identities; actual modern 3D model/import/device readiness is not asserted.
+The active preparation phase is **R14 — Battle presentation + Pokémon asset pipeline**.
+The user directly authorized R14 after R9 source/preparation. The dependent
+`r14-battle-presentation` branch starts from verified R9 head
+`4b0da018913867e9f8e83d76c0cb3662501ba3cd`. Main remains R17 at
+`a7ed422da7817c05aa1eac21bdbca6bd6edced5e`.
 
-Completion evidence: [R7_ENVIRONMENT_COMPLETION.md](R7_ENVIRONMENT_COMPLETION.md).
-Current checkpoint: **R7-D1/F1 evidence and exact documentation-head CI**.
-Implementation commit `0e9133de277bb9f884e7d32105cead205b9034f1` passed
-[hosted run 37601156961](https://github.com/illetyus/pokemon-emerald-remastered/actions/runs/37601156961):
-all 202 Python tests and 63/63 portable CMake/CTest checks.
-The earlier PR/merge/main boundary remains; integrate R6 then R7 when those gates
-are authorized. Next preparation phase is R9; this R7-only request does not start
-it automatically. R6 evidence remains [R6_PRESENTATION_COMPLETION.md](R6_PRESENTATION_COMPLETION.md).
+R14 implementation covers all 386 species, 832 exact form/skin keys, 93 trainer
+pictures and 25 canonical battle/VFX events. All modern Pokémon models have
+explicit visible fallback dispositions; zero 3D Pokémon imports are claimed.
+Current checkpoint: local V1 passed; G1/D1/F1 await published-head hosted CI.
+Completion evidence: [R14_BATTLE_PRESENTATION_COMPLETION.md](R14_BATTLE_PRESENTATION_COMPLETION.md).
+R6/R7/R9/R14 PR/merge/main boundaries remain; integrate in dependency order when
+those gates are authorized. Next preparation phase is R15 Audio; this instruction
+does not start it automatically.
 
 Real Unreal build remains R18 work. After R18 main verification, stop at
 REAL UNREAL RUNTIME VALIDATION; do not automatically run physical Android

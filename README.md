@@ -10,10 +10,11 @@ input and platform integration.
 
 **R0-R5, R10-R13, R16 and R17 are complete.**
 
-R6/R7 source preparation is verified on dependent branches. This R9 branch adds
-UI/HUD/menu source preparation with successful hosted acceptance: 212 Python
-regressions and 65/65 CMake/CTest checks. Real Unreal/UHT,
-asset import and Android execution are separate R18/R19 checks.
+R6/R7/R9 source preparation is verified on dependent branches. This R14 branch
+adds the const battle presentation consumer, complete 386-species/form audit and
+local Pokémon asset validation pipeline. Source/preparation acceptance is being
+verified; zero modern 3D Pokémon imports are claimed. Real Unreal/UHT,
+asset import and Android execution remain separate R18/R19 checks.
 
 Completed foundation:
 
@@ -30,12 +31,13 @@ Completed foundation:
 - R16 — regression-pinned portable Vanilla+ QoL policy and management core.
 - R17 — source-format save compatibility, safe persistence and migration fixtures.
 
-The next source/preparation phase after this branch's R9 acceptance is:
+The next source/preparation phase after this branch's R14 acceptance is:
 
-**R14 — Battle presentation + Pokémon asset pipeline**
+**R15 — Audio**
 
+R14 evidence: [docs/R14_BATTLE_PRESENTATION_COMPLETION.md](docs/R14_BATTLE_PRESENTATION_COMPLETION.md).
 R9 evidence: [docs/R9_UI_COMPLETION.md](docs/R9_UI_COMPLETION.md).
-R6/R7/R9 integration must retain dependency order; PR/merge/main gates are pending.
+R6/R7/R9/R14 integration must retain dependency order; PR/merge/main gates remain pending.
 
 The phase numbers are intentionally preserved even though the remaining
 implementation order is non-numeric.

@@ -1,0 +1,15 @@
+{
+  "schema": "r14-battle-presentation-v1",
+  "source_pin": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+  "species_range": [1, 386],
+  "asset_policy": "local user-owned ORAS extraction; no per-species scraping dependency",
+  "public_boundary": "code, source metadata, hashes and audits only; commercial payloads local/private",
+  "normalization": {"engine_units": "centimetres", "engine_up_axis": "Z", "forward_axis": "X", "pivot": "ground", "intermediate": "glTF 2.0 metres Y-up; engine import must convert axes/units", "mesh_calibration": "explicit per exact identity"},
+  "animations": ["idle", "entry", "attack", "hit", "faint"],
+  "special_channels": ["material", "visibility", "morph", "UV", "texture_pattern"],
+  "fallbacks": {"model": "labelled primitive", "idle": "static pose", "entry": "translate from side anchor", "attack": "short lunge", "hit": "local shake", "faint": "sink and hide", "VFX": "semantic label and primitive pulse"},
+  "mobile_budgets": {"lod_triangles": [20000, 10000, 5000], "material_slots": 4, "texture_dimension": 1024, "bones": 128, "active_battlers": 4, "active_vfx": 8},
+  "sequencing": {"queue_capacity": 1024, "history_capacity": 256, "batch_identity": "host battle epoch plus strictly increasing batch serial", "overflow": "reject whole batch; host retries presentation or performs explicit logged resync; never stall core resolution", "completion_authority": "presentation only; never advance or commit core battle"},
+  "placement": {"side_x_cm": [-180, 180], "double_slot_y_cm": [-90, 90], "trainer_x_cm": [-320, 320]},
+  "deferred": ["owned source acquisition", "licensed importer and UE 5.8 UHT compilation", "real skeletal/material/visibility channels", "host battle input/finalization", "Android device measurements"]
+}

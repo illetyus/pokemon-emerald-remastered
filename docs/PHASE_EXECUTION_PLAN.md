@@ -854,3 +854,21 @@ blobs match local bytes; no core/vendor files changed. Verify this final
 documentation-head CI before handoff. D1/F1 details: `docs/R9_UI_COMPLETION.md`.
 Main is `a7ed422da7817c05aa1eac21bdbca6bd6edced5e`; next preparation phase is R14,
 which does not start under this R9-only instruction.
+
+## R14 direct-authorization checkpoint — 2026-10-07
+
+The user's explicit R14 start instruction supersedes the previous R9-only resume
+boundary. Dependent `r14-battle-presentation` starts from verified R9 head
+`4b0da018913867e9f8e83d76c0cb3662501ba3cd`; main remains
+`a7ed422da7817c05aa1eac21bdbca6bd6edced5e`. Existing PR/merge/main gates remain.
+
+R14-P1/P2, I1-I8 and T1 source/preparation implementation is complete. Local
+V1 passed 24 targeted Python tests, 1,251 native authority/identity/queue checks,
+byte-exact generation and Unreal source guards. G1/D1/F1 await exact published
+HEAD hosted CI and blob reconciliation. The source audit covers 386 species,
+832 exact form/skin keys, 93 trainer pictures and 25 canonical event/VFX kinds.
+All 386 modern species models are missing; zero Unreal imports are claimed.
+
+Contract, local pipeline, event-batch snapshot limits, runtime deferrals and
+evidence: `docs/R14_BATTLE_PRESENTATION_COMPLETION.md`. R14-M1/M2 remain pending;
+next preparation phase is R15, which does not start under this instruction.

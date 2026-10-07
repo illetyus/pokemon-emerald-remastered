@@ -37,6 +37,8 @@ unreal/Content/Generated/Characters/
 unreal/Content/Local/R6/
 unreal/Content/Generated/Environment/
 unreal/Content/Local/R7/
+unreal/Content/Generated/Pokemon/
+unreal/Content/Local/R14/
 
 # Credentials / secrets
 .env
