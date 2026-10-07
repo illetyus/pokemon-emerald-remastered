@@ -12,8 +12,8 @@ input and platform integration.
 
 R6/R7/R9 source preparation is verified on dependent branches. This R14 branch
 adds the const battle presentation consumer, complete 386-species/form audit and
-local Pokémon asset validation pipeline. Source/preparation acceptance is being
-verified; zero modern 3D Pokémon imports are claimed. Real Unreal/UHT,
+local Pokémon asset validation pipeline. Hosted source/preparation acceptance passed all 236 Python regressions and
+66/66 CMake/CTest checks; zero modern 3D Pokémon imports are claimed. Real Unreal/UHT,
 asset import and Android execution remain separate R18/R19 checks.
 
 Completed foundation:

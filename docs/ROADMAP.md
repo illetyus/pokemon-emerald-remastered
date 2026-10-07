@@ -904,7 +904,12 @@ The user directly authorized R14 after R9 source/preparation. The dependent
 R14 implementation covers all 386 species, 832 exact form/skin keys, 93 trainer
 pictures and 25 canonical battle/VFX events. All modern Pokémon models have
 explicit visible fallback dispositions; zero 3D Pokémon imports are claimed.
-Current checkpoint: local V1 passed; G1/D1/F1 await published-head hosted CI.
+R14-P1/P2, I1-I8, T1, V1/G1 and D1/F1 are VERIFIED_COMPLETE for source/preparation.
+Implementation `f1d7a44c575723ddc3a22c462b276f8557fa59a6` passed
+[hosted run 37643401453](https://github.com/illetyus/pokemon-emerald-remastered/actions/runs/37643401453):
+236 Python tests and 66/66 complete CMake/CTest checks. All 23 published blobs
+match local bytes; core/vendor files are unchanged. Current checkpoint: verify
+this final documentation-head CI before handoff.
 Completion evidence: [R14_BATTLE_PRESENTATION_COMPLETION.md](R14_BATTLE_PRESENTATION_COMPLETION.md).
 R6/R7/R9/R14 PR/merge/main boundaries remain; integrate in dependency order when
 those gates are authorized. Next preparation phase is R15 Audio; this instruction

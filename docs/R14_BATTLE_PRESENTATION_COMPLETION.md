@@ -2,9 +2,13 @@
 
 ## Scope and checkpoint
 
-Source/preparation implementation is complete; hosted acceptance is pending at
-this checkpoint. R14-P1/P2, I1-I8, T1 and local V1 are implemented. G1/D1/F1
-remain pending exact published-commit CI and independent blob reconciliation.
+R14-P1/P2, I1-I8, T1, V1/G1 and D1/F1 are VERIFIED_COMPLETE for the
+pre-real-Unreal source/preparation scope. Implementation commit
+`f1d7a44c575723ddc3a22c462b276f8557fa59a6` passed full hosted acceptance:
+[run 37643401453](https://github.com/illetyus/pokemon-emerald-remastered/actions/runs/37643401453).
+Both source-and-catalog and portable-regressions jobs reached terminal success.
+All 23 published blobs exactly match local bytes; the commit has the verified
+R9 head as its sole parent, and core/vendor files are unchanged.
 This is not a real Unreal build, imported Pokémon pack or Android runtime claim.
 
 The user's explicit R14 start instruction supersedes the previous R9-only
@@ -164,11 +168,16 @@ remain R8/R18/runtime checks.
 Local targeted acceptance: 24 Python tests and 1,251 native checks passed,
 including real single/double R13 battles with immediate, delayed and cleared
 visual feeds. Whole battle-state byte comparisons include outcomes and RNG.
-Source guards and byte-exact package generation passed. All 236 Python regressions passed. Hosted full CMake/CTest acceptance remains
-pending at this checkpoint; CMake is unavailable in the local runtime.
+Source guards and byte-exact package generation passed. All 236 Python regressions passed. Hosted acceptance independently passed all
+236 Python tests, 24 targeted R14 tests, deterministic package/source guards and
+66/66 complete CMake/CTest checks, including all prior R13 battle tests and the
+same R14 native consumer. CMake was unavailable in the local runtime; hosted CI
+performed the full configure/build/test.
 
 Independent source reconciliation covers all species, exact form keys, physical
 sprite references, trainer picture constants and the canonical event enum (the
 buffer capacity constant is excluded). Published blobs, dependency parent,
-unchanged core/vendor and terminal exact-head CI must be checked before marking
-G1/D1/F1 verified. R14-M1/M2 remain pending; next preparation phase is R15 Audio.
+unchanged core/vendor and terminal implementation-head CI were independently
+reconciled. This documentation checkpoint records the acceptance; verify its
+exact committed-head CI before handoff, without changing implementation files.
+R14-M1/M2 remain pending; next preparation phase is R15 Audio.
