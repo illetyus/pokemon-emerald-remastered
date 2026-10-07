@@ -1,4 +1,221 @@
 {
-  "overrides": {},
-  "schema_version": 1
+  "schema_version": 1,
+  "overrides": {
+    "OBJ_EVENT_GFX_BRENDAN_NORMAL": {
+      "presentation_id": "player.brendan.normal",
+      "source_family": "oras",
+      "skeleton_family": "player_male",
+      "model_id": "character.brendan.oras_overworld",
+      "animation_set_id": "player.locomotion.on_foot",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_BRENDAN_MACH_BIKE": {
+      "presentation_id": "player.brendan.mach_bike",
+      "source_family": "oras",
+      "skeleton_family": "player_male",
+      "model_id": "character.brendan.oras_overworld",
+      "animation_set_id": "player.locomotion.mach_bike",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_BRENDAN_SURFING": {
+      "presentation_id": "player.brendan.surfing",
+      "source_family": "oras",
+      "skeleton_family": "player_male",
+      "model_id": "character.brendan.oras_overworld",
+      "animation_set_id": "player.locomotion.surf",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_BRENDAN_FIELD_MOVE": {
+      "presentation_id": "player.brendan.field_move",
+      "source_family": "oras",
+      "skeleton_family": "player_male",
+      "model_id": "character.brendan.oras_overworld",
+      "animation_set_id": "player.action.field_move",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_BRENDAN_ACRO_BIKE": {
+      "presentation_id": "player.brendan.acro_bike",
+      "source_family": "oras",
+      "skeleton_family": "player_male",
+      "model_id": "character.brendan.oras_overworld",
+      "animation_set_id": "player.locomotion.acro_bike",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_MAY_NORMAL": {
+      "presentation_id": "player.may.normal",
+      "source_family": "oras",
+      "skeleton_family": "player_female",
+      "model_id": "character.may.oras_overworld",
+      "animation_set_id": "player.locomotion.on_foot",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_MAY_MACH_BIKE": {
+      "presentation_id": "player.may.mach_bike",
+      "source_family": "oras",
+      "skeleton_family": "player_female",
+      "model_id": "character.may.oras_overworld",
+      "animation_set_id": "player.locomotion.mach_bike",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_MAY_ACRO_BIKE": {
+      "presentation_id": "player.may.acro_bike",
+      "source_family": "oras",
+      "skeleton_family": "player_female",
+      "model_id": "character.may.oras_overworld",
+      "animation_set_id": "player.locomotion.acro_bike",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_MAY_SURFING": {
+      "presentation_id": "player.may.surfing",
+      "source_family": "oras",
+      "skeleton_family": "player_female",
+      "model_id": "character.may.oras_overworld",
+      "animation_set_id": "player.locomotion.surf",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_MAY_FIELD_MOVE": {
+      "presentation_id": "player.may.field_move",
+      "source_family": "oras",
+      "skeleton_family": "player_female",
+      "model_id": "character.may.oras_overworld",
+      "animation_set_id": "player.action.field_move",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_BRENDAN_UNDERWATER": {
+      "presentation_id": "player.brendan.underwater",
+      "source_family": "oras",
+      "skeleton_family": "player_male",
+      "model_id": "character.brendan.oras_overworld",
+      "animation_set_id": "player.locomotion.underwater",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_MAY_UNDERWATER": {
+      "presentation_id": "player.may.underwater",
+      "source_family": "oras",
+      "skeleton_family": "player_female",
+      "model_id": "character.may.oras_overworld",
+      "animation_set_id": "player.locomotion.underwater",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_BRENDAN_FISHING": {
+      "presentation_id": "player.brendan.fishing",
+      "source_family": "oras",
+      "skeleton_family": "player_male",
+      "model_id": "character.brendan.oras_overworld",
+      "animation_set_id": "player.action.fishing",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_MAY_FISHING": {
+      "presentation_id": "player.may.fishing",
+      "source_family": "oras",
+      "skeleton_family": "player_female",
+      "model_id": "character.may.oras_overworld",
+      "animation_set_id": "player.action.fishing",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_BRENDAN_WATERING": {
+      "presentation_id": "player.brendan.watering",
+      "source_family": "oras",
+      "skeleton_family": "player_male",
+      "model_id": "character.brendan.oras_overworld",
+      "animation_set_id": "player.action.watering",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_MAY_WATERING": {
+      "presentation_id": "player.may.watering",
+      "source_family": "oras",
+      "skeleton_family": "player_female",
+      "model_id": "character.may.oras_overworld",
+      "animation_set_id": "player.action.watering",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_BRENDAN_DECORATING": {
+      "presentation_id": "player.brendan.decorating",
+      "source_family": "oras",
+      "skeleton_family": "player_male",
+      "model_id": "character.brendan.oras_overworld",
+      "animation_set_id": "player.action.decorating",
+      "provenance_id": "provenance.r6.brendan.oras.models_resource.291499",
+      "source_sha256": [
+        "fd6afb77420c622e37e405a44a981aa1c2563c69b2fc3fa693900a0b4637a2f6"
+      ],
+      "normalized_sha256": []
+    },
+    "OBJ_EVENT_GFX_MAY_DECORATING": {
+      "presentation_id": "player.may.decorating",
+      "source_family": "oras",
+      "skeleton_family": "player_female",
+      "model_id": "character.may.oras_overworld",
+      "animation_set_id": "player.action.decorating",
+      "provenance_id": "provenance.r6.may.oras.models_resource.291166",
+      "source_sha256": [
+        "a6a53b88e54b4961e936a48c29084d9dbaa1e51685a745a4b7a70bda0e0cd756"
+      ],
+      "normalized_sha256": []
+    }
+  }
 }

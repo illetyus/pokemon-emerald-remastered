@@ -1,6 +1,6 @@
 # R6-I2C Player Presentation State Policy
 
-Status: **R6-I2C complete**
+Status: **R6-I2C + R6-I2D complete**
 
 This phase classifies every Brendan/May `OBJ_EVENT_GFX` identity without
 introducing a second player-state simulation.
@@ -71,8 +71,27 @@ When the portable gameplay layer exposes authoritative avatar state, R6 may
 select the matching presentation record. Until then, normal presentation can be
 used as the safe runtime fallback.
 
+## R6-I2D manifest binding
+
+All 18 Brendan/May graphics identities are now bound in
+`data/r6/character_presentation_overrides.json`.
+
+Each binding records only public logical metadata:
+
+- stable player presentation ID;
+- ORAS source family;
+- Brendan/May base logical model ID;
+- `player_male` or `player_female` skeleton family;
+- required animation semantic;
+- provenance logical ID;
+- exact source archive SHA-256.
+
+The public override file does not contain proprietary binaries, private
+repository URLs, machine paths, or claims that normalized Unreal assets or
+animation clips already exist. `normalized_sha256` remains empty until a real
+normalized output is produced.
+
 ## Next step
 
-R6-I2D binds these decisions into
-`data/r6/character_presentation_overrides.json` using logical asset IDs only.
-No proprietary model paths or binaries belong in the public repository.
+R6-I2E validates the full Brendan/May player presentation slice: manifest
+coverage, fallback behavior, public/private boundary, and regression safety.

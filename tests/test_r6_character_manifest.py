@@ -138,5 +138,46 @@ class R6CharacterManifestTests(unittest.TestCase):
                 build_manifest(VENDOR, path)
 
 
+    def test_player_state_overrides_bind_i2c_contract(self) -> None:
+        states_path = ROOT / "data" / "r6" / "player_presentation_states.json"
+        state_data = json.loads(states_path.read_text(encoding="utf-8"))
+        override_data = json.loads(OVERRIDES.read_text(encoding="utf-8"))["overrides"]
+
+        self.assertEqual(state_data["state_count"], 18)
+        for state in state_data["records"]:
+            with self.subTest(name=state["graphics_name"]):
+                name = state["graphics_name"]
+                override = override_data[name]
+                entry = self.by_name[name]
+
+                self.assertEqual(override["presentation_id"], state["presentation_id"])
+                self.assertEqual(override["source_family"], state["source_family"])
+                self.assertEqual(override["skeleton_family"], state["skeleton_family"])
+                self.assertEqual(override["model_id"], state["base_model_id"])
+                self.assertEqual(
+                    override["animation_set_id"],
+                    state["animation_semantic"],
+                )
+                self.assertEqual(
+                    override["source_sha256"],
+                    [state["source_archive_sha256"]],
+                )
+                self.assertEqual(override["normalized_sha256"], [])
+
+                for field in (
+                    "presentation_id",
+                    "source_family",
+                    "skeleton_family",
+                    "model_id",
+                    "animation_set_id",
+                    "provenance_id",
+                ):
+                    self.assertEqual(entry[field], override[field])
+                self.assertEqual(entry["source_sha256"], override["source_sha256"])
+                self.assertEqual(entry["normalized_sha256"], [])
+                self.assertEqual(entry["fallback_id"], "fallback.human")
+
+
+
 if __name__ == "__main__":
     unittest.main()
