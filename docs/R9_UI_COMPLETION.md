@@ -1,6 +1,6 @@
 # R9 UI / HUD / Menu — Source and Preparation Acceptance
 
-Status: **IMPLEMENTED; final regression and publication reconciliation pending**.
+Status: **pre-real-Unreal source/preparation implementation and acceptance VERIFIED_COMPLETE on the R9 branch; merge/main gates pending**.
 This is the pre-real-Unreal source/preparation scope used for R6 and R7. The
 shared UI model is compiled natively; the Unreal subsystem, controller and UMG
 widget are source checked. This does not certify a UE/UHT build or device run.
@@ -120,9 +120,20 @@ real VM sequence/choice handling, UTF-8 glyph pacing and audio-barrier exclusion
 The portable fixture oracle is separate JSON plus a Python consumer of actual
 native frames, rather than independently recreated UI logic.
 
-Full Python, hosted CMake/CTest and exact-head GitHub acceptance are recorded
-after terminal completion. Unreal source architecture guards and deterministic
-display catalog verification passed locally. Real UE 5.8/UHT, rendered screens,
+All **212 Python regressions** passed locally and on GitHub. Hosted run
+[37635394388](https://github.com/illetyus/pokemon-emerald-remastered/actions/runs/37635394388)
+completed successfully at implementation commit
+`0c99764d960654fe0c71309d9cd4946362b76101`: 10 R9 Python tests, all 212 Python
+regressions, deterministic display catalog and Unreal source guards, and
+**65/65 full CMake/CTest checks**. Both jobs reached terminal success. Native
+UI authority/action and fixture-matrix tests are registered among those checks.
+All **21 implementation/evidence blobs** match local Git blob hashes. The exact
+comparison is one commit ahead of the verified R7 base, with no core/vendor edits.
+Final documentation-head CI must also reach terminal success before handoff.
+
+R9-P1/P2, I1-I8 UI infrastructure, T1, V1/G1 and D1/F1 are VERIFIED_COMPLETE in
+this source/preparation scope. This acceptance includes the supported UI routes
+and explicitly records their host/runtime limits. Real UE 5.8/UHT, rendered screens,
 host resource/editor/effect integration, imported map art, input focus/DPI and
 Android device behavior remain R18/R19 and relevant host-phase validation.
 

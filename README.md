@@ -11,7 +11,8 @@ input and platform integration.
 **R0-R5, R10-R13, R16 and R17 are complete.**
 
 R6/R7 source preparation is verified on dependent branches. This R9 branch adds
-UI/HUD/menu source preparation; hosted acceptance is pending. Real Unreal/UHT,
+UI/HUD/menu source preparation with successful hosted acceptance: 212 Python
+regressions and 65/65 CMake/CTest checks. Real Unreal/UHT,
 asset import and Android execution are separate R18/R19 checks.
 
 Completed foundation:

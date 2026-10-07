@@ -839,15 +839,18 @@ restriction for R9 source/preparation. Dependent branch `r9-ui-presentation`
 starts from verified R7 head `32850179f41be4c12e2921d956fa52f7f0f0536b`.
 R6/R7/R9 PR/merge/main boundaries remain separately authorized integration gates.
 
-R9-P1/P2, I1-I8 UI infrastructure, T1 and D1 are IMPLEMENTED; hosted V1/G1 and
-final publication F1 reconciliation are pending. Shared native screen/action
+R9-P1/P2, I1-I8 UI infrastructure, T1, V1/G1 and D1/F1 are VERIFIED_COMPLETE
+in the pre-real-Unreal source/preparation scope. Shared native screen/action
 model, const core views, staged native commands, typed script request hooks,
 native UMG safe-area/scroll/marker shell and per-action input fallbacks are ready.
 Actual script resource/naming/field-effect hosts, R6/R7/R15 animation/audio timing
 and real Unreal/UHT/touch/Android checks remain explicit integration/runtime work.
 
 Local acceptance: 10 R9 Python tests, all 212 Python regressions, 215 native UI
-checks and the 10-screen native fixture matrix passed. Deterministic names and
-Unreal authority guards passed. D1/F1 details: `docs/R9_UI_COMPLETION.md`.
+checks and the 10-screen native fixture matrix passed. Hosted run 37635394388
+reached terminal success at `0c99764d960654fe0c71309d9cd4946362b76101`: all 212
+Python tests, source/catalog guards and 65/65 CMake/CTest checks. All 21 published
+blobs match local bytes; no core/vendor files changed. Verify this final
+documentation-head CI before handoff. D1/F1 details: `docs/R9_UI_COMPLETION.md`.
 Main is `a7ed422da7817c05aa1eac21bdbca6bd6edced5e`; next preparation phase is R14,
 which does not start under this R9-only instruction.
