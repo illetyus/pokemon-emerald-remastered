@@ -7,6 +7,7 @@
 class UCameraComponent;
 class USceneComponent;
 class USpringArmComponent;
+class ARemasterWorldActor;
 
 UCLASS()
 class POKEMONEMERALDREMASTERED_API ARemasterCameraRig : public AActor
@@ -16,6 +17,7 @@ class POKEMONEMERALDREMASTERED_API ARemasterCameraRig : public AActor
 public:
     ARemasterCameraRig();
     virtual void Tick(float DeltaSeconds) override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
     UFUNCTION(BlueprintCallable, Category="Remaster|Camera")
     void SetFollowTarget(AActor* Target);
@@ -33,9 +35,9 @@ protected:
     UPROPERTY(EditAnywhere, Category="Remaster|Camera")
     float FollowSpeed = 8.0f;
 
-    UPROPERTY(EditAnywhere, Category="Remaster|Camera")
-    float LookAheadDistance = 80.0f;
-
 private:
     TWeakObjectPtr<AActor> FollowTarget;
+    TWeakObjectPtr<ARemasterWorldActor> WorldRenderer;
+    uint64 LastMapRevision = 0;
+    bool bHasAuthoritativeTarget = false;
 };

@@ -8,6 +8,7 @@
 #include "RemasterPlayerController.h"
 #include "RemasterWorldActor.h"
 #include "RemasterNpcPresentationWorld.h"
+#include "RemasterEnvironmentController.h"
 
 AR0GameMode::AR0GameMode()
 {
@@ -69,6 +70,12 @@ void AR0GameMode::StartPlay()
     {
         World->SpawnActor<ARemasterNpcPresentationWorld>(
             ARemasterNpcPresentationWorld::StaticClass(), FTransform::Identity);
+    }
+
+    if (!TActorIterator<ARemasterEnvironmentController>(World))
+    {
+        World->SpawnActor<ARemasterEnvironmentController>(
+            ARemasterEnvironmentController::StaticClass(), FTransform::Identity);
     }
 
     ARemasterCameraRig* CameraRig = nullptr;

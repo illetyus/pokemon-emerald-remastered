@@ -300,11 +300,28 @@ def main() -> int:
 
     require(
         "R5 packaged render catalog is not ready." in world_actor
-        and "R5 descriptor resolution failed" in world_actor
+        and "AddMissingDescriptorFallback(Visual, X, Y, Chunk)" in world_actor
+        and 'TEXT("R7 visible descriptor fallback: %s in %s")' in world_actor
         and "Fallback->AddInstance" not in world_actor,
-        "R5 production renderer must fail visibly instead of inventing geometry when descriptors are missing",
+        "R7 must report descriptor gaps and retain a labeled visible plane; never guess replacement geometry",
         errors,
     )
+
+    camera = (MODULE / "RemasterCameraRig.cpp").read_text(encoding="utf-8")
+    environment = (MODULE / "RemasterEnvironmentController.cpp").read_text(encoding="utf-8")
+    require("GetOverworldSnapshot(Snapshot)" in camera
+        and "Snapshot.PlayerX, Snapshot.PlayerY" in camera
+        and "LastMapRevision != Revision" in camera
+        and "follow_alpha(FollowSpeed, DeltaSeconds)" in camera
+        and "GetVelocity" not in camera,
+        "R7 camera must follow read-only core coordinates and reset on every map rebuild", errors)
+    require("Save->GetLocalRtcNow(Rtc)" in environment
+        and "RuntimeWeatherId = Snapshot.Weather" in environment
+        and "RealignRtcNow" not in environment
+        and "LineTrace" not in camera
+        and "RestoreCameraOcclusion" in world_actor
+        and "can_admit(" in world_actor,
+        "R7 environment must read core clock/weather and use render-only occlusion and tested budgets", errors)
 
     visual_style_h = (
         MODULE / "RemasterVisualStyle.h"

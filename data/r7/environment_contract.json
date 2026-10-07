@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "authority": "Vanilla+ world layouts, metatile identities, player coordinates, runtime weather and RTC remain authoritative",
+  "identity": "gTileset_Name:local_metatile_id; primary 0..511, secondary subtracts 512",
+  "fallback": "existing R5 indexed two-plane terrain; visible default material when indexed material is unavailable",
+  "model_role": "optional per-metatile decorative fragment; R5 ground retained underneath",
+  "required_families": ["buildings", "trees", "rocks", "grass", "signs", "fences", "caves", "indoor_props", "water", "unclassified"],
+  "family_policy": "source-label/behavior hints only; ambiguous identities stay unclassified, never assigned guessed models",
+  "three_dimensional_sources": [],
+  "source_status": "no verified ORAS environment acquisition or normalized payload at this checkpoint",
+  "mobile": {
+    "chunk_tiles": 16,
+    "lod_triangle_limits": [6000, 3000, 1500],
+    "max_material_slots": 2,
+    "max_texture_dimension": 1024,
+    "min_cull_distance": 1000,
+    "max_cull_distance": 4000,
+    "max_3d_components_per_chunk": 32,
+    "max_3d_instances_per_chunk": 256,
+    "max_3d_lod0_triangles_per_chunk": 60000,
+    "instancing": "HISM; deterministic row-order admission with R5 fallback for overflow",
+    "hlod": "disabled mobile baseline; any generated proxy requires R18 cooked-runtime validation",
+    "lumen": "not required",
+    "realtime_skylight_capture": false,
+    "dynamic_environment_shadows": false,
+    "performance_status": "source budget contract only; no device FPS or memory claim"
+  },
+  "water": {
+    "baseline": "source R5 water metatiles remain visible",
+    "optional_shader": "cosmetic only; no surf, fishing, current or encounter decisions",
+    "animation_status": "no new animated-water material or source animation import verified"
+  },
+  "camera": {
+    "target": "read-only core save player coordinates through R5 TileToWorldLocation",
+    "interpolation": "1-exp(-speed*dt); snap on map presentation revision including same-map reload",
+    "lookahead": "disabled until an authoritative motion snapshot is exposed",
+    "occlusion": "open camera-to-player segment against opt-in render bounds; hide only decorative instance and restore exact transform",
+    "physics_traces": false
+  },
+  "lighting": {
+    "clock": "read-only core local RTC; retain last valid visual hour on read failure",
+    "weather": "runtime weather IDs; coordinate-event IDs never interpreted as runtime IDs",
+    "unresolved_weather": [4, 15, 20, 21],
+    "unresolved_policy": "neutral baseline without advancing or interpreting gameplay cycles",
+    "indoor_and_cave": "map-type-specific fixed ambient profile; exterior sun disabled"
+  },
+  "representative_maps": ["LittlerootTown_BrendansHouse_1F", "LittlerootTown", "Route101", "GraniteCave_1F", "Route105", "Underwater_Route124"]
+}

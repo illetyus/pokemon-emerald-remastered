@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
-Date: 2026-10-06  
-Status: **R0-R5, R10-R13, R16 and R17 complete; R6 pre-real-Unreal implementation/acceptance verified on branch; R6 merge/main gates pending.**
+Date: 2026-10-07
+Status: **R0-R5, R10-R13, R16 and R17 complete; R6 source/preparation acceptance verified; R7 implementation prepared for hosted acceptance on dependent branch; R6/R7 merge/main gates pending.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -390,6 +390,10 @@ The repository stores only:
 - gameplay object position/state remains R4-owned.
 
 ## R7 — Camera / environment presentation + environment asset pipeline
+
+Current checkpoint: pre-real-Unreal implementation prepared; hosted acceptance
+pending. See [R7_ENVIRONMENT_COMPLETION.md](R7_ENVIRONMENT_COMPLETION.md) for full
+source identity/fallback coverage, camera/environment changes, budgets and limits.
 
 ### Goal
 
@@ -886,19 +890,19 @@ of successful UE compilation or Android runtime.
 
 # 14. Immediate next action
 
-The active phase is **R6 — Character / NPC presentation**.
-R17 is merged at main `a7ed422da7817c05aa1eac21bdbca6bd6edced5e`.
-R6 source/preparation acceptance is verified at implementation commit
-`f9dbf2d20bb6bd38ae921a9aa2225aa969c984b8` with terminal-success hosted CI.
-All 681 identities have explicit fallback coverage; 139 human identities have
-source or source-gap/deferred decisions. Normalized commercial outputs, clips
-and actual Unreal/device validation are not asserted.
+The active preparation phase is **R7 — Environment / camera presentation**.
+The user directly authorized R7 before R6 merge/main, so this work is prepared on
+`r7-environment-presentation`, based on verified R6 head
+`db8c50c76365bd656fc5db3bad2eba25a336b83c`.
+Main remains R17 at `a7ed422da7817c05aa1eac21bdbca6bd6edced5e`.
+R7 implementation covers all 518 maps, 441 layouts and 18,403 explicit fallback
+identities; actual modern 3D model/import/device readiness is not asserted.
 
-Completion evidence: [R6_PRESENTATION_COMPLETION.md](R6_PRESENTATION_COMPLETION.md).
-Current checkpoint: **R6-D1/F1 documentation reconciliation and exact-head CI**.
-PR/merge/main changes remain outside the current authorization. Once separately
-authorized, execute R6-M1 verified branch/PR merge, then R6-M2 terminal-success
-main CI. Only then advance to R7-P1.
+Completion evidence: [R7_ENVIRONMENT_COMPLETION.md](R7_ENVIRONMENT_COMPLETION.md).
+Current checkpoint: **R7-V1/G1 hosted full regression acceptance**.
+The earlier PR/merge/main boundary remains; integrate R6 then R7 when those gates
+are authorized. Next preparation phase is R9; this R7-only request does not start
+it automatically. R6 evidence remains [R6_PRESENTATION_COMPLETION.md](R6_PRESENTATION_COMPLETION.md).
 
 Real Unreal build remains R18 work. After R18 main verification, stop at
 REAL UNREAL RUNTIME VALIDATION; do not automatically run physical Android

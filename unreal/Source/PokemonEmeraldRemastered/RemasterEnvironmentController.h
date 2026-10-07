@@ -17,6 +17,7 @@ class POKEMONEMERALDREMASTERED_API ARemasterEnvironmentController
 
 public:
     ARemasterEnvironmentController();
+    virtual void Tick(float DeltaSeconds) override;
 
     UFUNCTION(BlueprintCallable, Category="Remaster|Environment")
     void SetTimeOfDay(float Hour);
@@ -58,4 +59,7 @@ protected:
 private:
     float TimeOfDay = 12.0f;
     FName WeatherTag = TEXT("Clear");
+    int32 RuntimeWeatherId = 0;
+    int32 MapTypeId = 0;
+    void ApplyLighting();
 };
