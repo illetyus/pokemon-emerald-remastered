@@ -38,6 +38,7 @@ jobs:
         run: |
           python tools/build_r15_audio_catalog.py --check
           python tools/build_r15_cry_modes.py --check
+          python tools/build_r15_bgm_plan.py --check
       - name: Unreal authority source guards
         run: python tools/validate_unreal_source.py
 

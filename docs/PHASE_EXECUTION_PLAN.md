@@ -897,14 +897,22 @@ R15-V1-Closure-1 is VERIFIED_COMPLETE at
 Workflow 37763598815: 35/35 targeted Python, 271/271 full Python, 67/67 CTest,
 zero skips; required FFmpeg transform ran in both Python suites.
 
-Current write checkpoint: **R15-I3-Closure-1 — hash-pinned cry pack recovery**.
+R15-I3-Closure-1 is VERIFIED_COMPLETE at
+`9df9fae1d56420259f9d48ab950183800a5eea06`.
 Local historical master/normal hashes, full special manifest, 5,018 private
 candidates and both ZIP contents passed. New container hashes are explicit.
-Published-head CI is still required. Evidence and reproduction:
+Published-head workflow 37766890311 reached terminal success: 43/43 targeted
+Python, 279/279 full Python, 67/67 CTest, zero skips. Evidence and reproduction:
 [R15_AUDIO_PACK_RECOVERY.md](R15_AUDIO_PACK_RECOVERY.md).
 
-On this checkpoint's CI terminal-success, next state is **R15-I2 —
-BGM/loop/transition metadata**. Other audio/listening/host/runtime gaps remain;
-do not mark R15 G1/F1 or merge complete from this cry recovery.
+Current write checkpoint: **R15-I2-Closure-1 — source render and loop plan**.
+Source recipes/timelines cover 191 real music jobs, 18 jingles and 80 reserved
+zero-track rows; historical resolver/cry pack contracts remain unchanged.
+Local 13/13 tests and all 209 compiled pinned-converter recipe oracles pass;
+published-head CI is required. Evidence:
+[R15_BGM_SOURCE_PLAN.md](R15_BGM_SOURCE_PLAN.md).
+On this checkpoint's CI terminal-success, next state is **R15-I2-Closure-2 —
+pinned source render pilot and decoded loop evidence**. Other audio/listening/
+host/runtime gaps remain; do not mark R15 G1/F1 or merge complete from these artifacts.
 Continue the named subphases/closure gates, then integrate the verified dependent
 phase PRs in order before R8-P1. Stop after R18-M2 at REAL UNREAL RUNTIME VALIDATION.

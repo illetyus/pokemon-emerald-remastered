@@ -27,8 +27,11 @@ user deliverables. Repository CC0 does not grant rights to Pokemon audio.
 ## Source inventory
 
 `python tools/build_r15_audio_catalog.py --check` regenerates and compares exact
-source catalogs. There are 610 song table rows: 271 music, 269 SFX, 18 jingles,
-51 bard phonemes, one silence row. All 386 species map to the actual Emerald cry
+source catalogs. There are 610 song table rows: the historical classification
+labels 271 as music, including 80 zero-track reserved rows. The source render
+plan has 191 actual music jobs, 18 jingles, 269 SFX, 51 bard phonemes and one
+silence row. See [R15_BGM_SOURCE_PLAN.md](R15_BGM_SOURCE_PLAN.md) for pinned
+conversion recipes and source MIDI timelines. All 386 species map to the actual Emerald cry
 table and AIFF source hash; 13 source cry-mode IDs and 18 fanfare indices/waits
 are recorded. MUS_DESERT is a source constant alias, not a fabricated file name.
 Species/core IDs and National Dex IDs differ. Extended Unown 413..439 share
@@ -126,14 +129,14 @@ after terminal success. Real UE/UHT has not run.
    subsequently reported species exceptions.
 2. All 13 source modes now have normal/special candidates. Compare the authored
    special modes with a source-game hardware/emulator reference and audition them.
-3. Render 271 music records plus source effects/jingles as needed; measure exact
+3. Render the 191 source music jobs, 18 jingles and source effects as needed; measure exact
    intro/loop frames and check seams/context mix. Preserve source fanfare waits.
 4. Attach owner dispatch once per source request, source wait/fanfare/BGM
    transition semantics and Android real focus callbacks. No playback-length
    shortcuts that change gameplay scheduling.
 5. Import/cook privately, verify actual loop assets and profile/settings UI,
    latency, interruption/resume, decoded memory and device audio.
-6. Reconcile R15 G1/F1 and request the separately authorized merge boundary.
+6. Reconcile R15 G1/F1, then use the authorized PR/merge/main-CI boundary.
 
 P1/P2: implemented. I1/I4/I5: source scaffolding implemented and portable tests.
 I2/I3/I6: partial; assets/rendering/mode and host/platform gates remain.
