@@ -316,3 +316,8 @@ Next after closure CI: **R8-V1 → R8-G1 re-verification**.
 
 G1 acceptance and completion ledger: [R8_INPUT_COMPLETION.md](R8_INPUT_COMPLETION.md).
 Next: D1 exact-head CI, then independent F1 reconciliation before PR/main gates.
+
+
+D1 is VERIFIED_COMPLETE at `ddd3ce19`: workflow 37851617574 8/75/328 PASS;
+all 16 exact-head workflows including CodeQL succeeded. Fresh F1 source/evidence
+reconciliation passed; final publication CI and PR/main M1/M2 remain required.

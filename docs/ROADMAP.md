@@ -948,10 +948,12 @@ R8-I5 is VERIFIED_COMPLETE at `6046cba6` (workflow 37849310238: 5/72/320 PASS).
 R8-I6 is VERIFIED_COMPLETE at `7194102a` (workflow 37849841175: 6/73/322 PASS).
 R8-T1/V1 passed at `d1730592` (workflow 37850579912: 7/74/326 PASS).
 R8-Closure-1/V1/G1 is VERIFIED_COMPLETE at `19f8716d`; workflow 37851201049
-passed 8/75/328. Current **R8-D1** completion publication is VERIFYING exact-head CI.
+passed 8/75/328. R8-D1 is VERIFIED_COMPLETE at `ddd3ce19`; workflow
+37851617574 passed 8/75/328 and all 16 exact-head workflows including CodeQL succeeded.
+R8-F1 source reconciliation passed; final documentation publication CI is VERIFYING.
 [Acceptance/evidence/runtime boundaries](R8_INPUT_COMPLETION.md). Evidence: [R8_INPUT_IMPLEMENTATION.md](R8_INPUT_IMPLEMENTATION.md).
-After D1 CI, next is **R8-F1 — Independent final reconciliation**, then PR/main
-gates. R19-P1 starts only after R8-M2 main terminal-success.
+Next after final exact-head CI is **R8-M1 — PR #22 merge**, then **R8-M2**.
+R19-P1 starts only after R8-M2 main terminal-success.
 No actual runtime/local asset obligation was closed by these source merges.
 
 Real Unreal build remains R18 work. After R18 main verification, stop at

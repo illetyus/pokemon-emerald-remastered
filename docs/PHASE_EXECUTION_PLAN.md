@@ -956,9 +956,10 @@ R8-I5 is VERIFIED_COMPLETE at `6046cba6`; workflow 37849310238 passed 5/72/320.
 R8-I6 is VERIFIED_COMPLETE at `7194102a`; workflow 37849841175 passed 6/73/322.
 R8-T1/V1 passed at `d1730592`; workflow 37850579912 passed 7/74/326.
 R8-Closure-1/V1/G1 is VERIFIED_COMPLETE at `19f8716d`; workflow 37851201049
-passed 8/75/328 and source guards. Current **R8-D1** completion publication is
-VERIFYING exact-head CI. [Acceptance/runtime boundaries](R8_INPUT_COMPLETION.md).
-After D1 CI, next: **R8-F1**; then M1/M2. R19-P1 requires main terminal-success.
+passed 8/75/328 and source guards. R8-D1 is VERIFIED_COMPLETE at `ddd3ce19`;
+workflow 37851617574 passed 8/75/328; all 16 workflows including CodeQL succeeded.
+R8-F1 source reconciliation passed; final documentation publication CI is VERIFYING. [Acceptance/runtime boundaries](R8_INPUT_COMPLETION.md).
+Next after final exact-head CI: **R8-M1** PR #22 merge → **R8-M2** main terminal-success, then R19-P1.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,
 R20 and R18; stop at the actual environment/runtime boundary. All deferred

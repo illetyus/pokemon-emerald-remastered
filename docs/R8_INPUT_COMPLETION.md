@@ -1,8 +1,10 @@
 # R8 — Input infrastructure source acceptance and completion
 
 G1: **VERIFIED_COMPLETE** at `19f8716d9db199f7c7ae42f0ed214a6224503f74`.
-D1: VERIFYING this publication and its exact hosted CI.
-F1/M1/M2: NOT_STARTED; source acceptance alone does not authorize bypassing them.
+D1: **VERIFIED_COMPLETE** at `ddd3ce193fb41a8db8beefd738ed6c1f5711c9d6`.
+F1 source reconciliation: **VERIFIED_COMPLETE** against that immutable D1 head;
+the final documentation publication still requires its own exact-head CI.
+M1/M2: NOT_STARTED; merge and main terminal-success remain separate gates.
 Branch: `r8-input-infrastructure`. PR: [#22](https://github.com/illetyus/pokemon-emerald-remastered/pull/22).
 Base main: `b8d789e697ee06c466c5546dfbebfb546b4e89e2`.
 Authority: `illetyus/pokezumrut-vanillaplus@70db90c9077aed1272e746fc2537d9f12b95a91c`.
@@ -83,3 +85,30 @@ After F1/M1/M2, next is **R19-P1**. Continue R19 → R20 → R18 under existing
 authorization. If the real R18 environment is absent, stop EXTERNAL_ENV_REQUIRED.
 After actual R18 and main CI, stop at REAL UNREAL RUNTIME VALIDATION; do not
 automatically execute physical smoke, BrowserStack, final device matrix or R21/R22.
+
+
+## R8-F1 — Fresh read-only final reconciliation
+
+Re-read live main `b8d789e697ee06c466c5546dfbebfb546b4e89e2`, active branch
+`ddd3ce193fb41a8db8beefd738ed6c1f5711c9d6`, recent commits, PR #22, compare,
+canonical ROADMAP/ARCHITECTURE/PHASE_EXECUTION_PLAN and all owning R8 docs/source.
+Compare was 11 ahead / 0 behind and 42 files. No concurrent drift, direct main
+write, vendor/core edit, private payload or CI self-commit transport was present.
+No unresolved review threads were present. This is a separate read-only
+source/evidence reconciliation; it does not claim an external peer review.
+
+D1 workflow 37851617574 jobs 113565626201/113565625848 confirmed 8/75/328 and
+Unreal source guard PASS. All 16 exact-head push/PR workflows completed
+successfully, including dynamic CodeQL workflow 37851617651 and actions, csharp,
+c-cpp and python analyses. The final source implementation is unchanged since
+Closure-1; D1 changed seven documentation files only.
+
+The five source acceptance bullets, Closure-1 coverage, compiled/fixture proof,
+owner rejection, lifecycle epoch and repeat/settings boundaries reconcile with
+the versioned contract. Remaining actual engine/assets/host/device obligations
+are carried above and are not falsely certified. Source final gate PASS.
+
+This F1 documentation publication changes no implementation. Read its live
+exact SHA/checks again after commit. Merge only after its final PR workflows and
+required CodeQL contexts succeed. Then read the actual main merge SHA and all
+main workflows to terminal-success. Only that M2 result permits R19-P1.
