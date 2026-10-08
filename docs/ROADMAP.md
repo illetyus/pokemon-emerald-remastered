@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
 Date: 2026-10-08
-Status: **R0-R5, R10-R13, R16 and R17 complete on main; R6/R7/R9/R14 source/preparation acceptance verified on dependent branches, merge/main gates pending; R15 active, cry payload recovery passed locally and final audio gates remain open.**
+Status: **R0-R5, R10-R13, R16/R17 and R6/R7/R9/R14/R15 pre-real-UE source phases verified complete on main; R8 input infrastructure active. Actual engine/assets/device obligations remain open.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -900,10 +900,12 @@ of successful UE compilation or Android runtime.
 
 # 14. Immediate next action
 
-The active preparation phase is **R15 Audio** on `r15-audio-modernization`.
-Main remains the accepted R17 merge at
-`a7ed422da7817c05aa1eac21bdbca6bd6edced5e`.
-R6/R7/R9/R14 source/preparation gates are verified; their M1/M2 gates remain open.
+The active phase is **R8 Input infrastructure** on `r8-input-infrastructure`.
+Verified main is `b8d789e697ee06c466c5546dfbebfb546b4e89e2`: R15 PR #21,
+all 14 workflows terminal-success including CodeQL; 74 targeted Python,
+310 full Python and 67 CTest PASS, zero Python skips.
+R6/R7/R9/R14/R15 M1/M2 are VERIFIED_COMPLETE. The exact merge/CI ledger and
+R8-P1 audit are in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md).
 
 R15-V1-Closure-1 is VERIFIED_COMPLETE at
 `3b9b208f934ecba9ac9be857cd40e38e88cbfec0`: hosted
@@ -933,13 +935,13 @@ R15-G1/D1 is VERIFIED_COMPLETE at `695d01b`; workflow 37780786306 passed
 The four canonical source acceptance bullets pass; actual assets/import, listening,
 owner/platform attachment and engine/device obligations remain explicitly open in
 [R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md).
-Current checkpoint: **R15-F1 — independent final gate**. Independent source
-reconciliation passed at `695d01b`; exact published-head CI remains required.
-After success, next named state is **R6-M1 — dependent phase PR integration**.
-R15 actual runtime/asset gates remain open under the completion ledger.
-Integrate verified phases in dependency order R6 → R7 → R9 → R14 → R15, with
-each phase's final gate, PR and main CI terminal-success before advancing to R8.
+R15-F1 publication `515dde0` passed workflow 37781258584 (74/310/67, zero skips).
+The verified dependent phases then integrated through PR #17/#18/#19/#20/#21
+and terminal-success main CI in order. R8-P1 is the versioned common-action
+audit; next named subphase is **R8-P2 — Platform/lifecycle contract**.
+No actual runtime/local asset obligation was closed by these source merges.
 
 Real Unreal build remains R18 work. After R18 main verification, stop at
 REAL UNREAL RUNTIME VALIDATION; do not automatically run physical Android
 smoke, BrowserStack, final device matrix, R21 or R22.
+

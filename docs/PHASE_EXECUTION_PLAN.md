@@ -890,9 +890,11 @@ The current user instruction authorizes applying the full agreed plan. Historica
 phase-only preparation restrictions above describe their earlier checkpoints.
 Canonical branch/PR/final-gate/main-CI rules and the R18 runtime stop remain.
 
-Main: `a7ed422da7817c05aa1eac21bdbca6bd6edced5e`, accepted R17, 9/9 main
-workflows terminal-success. Dependent chain: R6 → R7 → R9 → R14 → R15.
-R6/R7/R9/R14 pre-real-Unreal source/preparation acceptance is verified; M1/M2 open.
+Main: `b8d789e697ee06c466c5546dfbebfb546b4e89e2`, R15 PR #21.
+R6 → R7 → R9 → R14 → R15 M1/M2 are VERIFIED_COMPLETE; each exact main CI
+reached terminal success before the next integration (including CodeQL).
+The versioned merge/CI ledger is in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md).
+R8 is active on `r8-input-infrastructure` from that verified main.
 
 R15-V1-Closure-1 is VERIFIED_COMPLETE at
 `3b9b208f934ecba9ac9be857cd40e38e88cbfec0`.
@@ -936,9 +938,12 @@ workflow 37780786306 passed 74 targeted Python, 310 full Python and 67 CTest,
 zero Python skips.
 The canonical four source acceptance bullets pass; runtime/local asset obligations
 remain explicitly open in [R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md).
-Current checkpoint: **R15-F1 — independent final gate**. Independent source
-reconciliation passed at `695d01b`; this publication requires exact-head CI.
-After terminal success, integrate R6 → R7 → R9 → R14 → R15 through each named
-M1/M2 gate before R8-P1. No actual runtime/local asset obligation is closed.
-Continue the named subphases/closure gates, then integrate the verified dependent
-phase PRs in order before R8-P1. Stop after R18-M2 at REAL UNREAL RUNTIME VALIDATION.
+R15-F1 publication `515dde0` passed workflow 37781258584: 74 targeted Python,
+310 full Python, 67 CTest, zero skips. PR #21 merge and main CI then passed.
+Current checkpoint: **R8-P1 — Common action inventory**, recorded in
+[R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md). This is an audit/doc checkpoint;
+no input or gameplay implementation changes. Next: **R8-P2 — Platform/lifecycle contract**.
+The historical phase-only restrictions above are superseded by the current
+full-plan authorization. Continue named subphases/closure gates through R19,
+R20 and R18; stop at the actual environment/runtime boundary. All deferred
+asset/host/engine/device obligations remain explicit.
