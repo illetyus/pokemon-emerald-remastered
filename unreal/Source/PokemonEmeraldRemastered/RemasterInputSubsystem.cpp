@@ -1,7 +1,65 @@
 #include "RemasterInputSubsystem.h"
+#include "Containers/Ticker.h"
+#include "Engine/GameInstance.h"
+#include "Engine/LocalPlayer.h"
+#include "GameFramework/PlayerController.h"
+#include "EnhancedInputSubsystems.h"
+#include "Kismet/GameplayStatics.h"
+#include "Misc/CoreDelegates.h"
+
+void URemasterInputSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+    Super::Initialize(Collection);
+    BackgroundHandle=FCoreDelegates::ApplicationWillEnterBackgroundDelegate.AddUObject(this,&URemasterInputSubsystem::Background);
+    ForegroundHandle=FCoreDelegates::ApplicationHasEnteredForegroundDelegate.AddUObject(this,&URemasterInputSubsystem::Foreground);
+    InactiveHandle=FCoreDelegates::ApplicationWillDeactivateDelegate.AddUObject(this,&URemasterInputSubsystem::Inactive);
+    ReactivatedHandle=FCoreDelegates::ApplicationHasReactivatedDelegate.AddUObject(this,&URemasterInputSubsystem::Reactivated);
+    DeviceHandle=IPlatformInputDeviceMapper::Get().GetOnInputDeviceConnectionChange().AddUObject(this,&URemasterInputSubsystem::DeviceConnection);
+    TickHandle=FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateUObject(this,&URemasterInputSubsystem::ObserveLifecycle),1.f/60.f);
+}
+void URemasterInputSubsystem::LifecycleFence()
+{
+    RemasterControls::FenceSources(Common,Touch,Digital,EnhancedAxis,GamepadAxis);
+    if (auto* PC=GetGameInstance() ? GetGameInstance()->GetFirstLocalPlayerController() : nullptr)
+    {
+        PC->FlushPressedKeys();
+        if (auto* Local=PC->GetLocalPlayer())
+            if (auto* Enhanced=Local->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+            {
+                FModifyContextOptions Options;Options.bIgnoreAllPressedKeysUntilRelease=true;
+                Enhanced->RequestRebuildControlMappings(Options,EInputMappingRebuildType::RebuildWithFlush);
+            }
+    }
+}
+void URemasterInputSubsystem::SetSuspended(RemasterControls::Suspension Reason,bool bSuspended)
+{
+    if (!Lifecycle.Set(Reason,bSuspended)) return;
+    LifecycleFence();RefreshContext();
+}
+void URemasterInputSubsystem::Background(){SetSuspended(RemasterControls::Suspension::Background,true);}
+void URemasterInputSubsystem::Foreground(){SetSuspended(RemasterControls::Suspension::Background,false);}
+void URemasterInputSubsystem::Inactive(){SetSuspended(RemasterControls::Suspension::Inactive,true);}
+void URemasterInputSubsystem::Reactivated(){SetSuspended(RemasterControls::Suspension::Inactive,false);}
+void URemasterInputSubsystem::DeviceConnection(EInputDeviceConnectionState,FPlatformUserId,FInputDeviceId)
+{
+    // Any controller connection transition conservatively fences every input source.
+    LifecycleFence();RefreshContext();
+}
+bool URemasterInputSubsystem::ObserveLifecycle(float)
+{
+    RefreshContext(); // Core ticker observes pause even when the world stops ticking.
+    return true;
+}
 
 void URemasterInputSubsystem::Deinitialize()
 {
+    FTSTicker::GetCoreTicker().RemoveTicker(TickHandle);
+    FCoreDelegates::ApplicationWillEnterBackgroundDelegate.Remove(BackgroundHandle);
+    FCoreDelegates::ApplicationHasEnteredForegroundDelegate.Remove(ForegroundHandle);
+    FCoreDelegates::ApplicationWillDeactivateDelegate.Remove(InactiveHandle);
+    FCoreDelegates::ApplicationHasReactivatedDelegate.Remove(ReactivatedHandle);
+    IPlatformInputDeviceMapper::Get().GetOnInputDeviceConnectionChange().Remove(DeviceHandle);
+    LifecycleFence();
     ResetInputs();
     Digital.Reset();
     EnhancedAxis.Reset();
@@ -25,7 +83,7 @@ bool URemasterInputSubsystem::AttachRouting(UObject* Owner,const FRemasterInputC
 void URemasterInputSubsystem::DetachRouting(const UObject* Owner)
 {
     if (!Owner || !OnDispatch.IsBoundToObject(Owner)) return;
-    ResetInputs();OnReadContext.Unbind();OnDispatch.Unbind();
+    LifecycleFence();OnReadContext.Unbind();OnDispatch.Unbind();
     SetContext({});
 }
 void URemasterInputSubsystem::SetFieldOwner(const FRemasterInputActionOwner& Owner)
@@ -46,7 +104,10 @@ bool URemasterInputSubsystem::DispatchNativeOwner(RemasterControls::Action Actio
 }
 void URemasterInputSubsystem::RefreshContext()
 {
+    if (Lifecycle.Set(RemasterControls::Suspension::Paused,
+        GetWorld() && UGameplayStatics::IsGamePaused(GetWorld()))) LifecycleFence();
     auto Context=OnReadContext.IsBound() ? OnReadContext.Execute() : RemasterControls::Context{};
+    Context.suspensionReasons|=Lifecycle.Reasons();
     Context.fieldAttached=FieldOwner.IsBound();Context.battleAttached=BattleOwner.IsBound();
     SetContext(Context);
 }

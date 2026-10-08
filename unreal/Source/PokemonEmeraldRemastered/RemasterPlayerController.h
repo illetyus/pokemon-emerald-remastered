@@ -8,6 +8,7 @@
 #include "RemasterPlayerController.generated.h"
 
 class URemasterInputConfig;
+class UInputMappingContext;
 enum class ERemasterUiAction : uint8;
 
 UCLASS()
@@ -57,6 +58,7 @@ private:
         RemasterControls::Action Action,RemasterControls::Phase Phase);
     bool bNativeGamepadAxis = false;
     bool bInputRoutingAttached = false;
+    TWeakObjectPtr<UInputMappingContext> OwnedMappingContext;
     RemasterControls::Context ReadInputContext();
     bool DispatchInput(RemasterControls::Action Action,RemasterControls::Target Target);
     bool StepDirection(int32 Direction);

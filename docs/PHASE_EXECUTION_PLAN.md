@@ -951,10 +951,11 @@ and source guards; all 16 exact-head workflows including CodeQL passed.
 R8-I2 is VERIFIED_COMPLETE at `c18d820c`; workflow 37846220404 passed targeted
 2/2 and full 69/69 CTest, 310/310 Python/source checks; all 16 workflows passed.
 R8-I3 is VERIFIED_COMPLETE at `a39c97a3`; workflow 37847802114 passed 3/70/313.
-Current implementation checkpoint: **R8-I4 — UI/gameplay focus routing**, VERIFYING
+R8-I4 is VERIFIED_COMPLETE at `3f04104e`; workflow 37848753892 passed 4/71/317.
+Current implementation checkpoint: **R8-I5 — Lifecycle reset/reconnect**, VERIFYING
 exact published-head CI. [Actual RED/native/source evidence](R8_INPUT_IMPLEMENTATION.md)
-records 18 local actual-R9 dispatch checks and 7/7 R8 Python tests; host/device gaps remain.
-After targeted/full CI succeeds, next: **R8-I5 — Lifecycle reset/reconnect**.
+records 20 native lifecycle checks and 10/10 R8 Python tests; engine/device gaps remain.
+After targeted/full CI succeeds, next: **R8-I6 — Presentation timing QoL wiring**.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,
 R20 and R18; stop at the actual environment/runtime boundary. All deferred

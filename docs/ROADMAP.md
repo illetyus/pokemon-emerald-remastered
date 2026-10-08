@@ -943,9 +943,10 @@ schema in [R8_INPUT_CONTRACT.md](R8_INPUT_CONTRACT.md) and
 R8-I2 is VERIFIED_COMPLETE at `c18d820c` (workflow 37846220404: 2/69/310 PASS;
 all 16 exact-head workflows including CodeQL succeeded).
 R8-I3 is VERIFIED_COMPLETE at `a39c97a3` (workflow 37847802114: 3/70/313 PASS).
-Current implementation checkpoint is **R8-I4 — UI/gameplay focus routing**,
+R8-I4 is VERIFIED_COMPLETE at `3f04104e` (workflow 37848753892: 4/71/317 PASS).
+Current implementation checkpoint is **R8-I5 — Lifecycle reset/reconnect**,
 VERIFYING exact-head CI. Evidence: [R8_INPUT_IMPLEMENTATION.md](R8_INPUT_IMPLEMENTATION.md).
-After targeted/full CI succeeds, next is **R8-I5 — Lifecycle reset/reconnect**.
+After targeted/full CI succeeds, next is **R8-I6 — Presentation timing QoL wiring**.
 No actual runtime/local asset obligation was closed by these source merges.
 
 Real Unreal build remains R18 work. After R18 main verification, stop at

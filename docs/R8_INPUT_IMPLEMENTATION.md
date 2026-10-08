@@ -133,7 +133,9 @@ After I3 targeted/full hosted CI passes, next: **R8-I4 — UI/gameplay focus rou
 
 ## R8-I4 — UI/gameplay focus routing
 
-State: **VERIFYING**; exact published-head hosted CI is required.
+State: **VERIFIED_COMPLETE** at `3f04104edb78ec8e6e92cf6e152aaf85b48fbdd9`.
+Workflow 37848753892 passed targeted 4/4 CTest, full 71/71 CTest, 317/317 Python
+and Unreal source guards. Draft PR aggregate/CodeQL remains a separate final gate.
 Base: `a39c97a3387e079d04543aaae175c4dad2996ed3`.
 
 The production controller now leases a single native context/dispatch owner,
@@ -177,3 +179,40 @@ source guard evidence remains the exact hosted CI gate.
 Lifecycle callback/disconnect handling is I5; common-held R9 repeat is I6.
 No actual UE/UHT compilation or working host/device execution is certified.
 Next after targeted/full CI: **R8-I5 — Lifecycle reset/reconnect**.
+
+
+## R8-I5 — Lifecycle reset/reconnect
+
+State: **VERIFYING**; exact published-head hosted CI is required.
+Base: `3f04104edb78ec8e6e92cf6e152aaf85b48fbdd9`.
+
+The shared `RemasterInputLifecycle.h` treats Background, Inactive and Paused as
+independent reason bits. Only clearing all active reasons resumes input. Duplicate
+or malformed reason changes do not mutate state. Its production-used source fence
+clears common/touch/digital state, advances the router epoch, and requires neutral
+before either analog source can rearm. No elapsed time or old holds are restored.
+
+InputSubsystem registers/removes owned application background/foreground and
+inactive/reactivated delegates, and the platform input-device connection delegate.
+Every connect/disconnect conservatively fences all sources. The core ticker only
+observes world pause/context; it never submits gameplay commands or completions.
+Pause is also checked before every delivered source event, avoiding a world timer
+that would stop observing while paused. Lifecycle transitions flush platform pressed
+keys and request Enhanced mapping rebuild with held keys ignored until release.
+Controller teardown removes only a mapping context that this controller installed;
+previously installed contexts are retained. All delegate handles are removed.
+
+The native lifecycle regression was written first; strict compilation was RED
+because the lifecycle header did not exist. **20/20 native checks** then passed:
+mixed-source suspension, independent reasons/partial resumes, duplicate transition,
+stale queued delivery, cleared captures, fresh digital edge, neutral-only analog
+resume, disconnect/reconnect and malformed reason rejection. ASan/UBSan passed
+with the previously documented leak exclusion. **10/10 local R8 Python tests**
+passed; three additional source guards cover delegate teardown, non-gameplay pause
+observation/platform flush and owned mapping removal. CMake registers
+`r8_lifecycle_source_fence` in targeted/full hosted runs.
+
+The actual UE 5.8.3 compile, platform event order, Enhanced rebuild/pressed-key
+flush behavior and Android/controller callbacks still require R18/runtime evidence.
+This source checkpoint does not certify them. Common-held R9 repeat is still I6.
+Next after targeted/full CI: **R8-I6 — Presentation timing QoL wiring**.

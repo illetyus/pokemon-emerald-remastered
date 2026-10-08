@@ -73,6 +73,7 @@ class Analog {
 public:
     explicit Analog(Source source=Source::Enhanced):source(source){}
     void Reset() { active=false;neutralFence=false; }
+    void Fence() { active=false;neutralFence=true; }
     InputBatch Process(double x,double y,std::uint64_t epoch) {
         if(!epoch||epoch<latestEpoch)return{Status::Stale};
         latestEpoch=epoch;

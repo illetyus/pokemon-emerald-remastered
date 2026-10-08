@@ -1128,3 +1128,15 @@ else()
     target_compile_options(r8_focus_dispatch_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r8_focus_real_ui_dispatch COMMAND r8_focus_dispatch_test)
+
+# I5 exercises the same source fence and independent suspension reason policy.
+add_executable(r8_lifecycle_test tests/r8_lifecycle_test.cpp)
+target_include_directories(r8_lifecycle_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_lifecycle_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_lifecycle_test PRIVATE /W4)
+else()
+    target_compile_options(r8_lifecycle_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_lifecycle_source_fence COMMAND r8_lifecycle_test)

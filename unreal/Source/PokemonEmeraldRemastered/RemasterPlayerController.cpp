@@ -48,7 +48,12 @@ void ARemasterPlayerController::BeginPlay()
                 if (UInputMappingContext* Context =
                         InputConfig->MappingContext.LoadSynchronous())
                 {
-                    Subsystem->AddMappingContext(Context, 0);
+                    if (!Subsystem->HasMappingContext(Context))
+                    {
+                        FModifyContextOptions Options;Options.bIgnoreAllPressedKeysUntilRelease=true;
+                        Subsystem->AddMappingContext(Context,0,Options);
+                        OwnedMappingContext=Context;
+                    }
                 }
             }
         }
@@ -75,6 +80,11 @@ void ARemasterPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason
     bInputRoutingAttached=false;
     if (auto* Input=GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
         Input->DetachRouting(this);
+    if (OwnedMappingContext.IsValid())
+        if (auto* Local=GetLocalPlayer())
+            if (auto* Enhanced=Local->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+                Enhanced->RemoveMappingContext(OwnedMappingContext.Get());
+    OwnedMappingContext.Reset();
     Super::EndPlay(EndPlayReason);
 }
 RemasterControls::Context ARemasterPlayerController::ReadInputContext()
