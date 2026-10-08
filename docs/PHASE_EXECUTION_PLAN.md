@@ -954,10 +954,11 @@ R8-I3 is VERIFIED_COMPLETE at `a39c97a3`; workflow 37847802114 passed 3/70/313.
 R8-I4 is VERIFIED_COMPLETE at `3f04104e`; workflow 37848753892 passed 4/71/317.
 R8-I5 is VERIFIED_COMPLETE at `6046cba6`; workflow 37849310238 passed 5/72/320.
 R8-I6 is VERIFIED_COMPLETE at `7194102a`; workflow 37849841175 passed 6/73/322.
-Current checkpoint: **R8-T1 — Input contract regressions**, VERIFYING exact-head CI.
-[Actual matrix/evidence](R8_INPUT_TEST_MATRIX.md): 47 compiled cases / 221 observations,
-16 local R8 Python tests. Real engine/host/device obligations remain explicit.
-After targeted/full CI succeeds, next: **R8-V1 — Targeted CI reconciliation**.
+R8-T1/V1 passed at `d1730592`; workflow 37850579912 passed 7/74/326.
+G1: NEEDS_CLOSURE for partial Enhanced asset fallback coverage.
+Current **R8-Closure-1** is VERIFYING per-key coverage with 44 native checks and
+18/18 local R8 Python tests. [Matrix/evidence](R8_INPUT_TEST_MATRIX.md).
+After targeted/full CI succeeds, next: **R8-V1 → R8-G1 re-verification**.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,
 R20 and R18; stop at the actual environment/runtime boundary. All deferred

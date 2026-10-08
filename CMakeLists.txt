@@ -1168,3 +1168,15 @@ endif()
 add_test(NAME r8_versioned_input_fixture_matrix COMMAND
     ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r8_input_fixture_matrix.py
     --probe $<TARGET_FILE:r8_input_fixture_probe>)
+
+# Closure-1 proves partial Enhanced assets cannot erase uncovered native equivalents.
+add_executable(r8_enhanced_coverage_test tests/r8_enhanced_coverage_test.cpp)
+target_include_directories(r8_enhanced_coverage_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_enhanced_coverage_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_enhanced_coverage_test PRIVATE /W4)
+else()
+    target_compile_options(r8_enhanced_coverage_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_partial_enhanced_fallback_coverage COMMAND r8_enhanced_coverage_test)

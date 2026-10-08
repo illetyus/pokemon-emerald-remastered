@@ -53,8 +53,9 @@ class R9UI(unittest.TestCase):
         step = self.controller.split('bool ARemasterPlayerController::StepDirection', 1)[1].split('void ARemasterPlayerController::HandleMove', 1)[0]
         self.assertLess(step.index('RouteUI(UiDirection)'), step.index('Gameplay->StepPlayer'))
         self.assertIn('NotifyCoreStep', step)
-        for name in ['MoveBound', 'InteractBound', 'CancelBound', 'MenuBound', 'MapBound', 'QuestBound', 'QuickBound']:
-            self.assertIn('if (!' + name + ')', self.controller)
+        self.assertIn('for (unsigned i=0;i<static_cast<unsigned>(RemasterControls::Action::Count);++i)', self.controller)
+        self.assertIn('BindNativeAction(static_cast<RemasterControls::Action>(i))', self.controller)
+        self.assertIn('NativeCoverage.Covered(Binding)', self.controller)
 
     def test_save_rtc_use_existing_wrappers(self):
         for call in ['StoreLegacySave()', 'LoadLegacySave()', 'RealignRtcNow(Time)', 'LoadCurrentMapFromSave(true)']:

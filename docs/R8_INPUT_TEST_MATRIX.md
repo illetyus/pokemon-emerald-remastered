@@ -1,6 +1,6 @@
 # R8 input source regression matrix
 
-State: T1 VERIFYING exact published-head CI. Contract: [R8_INPUT_CONTRACT.md](R8_INPUT_CONTRACT.md).
+State: T1/V1 VERIFIED_COMPLETE at `d1730592`; Closure-1 VERIFYING exact-head CI. Contract: [R8_INPUT_CONTRACT.md](R8_INPUT_CONTRACT.md).
 Source pin: `70db90c9077aed1272e746fc2537d9f12b95a91c`.
 Branch: `r8-input-infrastructure`. No real engine/device certification.
 
@@ -14,6 +14,7 @@ Branch: `r8-input-infrastructure`. No real engine/device certification.
 | One-owner delivery and R9 consumption | RemasterInputDispatch.h + accepted R9 model/core | 18 native integration checks |
 | Independent suspension/source fence | RemasterInputLifecycle.h | 20 native lifecycle checks |
 | Shared held-state 24/3 presentation repeat | RemasterInputRepeat.h + existing R9 Repeat | 11,104 native checks |
+| Partial Enhanced mapping/fallback coverage | RemasterEnhancedCoverage.h | 44 native checks |
 | Versioned ordered traces | r8_input_fixture_probe.cpp, runner, input_matrix.json | 47 cases / 221 expected observations |
 
 The fixture probe compiles actual portable implementations. Its command parser is
@@ -28,7 +29,7 @@ preservation, epoch exhaustion and long repeat holds.
 
 ## Source and hosted gates
 
-Sixteen Python tests currently validate compiled binding/fixture oracles and actual
+Eighteen Python tests currently validate compiled binding/fixture oracles and actual
 production source boundaries, including context-before-capture, native owner
 leasing, no Blueprint gameplay fallthrough, real world API identities, paired
 lifecycle delegate teardown, platform flush, owned mapping removal, common-held

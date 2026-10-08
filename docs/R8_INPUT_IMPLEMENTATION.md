@@ -257,7 +257,9 @@ Next after targeted/full CI: **R8-T1 — Input contract regressions**.
 
 ## R8-T1 — Versioned input fixture matrix
 
-State: **VERIFYING**; exact published-head hosted CI is required.
+State: **VERIFIED_COMPLETE** at `d1730592c20decbf872d8d8a3dda72eeec6ac8c5`.
+Workflow 37850579912 passed targeted 7/7 CTest, full 74/74 CTest, 326/326 Python
+and Unreal source guards. V1 passed; G1 found the Closure-1 mapping gap below.
 Base: `7194102a6dc6e991f8ef4ed2821b322acab580b2`.
 
 The versioned [input_matrix.json](../tests/fixtures/r8/input_matrix.json) contains
@@ -277,3 +279,33 @@ CMake adds `r8_versioned_input_fixture_matrix`; hosted targeted/full checks rema
 required. There are no extracted/private save, ROM, asset or device payloads.
 
 After targeted/full exact-head CI, next: **R8-V1 — Targeted CI reconciliation**.
+
+
+## R8-G1 → R8-Closure-1 — Partial Enhanced fallback coverage
+
+G1 state: **NEEDS_CLOSURE** at `d1730592`; closure publication is **VERIFYING**.
+Acceptance review found that a valid keyboard-only Enhanced action suppressed
+all native equivalents, including unmapped gamepad controls. The existing action-
+level tests had not covered partial mapping assets. This violated I3 equivalence.
+
+The new production-used `RemasterEnhancedCoverage.h` validates each mapped key
+atomically and tracks coverage per actual default physical key. All ten native
+action groups are visited; only covered native keys are omitted. The native paired
+stick is disabled only with complete Enhanced stick coverage. Partial single-axis
+stick assets, reserved other-action keys, positional Touch keys, empty/invalid
+mapping assets and duplicate action assets retain safe native fallbacks.
+
+The regression was written first and strict compilation was RED because the
+coverage planner header did not exist. **44/44 native coverage checks** passed,
+including keyboard-only Move retaining gamepad, mapped Enter retaining Space and
+FaceBottom, atomic wrong-action rejection, complete vs partial stick coverage and
+mapped D-pad retaining keyboard without duplicate native keys. ASan/UBSan passed
+with documented leak exclusion. **18/18 local R8 Python tests** passed, including
+two actual controller coverage guards. The R9 fallback source assertion now checks
+all-action/per-key coverage rather than the obsolete all-or-nothing boolean flags;
+its UI-first world routing guard is unchanged.
+
+No gameplay/persistence/timing or lifecycle rule changed. Exact hosted R4/R9/full
+regressions remain required before re-running V1/G1. Actual Enhanced modifiers,
+cooked assets and UE/device callback behavior remain explicit runtime obligations.
+Next after closure CI: **R8-V1 → R8-G1 re-verification**.

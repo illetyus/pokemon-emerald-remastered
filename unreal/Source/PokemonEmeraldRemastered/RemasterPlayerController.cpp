@@ -131,36 +131,40 @@ void ARemasterPlayerController::SetupInputComponent()
         bEnableTouchEvents = true;
     }
 
-    bool MoveBound = false, InteractBound = false, CancelBound = false;
-    bool MenuBound = false, MapBound = false, QuestBound = false, QuickBound = false;
+    NativeCoverage={};
     auto* Enhanced = Cast<UEnhancedInputComponent>(InputComponent);
     TSet<UInputAction*> BoundActions;
     UInputMappingContext* Mapping = InputConfig ? InputConfig->MappingContext.LoadSynchronous() : nullptr;
-    auto IsMapped = [Mapping](UInputAction* Action)
+    auto RegisterMappings = [Mapping,this](UInputAction* Action,RemasterControls::Action Semantic,bool bMove=false)
     {
         if (!Mapping || !Action) return false;
+        std::vector<std::string> Keys;
         for (const auto& Entry : Mapping->GetMappings())
-            if (Entry.Action == Action) return true;
-        return false;
+            if (Entry.Action == Action)
+            {
+                if (!Entry.Key.IsValid()) return false;
+                Keys.emplace_back(TCHAR_TO_UTF8(*Entry.Key.GetFName().ToString()));
+            }
+        return NativeCoverage.Add(Keys,Semantic,bMove);
     };
     if (Enhanced && InputConfig && Mapping)
     {
         if (UInputAction* Action = InputConfig->Move.LoadSynchronous())
         {
-            if (Action->ValueType == EInputActionValueType::Axis2D && IsMapped(Action))
+            if (Action->ValueType == EInputActionValueType::Axis2D
+                && RegisterMappings(Action,RemasterControls::Action::Up,true))
             {
                 Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleMove);
                 Enhanced->BindAction(Action, ETriggerEvent::Triggered, this, &ARemasterPlayerController::HandleMove);
                 Enhanced->BindAction(Action, ETriggerEvent::Completed, this, &ARemasterPlayerController::HandleMoveReleased);
                 Enhanced->BindAction(Action, ETriggerEvent::Canceled, this, &ARemasterPlayerController::HandleMoveReleased);
                 BoundActions.Add(Action);
-                MoveBound = true;
             }
         }
-        auto BindButton = [this, Enhanced, &BoundActions, &IsMapped](UInputAction* Action, RemasterControls::Action Semantic)
+        auto BindButton = [this, Enhanced, &BoundActions, &RegisterMappings](UInputAction* Action, RemasterControls::Action Semantic)
         {
             if (!Action || Action->ValueType != EInputActionValueType::Boolean
-                || !IsMapped(Action) || BoundActions.Contains(Action))
+                || BoundActions.Contains(Action) || !RegisterMappings(Action,Semantic))
                 return false;
             Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleButton,
                 Semantic, RemasterControls::Phase::Pressed);
@@ -171,34 +175,23 @@ void ARemasterPlayerController::SetupInputComponent()
             BoundActions.Add(Action);
             return true;
         };
-        InteractBound = BindButton(InputConfig->Interact.LoadSynchronous(), RemasterControls::Action::Confirm);
-        CancelBound = BindButton(InputConfig->Cancel.LoadSynchronous(), RemasterControls::Action::Cancel);
-        MenuBound = BindButton(InputConfig->Menu.LoadSynchronous(), RemasterControls::Action::Menu);
-        MapBound = BindButton(InputConfig->Map.LoadSynchronous(), RemasterControls::Action::Map);
-        QuestBound = BindButton(InputConfig->Quest.LoadSynchronous(), RemasterControls::Action::Quest);
-        QuickBound = BindButton(InputConfig->QuickItem.LoadSynchronous(), RemasterControls::Action::QuickItem);
+        BindButton(InputConfig->Interact.LoadSynchronous(), RemasterControls::Action::Confirm);
+        BindButton(InputConfig->Cancel.LoadSynchronous(), RemasterControls::Action::Cancel);
+        BindButton(InputConfig->Menu.LoadSynchronous(), RemasterControls::Action::Menu);
+        BindButton(InputConfig->Map.LoadSynchronous(), RemasterControls::Action::Map);
+        BindButton(InputConfig->Quest.LoadSynchronous(), RemasterControls::Action::Quest);
+        BindButton(InputConfig->QuickItem.LoadSynchronous(), RemasterControls::Action::QuickItem);
     }
-    if (!MoveBound)
-    {
-        BindNativeAction(RemasterControls::Action::Up);
-        BindNativeAction(RemasterControls::Action::Down);
-        BindNativeAction(RemasterControls::Action::Left);
-        BindNativeAction(RemasterControls::Action::Right);
-    }
-    if (!InteractBound) BindNativeAction(RemasterControls::Action::Confirm);
-    if (!CancelBound) BindNativeAction(RemasterControls::Action::Cancel);
-    if (!MenuBound) BindNativeAction(RemasterControls::Action::Menu);
-    if (!MapBound) BindNativeAction(RemasterControls::Action::Map);
-    if (!QuestBound) BindNativeAction(RemasterControls::Action::Quest);
-    if (!QuickBound) BindNativeAction(RemasterControls::Action::QuickItem);
-    bNativeGamepadAxis = !MoveBound;
+    for (unsigned i=0;i<static_cast<unsigned>(RemasterControls::Action::Count);++i)
+        BindNativeAction(static_cast<RemasterControls::Action>(i));
+    bNativeGamepadAxis = !NativeCoverage.StickCovered();
 }
 
 void ARemasterPlayerController::BindNativeAction(RemasterControls::Action Action)
 {
     for (const auto& Binding : RemasterControls::Bindings)
     {
-        if (Binding.action != Action) continue;
+        if (Binding.action != Action || NativeCoverage.Covered(Binding)) continue;
         const FKey Key(FName(UTF8_TO_TCHAR(Binding.engineKey)));
         for (EInputEvent Event : {IE_Pressed, IE_Released})
         {

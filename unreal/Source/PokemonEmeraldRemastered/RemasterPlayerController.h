@@ -5,6 +5,7 @@
 #include "InputActionValue.h"
 #include "RemasterWorldGameplaySubsystem.h"
 #include "RemasterPhysicalInput.h"
+#include "RemasterEnhancedCoverage.h"
 #include "RemasterPlayerController.generated.h"
 
 class URemasterInputConfig;
@@ -57,6 +58,7 @@ private:
     void PhysicalInput(RemasterControls::Source Source,uint16 Control,
         RemasterControls::Action Action,RemasterControls::Phase Phase);
     bool bNativeGamepadAxis = false;
+    RemasterControls::EnhancedCoverage NativeCoverage;
     bool bInputRoutingAttached = false;
     TWeakObjectPtr<UInputMappingContext> OwnedMappingContext;
     RemasterControls::Context ReadInputContext();
