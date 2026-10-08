@@ -222,7 +222,9 @@ Next after targeted/full CI: **R8-I6 — Presentation timing QoL wiring**.
 
 ## R8-I6 — Presentation timing QoL wiring
 
-State: **VERIFYING**; exact published-head hosted CI is required.
+State: **VERIFIED_COMPLETE** at `7194102a6dc6e991f8ef4ed2821b322acab580b2`.
+Workflow 37849841175 passed targeted 6/6 CTest, full 73/73 CTest, 322/322 Python
+and Unreal source guards. No actual engine/platform timing is certified.
 Base: `6046cba6508a3624a80dcf99f6def2563fb49802`.
 
 R9 PresentationTick now reads the shared router's semantic holds rather than
@@ -251,3 +253,27 @@ T1/V1/G1 still must reconcile the complete matrix and all acceptance requirement
 Actual UE/UHT, platform timer/callback order, touch consumption, controller mapping
 and Android latency/device behavior remain the R18/runtime obligations.
 Next after targeted/full CI: **R8-T1 — Input contract regressions**.
+
+
+## R8-T1 — Versioned input fixture matrix
+
+State: **VERIFYING**; exact published-head hosted CI is required.
+Base: `7194102a6dc6e991f8ef4ed2821b322acab580b2`.
+
+The versioned [input_matrix.json](../tests/fixtures/r8/input_matrix.json) contains
+47 cases and 221 expected observations. The actual compiled fixture probe uses
+the production portable Router, Digital/Touch/Analog adapters, Lifecycle fence
+and R9 repeat bridge. The runner reports the first divergent case/step/field;
+fixtures pin input provenance and expected behavior, not a second gameplay model.
+[Coverage and limitations](R8_INPUT_TEST_MATRIX.md) map the complete native/source
+matrix to the canonical acceptance requirements.
+
+The unittest was written first and import was RED because the replay runner did
+not exist. Strict native compilation, all **47/47 cases / 221/221 observations**,
+and **16/16 local R8 Python tests** passed. A deliberately altered expectation
+proves first-divergence reporting; malformed action and duplicate case identity
+are rejected. ASan/UBSan replay passed with the documented leak exclusion.
+CMake adds `r8_versioned_input_fixture_matrix`; hosted targeted/full checks remain
+required. There are no extracted/private save, ROM, asset or device payloads.
+
+After targeted/full exact-head CI, next: **R8-V1 — Targeted CI reconciliation**.

@@ -1153,3 +1153,18 @@ else()
     target_compile_options(r8_repeat_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r8_common_held_ui_repeat COMMAND r8_repeat_test)
+
+# T1 versioned trace recipes replay the actual compiled router/adapters/repeater.
+add_executable(r8_input_fixture_probe tests/r8_input_fixture_probe.cpp)
+target_link_libraries(r8_input_fixture_probe PRIVATE remaster_core)
+target_include_directories(r8_input_fixture_probe PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_input_fixture_probe PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_input_fixture_probe PRIVATE /W4)
+else()
+    target_compile_options(r8_input_fixture_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_versioned_input_fixture_matrix COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r8_input_fixture_matrix.py
+    --probe $<TARGET_FILE:r8_input_fixture_probe>)

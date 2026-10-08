@@ -945,9 +945,10 @@ all 16 exact-head workflows including CodeQL succeeded).
 R8-I3 is VERIFIED_COMPLETE at `a39c97a3` (workflow 37847802114: 3/70/313 PASS).
 R8-I4 is VERIFIED_COMPLETE at `3f04104e` (workflow 37848753892: 4/71/317 PASS).
 R8-I5 is VERIFIED_COMPLETE at `6046cba6` (workflow 37849310238: 5/72/320 PASS).
-Current implementation checkpoint is **R8-I6 — Presentation timing QoL wiring**,
+R8-I6 is VERIFIED_COMPLETE at `7194102a` (workflow 37849841175: 6/73/322 PASS).
+Current checkpoint is **R8-T1 — Input contract regressions**,
 VERIFYING exact-head CI. Evidence: [R8_INPUT_IMPLEMENTATION.md](R8_INPUT_IMPLEMENTATION.md).
-After targeted/full CI succeeds, next is **R8-T1 — Input contract regressions**.
+After targeted/full CI succeeds, next is **R8-V1 — Targeted CI reconciliation**.
 No actual runtime/local asset obligation was closed by these source merges.
 
 Real Unreal build remains R18 work. After R18 main verification, stop at

@@ -953,10 +953,11 @@ R8-I2 is VERIFIED_COMPLETE at `c18d820c`; workflow 37846220404 passed targeted
 R8-I3 is VERIFIED_COMPLETE at `a39c97a3`; workflow 37847802114 passed 3/70/313.
 R8-I4 is VERIFIED_COMPLETE at `3f04104e`; workflow 37848753892 passed 4/71/317.
 R8-I5 is VERIFIED_COMPLETE at `6046cba6`; workflow 37849310238 passed 5/72/320.
-Current implementation checkpoint: **R8-I6 — Presentation timing QoL wiring**, VERIFYING
-exact published-head CI. [Actual RED/native/source evidence](R8_INPUT_IMPLEMENTATION.md)
-records 11,104 native repeat checks and 12/12 R8 Python tests; engine/device gaps remain.
-After targeted/full CI succeeds, next: **R8-T1 — Input contract regressions**.
+R8-I6 is VERIFIED_COMPLETE at `7194102a`; workflow 37849841175 passed 6/73/322.
+Current checkpoint: **R8-T1 — Input contract regressions**, VERIFYING exact-head CI.
+[Actual matrix/evidence](R8_INPUT_TEST_MATRIX.md): 47 compiled cases / 221 observations,
+16 local R8 Python tests. Real engine/host/device obligations remain explicit.
+After targeted/full CI succeeds, next: **R8-V1 — Targeted CI reconciliation**.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,
 R20 and R18; stop at the actual environment/runtime boundary. All deferred
