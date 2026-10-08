@@ -1,6 +1,8 @@
 # R15-I2-Closure-1 — source render and loop plan
 
-State: VERIFYING; published-head CI must pass before VERIFIED_COMPLETE.
+State: VERIFIED_COMPLETE at `4f8ef9a9769b0f4211e129c80e0dc6ae8181e72e`.
+Exact-head workflow 37769695700 reached terminal success: 56/56 targeted Python,
+292/292 full Python and 67/67 CTest; zero Python skips.
 Parent: `9df9fae1d56420259f9d48ab950183800a5eea06`.
 Authority: Vanilla+ `70db90c9077aed1272e746fc2537d9f12b95a91c` production
 `sound/song_table.inc`, `songs.mk`, `tools/mid2agb/*`, and `src/m4a.c`.
@@ -83,8 +85,9 @@ from the published commit before this checkpoint closes.
 
 This closes source recipe/timeline planning only. Next is
 **R15-I2-Closure-2 — pinned source render pilot and decoded loop evidence**.
-The pinned poryaaaa CLI can read source MIDI/voicegroups/AIFF without a ROM;
-its actual render and compatibility checks have not yet run here. It must retain
+The pinned poryaaaa CLI can read source MIDI/voicegroups/AIFF without a ROM.
+The subsequent four-file actual pilot is recorded in
+[R15_BGM_RENDER_PILOT.md](R15_BGM_RENDER_PILOT.md). It must retain
 source settings and expose deviations, including CC7=128 and VBlank/mixer timing.
 Private render payloads, exact loop frames/seams, transition context, all effects,
 host attachment and quality gates remain open. Unreal/UHT/cook and Android/device

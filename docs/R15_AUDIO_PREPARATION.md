@@ -17,7 +17,9 @@ and Unreal / Android validation remain open. R15 merge remains blocked by its op
 - Music render candidates: [poryaaaa](https://github.com/huderlem/poryaaaa)
   (`4000591de6c397b6c80adc07af17144e26b30dfd`) and
   [agbplay](https://github.com/ipatix/agbplay)
-  (`0b87da48d2502da359e45718eec8566ac40fa9d7`). Neither was installed/run here.
+  (`0b87da48d2502da359e45718eec8566ac40fa9d7`). Poryaaaa was compiled from its
+  verified pin and ran a four-file original-style render pilot; agbplay was not
+  installed/run. Evidence: [R15_BGM_RENDER_PILOT.md](R15_BGM_RENDER_PILOT.md).
 - AI enhancement is optional and offline; no model was installed or applied.
 
 The public branch stores source identities, tools, hashes and audit metadata.

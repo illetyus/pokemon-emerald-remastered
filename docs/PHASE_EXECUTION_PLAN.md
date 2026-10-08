@@ -905,14 +905,23 @@ Published-head workflow 37766890311 reached terminal success: 43/43 targeted
 Python, 279/279 full Python, 67/67 CTest, zero skips. Evidence and reproduction:
 [R15_AUDIO_PACK_RECOVERY.md](R15_AUDIO_PACK_RECOVERY.md).
 
-Current write checkpoint: **R15-I2-Closure-1 — source render and loop plan**.
+R15-I2-Closure-1 is VERIFIED_COMPLETE at
+`4f8ef9a9769b0f4211e129c80e0dc6ae8181e72e`.
 Source recipes/timelines cover 191 real music jobs, 18 jingles and 80 reserved
 zero-track rows; historical resolver/cry pack contracts remain unchanged.
-Local 13/13 tests and all 209 compiled pinned-converter recipe oracles pass;
-published-head CI is required. Evidence:
+Local 13/13 tests and all 209 compiled pinned-converter recipe oracles pass.
+Exact-head workflow 37769695700 reached terminal success: 56/56 targeted Python,
+292/292 full Python and 67/67 CTest; zero Python skips. Evidence:
 [R15_BGM_SOURCE_PLAN.md](R15_BGM_SOURCE_PLAN.md).
-On this checkpoint's CI terminal-success, next state is **R15-I2-Closure-2 —
-pinned source render pilot and decoded loop evidence**. Other audio/listening/
-host/runtime gaps remain; do not mark R15 G1/F1 or merge complete from these artifacts.
+
+Current write checkpoint: **R15-I2-Closure-2 — pinned source render pilot and
+decoded loop evidence**. Four actual private candidates passed source blob
+integrity, 707 renderer engine tests, decoded PCM probes and native/rational
+loop-frame comparisons. Fresh-build WAV hashes repeat exactly; 12/12 new local
+regressions pass. Published-head CI is required. Evidence:
+[R15_BGM_RENDER_PILOT.md](R15_BGM_RENDER_PILOT.md).
+On this checkpoint's CI terminal-success, next state is **R15-I2-Closure-3 —
+remaining music/jingle render coverage**. Other audio/listening/host/runtime gaps
+remain; do not mark R15 G1/F1 or merge complete from these artifacts.
 Continue the named subphases/closure gates, then integrate the verified dependent
 phase PRs in order before R8-P1. Stop after R18-M2 at REAL UNREAL RUNTIME VALIDATION.
