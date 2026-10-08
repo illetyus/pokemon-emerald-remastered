@@ -3,6 +3,7 @@ import copy
 import hashlib
 import json
 import math
+import os
 import shutil
 import subprocess
 import sys
@@ -197,8 +198,11 @@ class CryRendering(unittest.TestCase):
             changed=copy.deepcopy(manifest);changed['entries'][1]['loop']={'start_frame':0,'end_frame':4}
             with self.assertRaises(ValueError):validate(changed,root)
 
-    @unittest.skipUnless(shutil.which('ffmpeg'),'FFmpeg required for audio transform fixture')
     def test_pitch_changes_duration_and_reverse_order(self):
+        if not shutil.which('ffmpeg'):
+            if os.environ.get('REMASTER_R15_REQUIRE_FFMPEG') == '1':
+                self.fail('FFmpeg is required when REMASTER_R15_REQUIRE_FFMPEG=1')
+            self.skipTest('FFmpeg required for audio transform fixture')
         # Asymmetric ramp tests reverse playback rather than a generic echo.
         with tempfile.TemporaryDirectory() as tmp:
             work=Path(tmp);input_path=work/'input.wav'

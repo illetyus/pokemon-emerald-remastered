@@ -253,3 +253,30 @@ All 386 normal WAVs and OGG masters match the previous pack byte for byte.
 The 5,412-member ZIP passes CRC, duplicate-path and archive/manifest/recipe hash
 checks. GitHub CI must reach terminal success for the exact published head;
 none of these local checks is a real Unreal/UHT or Android test.
+
+## R15-V1-Closure-1 — required FFmpeg transform fixture
+
+Baseline [workflow 37735220892](https://github.com/illetyus/pokemon-emerald-remastered/actions/runs/37735220892)
+at `5deb0a6f8c028e48f73b0c2acbd78432b69f7dcf` completed successfully, but
+`test_pitch_changes_duration_and_reverse_order` was skipped because FFmpeg was
+absent. The targeted result was 34 passed / 1 skipped out of 35, and the full
+Python result was 270 passed / 1 skipped out of 271. CMake/CTest passed 67/67.
+
+The R15 source/catalog job installs FFmpeg and verifies FFmpeg/FFprobe before
+either Python suite. It sets `REMASTER_R15_REQUIRE_FFMPEG=1`, so the asymmetric
+synthetic waveform test fails explicitly if FFmpeg is missing. Optional local
+runs without that requirement may still report the missing tool as a skip.
+
+Local closure verification passed nine selected special-cry regressions,
+including the actual pinned-source C oracle and real pitch/duration/reverse
+transforms under FFmpeg 7.1.5. All seven recipe source hashes matched the pinned
+production bytes, and exact recipe regeneration passed. The missing-tool checks
+confirmed an explicit failure in required mode and a skip in optional mode.
+The full source catalog and full portable suite remain hosted-CI checks.
+
+Closure acceptance requires the new exact commit's R15 workflow to reach
+terminal success, with the transform fixture executed in both Python suites
+and all portable regressions passing. Read that run's logs before marking this
+checkpoint VERIFIED_COMPLETE. The remaining R15 asset/listening/host/runtime
+gates above are still open.
+
