@@ -910,17 +910,28 @@ R15-V1-Closure-1 is VERIFIED_COMPLETE at
 [workflow 37763598815](https://github.com/illetyus/pokemon-emerald-remastered/actions/runs/37763598815)
 passed 35/35 targeted Python, 271/271 full Python and 67/67 CTest with zero skips.
 
-Current checkpoint: **R15-I3-Closure-1 — hash-pinned cry pack recovery**.
+R15-I3-Closure-1 is VERIFIED_COMPLETE at
+`9df9fae1d56420259f9d48ab950183800a5eea06` (workflow 37766890311).
 The unavailable local pack contents were recovered from pinned receipts:
 386 normal WAV hashes and the entire historical special manifest match exactly.
 5,018 candidates and both complete ZIP contents passed local verification.
 New ZIP containers have new hashes, recorded separately from unchanged historical
-evidence. Verify this checkpoint's exact published HEAD CI before advancing.
+evidence. Its exact-head CI passed 43 targeted Python, 279 full Python and 67 CTest.
 [Recovery evidence and next steps](R15_AUDIO_PACK_RECOVERY.md).
 
-Next named subphase after successful CI: **R15-I2 — BGM/loop/transition metadata**.
-Special-mode listening/reference, other 609 audio semantics, host/platform wiring
-and real engine/device validation remain open; R15 final/merge gates are not passed.
+R15-I2-Closure-1 and Closure-2 are VERIFIED_COMPLETE at `4f8ef9a` and `2ae0e26`.
+Their exact-head workflows 37769695700 and 37777810560 completed successfully;
+Closure-2 passed 68 targeted Python, 304 full Python and 67 CTest with zero skips.
+
+Current checkpoint: **R15-I2-Closure-3 — remaining music/jingle render coverage**.
+[Full coverage evidence](R15_BGM_RENDER_COVERAGE.md) records private source
+rendering without promoting loop playback, listening or engine/device readiness.
+This checkpoint requires exact published-head CI before advancing.
+Next named subphase: **R15-G1 — pre-real-UE acceptance audit**. Reconcile the four
+canonical acceptance bullets against source evidence and enter named closure for
+any source gap. Special-mode listening/reference, other effects, actual host/runtime
+attachment and real engine/device validation remain recorded gaps; R15 final/merge
+gates are not passed by render coverage alone.
 Integrate verified phases in dependency order R6 → R7 → R9 → R14 → R15, with
 each phase's final gate, PR and main CI terminal-success before advancing to R8.
 

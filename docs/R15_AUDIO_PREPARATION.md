@@ -3,7 +3,9 @@
 Status: P1 inventory and P2 source/payload contract implemented. A 12-species
 listening pilot and presentation resolver/settings/lifecycle scaffolding exist.
 **R15 is not complete.** The modern direction was selected after the pilot.
-The 386 normal cries and 4,632 special-mode candidates are prepared. Music/FX,
+The 386 normal cries and 4,632 special-mode candidates are prepared. All 191
+source music and 18 jingle jobs now have private original-style render candidates;
+effects, music loop readiness/listening,
 special-mode listening and hardware comparison, real host/platform attachment
 and Unreal / Android validation remain open. R15 merge remains blocked by its open final gate.
 
@@ -18,8 +20,10 @@ and Unreal / Android validation remain open. R15 merge remains blocked by its op
   (`4000591de6c397b6c80adc07af17144e26b30dfd`) and
   [agbplay](https://github.com/ipatix/agbplay)
   (`0b87da48d2502da359e45718eec8566ac40fa9d7`). Poryaaaa was compiled from its
-  verified pin and ran a four-file original-style render pilot; agbplay was not
-  installed/run. Evidence: [R15_BGM_RENDER_PILOT.md](R15_BGM_RENDER_PILOT.md).
+  verified pin and ran a four-file original-style render pilot, followed by the
+  full music/jingle coverage pipeline; agbplay was not installed/run. Evidence:
+  [R15_BGM_RENDER_PILOT.md](R15_BGM_RENDER_PILOT.md) and
+  [R15_BGM_RENDER_COVERAGE.md](R15_BGM_RENDER_COVERAGE.md).
 - AI enhancement is optional and offline; no model was installed or applied.
 
 The public branch stores source identities, tools, hashes and audit metadata.

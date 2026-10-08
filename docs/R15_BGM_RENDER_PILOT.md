@@ -1,6 +1,8 @@
 # R15-I2-Closure-2 — pinned source render pilot
 
-State: VERIFYING; published-head CI remains required.
+State: VERIFIED_COMPLETE at `2ae0e2602ce3e01479ddd748bbce84e26059ffd9`.
+Exact-head workflow 37777810560 completed successfully: 68/68 targeted Python,
+304/304 full Python and 67/67 CTest, zero Python skips.
 Parent: `4f8ef9a9769b0f4211e129c80e0dc6ae8181e72e`.
 Source: Vanilla+ `70db90c9077aed1272e746fc2537d9f12b95a91c`.
 Renderer: [poryaaaa](https://github.com/huderlem/poryaaaa/tree/4000591de6c397b6c80adc07af17144e26b30dfd)

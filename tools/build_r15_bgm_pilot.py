@@ -154,6 +154,14 @@ def prepare(source_root, renderer_root, output):
     if plan['source_pin'] != SOURCE_PIN: raise ValueError('source plan pin drift')
     jobs = [j for j in plan['render_jobs'] if j['source_symbol'] in SELECTED]
     if len(jobs) != 4: raise ValueError('pilot identity drift')
+    return render_jobs(source_root, renderer_root, output, source, renderer, jobs, len(plan['render_jobs']))
+
+
+def render_jobs(source_root, renderer_root, output, source, renderer, jobs, total_jobs,
+                schema='r15-bgm-pilot-v1'):
+    """Shared renderer; callers must bind snapshots to authoritative receipts first."""
+    if output.exists() and any(output.iterdir()):
+        raise ValueError('new empty render output required')
     compiler = shutil.which('cc')
     if not compiler: raise ValueError('cc required for pinned renderer and oracle')
     output.mkdir(parents=True, exist_ok=True); renders = []; manifest = []
@@ -201,12 +209,13 @@ def prepare(source_root, renderer_root, output):
                 provenance=dict(repository='illetyus/pokezumrut-vanillaplus',commit=SOURCE_PIN,
                     source_path=path, source_sha256=job['source_file']['sha256'],
                     rights='Pokemon source music copyright The Pokemon Company; private render candidate')))
+            print(f"rendered {len(renders)}/{len(jobs)} {symbol}: {decoded['frames']} frames", flush=True)
     (output/'manifest.json').write_text(dump(dict(schema='r15-local-audio-v1',profile='original',entries=manifest)))
-    report = dict(schema='r15-bgm-pilot-v1', source_pin=SOURCE_PIN, renderer_pin=RENDERER_PIN,
+    report = dict(schema=schema, source_pin=SOURCE_PIN, renderer_pin=RENDERER_PIN,
         source_inputs=source, renderer_inputs=renderer, compiler=compiler_version,
         compile_flags=['-std=gnu11', '-O2'], binaries=binaries,
         oracle_source_sha256=hashlib.sha256(ORACLE.encode()).hexdigest(), engine_tests_passed=707,
-        renders=renders, remaining_music_jingle_jobs=len(plan['render_jobs'])-len(renders),
+        renders=renders, remaining_music_jingle_jobs=total_jobs-len(renders),
         quality_approved=False, unreal_import_validated=False, hardware_audio_equivalence_verified=False)
     (output/'evidence.json').write_text(dump(report))
     return report
