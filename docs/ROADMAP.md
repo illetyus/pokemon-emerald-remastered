@@ -954,7 +954,9 @@ passed 8/75/328. R8-D1 is VERIFIED_COMPLETE at `ddd3ce19`; workflow
 R8-F1 is VERIFIED_COMPLETE at `ea582534`; all 16 final-head push/PR workflows succeeded.
 [Acceptance/evidence/runtime boundaries](R8_INPUT_COMPLETION.md). Evidence: [R8_INPUT_IMPLEMENTATION.md](R8_INPUT_IMPLEMENTATION.md).
 R8-M1 PR #22 merge and R8-M2 exact-main CI are VERIFIED_COMPLETE.
-Current checkpoint: **R19-P1**, then **R19-P2 — Replay/hash contract**.
+R19-P1/P2 are VERIFIED_COMPLETE at `915fee92` / `605a8378`.
+Current checkpoint: **R19-I1 — Input replay harness**, VERIFYING exact-head CI.
+[Contract](R19_REPLAY_CONTRACT.md) / [checkpoint evidence](R19_REGRESSION_IMPLEMENTATION.md).
 No actual runtime/local asset obligation was closed by these source merges.
 
 Real Unreal build remains R18 work. After R18 main verification, stop at

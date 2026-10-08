@@ -897,8 +897,10 @@ The versioned merge/CI ledger is in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.m
 R19 is active on `r19-regression-infrastructure` from that verified main.
 Main workflow 37853379312: 8 targeted / 75 full CTest, 328 Python/source PASS;
 all 15 main workflows, including CodeQL 37853378547, completed successfully.
-Current checkpoint: **R19-P1**; [inventory](R19_REGRESSION_INVENTORY.md).
-Next: **R19-P2 — Replay/hash contract**.
+R19-P1/P2 are VERIFIED_COMPLETE at `915fee92` / `605a8378`.
+Current checkpoint: **R19-I1 — Input replay harness**, VERIFYING exact-head CI.
+[Inventory](R19_REGRESSION_INVENTORY.md), [contract](R19_REPLAY_CONTRACT.md),
+[evidence](R19_REGRESSION_IMPLEMENTATION.md).
 
 R15-V1-Closure-1 is VERIFIED_COMPLETE at
 `3b9b208f934ecba9ac9be857cd40e38e88cbfec0`.
@@ -964,7 +966,7 @@ passed 8/75/328 and source guards. R8-D1 is VERIFIED_COMPLETE at `ddd3ce19`;
 workflow 37851617574 passed 8/75/328; all 16 workflows including CodeQL succeeded.
 R8-F1 is VERIFIED_COMPLETE at `ea582534`; all 16 final-head workflows succeeded. [Acceptance/runtime boundaries](R8_INPUT_COMPLETION.md).
 R8-M1 PR #22 merge and R8-M2 exact-main terminal-success are VERIFIED_COMPLETE.
-R19-P1 is now active; no subsequent phase has started.
+R19-I1 is active; R20/R18 have not started.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,
 R20 and R18; stop at the actual environment/runtime boundary. All deferred

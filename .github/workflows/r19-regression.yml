@@ -1,0 +1,54 @@
+name: R19 Regression Infrastructure
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main, r19-regression-infrastructure, 'remaster/r19-**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: r19-regression-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  portable-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Configure and compile actual portable authority
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release --parallel 2
+      - name: R19 ordered production replay
+        run: ctest --test-dir build -R '^r19_' --output-on-failure
+      - name: All portable regressions
+        run: ctest --test-dir build --output-on-failure
+
+  source-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      REMASTER_R15_REQUIRE_FFMPEG: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Required audio transform dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --yes ffmpeg
+          ffmpeg -version
+          ffprobe -version
+      - name: R19 orchestration regressions
+        run: python -m unittest discover -s tests -p 'test_r19_*.py' -v
+      - name: All Python regressions
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Unreal authority source guards
+        run: python tools/validate_unreal_source.py

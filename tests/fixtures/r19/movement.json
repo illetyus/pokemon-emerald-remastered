@@ -1,0 +1,98 @@
+{
+  "schema": "remaster.r19.replay-matrix",
+  "version": 1,
+  "source": {
+    "repository": "illetyus/pokezumrut-vanillaplus",
+    "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c"
+  },
+  "cases": [
+    {
+      "id": "movement-loop",
+      "recipe": "synthetic-movement-v1",
+      "commands": [
+        {
+          "op": "step",
+          "direction": "north"
+        },
+        {
+          "op": "step",
+          "direction": "east"
+        },
+        {
+          "op": "step",
+          "direction": "south"
+        },
+        {
+          "op": "step",
+          "direction": "west"
+        },
+        {
+          "op": "step",
+          "direction": "west"
+        },
+        {
+          "op": "step",
+          "direction": "north"
+        },
+        {
+          "op": "step",
+          "direction": "east"
+        }
+      ],
+      "expected": [
+        {
+          "x": 1,
+          "y": 1,
+          "kind": 0,
+          "collision": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "kind": 1,
+          "collision": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "kind": 2,
+          "collision": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "kind": 2,
+          "collision": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "kind": 2,
+          "collision": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "kind": 2,
+          "collision": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "kind": 2,
+          "collision": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "kind": 2,
+          "collision": 0
+        }
+      ]
+    }
+  ],
+  "probe_source": {
+    "path": "tests/r19_replay_probe.c",
+    "blob_sha": "9c06f2c9f8745c1721c5b7142b069ef336d83f28"
+  }
+}

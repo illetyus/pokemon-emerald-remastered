@@ -1180,3 +1180,15 @@ else()
     target_compile_options(r8_enhanced_coverage_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r8_partial_enhanced_fallback_coverage COMMAND r8_enhanced_coverage_test)
+
+# R19-I1 replays ordered commands against production Emerald movement authority.
+add_executable(r19_replay_probe tests/r19_replay_probe.c)
+target_link_libraries(r19_replay_probe PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(r19_replay_probe PRIVATE /W4)
+else()
+    target_compile_options(r19_replay_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r19_ordered_production_replay COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_replay.py
+    --probe $<TARGET_FILE:r19_replay_probe>)
