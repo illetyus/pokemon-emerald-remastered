@@ -4,7 +4,6 @@
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
-#include "InputCoreTypes.h"
 #include "Misc/ConfigCacheIni.h"
 #include "HAL/PlatformTime.h"
 #include "TimerManager.h"
@@ -12,11 +11,13 @@
 #include "RemasterOverworldPawn.h"
 #include "RemasterVanillaPlusSaveSubsystem.h"
 #include "RemasterWorldGameplaySubsystem.h"
+#include "RemasterInputSubsystem.h"
 
 void URemasterUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Collection.InitializeDependency<URemasterVanillaPlusSaveSubsystem>();
     Collection.InitializeDependency<URemasterWorldGameplaySubsystem>();
+    Collection.InitializeDependency<URemasterInputSubsystem>();
     Super::Initialize(Collection);
     if (GConfig)
     {
@@ -65,7 +66,7 @@ RemasterUi::Context URemasterUISubsystem::ReadContext() const
     {
         Context.mapReady = Gameplay->IsMapReady();
         Context.mapGroup = Gameplay->GetCurrentMapGroup();
-        Context.mapNum = Gameplay->GetCurrentMapNum();
+        Context.mapNum = Gameplay->GetCurrentMapNumber();
         Context.mapName = TCHAR_TO_UTF8(*Gameplay->GetCurrentMapId());
         if (const auto* Map = Gameplay->GetCurrentMapForPresentation())
             if (const char* Name = RemasterUi::RegionName(Map->RegionMapSectionId)) Context.mapName = Name;
@@ -77,9 +78,42 @@ bool URemasterUISubsystem::BlocksWorldInput() const
 {
     return Model.Modal() || !Model.CanAct(MutableSave(), ReadContext());
 }
+void URemasterUISubsystem::AdvanceInputBoundary()
+{
+    CommonRepeat.Reset();TickAccumulator=0.0;LastTickSeconds=FPlatformTime::Seconds();
+    if (InputHostGeneration != MAX_uint64) ++InputHostGeneration;
+    if (auto* Input=GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
+        Input->ResetInputs();
+}
+RemasterControls::Context URemasterUISubsystem::ReadInputContext()
+{
+    RemasterControls::Context Out;
+    const auto World=ReadContext();
+    Out.saveUsable=RemasterUi::Usable(MutableSave());Out.mapReady=World.mapReady;
+    Out.uiAttached=CurrentScreen!=nullptr;Out.uiModal=Model.Modal();
+    Out.ioBusy=bIoBusy;Out.scriptBusy=bScriptBusy;Out.battleBusy=bBattleBusy;
+    RemasterEmeraldScriptRequest Pending{};
+    Out.dialoguePending=DialogueRuntime && Model.frame.screen==RemasterUi::Screen::Dialogue
+        && remaster_emerald_script_runtime_pending_request(DialogueRuntime,&Pending)
+        && (Pending.type==REMASTER_EMERALD_SCRIPT_REQUEST_MESSAGE
+            || Pending.type==REMASTER_EMERALD_SCRIPT_REQUEST_CHOICE);
+    const uint64 Request=Out.dialoguePending ? Pending.sequence : 0;
+    const int32 Screen=static_cast<int32>(Model.frame.screen);
+    const FString MapKey=FString::Printf(TEXT("%d/%d/"),World.mapGroup,World.mapNum)
+        + UTF8_TO_TCHAR(World.mapName.c_str());
+    if (Request!=LastInputRequest || Screen!=LastInputScreen || MapKey!=LastInputMap)
+    {
+        AdvanceInputBoundary();LastInputRequest=Request;LastInputScreen=Screen;
+        LastInputMap=MapKey;
+    }
+    Out.hostGeneration=InputHostGeneration;
+    if (InputHostGeneration==MAX_uint64) Out.suspensionReasons=128; // Never wrap an owner fence.
+    return Out;
+}
 
 void URemasterUISubsystem::SetHostBusy(bool bScript, bool bBattle)
 {
+    if (bScriptBusy!=bScript || bBattleBusy!=bBattle) AdvanceInputBoundary();
     bScriptBusy = bScript; bBattleBusy = bBattle;
     if (!bScript) DialogueRuntime = nullptr;
     if (bScript || bBattle) Model.Reset();
@@ -128,6 +162,7 @@ bool URemasterUISubsystem::ActivateRow(int32 Index, int64 ExpectedRevision)
     if (Intent.effect == Effect::Save || Intent.effect == Effect::Load)
     {
         bIoBusy = true;
+        AdvanceInputBoundary();
         Model.notice = Intent.effect == Effect::Save ? "Kaydediliyor…" : "Yükleniyor…";
         Refresh(); // Explicit busy state, no invented percentage or success.
         if (Intent.effect == Effect::Save)
@@ -159,6 +194,7 @@ bool URemasterUISubsystem::ActivateRow(int32 Index, int64 ExpectedRevision)
             Model.Open(RemasterUi::Screen::SaveLoad);
         }
         bIoBusy = false;
+        AdvanceInputBoundary();
     }
     else if (Intent.effect == Effect::ApplyRtc)
     {
@@ -205,40 +241,47 @@ bool URemasterUISubsystem::PresentCoreDialogue(RemasterEmeraldScriptRuntime* Run
             RemasterUi::Command::DialogueComplete, ChoiceValues[i], true});
     }
     if (!Model.PresentDialogue(Request, TCHAR_TO_UTF8(*ResolvedText), Choices)) return false;
-    DialogueRuntime = Runtime; bScriptBusy = true;
+    AdvanceInputBoundary();DialogueRuntime = Runtime; bScriptBusy = true;
     Refresh();
     return true;
 }
 
 void URemasterUISubsystem::DetachCoreDialogue()
 {
+    AdvanceInputBoundary();
     DialogueRuntime = nullptr;
     Model.Reset();
 }
 
 void URemasterUISubsystem::PresentationTick()
 {
+    auto* Input=GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr;
+    if (Input) Input->RefreshContext();
     const double Now = FPlatformTime::Seconds();
+    if (!Input)
+    {
+        CommonRepeat.Reset();TickAccumulator=0.0;LastTickSeconds=Now;
+        Refresh();return;
+    }
+    const auto& Router=Input->GetRouter();
+    const bool bReset=CommonRepeat.Sync(Router,Model.repeatEnabled);
+    if (bReset) TickAccumulator=0.0;
     // Bound catch-up to presentation only; no gameplay steps or asynchronous completions.
-    TickAccumulator += FMath::Clamp(Now - LastTickSeconds, 0.0, 0.1);
+    TickAccumulator += bReset ? 0.0 : FMath::Clamp(Now - LastTickSeconds, 0.0, 0.1);
     PollAccumulator += FMath::Clamp(Now - LastTickSeconds, 0.0, 0.1);
     LastTickSeconds = Now;
     bool bChanged = Model.frame.screen == RemasterUi::Screen::Dialogue;
-    APlayerController* PC = GetGameInstance()->GetFirstLocalPlayerController();
     while (TickAccumulator >= 1.0 / 60.0)
     {
         TickAccumulator -= 1.0 / 60.0;
-        Model.TextTick();
-        const bool Up = PC && (PC->IsInputKeyDown(EKeys::Up) || PC->IsInputKeyDown(EKeys::W)
-            || PC->IsInputKeyDown(EKeys::Gamepad_DPad_Up));
-        const bool Down = PC && (PC->IsInputKeyDown(EKeys::Down) || PC->IsInputKeyDown(EKeys::S)
-            || PC->IsInputKeyDown(EKeys::Gamepad_DPad_Down));
-        if (RepeatUp.Tick(Up && Model.Modal(), Model.repeatEnabled))
+        if (Router.CurrentFocus()!=RemasterControls::Focus::Blocked) Model.TextTick();
+        const auto Repeat=CommonRepeat.Tick(Router,Model.repeatEnabled);
+        if (Repeat.up)
         {
             Model.Input(RemasterUi::Action::Up, MutableSave(), ReadContext());
             bChanged = true;
         }
-        if (RepeatDown.Tick(Down && Model.Modal(), Model.repeatEnabled))
+        if (Repeat.down)
         {
             Model.Input(RemasterUi::Action::Down, MutableSave(), ReadContext());
             bChanged = true;
@@ -280,6 +323,7 @@ UUserWidget* URemasterUISubsystem::ShowScreen(
     TSubclassOf<UUserWidget> ScreenClass,
     int32 ZOrder)
 {
+    AdvanceInputBoundary();
     HideCurrentScreen();
 
     if (!ScreenClass || !GetGameInstance())
@@ -301,6 +345,7 @@ UUserWidget* URemasterUISubsystem::ShowScreen(
 
 void URemasterUISubsystem::HideCurrentScreen()
 {
+    AdvanceInputBoundary();
     if (CurrentScreen)
     {
         CurrentScreen->RemoveFromParent();

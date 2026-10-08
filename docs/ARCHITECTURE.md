@@ -153,6 +153,21 @@ Examples include:
 Presentation events may drive animation, camera, VFX, haptics and audio.
 Handling an event must never create or alter the gameplay result it describes.
 
+## Input owner boundary
+
+R8 normalizes keyboard/gamepad/touch/Enhanced sources into one platform-neutral
+action router. It owns bounded holds, focus/lifecycle epochs and dispatch selection,
+not gameplay state. Native sources refresh actual R9/core-host facts before
+delivery. One selected owner responds; a missing/rejecting field or battle host
+returns unsupported without another owner or Blueprint gameplay fallback.
+
+R4 owns world commands; R9 owns UI/choice validation and 24/3 presentation repeat.
+Only common-held Up/Down may repeat in UI/dialogue. Lifecycle and owner transitions
+clear holds/captures/counters and fence stale input. Settings remain outside Emerald
+saves. See [R8 input contract](R8_INPUT_CONTRACT.md) and
+[completion/runtime boundaries](R8_INPUT_COMPLETION.md). Actual UE/platform/host
+execution remains separately required; source CI certifies its own scope only.
+
 ## World authority
 
 Emerald world data remains authoritative.
@@ -271,7 +286,12 @@ At R18:
 - Unreal Engine 5.8.3 is installed/verified on the project PC;
 - production Unreal code is compiled;
 - Android is cooked/packaged;
-- real runtime smoke starts.
+- after verified R18 main CI, stop at REAL UNREAL RUNTIME VALIDATION.
+
+If the actual project-PC/UE/Android environment is unavailable, stop at
+EXTERNAL_ENV_REQUIRED. Source validators never replace compile/cook/package
+evidence. Physical runtime smoke and the final device matrix require the later
+runtime-validation stage; they do not start automatically.
 
 BrowserStack real-device execution occurs only after a valid APK exists.
 
@@ -294,3 +314,4 @@ references where useful.
 
 They do not override the Unreal production decision recorded in
 `docs/adr/0001-unreal-engine-production-runtime.md`.
+

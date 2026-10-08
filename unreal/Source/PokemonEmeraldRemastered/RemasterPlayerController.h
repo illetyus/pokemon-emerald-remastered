@@ -4,9 +4,12 @@
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
 #include "RemasterWorldGameplaySubsystem.h"
+#include "RemasterPhysicalInput.h"
+#include "RemasterEnhancedCoverage.h"
 #include "RemasterPlayerController.generated.h"
 
 class URemasterInputConfig;
+class UInputMappingContext;
 enum class ERemasterUiAction : uint8;
 
 UCLASS()
@@ -18,6 +21,8 @@ class POKEMONEMERALDREMASTERED_API ARemasterPlayerController
 public:
     virtual void BeginPlay() override;
     virtual void SetupInputComponent() override;
+    virtual void PlayerTick(float DeltaTime) override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Remaster|Input")
@@ -46,23 +51,23 @@ protected:
 
 private:
     void HandleMove(const FInputActionValue& Value);
-    void HandleInteract(const FInputActionValue& Value);
-    void HandleCancel(const FInputActionValue& Value);
-    void HandleMenu(const FInputActionValue& Value);
-    void HandleMap(const FInputActionValue& Value);
-    void HandleQuest(const FInputActionValue& Value);
-    void HandleQuickItem(const FInputActionValue& Value);
-
-    void StepDirection(int32 Direction);
-    void StepUp();
-    void StepDown();
-    void StepLeft();
-    void StepRight();
-    void InteractFallback();
-    void CancelFallback();
-    void MenuFallback();
-    void MapFallback();
-    void QuestFallback();
-    void QuickItemFallback();
+    void HandleMoveReleased(const FInputActionValue& Value);
+    void HandleButton(const FInputActionValue& Value,RemasterControls::Action Action,
+        RemasterControls::Phase Phase);
+    void BindNativeAction(RemasterControls::Action Action);
+    void PhysicalInput(RemasterControls::Source Source,uint16 Control,
+        RemasterControls::Action Action,RemasterControls::Phase Phase);
+    bool bNativeGamepadAxis = false;
+    RemasterControls::EnhancedCoverage NativeCoverage;
+    bool bInputRoutingAttached = false;
+    TWeakObjectPtr<UInputMappingContext> OwnedMappingContext;
+    RemasterControls::Context ReadInputContext();
+    bool DispatchInput(RemasterControls::Action Action,RemasterControls::Target Target);
+    bool StepDirection(int32 Direction);
     bool RouteUI(ERemasterUiAction Action);
+    void TouchPressed(ETouchIndex::Type Finger, FVector Location);
+    void TouchMoved(ETouchIndex::Type Finger, FVector Location);
+    void TouchReleased(ETouchIndex::Type Finger, FVector Location);
+    FVector2D NormalizeTouch(FVector Location) const;
 };
+

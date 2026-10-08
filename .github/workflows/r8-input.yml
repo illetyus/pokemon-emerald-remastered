@@ -1,0 +1,52 @@
+name: R8 Input Infrastructure
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main, r8-input-infrastructure, 'remaster/r8-**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: r8-input-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  portable-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Configure and compile shared input, core and UI
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release --parallel 2
+      - name: R8 compiled contract regression
+        run: ctest --test-dir build -R '^r8_' --output-on-failure
+      - name: Full portable regression including R4 and R9
+        run: ctest --test-dir build --output-on-failure
+
+  source-and-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      REMASTER_R15_REQUIRE_FFMPEG: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Required full-suite audio transform dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --yes ffmpeg
+          ffmpeg -version
+          ffprobe -version
+      - name: All Python source/domain regressions
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Unreal authority source guards
+        run: python tools/validate_unreal_source.py

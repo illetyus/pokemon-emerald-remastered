@@ -50,11 +50,12 @@ class R9UI(unittest.TestCase):
         self.assertIn('remaster_emerald_quest_active(save)', self.model)
 
     def test_world_movement_is_routed_after_ui_consumer(self):
-        step = self.controller.split('void ARemasterPlayerController::StepDirection', 1)[1].split('void ARemasterPlayerController::HandleMove', 1)[0]
+        step = self.controller.split('bool ARemasterPlayerController::StepDirection', 1)[1].split('void ARemasterPlayerController::HandleMove', 1)[0]
         self.assertLess(step.index('RouteUI(UiDirection)'), step.index('Gameplay->StepPlayer'))
         self.assertIn('NotifyCoreStep', step)
-        for name in ['MoveBound', 'InteractBound', 'CancelBound', 'MenuBound', 'MapBound', 'QuestBound', 'QuickBound']:
-            self.assertIn('if (!' + name + ')', self.controller)
+        self.assertIn('for (unsigned i=0;i<static_cast<unsigned>(RemasterControls::Action::Count);++i)', self.controller)
+        self.assertIn('BindNativeAction(static_cast<RemasterControls::Action>(i))', self.controller)
+        self.assertIn('NativeCoverage.Covered(Binding)', self.controller)
 
     def test_save_rtc_use_existing_wrappers(self):
         for call in ['StoreLegacySave()', 'LoadLegacySave()', 'RealignRtcNow(Time)', 'LoadCurrentMapFromSave(true)']:
@@ -99,3 +100,4 @@ class R9UI(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

@@ -1079,3 +1079,104 @@ else()
     target_compile_options(r15_audio_policy_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r15_audio_resolver_and_policy COMMAND r15_audio_policy_test)
+
+# Platform-neutral input router, also available to the production UE host.
+add_executable(r8_input_router_test tests/r8_input_router_test.cpp)
+target_include_directories(r8_input_router_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_input_router_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_input_router_test PRIVATE /W4)
+else()
+    target_compile_options(r8_input_router_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_common_input_router COMMAND r8_input_router_test)
+
+add_executable(r8_touch_input_test tests/r8_touch_input_test.cpp)
+target_include_directories(r8_touch_input_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_touch_input_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_touch_input_test PRIVATE /W4)
+else()
+    target_compile_options(r8_touch_input_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_touch_source_capture COMMAND r8_touch_input_test)
+
+add_executable(r8_physical_input_test tests/r8_physical_input_test.cpp)
+target_include_directories(r8_physical_input_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_physical_input_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_physical_input_test PRIVATE /W4)
+else()
+    target_compile_options(r8_physical_input_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_physical_sources COMMAND r8_physical_input_test)
+
+
+# I4 compiles the same one-owner dispatcher with actual accepted R9 model/core state.
+add_executable(r8_focus_dispatch_test tests/r8_focus_dispatch_test.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterUiModel.cpp)
+target_link_libraries(r8_focus_dispatch_test PRIVATE remaster_core)
+target_include_directories(r8_focus_dispatch_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_focus_dispatch_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_focus_dispatch_test PRIVATE /W4)
+else()
+    target_compile_options(r8_focus_dispatch_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_focus_real_ui_dispatch COMMAND r8_focus_dispatch_test)
+
+# I5 exercises the same source fence and independent suspension reason policy.
+add_executable(r8_lifecycle_test tests/r8_lifecycle_test.cpp)
+target_include_directories(r8_lifecycle_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_lifecycle_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_lifecycle_test PRIVATE /W4)
+else()
+    target_compile_options(r8_lifecycle_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_lifecycle_source_fence COMMAND r8_lifecycle_test)
+
+# I6 uses accepted R9 repeat with router holds from every source.
+add_executable(r8_repeat_test tests/r8_repeat_test.cpp)
+target_link_libraries(r8_repeat_test PRIVATE remaster_core)
+target_include_directories(r8_repeat_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_repeat_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_repeat_test PRIVATE /W4)
+else()
+    target_compile_options(r8_repeat_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_common_held_ui_repeat COMMAND r8_repeat_test)
+
+# T1 versioned trace recipes replay the actual compiled router/adapters/repeater.
+add_executable(r8_input_fixture_probe tests/r8_input_fixture_probe.cpp)
+target_link_libraries(r8_input_fixture_probe PRIVATE remaster_core)
+target_include_directories(r8_input_fixture_probe PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_input_fixture_probe PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_input_fixture_probe PRIVATE /W4)
+else()
+    target_compile_options(r8_input_fixture_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_versioned_input_fixture_matrix COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r8_input_fixture_matrix.py
+    --probe $<TARGET_FILE:r8_input_fixture_probe>)
+
+# Closure-1 proves partial Enhanced assets cannot erase uncovered native equivalents.
+add_executable(r8_enhanced_coverage_test tests/r8_enhanced_coverage_test.cpp)
+target_include_directories(r8_enhanced_coverage_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_enhanced_coverage_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_enhanced_coverage_test PRIVATE /W4)
+else()
+    target_compile_options(r8_enhanced_coverage_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_partial_enhanced_fallback_coverage COMMAND r8_enhanced_coverage_test)

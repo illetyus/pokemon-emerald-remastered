@@ -1,0 +1,5373 @@
+{
+  "version": 1,
+  "source_pin": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+  "contract": "data/r8/input_contract.json",
+  "evidence_scope": "Compiled portable input source fixtures; no Unreal/device certification",
+  "cases": [
+    {
+      "id": "keyboard/Up",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Up",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Up",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Up",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "keyboard/Down",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Down",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Down",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Down",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "keyboard/Left",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Left",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Left",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Left",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "keyboard/Right",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Right",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Right",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Right",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "keyboard/Confirm",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Confirm",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "FieldInteract",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Confirm",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Confirm",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "keyboard/Cancel",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Cancel",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Cancel",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Cancel",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "keyboard/Menu",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Menu",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Menu",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Menu",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "keyboard/Map",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Map",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Map",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Map",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "keyboard/Quest",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Quest",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Quest",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Quest",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "keyboard/QuickItem",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "QuickItem",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "QuickItem",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "QuickItem",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "gamepad/Up",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Up",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Up",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Up",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "gamepad/Down",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Down",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Down",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Down",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "gamepad/Left",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Left",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Left",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Left",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "gamepad/Right",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Right",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Right",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Right",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "gamepad/Confirm",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Confirm",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "FieldInteract",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Confirm",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Confirm",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "gamepad/Cancel",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Cancel",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Cancel",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Cancel",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "gamepad/Menu",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Menu",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Menu",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Menu",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "gamepad/Map",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Map",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Map",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Map",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "gamepad/Quest",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Quest",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Quest",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Quest",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "gamepad/QuickItem",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "QuickItem",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "QuickItem",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "QuickItem",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "touch/Up",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Up",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Up",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Up",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "touch/Down",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Down",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Down",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Down",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "touch/Left",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Left",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Left",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Left",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "touch/Right",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Right",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Right",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Right",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "touch/Confirm",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Confirm",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "FieldInteract",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Confirm",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Confirm",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "touch/Cancel",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Cancel",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Cancel",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Cancel",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "touch/Menu",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Menu",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Menu",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Menu",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "touch/Map",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Map",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Map",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Map",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "touch/Quest",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Quest",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Quest",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Quest",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "touch/QuickItem",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "QuickItem",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "QuickItem",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "QuickItem",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "enhanced/Up",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Up",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Up",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Up",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "enhanced/Down",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Down",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Down",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Down",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "enhanced/Left",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Left",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Left",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Left",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "enhanced/Right",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Right",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Right",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Right",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "enhanced/Confirm",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Confirm",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "FieldInteract",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Confirm",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Confirm",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "enhanced/Cancel",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Cancel",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Cancel",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Cancel",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "enhanced/Menu",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Menu",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Menu",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Menu",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "enhanced/Map",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Map",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Map",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Map",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "enhanced/Quest",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Quest",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Quest",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "Quest",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "enhanced/QuickItem",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "QuickItem",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "QuickItem",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "enhanced",
+          "action": "QuickItem",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "focus/queued-menu-to-world",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Up",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true,
+            "uiModal": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 3,
+            "focus": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Up",
+          "phase": "Released",
+          "epoch": 2,
+          "expect": {
+            "status": "Stale",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Down",
+          "phase": "Pressed",
+          "epoch": 3,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 4,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Down",
+          "phase": "Released",
+          "epoch": 3,
+          "expect": {
+            "status": "Stale",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Down",
+          "phase": "Pressed",
+          "epoch": 4,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "touch/semantic-handover-slide-cancel",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true,
+            "uiModal": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "touch",
+          "phase": "Pressed",
+          "finger": 0,
+          "x": 0.17,
+          "y": 0.85,
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "physical",
+          "source": "keyboard",
+          "action": "Down",
+          "phase": "Pressed",
+          "control": 2,
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "held": [
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "physical",
+          "source": "keyboard",
+          "action": "Down",
+          "phase": "Released",
+          "control": 2,
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "touch",
+          "phase": "Moved",
+          "finger": 0,
+          "x": 0.5,
+          "y": 0.5,
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "touch",
+          "phase": "Released",
+          "finger": 0,
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "lifecycle/partial-resume-neutral-reconnect",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true,
+            "uiModal": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Up",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "suspend",
+          "reason": "background",
+          "active": true,
+          "expect": {
+            "status": "Updated",
+            "epoch": 4,
+            "focus": "Blocked",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "suspend",
+          "reason": "inactive",
+          "active": true,
+          "expect": {
+            "status": "Updated",
+            "epoch": 6,
+            "focus": "Blocked",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "suspend",
+          "reason": "background",
+          "active": false,
+          "expect": {
+            "status": "Updated",
+            "epoch": 8,
+            "focus": "Blocked",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "suspend",
+          "reason": "paused",
+          "active": true,
+          "expect": {
+            "status": "Updated",
+            "epoch": 10,
+            "focus": "Blocked",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "suspend",
+          "reason": "inactive",
+          "active": false,
+          "expect": {
+            "status": "Updated",
+            "epoch": 12,
+            "focus": "Blocked",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "suspend",
+          "reason": "paused",
+          "active": false,
+          "expect": {
+            "status": "Updated",
+            "epoch": 14,
+            "focus": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "axis",
+          "source": "gamepad",
+          "x": 0.8,
+          "y": 0,
+          "epoch": 14,
+          "expect": {
+            "status": "Ignored",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "axis",
+          "source": "gamepad",
+          "x": 0,
+          "y": 0,
+          "epoch": 14,
+          "expect": {
+            "status": "Updated",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "axis",
+          "source": "gamepad",
+          "x": 0.8,
+          "y": 0,
+          "epoch": 14,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "fence",
+          "expect": {
+            "epoch": 15,
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "tick",
+          "count": 60,
+          "enabled": true,
+          "expect": {
+            "repeat_up": 0,
+            "repeat_down": 0,
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "repeat/touch-policy-settings",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true,
+            "uiModal": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "touch",
+          "phase": "Pressed",
+          "finger": 0,
+          "x": 0.17,
+          "y": 0.85,
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "tick",
+          "count": 23,
+          "enabled": true,
+          "expect": {
+            "repeat_up": 0,
+            "repeat_down": 0
+          }
+        },
+        {
+          "op": "tick",
+          "count": 1,
+          "enabled": true,
+          "expect": {
+            "repeat_up": 0,
+            "repeat_down": 1
+          }
+        },
+        {
+          "op": "tick",
+          "count": 3,
+          "enabled": true,
+          "expect": {
+            "repeat_up": 0,
+            "repeat_down": 1
+          }
+        },
+        {
+          "op": "tick",
+          "count": 50,
+          "enabled": false,
+          "expect": {
+            "repeat_up": 0,
+            "repeat_down": 0
+          }
+        },
+        {
+          "op": "tick",
+          "count": 24,
+          "enabled": true,
+          "expect": {
+            "repeat_up": 0,
+            "repeat_down": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "owner/unsupported-script-dialogue-battle",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Confirm",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Unsupported",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Menu",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Unsupported",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "scriptBusy": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 3,
+            "focus": "Blocked",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Up",
+          "phase": "Pressed",
+          "epoch": 3,
+          "expect": {
+            "status": "Blocked",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "scriptBusy": true,
+            "dialoguePending": true,
+            "uiAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 4,
+            "focus": "Dialogue",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Confirm",
+          "phase": "Pressed",
+          "epoch": 4,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "battleBusy": true,
+            "uiAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 5,
+            "focus": "Battle",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Confirm",
+          "phase": "Pressed",
+          "epoch": 5,
+          "expect": {
+            "status": "Unsupported",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Menu",
+          "phase": "Pressed",
+          "epoch": 5,
+          "expect": {
+            "status": "Blocked",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "battleBusy": true,
+            "uiAttached": true,
+            "battleAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 6,
+            "focus": "Battle",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "gamepad",
+          "action": "Confirm",
+          "phase": "Pressed",
+          "epoch": 6,
+          "expect": {
+            "status": "Dispatch",
+            "target": "BattleInput",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "recovery/no-world-repeat",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "uiAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "RecoveryUI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "keyboard",
+          "action": "Menu",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Down",
+          "phase": "Pressed",
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "tick",
+          "count": 60,
+          "enabled": true,
+          "expect": {
+            "repeat_up": 0,
+            "repeat_down": 0
+          }
+        },
+        {
+          "op": "context",
+          "context": {
+            "uiAttached": true,
+            "uiModal": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 3,
+            "focus": "UI",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "event",
+          "source": "touch",
+          "action": "Down",
+          "phase": "Pressed",
+          "epoch": 3,
+          "expect": {
+            "status": "Dispatch",
+            "target": "UI",
+            "held": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "tick",
+          "count": 24,
+          "enabled": true,
+          "expect": {
+            "repeat_up": 0,
+            "repeat_down": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "axis/change-invalid-neutral",
+      "steps": [
+        {
+          "op": "context",
+          "context": {
+            "saveUsable": true,
+            "mapReady": true,
+            "uiAttached": true,
+            "fieldAttached": true
+          },
+          "expect": {
+            "status": "Updated",
+            "epoch": 2,
+            "focus": "World",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "axis",
+          "source": "enhanced",
+          "x": 0.8,
+          "y": 0,
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "axis",
+          "source": "enhanced",
+          "x": 0.9,
+          "y": 0,
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "axis",
+          "source": "enhanced",
+          "x": 0,
+          "y": 0.9,
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "axis",
+          "source": "enhanced",
+          "x": 2,
+          "y": 0,
+          "epoch": 2,
+          "expect": {
+            "status": "Invalid",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "axis",
+          "source": "enhanced",
+          "x": 0.8,
+          "y": 0,
+          "epoch": 2,
+          "expect": {
+            "status": "Ignored",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "axis",
+          "source": "enhanced",
+          "x": 0,
+          "y": 0,
+          "epoch": 2,
+          "expect": {
+            "status": "Updated",
+            "target": "None",
+            "held": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "op": "axis",
+          "source": "enhanced",
+          "x": 0.8,
+          "y": 0,
+          "epoch": 2,
+          "expect": {
+            "status": "Dispatch",
+            "target": "WorldStep",
+            "held": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
