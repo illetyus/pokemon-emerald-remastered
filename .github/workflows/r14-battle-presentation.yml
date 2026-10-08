@@ -1,0 +1,46 @@
+name: R14 Battle Presentation
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main, r14-battle-presentation, 'remaster/r14-**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: r14-battle-presentation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-and-catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: R14 species, local asset probes and authority guards
+        run: python -m unittest discover -s tests -p 'test_r14*.py' -v
+      - name: All Python regressions including R10 R11 R16 R17
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Exact pinned-source species audit
+        run: python tools/build_r14_battle_package.py --check
+      - name: Unreal authority source guards
+        run: python tools/validate_unreal_source.py
+
+  portable-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Configure source-backed catalogs
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Compile core and the same battle consumer used by Unreal
+        run: cmake --build build --config Release --parallel 2
+      - name: R14 authority tests and all portable regressions
+        run: ctest --test-dir build -C Release --output-on-failure

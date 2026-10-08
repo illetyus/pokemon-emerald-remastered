@@ -70,6 +70,9 @@ public:
     void SetHostBusy(bool bScript, bool bBattle);
 
     UFUNCTION(BlueprintCallable, Category="Remaster|UI")
+    void SetBattleHostBusy(bool bBattle) { SetHostBusy(bScriptBusy, bBattle); }
+
+    UFUNCTION(BlueprintCallable, Category="Remaster|UI")
     void NotifyCoreStep(bool bScriptPending, bool bEncounterPending, bool bRepelWoreOff);
 
     UPROPERTY(BlueprintAssignable) FRemasterUiFrameChanged OnFrameChanged;

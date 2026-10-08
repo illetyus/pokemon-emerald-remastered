@@ -9,6 +9,7 @@
 #include "RemasterWorldActor.h"
 #include "RemasterNpcPresentationWorld.h"
 #include "RemasterEnvironmentController.h"
+#include "RemasterBattleStage.h"
 
 AR0GameMode::AR0GameMode()
 {
@@ -24,6 +25,11 @@ void AR0GameMode::StartPlay()
     UWorld* World = GetWorld();
     if (!World)
         return;
+
+    bool bHasBattleStage = false;
+    for (TActorIterator<ARemasterBattleStage> It(World); It; ++It) { bHasBattleStage = true; break; }
+    if (!bHasBattleStage)
+        World->SpawnActor<ARemasterBattleStage>(ARemasterBattleStage::StaticClass(), FVector(0,0,10000), FRotator::ZeroRotator);
 
     ARemasterWorldActor* WorldRenderer = nullptr;
     for (TActorIterator<ARemasterWorldActor> It(World); It; ++It)

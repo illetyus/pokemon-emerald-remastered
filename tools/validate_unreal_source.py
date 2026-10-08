@@ -691,6 +691,23 @@ def main() -> int:
             and "remaster_emerald_object_event_visible(" in r6_read,
             "R6 snapshot must read portable runtime coordinates/visibility", errors)
 
+    # R14 is a const R13 consumer; native timing tests complement these source guards.
+    battle_read = (MODULE / "RemasterBattleRead.h").read_text()
+    battle_stage = (MODULE / "RemasterBattleStage.cpp").read_text()
+    battle_host = (MODULE / "RemasterBattlePresentationSubsystem.cpp").read_text()
+    for source in (battle_read, battle_stage, battle_host):
+        for operation in ("resolve_turn", "use_move", "calculate_damage", "choose_ai_action",
+                          "switch", "replace_fainted", "throw_ball", "try_run", "clear_events", "finalize_trainer"):
+            require(not re.search(r"remaster_emerald_battle_" + operation + r"\s*\(", source),
+                    "R14 presentation called authoritative battle mutator: " + operation, errors)
+    for token in ("const RemasterEmeraldBattleState&", "serial != lastSerial + 1", "droppedVisualCues += Pending()"):
+        require(token in battle_read, "R14 bounded const sequencing guard missing: " + token, errors)
+    for token in ("Generation != LoadGeneration[Slot]", "Key != ModelKeys[Slot]", "CreateWeakLambda",
+                  "bUnrealImportValidated", "RequiredSpecialChannels.IsEmpty()", "ECollisionEnabled::NoCollision"):
+        require(token in battle_stage, "R14 asset lifecycle guard missing: " + token, errors)
+    require("Feed.Submit(" in battle_host and "Feed.Complete(" in battle_host,
+            "R14 Unreal must use the natively tested battle feed", errors)
+
     # No production Unreal code should include Godot/SDL presentation APIs.
     forbidden = re.compile(r"\b(?:Godot|SDL3?|GDExtension)\b")
     for path in MODULE.glob("*.[ch]pp"):

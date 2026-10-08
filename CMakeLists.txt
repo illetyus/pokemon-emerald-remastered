@@ -1055,3 +1055,16 @@ add_test(NAME r9_ui_authority_and_actions COMMAND r9_ui_model_test)
 add_test(NAME r9_ui_fixture_matrix COMMAND
     ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r9_ui_fixture_matrix.py
     --probe $<TARGET_FILE:r9_ui_model_test>)
+
+# Same const battle/event consumer used by Unreal, with real R13 timing regressions.
+add_executable(r14_battle_presentation_test tests/r14_battle_presentation_test.cpp)
+target_link_libraries(r14_battle_presentation_test PRIVATE remaster_core)
+target_include_directories(r14_battle_presentation_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r14_battle_presentation_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r14_battle_presentation_test PRIVATE /W4)
+else()
+    target_compile_options(r14_battle_presentation_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r14_battle_read_and_authority COMMAND r14_battle_presentation_test)
