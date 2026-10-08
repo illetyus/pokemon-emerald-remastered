@@ -3,7 +3,9 @@
 G1: **VERIFIED_COMPLETE** for the canonical pre-real-UE source/preparation scope
 at `5a5475103b736ae5d9c8b0abf442238b8edc05be`.
 D1: completion evidence recorded here.
-F1: **NOT_STARTED**; independently reconcile this artifact after exact published-head CI.
+F1: independent source reconciliation **PASS** at
+`695d01b56b6afdc2d73ad8b066ca12479125549a`; this publication's exact-head CI must
+reach terminal success before integration. No real runtime acceptance is implied.
 M1/M2: **NOT_STARTED**; dependent phases must integrate in order.
 
 This is the same pre-real-UE acceptance boundary recorded for R6/R7/R9/R14.
@@ -116,6 +118,20 @@ authorized to run automatically at that stop boundary. Missing actual R18
 environment must be reported as EXTERNAL_ENV_REQUIRED.
 
 ## Integration sequence
+
+Independent F1 reconciliation reread live main/R15 refs, recent commits, compare,
+open PRs, exact-head CI, canonical architecture/phase/roadmap, audio contract and
+actual const resolver/consumer source. Main stayed `a7ed422d`, the branch stayed
+`695d01b`, and the complete main compare was 29 ahead / 0 behind, 139 changed files,
+with no vendor/commercial binary changes or conflicting session drift. G1/D1's
+five-file documentation commit left the tested implementation unchanged.
+Workflow 37780786306 reached terminal success: 74/74 targeted Python, 310/310
+full Python, 67/67 CTest, zero Python skips. Contract, readiness flags, source
+pins, special-mode boundaries, reserved row policy and deferred runtime ledger
+agree. No remaining pre-real-UE acceptance RED was found.
+
+This final evidence publication remains subject to exact-head CI; only after
+that success is R15 source/preparation F1 VERIFIED_COMPLETE and integration allowed.
 
 After independent R15-F1 and its exact-head CI, integrate verified dependent
 phases in order **R6 → R7 → R9 → R14 → R15**. Each phase requires a PR merge and

@@ -931,9 +931,14 @@ The private full-coverage pipeline binds the 380 bank inputs and all
 keeps runtime-loop/listening/import readiness false. Exact-head workflow
 37779942858 passed 74 targeted Python, 310 full Python and 67 CTest, zero skips.
 Evidence: [R15_BGM_RENDER_COVERAGE.md](R15_BGM_RENDER_COVERAGE.md).
-Current checkpoint: **R15-G1/D1 — pre-real-UE acceptance and completion evidence**.
+R15-G1/D1 is VERIFIED_COMPLETE at `695d01b56b6afdc2d73ad8b066ca12479125549a`;
+workflow 37780786306 passed 74 targeted Python, 310 full Python and 67 CTest,
+zero Python skips.
 The canonical four source acceptance bullets pass; runtime/local asset obligations
 remain explicitly open in [R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md).
-Next named subphase after exact-head CI: **R15-F1 — independent final gate**.
+Current checkpoint: **R15-F1 — independent final gate**. Independent source
+reconciliation passed at `695d01b`; this publication requires exact-head CI.
+After terminal success, integrate R6 → R7 → R9 → R14 → R15 through each named
+M1/M2 gate before R8-P1. No actual runtime/local asset obligation is closed.
 Continue the named subphases/closure gates, then integrate the verified dependent
 phase PRs in order before R8-P1. Stop after R18-M2 at REAL UNREAL RUNTIME VALIDATION.
