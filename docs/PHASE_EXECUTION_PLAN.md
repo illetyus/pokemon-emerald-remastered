@@ -945,11 +945,13 @@ no implementation changes and no push workflow trigger.
 Current checkpoint: **R8-P2 — Platform/lifecycle contract**, frozen in
 [R8_INPUT_CONTRACT.md](R8_INPUT_CONTRACT.md) and `data/r8/input_contract.json`.
 This is a policy/doc checkpoint; no input/gameplay behavior changes.
-R8-P2 is versioned at `d9771a8d`. Current implementation checkpoint:
-**R8-I1 — Common action router**, VERIFYING exact published-head CI.
-[Actual RED/native evidence](R8_INPUT_IMPLEMENTATION.md): 191 local native
-checks PASS; no UE controller/touch/lifecycle/repeat wiring is claimed yet.
-After CI terminal-success, next: **R8-I2 — Touch source wiring**.
+R8-P2 is versioned at `d9771a8d`; I1 is VERIFIED_COMPLETE at `1d45a91d`.
+Workflow 37817943261 passed targeted 1/1 and full 68/68 CTest, 310/310 Python
+and source guards; all 16 exact-head workflows including CodeQL passed.
+Current implementation checkpoint: **R8-I2 — Touch source wiring**, VERIFYING
+exact published-head CI. [Actual RED/native/source evidence](R8_INPUT_IMPLEMENTATION.md)
+records 88 local touch checks and explicit pending owner/device boundaries.
+After CI terminal-success, next: **R8-I3 — Gamepad/keyboard mappings**.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,
 R20 and R18; stop at the actual environment/runtime boundary. All deferred

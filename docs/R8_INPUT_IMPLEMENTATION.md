@@ -1,6 +1,9 @@
 # R8-I1 — Common input router evidence
 
-State: **VERIFYING**; exact published-head CI is required before VERIFIED_COMPLETE.
+I1 state: **VERIFIED_COMPLETE** at `1d45a91d64adc60ff250da1f2e122ec385d15ae4`.
+Workflow 37817943261: targeted 1/1 R8 CTest, full 68/68 CTest, 310/310 Python
+and Unreal source guard PASS. All 16 exact-head push/PR workflows reached success,
+including CodeQL. I2 below is VERIFYING its new exact-head CI.
 Base: `d9771a8da6611c9078dffb4aefeb4b62b1bac68c`.
 Contract: [R8_INPUT_CONTRACT.md](R8_INPUT_CONTRACT.md).
 Branch: `r8-input-infrastructure`.
@@ -43,3 +46,43 @@ targeted/full results must be read from the exact published commit, not inferred
 from local native checks. No real UE/UHT or Android success is implied.
 After exact-head CI terminal-success, next is **R8-I2 — Touch source wiring**.
 
+
+
+## R8-I2 — Touch layout/source wiring
+
+State: **VERIFYING**; exact published-head CI remains required.
+Base: `1d45a91d64adc60ff250da1f2e122ec385d15ae4`.
+
+The shared portable `RemasterTouchInput.h` implements all ten schema rectangles,
+bounded finger captures, half-open hit regions, pixel/safe-inset normalization,
+press/release/cancel, slide-out cancellation without retargeting, and monotonic
+epoch synchronization. Invalid/overlapping authoring overrides retain the prior
+validated layout. Touch configuration lives in a presentation InputConfig asset;
+it creates no Emerald save fields.
+
+The new UE InputSubsystem owns the same portable Router and Touch adapters.
+The production controller binds native touch press/move/release and forwards
+normalized events only through that endpoint. Existing keyboard/world handlers
+remain unchanged. No direct touch-to-core mutation or Blueprint gameplay shortcut
+was added. The endpoint is blocked until a native dispatch owner is attached;
+production UI/world/battle focus/owner attachment remains I4, physical mappings
+I3, lifecycle delegates I5 and common-held R9 repeat I6.
+
+`tests/r8_touch_input_test.cpp` was written first and strict compilation was RED
+because the touch header did not exist. A second targeted RED caught stale source
+epoch rollback destroying a current capture; Sync now rejects an older epoch.
+Strict compilation and **88/88 native checks** then passed, including all ten
+independent control centers, shared-router dispatch/release, duplicates, slide,
+finger bounds, malformed coordinates, safe-area extents, half-open edges, stale
+queued presses and atomic layout rejection. ASan/UBSan passed with leak detection
+disabled for the previously documented ptrace environment limitation.
+
+Local source checks verified native bindings, one shared router, explicit blocked/
+unsupported unattached endpoints and no touch-core mutation. CMake adds
+`r8_touch_source_capture`; hosted targeted/full CTest and full Python/source
+results must be read from the exact commit. No UHT/Unreal compile, rendered touch
+controls, cooked layout, automatic device safe-area query, UMG pointer propagation
+or Android runtime behavior is certified. These actual runtime obligations remain
+visible at the R18/real-runtime boundary.
+
+After I2 exact-head CI terminal-success, next: **R8-I3 — Gamepad/keyboard mappings**.

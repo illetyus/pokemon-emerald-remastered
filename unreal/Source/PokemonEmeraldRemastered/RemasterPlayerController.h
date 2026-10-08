@@ -65,4 +65,9 @@ private:
     void QuestFallback();
     void QuickItemFallback();
     bool RouteUI(ERemasterUiAction Action);
+    void TouchPressed(ETouchIndex::Type Finger, FVector Location);
+    void TouchMoved(ETouchIndex::Type Finger, FVector Location);
+    void TouchReleased(ETouchIndex::Type Finger, FVector Location);
+    FVector2D NormalizeTouch(FVector Location) const;
 };
+

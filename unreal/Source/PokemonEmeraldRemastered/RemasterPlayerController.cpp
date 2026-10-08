@@ -6,6 +6,7 @@
 #include "Engine/LocalPlayer.h"
 #include "InputCoreTypes.h"
 #include "RemasterInputConfig.h"
+#include "RemasterInputSubsystem.h"
 #include "RemasterUISubsystem.h"
 #include "RemasterOverworldPawn.h"
 
@@ -17,6 +18,20 @@ extern "C"
 void ARemasterPlayerController::BeginPlay()
 {
     Super::BeginPlay();
+
+    if (InputConfig && InputConfig->TouchRectangles.Num() > 0)
+    {
+        RemasterControls::Layout Layout;
+        bool bValid = InputConfig->TouchRectangles.Num() == 10;
+        if (bValid) for (int32 i = 0; i < 10; ++i)
+        {
+            const auto& Rect = InputConfig->TouchRectangles[i];
+            Layout.rects[i] = {Rect.X, Rect.Y, Rect.Z, Rect.W};
+        }
+        auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr;
+        if (!bValid || !Input || !Input->SetTouchLayout(Layout))
+            UE_LOG(LogTemp, Warning, TEXT("Invalid touch layout: retaining previous validated layout"));
+    }
 
     if (InputConfig)
     {
@@ -50,6 +65,14 @@ void ARemasterPlayerController::SetupInputComponent()
 
     if (!InputComponent)
         return;
+
+    if (!InputConfig || InputConfig->bTouchEnabled)
+    {
+        InputComponent->BindTouch(IE_Pressed, this, &ARemasterPlayerController::TouchPressed);
+        InputComponent->BindTouch(IE_Repeat, this, &ARemasterPlayerController::TouchMoved);
+        InputComponent->BindTouch(IE_Released, this, &ARemasterPlayerController::TouchReleased);
+        bEnableTouchEvents = true;
+    }
 
     bool MoveBound = false, InteractBound = false, CancelBound = false;
     bool MenuBound = false, MapBound = false, QuestBound = false, QuickBound = false;
@@ -269,3 +292,30 @@ void ARemasterPlayerController::MenuFallback() { RouteUI(ERemasterUiAction::Menu
 void ARemasterPlayerController::MapFallback() { RouteUI(ERemasterUiAction::Map); }
 void ARemasterPlayerController::QuestFallback() { RouteUI(ERemasterUiAction::Quest); }
 void ARemasterPlayerController::QuickItemFallback() { RouteUI(ERemasterUiAction::QuickItem); }
++
+FVector2D ARemasterPlayerController::NormalizeTouch(FVector Location) const
+{
+    int32 Width = 0, Height = 0;
+    GetViewportSize(Width, Height);
+    const FVector4 Inset = InputConfig ? InputConfig->TouchSafeInsets : FVector4(0,0,0,0);
+    const auto Point = RemasterControls::NormalizePixel(Location.X,Location.Y,Width,Height,
+        {Inset.X,Inset.Y,Inset.Z,Inset.W});
+    return Point.valid ? FVector2D(Point.x,Point.y) : FVector2D(-1,-1);
+}
+void ARemasterPlayerController::TouchPressed(ETouchIndex::Type Finger,FVector Location)
+{
+    if (auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
+        Input->TouchPressed(static_cast<int32>(Finger),NormalizeTouch(Location));
+}
+void ARemasterPlayerController::TouchMoved(ETouchIndex::Type Finger,FVector Location)
+{
+    if (auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
+        Input->TouchMoved(static_cast<int32>(Finger),NormalizeTouch(Location));
+}
+void ARemasterPlayerController::TouchReleased(ETouchIndex::Type Finger,FVector)
+{
+    if (auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
+        Input->TouchReleased(static_cast<int32>(Finger));
+}
+
+
