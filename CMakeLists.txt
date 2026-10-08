@@ -1103,3 +1103,14 @@ else()
 endif()
 add_test(NAME r8_touch_source_capture COMMAND r8_touch_input_test)
 
+add_executable(r8_physical_input_test tests/r8_physical_input_test.cpp)
+target_include_directories(r8_physical_input_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_physical_input_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_physical_input_test PRIVATE /W4)
+else()
+    target_compile_options(r8_physical_input_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_physical_sources COMMAND r8_physical_input_test)
+

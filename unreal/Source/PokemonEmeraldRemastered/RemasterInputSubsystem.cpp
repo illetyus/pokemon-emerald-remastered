@@ -3,6 +3,9 @@
 void URemasterInputSubsystem::Deinitialize()
 {
     ResetInputs();
+    Digital.Reset();
+    EnhancedAxis.Reset();
+    GamepadAxis.Reset();
     OnDispatch.Unbind();
     Super::Deinitialize();
 }
@@ -36,6 +39,20 @@ RemasterControls::Status URemasterInputSubsystem::SubmitEvent(const RemasterCont
         return RemasterControls::Status::Unsupported;
     }
     return Result.status;
+}
+RemasterControls::Status URemasterInputSubsystem::SubmitPhysical(RemasterControls::Source Source,
+    uint16 Control,RemasterControls::Action Action,RemasterControls::Phase Phase)
+{
+    const auto Packet=Digital.Process(Source,0,Control,Action,Phase,Common.Epoch());
+    return Packet.hasEvent ? SubmitEvent(Packet.event) : Packet.status;
+}
+RemasterControls::Status URemasterInputSubsystem::SubmitAxis(FVector2D Axis,bool bGamepad)
+{
+    auto& Adapter=bGamepad ? GamepadAxis : EnhancedAxis;
+    const auto Batch=Adapter.Process(Axis.X,Axis.Y,Common.Epoch());
+    auto Status=Batch.status;
+    for(unsigned i=0;i<Batch.count;++i) Status=SubmitEvent(Batch.events[i]);
+    return Batch.status==RemasterControls::Status::Invalid ? Batch.status : Status;
 }
 RemasterControls::Status URemasterInputSubsystem::SubmitTouch(
     const RemasterControls::TouchPacket& Packet)

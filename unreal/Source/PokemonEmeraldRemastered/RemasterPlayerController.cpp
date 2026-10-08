@@ -2,6 +2,9 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "InputAction.h"
+#include "InputMappingContext.h"
+#include "Components/InputComponent.h"
 #include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
 #include "InputCoreTypes.h"
@@ -77,88 +80,100 @@ void ARemasterPlayerController::SetupInputComponent()
     bool MoveBound = false, InteractBound = false, CancelBound = false;
     bool MenuBound = false, MapBound = false, QuestBound = false, QuickBound = false;
     auto* Enhanced = Cast<UEnhancedInputComponent>(InputComponent);
-    if (Enhanced && InputConfig && InputConfig->MappingContext.LoadSynchronous())
+    TSet<UInputAction*> BoundActions;
+    UInputMappingContext* Mapping = InputConfig ? InputConfig->MappingContext.LoadSynchronous() : nullptr;
+    auto IsMapped = [Mapping](UInputAction* Action)
+    {
+        if (!Mapping || !Action) return false;
+        for (const auto& Entry : Mapping->GetMappings())
+            if (Entry.Action == Action) return true;
+        return false;
+    };
+    if (Enhanced && InputConfig && Mapping)
     {
         if (UInputAction* Action = InputConfig->Move.LoadSynchronous())
         {
-            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleMove);
-            MoveBound = true;
+            if (Action->ValueType == EInputActionValueType::Axis2D && IsMapped(Action))
+            {
+                Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleMove);
+                Enhanced->BindAction(Action, ETriggerEvent::Triggered, this, &ARemasterPlayerController::HandleMove);
+                Enhanced->BindAction(Action, ETriggerEvent::Completed, this, &ARemasterPlayerController::HandleMoveReleased);
+                Enhanced->BindAction(Action, ETriggerEvent::Canceled, this, &ARemasterPlayerController::HandleMoveReleased);
+                BoundActions.Add(Action);
+                MoveBound = true;
+            }
         }
-        if (UInputAction* Action = InputConfig->Interact.LoadSynchronous())
+        auto BindButton = [this, Enhanced, &BoundActions, &IsMapped](UInputAction* Action, RemasterControls::Action Semantic)
         {
-            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleInteract);
-            InteractBound = true;
-        }
-        if (UInputAction* Action = InputConfig->Cancel.LoadSynchronous())
-        {
-            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleCancel);
-            CancelBound = true;
-        }
-        if (UInputAction* Action = InputConfig->Menu.LoadSynchronous())
-        {
-            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleMenu);
-            MenuBound = true;
-        }
-        if (UInputAction* Action = InputConfig->Map.LoadSynchronous())
-        {
-            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleMap);
-            MapBound = true;
-        }
-        if (UInputAction* Action = InputConfig->Quest.LoadSynchronous())
-        {
-            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleQuest);
-            QuestBound = true;
-        }
-        if (UInputAction* Action = InputConfig->QuickItem.LoadSynchronous())
-        {
-            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleQuickItem);
-            QuickBound = true;
-        }
+            if (!Action || Action->ValueType != EInputActionValueType::Boolean
+                || !IsMapped(Action) || BoundActions.Contains(Action))
+                return false;
+            Enhanced->BindAction(Action, ETriggerEvent::Started, this, &ARemasterPlayerController::HandleButton,
+                Semantic, RemasterControls::Phase::Pressed);
+            Enhanced->BindAction(Action, ETriggerEvent::Completed, this, &ARemasterPlayerController::HandleButton,
+                Semantic, RemasterControls::Phase::Released);
+            Enhanced->BindAction(Action, ETriggerEvent::Canceled, this, &ARemasterPlayerController::HandleButton,
+                Semantic, RemasterControls::Phase::Canceled);
+            BoundActions.Add(Action);
+            return true;
+        };
+        InteractBound = BindButton(InputConfig->Interact.LoadSynchronous(), RemasterControls::Action::Confirm);
+        CancelBound = BindButton(InputConfig->Cancel.LoadSynchronous(), RemasterControls::Action::Cancel);
+        MenuBound = BindButton(InputConfig->Menu.LoadSynchronous(), RemasterControls::Action::Menu);
+        MapBound = BindButton(InputConfig->Map.LoadSynchronous(), RemasterControls::Action::Map);
+        QuestBound = BindButton(InputConfig->Quest.LoadSynchronous(), RemasterControls::Action::Quest);
+        QuickBound = BindButton(InputConfig->QuickItem.LoadSynchronous(), RemasterControls::Action::QuickItem);
     }
     if (!MoveBound)
     {
-        InputComponent->BindKey(EKeys::Up, IE_Pressed, this, &ARemasterPlayerController::StepUp);
-        InputComponent->BindKey(EKeys::W, IE_Pressed, this, &ARemasterPlayerController::StepUp);
-        InputComponent->BindKey(EKeys::Gamepad_DPad_Up, IE_Pressed, this, &ARemasterPlayerController::StepUp);
-        InputComponent->BindKey(EKeys::Down, IE_Pressed, this, &ARemasterPlayerController::StepDown);
-        InputComponent->BindKey(EKeys::S, IE_Pressed, this, &ARemasterPlayerController::StepDown);
-        InputComponent->BindKey(EKeys::Gamepad_DPad_Down, IE_Pressed, this, &ARemasterPlayerController::StepDown);
-        InputComponent->BindKey(EKeys::Left, IE_Pressed, this, &ARemasterPlayerController::StepLeft);
-        InputComponent->BindKey(EKeys::A, IE_Pressed, this, &ARemasterPlayerController::StepLeft);
-        InputComponent->BindKey(EKeys::Gamepad_DPad_Left, IE_Pressed, this, &ARemasterPlayerController::StepLeft);
-        InputComponent->BindKey(EKeys::Right, IE_Pressed, this, &ARemasterPlayerController::StepRight);
-        InputComponent->BindKey(EKeys::D, IE_Pressed, this, &ARemasterPlayerController::StepRight);
-        InputComponent->BindKey(EKeys::Gamepad_DPad_Right, IE_Pressed, this, &ARemasterPlayerController::StepRight);
+        BindNativeAction(RemasterControls::Action::Up);
+        BindNativeAction(RemasterControls::Action::Down);
+        BindNativeAction(RemasterControls::Action::Left);
+        BindNativeAction(RemasterControls::Action::Right);
     }
-    if (!InteractBound)
+    if (!InteractBound) BindNativeAction(RemasterControls::Action::Confirm);
+    if (!CancelBound) BindNativeAction(RemasterControls::Action::Cancel);
+    if (!MenuBound) BindNativeAction(RemasterControls::Action::Menu);
+    if (!MapBound) BindNativeAction(RemasterControls::Action::Map);
+    if (!QuestBound) BindNativeAction(RemasterControls::Action::Quest);
+    if (!QuickBound) BindNativeAction(RemasterControls::Action::QuickItem);
+    bNativeGamepadAxis = !MoveBound;
+}
+
+void ARemasterPlayerController::BindNativeAction(RemasterControls::Action Action)
+{
+    for (const auto& Binding : RemasterControls::Bindings)
     {
-        InputComponent->BindKey(EKeys::Enter, IE_Pressed, this, &ARemasterPlayerController::InteractFallback);
-        InputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &ARemasterPlayerController::InteractFallback);
-        InputComponent->BindKey(EKeys::Gamepad_FaceButton_Bottom, IE_Pressed, this, &ARemasterPlayerController::InteractFallback);
+        if (Binding.action != Action) continue;
+        const FKey Key(FName(UTF8_TO_TCHAR(Binding.engineKey)));
+        for (EInputEvent Event : {IE_Pressed, IE_Released})
+        {
+            FInputKeyBinding Native(FInputChord(Key), Event);
+            Native.KeyDelegate.GetDelegateForManualSet().BindUObject(this,
+                &ARemasterPlayerController::PhysicalInput, Binding.source, Binding.control, Action,
+                Event == IE_Pressed ? RemasterControls::Phase::Pressed : RemasterControls::Phase::Released);
+            InputComponent->KeyBindings.Add(MoveTemp(Native));
+        }
     }
-    if (!CancelBound)
-    {
-        InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &ARemasterPlayerController::CancelFallback);
-        InputComponent->BindKey(EKeys::Gamepad_FaceButton_Right, IE_Pressed, this, &ARemasterPlayerController::CancelFallback);
-    }
-    if (!MenuBound)
-    {
-        InputComponent->BindKey(EKeys::Tab, IE_Pressed, this, &ARemasterPlayerController::MenuFallback);
-        InputComponent->BindKey(EKeys::Gamepad_Special_Right, IE_Pressed, this, &ARemasterPlayerController::MenuFallback);
-    }
-    if (!MapBound)
-    {
-        InputComponent->BindKey(EKeys::M, IE_Pressed, this, &ARemasterPlayerController::MapFallback);
-    }
-    if (!QuestBound)
-    {
-        InputComponent->BindKey(EKeys::Q, IE_Pressed, this, &ARemasterPlayerController::QuestFallback);
-    }
-    if (!QuickBound)
-    {
-        InputComponent->BindKey(EKeys::R, IE_Pressed, this, &ARemasterPlayerController::QuickItemFallback);
-        InputComponent->BindKey(EKeys::Gamepad_FaceButton_Top, IE_Pressed, this, &ARemasterPlayerController::QuickItemFallback);
-    }
+}
+void ARemasterPlayerController::PhysicalInput(RemasterControls::Source Source,uint16 Control,
+    RemasterControls::Action Action,RemasterControls::Phase Phase)
+{
+    if (auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
+        Input->SubmitPhysical(Source, Control, Action, Phase);
+}
+void ARemasterPlayerController::HandleButton(const FInputActionValue&,
+    RemasterControls::Action Action,RemasterControls::Phase Phase)
+{
+    PhysicalInput(RemasterControls::Source::Enhanced,32+static_cast<uint16>(Action),Action,Phase);
+}
+void ARemasterPlayerController::PlayerTick(float DeltaTime)
+{
+    Super::PlayerTick(DeltaTime);
+    if (bNativeGamepadAxis)
+        if (auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
+            Input->SubmitAxis(FVector2D(GetInputAnalogKeyState(EKeys::Gamepad_LeftX),
+                GetInputAnalogKeyState(EKeys::Gamepad_LeftY)), true);
 }
 
 void ARemasterPlayerController::StepDirection(int32 Direction)
@@ -199,25 +214,15 @@ void ARemasterPlayerController::StepDirection(int32 Direction)
     BP_OnWorldStep(Result);
 }
 
-void ARemasterPlayerController::HandleMove(
-    const FInputActionValue& Value)
+void ARemasterPlayerController::HandleMove(const FInputActionValue& Value)
 {
-    const FVector2D Axis = Value.Get<FVector2D>();
-
-    if (FMath::Abs(Axis.X) > FMath::Abs(Axis.Y))
-    {
-        if (Axis.X > 0.0f)
-            StepDirection(REMASTER_EMERALD_DIR_EAST);
-        else if (Axis.X < 0.0f)
-            StepDirection(REMASTER_EMERALD_DIR_WEST);
-    }
-    else
-    {
-        if (Axis.Y > 0.0f)
-            StepDirection(REMASTER_EMERALD_DIR_NORTH);
-        else if (Axis.Y < 0.0f)
-            StepDirection(REMASTER_EMERALD_DIR_SOUTH);
-    }
+    if (auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
+        Input->SubmitAxis(Value.Get<FVector2D>());
+}
+void ARemasterPlayerController::HandleMoveReleased(const FInputActionValue&)
+{
+    if (auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
+        Input->SubmitAxis(FVector2D::ZeroVector);
 }
 
 void ARemasterPlayerController::HandleInteract(
@@ -292,7 +297,7 @@ void ARemasterPlayerController::MenuFallback() { RouteUI(ERemasterUiAction::Menu
 void ARemasterPlayerController::MapFallback() { RouteUI(ERemasterUiAction::Map); }
 void ARemasterPlayerController::QuestFallback() { RouteUI(ERemasterUiAction::Quest); }
 void ARemasterPlayerController::QuickItemFallback() { RouteUI(ERemasterUiAction::QuickItem); }
-+
+
 FVector2D ARemasterPlayerController::NormalizeTouch(FVector Location) const
 {
     int32 Width = 0, Height = 0;

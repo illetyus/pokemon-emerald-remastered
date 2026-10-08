@@ -4,6 +4,7 @@
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
 #include "RemasterWorldGameplaySubsystem.h"
+#include "RemasterPhysicalInput.h"
 #include "RemasterPlayerController.generated.h"
 
 class URemasterInputConfig;
@@ -18,6 +19,7 @@ class POKEMONEMERALDREMASTERED_API ARemasterPlayerController
 public:
     virtual void BeginPlay() override;
     virtual void SetupInputComponent() override;
+    virtual void PlayerTick(float DeltaTime) override;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Remaster|Input")
@@ -46,6 +48,13 @@ protected:
 
 private:
     void HandleMove(const FInputActionValue& Value);
+    void HandleMoveReleased(const FInputActionValue& Value);
+    void HandleButton(const FInputActionValue& Value,RemasterControls::Action Action,
+        RemasterControls::Phase Phase);
+    void BindNativeAction(RemasterControls::Action Action);
+    void PhysicalInput(RemasterControls::Source Source,uint16 Control,
+        RemasterControls::Action Action,RemasterControls::Phase Phase);
+    bool bNativeGamepadAxis = false;
     void HandleInteract(const FInputActionValue& Value);
     void HandleCancel(const FInputActionValue& Value);
     void HandleMenu(const FInputActionValue& Value);

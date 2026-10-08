@@ -948,10 +948,12 @@ This is a policy/doc checkpoint; no input/gameplay behavior changes.
 R8-P2 is versioned at `d9771a8d`; I1 is VERIFIED_COMPLETE at `1d45a91d`.
 Workflow 37817943261 passed targeted 1/1 and full 68/68 CTest, 310/310 Python
 and source guards; all 16 exact-head workflows including CodeQL passed.
-Current implementation checkpoint: **R8-I2 — Touch source wiring**, VERIFYING
+R8-I2 is VERIFIED_COMPLETE at `c18d820c`; workflow 37846220404 passed targeted
+2/2 and full 69/69 CTest, 310/310 Python/source checks; all 16 workflows passed.
+Current implementation checkpoint: **R8-I3 — Gamepad/keyboard mappings**, VERIFYING
 exact published-head CI. [Actual RED/native/source evidence](R8_INPUT_IMPLEMENTATION.md)
-records 88 local touch checks and explicit pending owner/device boundaries.
-After CI terminal-success, next: **R8-I3 — Gamepad/keyboard mappings**.
+records 218 local physical checks and 3/3 schema tests, with owner/device gaps explicit.
+After targeted/full CI succeeds, next: **R8-I4 — UI/gameplay focus routing**.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,
 R20 and R18; stop at the actual environment/runtime boundary. All deferred

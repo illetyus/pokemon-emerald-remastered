@@ -3,7 +3,7 @@
 I1 state: **VERIFIED_COMPLETE** at `1d45a91d64adc60ff250da1f2e122ec385d15ae4`.
 Workflow 37817943261: targeted 1/1 R8 CTest, full 68/68 CTest, 310/310 Python
 and Unreal source guard PASS. All 16 exact-head push/PR workflows reached success,
-including CodeQL. I2 below is VERIFYING its new exact-head CI.
+including CodeQL. I2 below is also VERIFIED_COMPLETE.
 Base: `d9771a8da6611c9078dffb4aefeb4b62b1bac68c`.
 Contract: [R8_INPUT_CONTRACT.md](R8_INPUT_CONTRACT.md).
 Branch: `r8-input-infrastructure`.
@@ -50,7 +50,9 @@ After exact-head CI terminal-success, next is **R8-I2 — Touch source wiring**.
 
 ## R8-I2 — Touch layout/source wiring
 
-State: **VERIFYING**; exact published-head CI remains required.
+State: **VERIFIED_COMPLETE** at `c18d820c4e34caa3b35a94c82595e1cc161f10f1`.
+Workflow 37846220404 passed targeted 2/2 CTest, full 69/69 CTest, 310/310 Python
+and Unreal source guards. All 16 exact-head workflows, including CodeQL, succeeded.
 Base: `1d45a91d64adc60ff250da1f2e122ec385d15ae4`.
 
 The shared portable `RemasterTouchInput.h` implements all ten schema rectangles,
@@ -86,3 +88,42 @@ or Android runtime behavior is certified. These actual runtime obligations remai
 visible at the R18/real-runtime boundary.
 
 After I2 exact-head CI terminal-success, next: **R8-I3 — Gamepad/keyboard mappings**.
+
+
+## R8-I3 — Gamepad/keyboard mappings
+
+State: **VERIFYING**; exact published-head hosted CI is required.
+Base: `c18d820c4e34caa3b35a94c82595e1cc161f10f1`.
+
+Regression files were created first; strict compilation was RED because the
+physical adapter header did not exist. `RemasterPhysicalInput.h` now provides
+25 schema-pinned native keyboard/gamepad bindings, captured digital press epochs
+and independent Enhanced/gamepad analog adapters. Focus resets retain physical
+press tombstones until release or neutral, preventing held sources from issuing
+a fresh command after an owner switch. Axis changes release before pressing;
+Triggered callbacks in the same direction do not generate world repetition.
+
+Strict C++17 compilation and **218/218 native checks** passed. ASan/UBSan passed
+with leak detection disabled for the documented instrumentation limitation.
+**3/3 Python tests** compare compiled bindings with the frozen JSON contract,
+check actual gamepad engine-key identities and execute edge/epoch/axis regressions.
+The new CMake target is `r8_physical_input_test`, CTest `r8_physical_sources`.
+
+Production native bindings now deliver both press and release through the shared
+subsystem, including Map/Quest shoulder buttons. Enhanced actions require the
+correct value type, an actual mapping-context entry and a unique action asset.
+Invalid or absent actions retain their semantic native fallback. Enhanced buttons
+use Started/Completed/Canceled; the 2D axis also accepts Triggered but deduplicates
+held direction. The fallback gamepad stick samples its paired axes once per tick.
+A stray standalone `+` in the previous controller source was removed; existing
+source validators had not established real C++/Unreal compilation for that file.
+
+No input path is attached to gameplay yet: I4 must install the native owner and
+refresh UI/world/script/battle context before dispatch. I5 lifecycle reset and I6
+R9 repeat remain open. Legacy unbound controller handlers will be reconciled with
+owner routing in I4. The local partial snapshot cannot run the full R9 suite or
+Unreal source guard (missing dependent repository files); hosted exact-head checks
+remain required. No UE/UHT build, device bindings, cooked Enhanced assets or
+Android execution is certified.
+
+After I3 targeted/full hosted CI passes, next: **R8-I4 — UI/gameplay focus routing**.

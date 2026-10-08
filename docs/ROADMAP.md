@@ -940,9 +940,11 @@ The verified dependent phases then integrated through PR #17/#18/#19/#20/#21
 and terminal-success main CI in order. R8-P1 is versioned at `261cef11`. R8-P2 freezes the platform/lifecycle
 schema in [R8_INPUT_CONTRACT.md](R8_INPUT_CONTRACT.md) and
 `data/r8/input_contract.json`; R8-I1 is VERIFIED_COMPLETE at `1d45a91d` (workflow 37817943261: 1/68/310 PASS).
-Current implementation checkpoint is **R8-I2 — Touch source wiring**,
+R8-I2 is VERIFIED_COMPLETE at `c18d820c` (workflow 37846220404: 2/69/310 PASS;
+all 16 exact-head workflows including CodeQL succeeded).
+Current implementation checkpoint is **R8-I3 — Gamepad/keyboard mappings**,
 VERIFYING exact-head CI. Evidence: [R8_INPUT_IMPLEMENTATION.md](R8_INPUT_IMPLEMENTATION.md).
-After CI terminal-success, next is **R8-I3 — Gamepad/keyboard mappings**.
+After targeted/full CI succeeds, next is **R8-I4 — UI/gameplay focus routing**.
 No actual runtime/local asset obligation was closed by these source merges.
 
 Real Unreal build remains R18 work. After R18 main verification, stop at
