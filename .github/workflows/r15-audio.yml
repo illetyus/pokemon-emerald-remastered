@@ -27,7 +27,9 @@ jobs:
       - name: All Python regressions including R10 R11 R16 R17
         run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Exact pinned-source audio audit
-        run: python tools/build_r15_audio_catalog.py --check
+        run: |
+          python tools/build_r15_audio_catalog.py --check
+          python tools/build_r15_cry_modes.py --check
       - name: Unreal authority source guards
         run: python tools/validate_unreal_source.py
 

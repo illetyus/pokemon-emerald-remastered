@@ -138,4 +138,4 @@ BrowserStack real-device smoke stage.
 A future self-hosted runner, if used at all, must never execute untrusted public
 fork PR code with host or secret access.
 
-R15 audio preparation, selected modern style and 386 normal cries: [status and open gates](docs/R15_AUDIO_PREPARATION.md). R15 is not yet complete.
+R15 audio preparation: selected modern style, 386 normal cries and 4,632 special-mode candidates. [Status and open gates](docs/R15_AUDIO_PREPARATION.md). Special-mode listening/hardware comparison and other R15 gates remain open.

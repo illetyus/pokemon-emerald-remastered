@@ -25,6 +25,9 @@ def validate(manifest, root):
     entries=manifest.get('entries')
     if not isinstance(entries,list) or len(entries)>10000: raise ValueError('invalid entry count')
     source=json.loads((Path(__file__).resolve().parents[1]/'data/r15/source_audio_catalog.json').read_text())
+    recipe_path=Path(__file__).resolve().parents[1]/'data/r15/cry_mode_recipes.json'
+    recipe_sha=hashlib.sha256(recipe_path.read_bytes()).hexdigest() if recipe_path.is_file() else None
+    by_id={e.get('identity'):e for e in entries}
     required={s['identity'] for s in source['songs'] if s['source_id']!=0}
     required.update(c['identity']+f'.mode.{m}' for c in source['cries'] for m in range(13))
     seen=set();result=[]
@@ -61,6 +64,22 @@ def validate(manifest, root):
         provenance=e.get('provenance',{})
         if not all(isinstance(provenance.get(k),str) and provenance[k] for k in ['repository','commit','source_path','source_sha256','rights']): raise ValueError('incomplete provenance')
         if not re.fullmatch('[0-9a-f]{40}',provenance['commit']) or not re.fullmatch('[0-9a-f]{64}',provenance['source_sha256']): raise ValueError('invalid provenance hashes')
+        cry=re.fullmatch(r'cry\.(\d+)\.mode\.(\d+)',key)
+        if manifest['profile']=='modern' and cry and int(cry[2])>0:
+            processing=e.get('processing',{})
+            base=by_id.get(f'cry.{cry[1]}.mode.0',{})
+            guard=processing.get('peak_guard_gain')
+            if (processing.get('kind')!='authored_modern_special_candidate'
+                    or type(processing.get('mode')) is not int or processing['mode']!=int(cry[2])
+                    or processing.get('recipe_sha256')!=recipe_sha or recipe_sha is None
+                    or processing.get('source_parameter_pin')!=source['source_pin']
+                    or processing.get('hardware_audio_equivalence_verified') is not False
+                    or base.get('status')!='candidate'
+                    or processing.get('base_normal_sha256')!=base.get('sha256')
+                    or isinstance(guard,bool) or not isinstance(guard,(int,float))
+                    or not math.isfinite(guard) or not 0<guard<=1):
+                raise ValueError('unverified/mismatched authored special-mode processing')
+            if loop is not None:raise ValueError('authored special cry cannot invent a loop')
         result.append({'identity':key,'status':'local_pcm_probe_pass','frames':frames,
                        'decoded_bytes':frames*channels*2,'unreal_import_validated':False})
     return {'schema':'r15-local-probe-v1','profile':manifest['profile'],'entries':result,

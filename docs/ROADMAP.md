@@ -526,8 +526,9 @@ silently ignored.
 ## R15 — Audio
 
 Preparation/pilot status: [R15_AUDIO_PREPARATION.md](R15_AUDIO_PREPARATION.md).
-Modern style selected after the 12-species pilot; the 386 normal-cry expansion
-is prepared. Special cry modes, music/FX and runtime gates remain open.
+Modern style selected after the 12-species pilot; 386 normal cries and 4,632
+special-mode candidates are prepared. Special-mode listening/hardware comparison,
+music/FX and runtime gates remain open.
 
 ### Goal
 

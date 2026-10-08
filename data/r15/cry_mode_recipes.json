@@ -1,0 +1,346 @@
+{
+  "clock": {
+    "cycles_per_frame": 280896,
+    "cycles_per_second": 16777216,
+    "default_mplay_tempo": 150,
+    "tick_per_frame": 1
+  },
+  "hardware_audio_equivalence_verified": false,
+  "individual_listening_verified": false,
+  "modes": [
+    {
+      "gate_seconds": 2.3439788818359375,
+      "id": 0,
+      "relative_volume": 1.0,
+      "source_parameters": {
+        "chorus": 0,
+        "length": 140,
+        "pitch": 15360,
+        "release": 0,
+        "reverse": false,
+        "volume": 120
+      },
+      "source_symbol": "CRY_MODE_NORMAL",
+      "tracks": [
+        {
+          "fine_256": 0,
+          "midi_key": 60,
+          "relative_rate": 1.0,
+          "render_input_rate": 48000
+        }
+      ]
+    },
+    {
+      "gate_seconds": 0.3348541259765625,
+      "id": 1,
+      "relative_volume": 1.0,
+      "source_parameters": {
+        "chorus": 0,
+        "length": 20,
+        "pitch": 15360,
+        "release": 225,
+        "reverse": false,
+        "volume": 120
+      },
+      "source_symbol": "CRY_MODE_DOUBLES",
+      "tracks": [
+        {
+          "fine_256": 0,
+          "midi_key": 60,
+          "relative_rate": 1.0,
+          "render_input_rate": 48000
+        }
+      ]
+    },
+    {
+      "gate_seconds": 2.3439788818359375,
+      "id": 2,
+      "relative_volume": 0.75,
+      "source_parameters": {
+        "chorus": 20,
+        "length": 140,
+        "pitch": 15600,
+        "release": 225,
+        "reverse": false,
+        "volume": 90
+      },
+      "source_symbol": "CRY_MODE_ENCOUNTER",
+      "tracks": [
+        {
+          "fine_256": 224,
+          "midi_key": 60,
+          "relative_rate": 1.052030086517334,
+          "render_input_rate": 50497
+        },
+        {
+          "fine_256": 48,
+          "midi_key": 61,
+          "relative_rate": 1.071275234222412,
+          "render_input_rate": 51421
+        }
+      ]
+    },
+    {
+      "gate_seconds": 0.8371353149414062,
+      "id": 3,
+      "relative_volume": 0.75,
+      "source_parameters": {
+        "chorus": 20,
+        "length": 50,
+        "pitch": 15800,
+        "release": 200,
+        "reverse": false,
+        "volume": 90
+      },
+      "source_symbol": "CRY_MODE_HIGH_PITCH",
+      "tracks": [
+        {
+          "fine_256": 112,
+          "midi_key": 61,
+          "relative_rate": 1.0870249271392822,
+          "render_input_rate": 52177
+        },
+        {
+          "fine_256": 192,
+          "midi_key": 61,
+          "relative_rate": 1.1067121028900146,
+          "render_input_rate": 53122
+        }
+      ]
+    },
+    {
+      "gate_seconds": 0.4185676574707031,
+      "id": 4,
+      "relative_volume": 0.75,
+      "source_parameters": {
+        "chorus": 192,
+        "length": 25,
+        "pitch": 15600,
+        "release": 100,
+        "reverse": true,
+        "volume": 90
+      },
+      "source_symbol": "CRY_MODE_ECHO_START",
+      "tracks": [
+        {
+          "fine_256": 224,
+          "midi_key": 60,
+          "relative_rate": 1.052030086517334,
+          "render_input_rate": 50497
+        },
+        {
+          "fine_256": 224,
+          "midi_key": 61,
+          "relative_rate": 1.1145870685577393,
+          "render_input_rate": 53500
+        }
+      ]
+    },
+    {
+      "gate_seconds": 2.3439788818359375,
+      "id": 5,
+      "relative_volume": 1.0,
+      "source_parameters": {
+        "chorus": 0,
+        "length": 140,
+        "pitch": 14440,
+        "release": 200,
+        "reverse": false,
+        "volume": 120
+      },
+      "source_symbol": "CRY_MODE_FAINT",
+      "tracks": [
+        {
+          "fine_256": 208,
+          "midi_key": 56,
+          "relative_rate": 0.8320469856262207,
+          "render_input_rate": 39938
+        }
+      ]
+    },
+    {
+      "gate_seconds": 2.3439788818359375,
+      "id": 6,
+      "relative_volume": 0.5833333333333334,
+      "source_parameters": {
+        "chorus": 192,
+        "length": 140,
+        "pitch": 15555,
+        "release": 220,
+        "reverse": false,
+        "volume": 70
+      },
+      "source_symbol": "CRY_MODE_ECHO_END",
+      "tracks": [
+        {
+          "fine_256": 132,
+          "midi_key": 60,
+          "relative_rate": 1.0306603908538818,
+          "render_input_rate": 49472
+        },
+        {
+          "fine_256": 132,
+          "midi_key": 61,
+          "relative_rate": 1.0919468402862549,
+          "render_input_rate": 52413
+        }
+      ]
+    },
+    {
+      "gate_seconds": 0.16742706298828125,
+      "id": 7,
+      "relative_volume": 1.0,
+      "source_parameters": {
+        "chorus": 0,
+        "length": 10,
+        "pitch": 14848,
+        "release": 100,
+        "reverse": false,
+        "volume": 120
+      },
+      "source_symbol": "CRY_MODE_ROAR_1",
+      "tracks": [
+        {
+          "fine_256": 0,
+          "midi_key": 58,
+          "relative_rate": 0.8908987045288086,
+          "render_input_rate": 42763
+        }
+      ]
+    },
+    {
+      "gate_seconds": 1.0045623779296875,
+      "id": 8,
+      "relative_volume": 1.0,
+      "source_parameters": {
+        "chorus": 0,
+        "length": 60,
+        "pitch": 15616,
+        "release": 225,
+        "reverse": false,
+        "volume": 120
+      },
+      "source_symbol": "CRY_MODE_ROAR_2",
+      "tracks": [
+        {
+          "fine_256": 0,
+          "midi_key": 61,
+          "relative_rate": 1.0594630241394043,
+          "render_input_rate": 50854
+        }
+      ]
+    },
+    {
+      "gate_seconds": 0.2511405944824219,
+      "id": 9,
+      "relative_volume": 1.0,
+      "source_parameters": {
+        "chorus": 0,
+        "length": 15,
+        "pitch": 15200,
+        "release": 125,
+        "reverse": true,
+        "volume": 120
+      },
+      "source_symbol": "CRY_MODE_GROWL_1",
+      "tracks": [
+        {
+          "fine_256": 192,
+          "midi_key": 59,
+          "relative_rate": 0.9859683513641357,
+          "render_input_rate": 47326
+        }
+      ]
+    },
+    {
+      "gate_seconds": 1.6742706298828125,
+      "id": 10,
+      "relative_volume": 1.0,
+      "source_parameters": {
+        "chorus": 0,
+        "length": 100,
+        "pitch": 15200,
+        "release": 225,
+        "reverse": false,
+        "volume": 120
+      },
+      "source_symbol": "CRY_MODE_GROWL_2",
+      "tracks": [
+        {
+          "fine_256": 192,
+          "midi_key": 59,
+          "relative_rate": 0.9859683513641357,
+          "render_input_rate": 47326
+        }
+      ]
+    },
+    {
+      "gate_seconds": 2.3439788818359375,
+      "id": 11,
+      "relative_volume": 1.0,
+      "source_parameters": {
+        "chorus": 0,
+        "length": 140,
+        "pitch": 15000,
+        "release": 0,
+        "reverse": false,
+        "volume": 120
+      },
+      "source_symbol": "CRY_MODE_WEAK",
+      "tracks": [
+        {
+          "fine_256": 48,
+          "midi_key": 58,
+          "relative_rate": 0.9008314609527588,
+          "render_input_rate": 43240
+        }
+      ]
+    },
+    {
+      "gate_seconds": 0.3348541259765625,
+      "id": 12,
+      "relative_volume": 1.0,
+      "source_parameters": {
+        "chorus": 0,
+        "length": 20,
+        "pitch": 15000,
+        "release": 225,
+        "reverse": false,
+        "volume": 120
+      },
+      "source_symbol": "CRY_MODE_WEAK_DOUBLES",
+      "tracks": [
+        {
+          "fine_256": 48,
+          "midi_key": 58,
+          "relative_rate": 0.9008314609527588,
+          "render_input_rate": 43240
+        }
+      ]
+    }
+  ],
+  "render_policy": {
+    "boundaries": "modern sample length may end before source gate; no looping or padding to invent a cry",
+    "chorus": "two simultaneous source-tuned tracks; signed conversion and 7-bit wrap retained",
+    "headroom": "fixed 0.5 before each resampler; restore in wide accumulation; attenuation only if mixed peak exceeds -3dBFS",
+    "kind": "source_parameter_derived_authored_modern_candidate",
+    "level": "source volume ratio retained; do not normalize each mode back to equal RMS",
+    "limitations": "not the GBA compressed decoder, integer mixer, reverb or frame-phase output; emulator A/B and listening remain required",
+    "pitch": "source integer MIDI frequency tables, rounded asetrate then SWR 48k; speed changes with pitch",
+    "release": "255-level recurrence (level * release) >> 8 per GBA frame after note gate; interpolate gain over each frame to avoid steps",
+    "reverse": "reverse modern decoded sample before resampling, no invented echo delay"
+  },
+  "schema": "r15-cry-mode-recipes-v1",
+  "source_hashes": {
+    "asm/macros/music_voice.inc": "71d50496d8baa86e04139d3e0a39ef3a42232093862fb4db0f3540b78db28f55",
+    "include/constants/sound.h": "c05fa451ca6ec2bea690b592e91271e4e1b90f694f138768f8486d75e6eab9dc",
+    "sound/cry_tables.inc": "18210b001e842eb70a9f3b92834007f9434e332b7f0df0c32ed0de4305f47e3a",
+    "src/m4a.c": "4e8c102c2ea5930902efa671c1952f8773857c6d380712dc29e3ebb2ccb8470a",
+    "src/m4a_1.s": "bb1fbbc122414b5968e16101a4bd2638ad5719fa70e1291f62173b74ef5035c1",
+    "src/m4a_tables.c": "abe373a2fa255379b1ba4d4b36e38d8c0021008eb400a5cc88609eefdce299e4",
+    "src/sound.c": "225c85492d7e35f3bbe61e80b4848dcdc2730b956cc84e43e44d6e7a5cf26490"
+  },
+  "source_parameter_oracle": "test_r15_special_cries compiles pinned PlayCryInternal/setters/TrkVolPitSet/MidiKeyToFreq and compares all 13 modes",
+  "source_pin": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+  "unreal_import_validated": false
+}

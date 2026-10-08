@@ -408,8 +408,8 @@ Main HEAD + CI terminal-success. Pass -> R15-P1.
 # R15 — Audio
 
 Current preparation/pilot evidence: [R15_AUDIO_PREPARATION.md](R15_AUDIO_PREPARATION.md).
-P1/P2 and pilot prepared; modern style selected and the 386 normal-cry pack is
-prepared. R15 completion still requires other assets, cry-mode processing,
+P1/P2 and pilot prepared; modern style selected, 386 normal cries and 4,632 special
+mode candidates prepared. R15 completion still requires other assets, special-mode fidelity/listening,
 host attachment and actual engine/device tests.
 
 ### R15-P1 — Semantic audio inventory

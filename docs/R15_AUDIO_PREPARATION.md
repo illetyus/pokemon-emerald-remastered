@@ -3,9 +3,9 @@
 Status: P1 inventory and P2 source/payload contract implemented. A 12-species
 listening pilot and presentation resolver/settings/lifecycle scaffolding exist.
 **R15 is not complete.** The modern direction was selected after the pilot.
-The 386 normal-cry pack is prepared; remaining work includes
-rendered music/FX, cry-mode processing, real host/platform attachment and Unreal /
-Android validation remain open. No merge to main is authorized by this step.
+The 386 normal cries and 4,632 special-mode candidates are prepared. Music/FX,
+special-mode listening and hardware comparison, real host/platform attachment
+and Unreal / Android validation remain open. No merge to main is authorized by this step.
 
 ## References and pins
 
@@ -87,7 +87,8 @@ removes voices without clearing lifecycle suspension.
 keys. Imported readiness and loop readiness default false. Missing assets return
 failure with an explanation; an optional Original fallback uses the exact same
 semantic key. There is no silent normal-mode substitute for reversed/faint/etc.
-Cry mode preprocessing/authored engine effect graphs are still missing.
+All 12 special-mode keys now have locally authored candidates. Their source
+parameter mapping is tested; listening and GBA hardware equivalence are not approved.
 
 The UE subsystem provides music transitions, bounded retiring components,
 SFX/jingles/cry/ambience dispatch, four volume controls and pack choice saved to
@@ -123,8 +124,8 @@ after terminal success. Real UE/UHT has not run.
 
 1. Modern direction selected and 386 normal cries prepared. Retain any
    subsequently reported species exceptions.
-2. Derive all 13 source modes
-   using a verified render or authored equivalent; assess source cry fidelity.
+2. All 13 source modes now have normal/special candidates. Compare the authored
+   special modes with a source-game hardware/emulator reference and audition them.
 3. Render 271 music records plus source effects/jingles as needed; measure exact
    intro/loop frames and check seams/context mix. Preserve source fanfare waits.
 4. Attach owner dispatch once per source request, source wait/fanfare/BGM
@@ -186,3 +187,69 @@ resident-memory benchmark. Actual import, per-device loading/cache limits,
 source special-mode fidelity, other audio assets and host/platform attachment
 remain open. Source regressions include five additional selection/receipt/
 coverage tests.
+
+## Source-derived special cry candidates
+
+`tools/build_r15_cry_modes.py` extracts the 13 source modes from pinned
+`PlayCryInternal`. Weak doubles retains the source switch fallthrough. Reverse
+mode uses the same sample identity in the reverse table; normal/shiny visual
+forms remain shared. `SetPokemonCryPitch`, `SetPokemonCryChorus`, `ply_tune`,
+`TrkVolPitSet` and the integer MIDI frequency tables determine both rendered
+track rates. The raw pitch number is not divided by 15360 to invent a rate.
+Chorus 192 is a signed byte with 7-bit tuning wrap, not a 192 ms echo delay.
+
+The independent test compiles the actual pinned switch, setters, track pitch
+and MIDI frequency functions with allocation/device-only stubs. All 13 modes
+are compared with the Python recipes. It does not emulate the full mixer.
+The default tempo is one tick per GBA frame; the source documents a clock of
+16,777,216 cycles/second and 280,896 cycles/frame. Gate timing derives from this
+clock, not an assumed 60 Hz or a new audio duration.
+
+`tools/build_r15_special_cries.py` verifies every input normal WAV against its
+manifest and every original OGG against its pinned Git blob receipt. Normal
+WAVs and masters are copied unchanged. Special recordings reverse the modern
+sample where requested, change rate using FFmpeg `asetrate` + SWR resampling,
+sum both source-tuned chorus tracks, apply the source volume ratio and a
+255-level integer release recurrence. Gain is interpolated over each release
+frame as an authored click-reduction choice. Necessary attenuation limits mixed
+peaks to -3 dBFS; special modes are not normalized back to equal RMS. No AI,
+generic delay echo, extra looping or fabricated source samples are applied.
+
+The private pack contains **5,018 cry candidates**: 386 unchanged normal and
+4,632 special (386 x 12). Every exact cry key is represented. The other 609
+song/effect/jingle/phoneme keys remain explicitly missing; total semantic keys
+remain 5,627. All prepared special WAVs pass the strict local shape/hash probe
+and have zero full-scale samples. `special_pack_evidence.json` stores compact
+counts, recipe/manifest/archive hashes and per-mode sizes publicly. The private
+archive includes per-file hashes/measurements and preserved masters. A separate
+12-species listening WAV presents normal, weak, faint, Roar 1/2, Growl 1/2.
+
+These are **source-parameter-derived authored modern candidates**, not verified
+GBA hardware output. The modern source waveform already differs from Emerald.
+The compressed decoder, integer mixer, reverb and precise frame-phase behavior
+are not reproduced by the authored renderer. Source hardware/emulator A/B,
+individual special-mode listening and real Unreal/Android import remain open.
+Preparing an exact semantic key does not pass those quality gates or complete R15.
+
+Reproduce from the existing private normal pack:
+
+```
+python tools/build_r15_cry_modes.py --check
+python tools/build_r15_special_cries.py --normal-pack /absolute/private/normal-pack --output /absolute/private/new-empty-folder --public-evidence data/r15/special_pack_evidence.json
+python tools/build_r15_audio_catalog.py
+```
+
+Ten added regressions cover compiled-source parameter/pitch agreement,
+signed chorus wrap, weak-double fallthrough, reverse playback, changed duration,
+integer release, retained volume ratios, clipping guard, complete semantics and
+rejection of missing/mismatched special recipes, base-normal references or invented loops.
+The source catalog reports special preparation separately from hardware fidelity
+and engine import. All approval/import flags remain false for special candidates.
+
+Local validation after this expansion: all 271 Python regressions passed,
+including 35 R15 tests. The complete private manifest independently re-probed
+5,018 candidates and 609 explicit missing entries with zero unrepresented keys.
+All 386 normal WAVs and OGG masters match the previous pack byte for byte.
+The 5,412-member ZIP passes CRC, duplicate-path and archive/manifest/recipe hash
+checks. GitHub CI must reach terminal success for the exact published head;
+none of these local checks is a real Unreal/UHT or Android test.

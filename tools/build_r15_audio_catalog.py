@@ -62,6 +62,19 @@ def build():
     prepared = {r['national_dex'] for r in pack.get('species', [])}
     if prepared and (prepared != set(range(1,387)) or pack.get('source_commit') != 'ef687b18f0ce17169b4b4c09175819f7ade92f0f'):
         raise ValueError('invalid full modern pack evidence')
+    special_path = ROOT/'data/r15/special_pack_evidence.json'
+    special = json.loads(special_path.read_text()) if special_path.is_file() else {}
+    special_count = special.get('counts', {}).get('prepared_special_candidates', 0)
+    if special_count:
+        from build_r15_cry_modes import build as mode_recipes
+        recipe_sha = hashlib.sha256(dump(mode_recipes()).encode()).hexdigest()
+        if (not prepared or special_count != 4632 or special.get('source_commit') != pack.get('source_commit')
+                or special.get('source_parameter_pin') != PIN or special.get('recipe_sha256') != recipe_sha
+                or special.get('counts', {}).get('total_cry_candidates') != 5018
+                or [(r['mode'], r['files']) for r in special.get('per_mode', [])] != [(m,386) for m in range(1,13)]
+                or special.get('unreal_import_validated') is not False
+                or special.get('hardware_audio_equivalence_verified') is not False):
+            raise ValueError('invalid special-mode candidate evidence')
     rows = []
     for s in species:
         core = s['core_species']; idx = core-1 if core <= 251 else remap[core]
@@ -72,7 +85,7 @@ def build():
             'identity':f'cry.{s["national_dex"]}','cry_table_index':idx,'cry_symbol':symbol,
             'source_pcm':{'path':path,'sha256':sha(file)},
             'original':'source_pcm_available_not_verified_hardware_render',
-            'modern':'prepared_local_normal_only_not_imported' if s['national_dex'] in prepared else 'pilot_candidate_pending_listening' if s['national_dex'] in PILOT else 'missing_pending_pilot',
+            'modern':'prepared_local_all_modes_candidates_fidelity_pending_not_imported' if special_count else 'prepared_local_normal_only_not_imported' if s['national_dex'] in prepared else 'pilot_candidate_pending_listening' if s['national_dex'] in PILOT else 'missing_pending_pilot',
             'form_policy':'shared_species_cry; visual form and shiny keys do not multiply cry assets'})
     modes = [{'id':resolver.resolve(s),'source_symbol':s} for s in re.findall(
         r'#define\s+(CRY_MODE_\w+)\s+', (VENDOR/'include/constants/sound.h').read_text())]
@@ -86,7 +99,8 @@ def build():
         'counts':{'song_table_entries':len(songs),'species_cries':len(rows),'cry_modes':len(modes),
                   'fanfares':len(fanfares),'categories':categories,'modern_pilot_candidates':len(PILOT),
                   'verified_unreal_audio_imports':0,'approved_modern_cries':0,
-                  'modern_prepared_normal_cries':len(prepared),'pilot_style_approved':selected},
+                  'modern_prepared_normal_cries':len(prepared),'modern_prepared_special_candidates':special_count,
+                  'verified_special_mode_hardware_equivalence':0,'pilot_style_approved':selected},
         'songs':songs,'cries':rows,'cry_modes':modes,'fanfares':fanfares,
         'ambience':{'policy':'source weather/ambient SE_* IDs; no invented authoritative event IDs',
                     'candidate_song_ids':[s['source_id'] for s in songs if any(x in s['source_symbol'] for x in ['rain','thunderstorm','downpour'])]},
