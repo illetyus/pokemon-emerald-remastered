@@ -1038,3 +1038,20 @@ else()
     target_compile_options(r7_environment_math_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r7_environment_presentation_math COMMAND r7_environment_math_test)
+
+# The UI model itself is compiled here and by Unreal; fixtures use native core state.
+add_executable(r9_ui_model_test tests/r9_ui_model_test.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterUiModel.cpp)
+target_link_libraries(r9_ui_model_test PRIVATE remaster_core)
+target_include_directories(r9_ui_model_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r9_ui_model_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r9_ui_model_test PRIVATE /W4)
+else()
+    target_compile_options(r9_ui_model_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r9_ui_authority_and_actions COMMAND r9_ui_model_test)
+add_test(NAME r9_ui_fixture_matrix COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r9_ui_fixture_matrix.py
+    --probe $<TARGET_FILE:r9_ui_model_test>)

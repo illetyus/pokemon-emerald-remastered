@@ -7,6 +7,7 @@
 #include "RemasterPlayerController.generated.h"
 
 class URemasterInputConfig;
+enum class ERemasterUiAction : uint8;
 
 UCLASS()
 class POKEMONEMERALDREMASTERED_API ARemasterPlayerController
@@ -58,4 +59,10 @@ private:
     void StepLeft();
     void StepRight();
     void InteractFallback();
+    void CancelFallback();
+    void MenuFallback();
+    void MapFallback();
+    void QuestFallback();
+    void QuickItemFallback();
+    bool RouteUI(ERemasterUiAction Action);
 };
