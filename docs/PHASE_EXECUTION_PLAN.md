@@ -940,9 +940,12 @@ The canonical four source acceptance bullets pass; runtime/local asset obligatio
 remain explicitly open in [R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md).
 R15-F1 publication `515dde0` passed workflow 37781258584: 74 targeted Python,
 310 full Python, 67 CTest, zero skips. PR #21 merge and main CI then passed.
-Current checkpoint: **R8-P1 — Common action inventory**, recorded in
-[R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md). This is an audit/doc checkpoint;
-no input or gameplay implementation changes. Next: **R8-P2 — Platform/lifecycle contract**.
+R8-P1 is VERIFIED_COMPLETE at `261cef11`: versioned source/action inventory,
+no implementation changes and no push workflow trigger.
+Current checkpoint: **R8-P2 — Platform/lifecycle contract**, frozen in
+[R8_INPUT_CONTRACT.md](R8_INPUT_CONTRACT.md) and `data/r8/input_contract.json`.
+This is a policy/doc checkpoint; no input/gameplay behavior changes.
+Next: **R8-I1 — Common action router**, regression before implementation.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,
 R20 and R18; stop at the actual environment/runtime boundary. All deferred

@@ -1,0 +1,291 @@
+{
+  "schema": "r8-input-contract-v1",
+  "scope": "pre-real-UE source input boundary; no gameplay state or timing ownership",
+  "authority": {
+    "repository": "illetyus/pokezumrut-vanillaplus",
+    "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+    "field_source": "src/field_control_avatar.c",
+    "menu_source": "src/menu.c"
+  },
+  "actions": [
+    "Up",
+    "Down",
+    "Left",
+    "Right",
+    "Confirm",
+    "Cancel",
+    "Menu",
+    "Map",
+    "Quest",
+    "QuickItem"
+  ],
+  "sources": [
+    "Keyboard",
+    "Gamepad",
+    "Touch",
+    "Enhanced"
+  ],
+  "phases": [
+    "Pressed",
+    "Released",
+    "Canceled"
+  ],
+  "identity": {
+    "key": [
+      "source",
+      "device",
+      "control"
+    ],
+    "held_capacity": 64,
+    "epoch": "nonzero uint64 host reset generation; stale values rejected; exhaustion fails closed"
+  },
+  "delivery": {
+    "duplicates": "same control or already-held semantic action does not dispatch twice",
+    "release": "only releases matching action/control; never dispatches gameplay",
+    "overflow": "reject without evicting held records or mutating state",
+    "direction_priority": [
+      "Up",
+      "Down",
+      "Left",
+      "Right"
+    ],
+    "world_cadence": "explicit selected direction presses only; no movement synthesis by UI time"
+  },
+  "focus": {
+    "precedence": [
+      "Suspended",
+      "IoBusy",
+      "Dialogue",
+      "Battle",
+      "ScriptBusy",
+      "ModalUI",
+      "World",
+      "RecoveryUI",
+      "Blocked"
+    ],
+    "world_requires": [
+      "usable_save",
+      "map_ready"
+    ],
+    "reset": "focus owner/host-generation change clears holds and repeat; new epoch fences old events",
+    "unattached_owner": "explicit unsupported, no world fallthrough",
+    "world_targets": {
+      "Up": "WorldStep",
+      "Down": "WorldStep",
+      "Left": "WorldStep",
+      "Right": "WorldStep",
+      "Confirm": "FieldInteract",
+      "Cancel": "UI",
+      "Menu": "UI",
+      "Map": "UI",
+      "Quest": "UI",
+      "QuickItem": "UI"
+    },
+    "battle_actions": [
+      "Up",
+      "Down",
+      "Left",
+      "Right",
+      "Confirm",
+      "Cancel"
+    ],
+    "no_usable_world": "available R9 UI retains safe Menu/load recovery; never world commands"
+  },
+  "analog": {
+    "range": [
+      -1,
+      1
+    ],
+    "dead_zone": 0.25,
+    "finite_only": true,
+    "dominant_axis": true,
+    "tie_axis": "Y",
+    "positive_x": "Right",
+    "positive_y": "Up",
+    "neutral": "release previous axis owner; no action"
+  },
+  "repeat": {
+    "owner": "R9",
+    "actions": [
+      "Up",
+      "Down"
+    ],
+    "first_tick": 24,
+    "period_ticks": 3,
+    "rate_hz": 60,
+    "scope": [
+      "ModalUI",
+      "Dialogue"
+    ],
+    "settings": "Remaster.UI MenuRepeat; GameUserSettings outside Emerald save",
+    "never": [
+      "world movement",
+      "Confirm",
+      "battle submission",
+      "script completion"
+    ],
+    "disable_or_reset": "clear countdown; no catch-up burst"
+  },
+  "lifecycle": {
+    "suspension_reasons": [
+      "Background",
+      "Inactive",
+      "Paused"
+    ],
+    "resume": "all suspension reasons clear; flush platform held state; require a new press",
+    "disconnect": "reset all input conservatively; reconnect does not restore held state",
+    "teardown": "unbind callbacks/mapping context and clear captures",
+    "deferred": "actual UE compile, Android callbacks and device behavior require R18/runtime evidence"
+  },
+  "mapping": {
+    "keyboard": {
+      "Up": [
+        "Up",
+        "W"
+      ],
+      "Down": [
+        "Down",
+        "S"
+      ],
+      "Left": [
+        "Left",
+        "A"
+      ],
+      "Right": [
+        "Right",
+        "D"
+      ],
+      "Confirm": [
+        "Enter",
+        "SpaceBar"
+      ],
+      "Cancel": [
+        "Escape"
+      ],
+      "Menu": [
+        "Tab"
+      ],
+      "Map": [
+        "M"
+      ],
+      "Quest": [
+        "Q"
+      ],
+      "QuickItem": [
+        "R"
+      ]
+    },
+    "gamepad": {
+      "Up": [
+        "DPadUp"
+      ],
+      "Down": [
+        "DPadDown"
+      ],
+      "Left": [
+        "DPadLeft"
+      ],
+      "Right": [
+        "DPadRight"
+      ],
+      "Confirm": [
+        "FaceBottom"
+      ],
+      "Cancel": [
+        "FaceRight"
+      ],
+      "Menu": [
+        "SpecialRight"
+      ],
+      "Map": [
+        "LeftShoulder"
+      ],
+      "Quest": [
+        "RightShoulder"
+      ],
+      "QuickItem": [
+        "FaceTop"
+      ]
+    },
+    "enhanced": "optional per action; bind started/changed/released/canceled and suppress only equivalent native fallback; missing/invalid asset retains fallback"
+  },
+  "touch": {
+    "coordinates": "normalized half-open rectangles in usable viewport after safe insets; reject nonfinite/invalid extents",
+    "finger_capacity": 10,
+    "capture": "only press starts capture; moving outside captured control cancels, never retargets until a new press",
+    "empty_space": "no action",
+    "rects": {
+      "Up": [
+        0.12,
+        0.56,
+        0.22,
+        0.69
+      ],
+      "Down": [
+        0.12,
+        0.81,
+        0.22,
+        0.94
+      ],
+      "Left": [
+        0.02,
+        0.69,
+        0.12,
+        0.81
+      ],
+      "Right": [
+        0.22,
+        0.69,
+        0.32,
+        0.81
+      ],
+      "Confirm": [
+        0.84,
+        0.66,
+        0.97,
+        0.83
+      ],
+      "Cancel": [
+        0.7,
+        0.75,
+        0.83,
+        0.92
+      ],
+      "Menu": [
+        0.88,
+        0.08,
+        0.98,
+        0.2
+      ],
+      "Map": [
+        0.65,
+        0.08,
+        0.75,
+        0.2
+      ],
+      "Quest": [
+        0.76,
+        0.08,
+        0.86,
+        0.2
+      ],
+      "QuickItem": [
+        0.54,
+        0.08,
+        0.64,
+        0.2
+      ]
+    },
+    "preferences": "presentation layout/visibility/scale only, GameUserSettings; no Emerald persistent fields"
+  },
+  "acceptance": [
+    "same normalized action trace produces same dispatch trace across sources",
+    "duplicate/multi-source holds do not multiply commands",
+    "stale/release/malformed/overflow events do not mutate gameplay",
+    "blocked/modal/dialogue/battle actions cannot fall through to world",
+    "lifecycle/focus reset clears holds/repeat/capture with epoch fencing",
+    "shared R9 menu repeat accepts touch/keyboard/gamepad/Enhanced hold and preserves 24/3 cadence",
+    "native compiled shared router plus R4/R9 regressions pass",
+    "source validators never certify real Unreal/device acceptance"
+  ]
+}
