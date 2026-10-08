@@ -1,0 +1,100 @@
+{
+  "archive_bytes": 311477955,
+  "archive_sha256": "902880df75d9587e7a6f9b2815b3727d3761e12aa78552a6c087b27ab06223c8",
+  "counts": {
+    "full_scale_samples": 0,
+    "missing_cry_semantics": 0,
+    "missing_other_audio_semantics": 609,
+    "prepared_normal_cries": 386,
+    "prepared_special_candidates": 4632,
+    "species": 386,
+    "total_cry_candidates": 5018,
+    "unrepresented_semantics": 0,
+    "verified_unreal_imports": 0
+  },
+  "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+  "hardware_audio_equivalence_verified": false,
+  "manifest_sha256": "1e0cb80a72723a8bc0aedbdbd4962854d6f3948543b47d089b97a737566696d8",
+  "per_mode": [
+    {
+      "files": 386,
+      "mode": 1,
+      "pcm_bytes": 27748570
+    },
+    {
+      "files": 386,
+      "mode": 2,
+      "pcm_bytes": 32191972
+    },
+    {
+      "files": 386,
+      "mode": 3,
+      "pcm_bytes": 29831748
+    },
+    {
+      "files": 386,
+      "mode": 4,
+      "pcm_bytes": 18821636
+    },
+    {
+      "files": 386,
+      "mode": 5,
+      "pcm_bytes": 40692612
+    },
+    {
+      "files": 386,
+      "mode": 6,
+      "pcm_bytes": 32858952
+    },
+    {
+      "files": 386,
+      "mode": 7,
+      "pcm_bytes": 9927148
+    },
+    {
+      "files": 386,
+      "mode": 8,
+      "pcm_bytes": 31690420
+    },
+    {
+      "files": 386,
+      "mode": 9,
+      "pcm_bytes": 13623348
+    },
+    {
+      "files": 386,
+      "mode": 10,
+      "pcm_bytes": 34335120
+    },
+    {
+      "files": 386,
+      "mode": 11,
+      "pcm_bytes": 37575814
+    },
+    {
+      "files": 386,
+      "mode": 12,
+      "pcm_bytes": 28794902
+    }
+  ],
+  "pilot_style_approved": true,
+  "processing": {
+    "boundaries": "modern sample length may end before source gate; no looping or padding to invent a cry",
+    "chorus": "two simultaneous source-tuned tracks; signed conversion and 7-bit wrap retained",
+    "headroom": "fixed 0.5 before each resampler; restore in wide accumulation; attenuation only if mixed peak exceeds -3dBFS",
+    "kind": "source_parameter_derived_authored_modern_candidate",
+    "level": "source volume ratio retained; do not normalize each mode back to equal RMS",
+    "limitations": "not the GBA compressed decoder, integer mixer, reverb or frame-phase output; emulator A/B and listening remain required",
+    "pitch": "source integer MIDI frequency tables, rounded asetrate then SWR 48k; speed changes with pitch",
+    "release": "255-level recurrence (level * release) >> 8 per GBA frame after note gate; interpolate gain over each frame to avoid steps",
+    "reverse": "reverse modern decoded sample before resampling, no invented echo delay"
+  },
+  "recipe_sha256": "5c56e7bb43803ca6c4b181be6d6c8eb36ccbb54f0fe7bcf39ad5a7a29394e873",
+  "schema": "r15-special-cries-evidence-v1",
+  "source_commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+  "source_parameter_pin": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+  "special_duration_seconds": 3521.7941875,
+  "special_mode_listening_approved": false,
+  "special_pcm_bytes": 338092242,
+  "unreal_import_validated": false
+}

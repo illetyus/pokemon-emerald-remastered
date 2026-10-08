@@ -1,0 +1,908 @@
+{
+  "artifact_hashes": {
+    "Pokemon_12_AB.wav": "24de51f1374dff090d3587db04de6beae4988490cd391c772738cb878e940ece",
+    "Pokemon_12_Ses_Paketi.zip": "e5413c45c680c20191ac0258950c7f4d988f80ccb348e17aa6a341e60e6a1860",
+    "Pokemon_ses_karsilastirmasi.html": "85992310d9246de41f4e1c095236cad2a5376debfaebafaec5b34abfd002b150"
+  },
+  "artifacts_saved_in_public_repo": false,
+  "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+  "modern_pin": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+  "original_label": "Emerald source PCM, not certified hardware engine/mixer output",
+  "processing": "mono PCM16 48k resampling with fixed -6.02 dB conversion headroom; preserved masters; listening copy RMS target -24.44 dBFS, peak ceiling -3 dBFS, gain cap 4x; no trimming, denoising, pitch shift or AI",
+  "quality_approved": false,
+  "schema": "r15-pilot-evidence-v1",
+  "source_pin": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+  "species": [
+    {
+      "identity": "cry.6",
+      "name": "CHARIZARD",
+      "national_dex": 6,
+      "quality_approved": false,
+      "tracks": {
+        "modern": {
+          "comparison": {
+            "duration_seconds": 1.0012291666666666,
+            "frames": 48059,
+            "full_scale_samples": 0,
+            "peak_dbfs": -16.044229468281124,
+            "rms_dbfs": -24.436978857403368
+          },
+          "comparison_gain": 0.29017526780705866,
+          "decoded": {
+            "duration_seconds": 1.0012291666666666,
+            "frames": 48059,
+            "full_scale_samples": 0,
+            "peak_dbfs": -5.297183525190505,
+            "rms_dbfs": -13.690182870926106
+          },
+          "path": "comparison/006_CHARIZARD_modern.wav",
+          "sha256": "bf5e485a5dc439e1d59eb1f1a35d3a282e703fd035e7dadb84afe83b54dd27fd",
+          "source": {
+            "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+            "repository": "PokeAPI/cries",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "cries/pokemon/latest/6.ogg",
+            "source_sha256": "110f91526342399a6a8d5e5c7d12b76ad85e925bce509d7fd4d2459930df09cf"
+          }
+        },
+        "original": {
+          "comparison": {
+            "duration_seconds": 0.9075416666666667,
+            "frames": 43562,
+            "full_scale_samples": 0,
+            "peak_dbfs": -13.471802503693137,
+            "rms_dbfs": -24.436986976360867
+          },
+          "comparison_gain": 0.4271810669947172,
+          "decoded": {
+            "duration_seconds": 0.9075416666666667,
+            "frames": 43562,
+            "full_scale_samples": 0,
+            "peak_dbfs": -6.083917346836911,
+            "rms_dbfs": -17.04921491571787
+          },
+          "path": "comparison/006_CHARIZARD_original.wav",
+          "sha256": "2d13cb9806a5ff6f708206ac3424d53afcc6acef0778753d163a57a73b5d9f0b",
+          "source": {
+            "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+            "repository": "pret/pokeemerald via pinned Vanilla+",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "sound/direct_sound_samples/cries/charizard.aif",
+            "source_sha256": "d4d3f54e364a3103134762489fae712889e0aba2c7097b8eb52c857b29725a76"
+          }
+        }
+      }
+    },
+    {
+      "identity": "cry.25",
+      "name": "PIKACHU",
+      "national_dex": 25,
+      "quality_approved": false,
+      "tracks": {
+        "modern": {
+          "comparison": {
+            "duration_seconds": 0.9260208333333333,
+            "frames": 44449,
+            "full_scale_samples": 0,
+            "peak_dbfs": -9.536595460200303,
+            "rms_dbfs": -24.436982197118553
+          },
+          "comparison_gain": 0.6633358781648528,
+          "decoded": {
+            "duration_seconds": 0.9260208333333333,
+            "frames": 44449,
+            "full_scale_samples": 0,
+            "peak_dbfs": -5.970908728760904,
+            "rms_dbfs": -20.871644748866693
+          },
+          "path": "comparison/025_PIKACHU_modern.wav",
+          "sha256": "facbadde038dec471b0b78cd7a5a16c7b78b9a4c1da4aa15d4b9b03b4c02c41e",
+          "source": {
+            "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+            "repository": "PokeAPI/cries",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "cries/pokemon/latest/25.ogg",
+            "source_sha256": "1ec10c893184b155a110d746ff0560f291978f32ce90c283b9871e61d6df12a1"
+          }
+        },
+        "original": {
+          "comparison": {
+            "duration_seconds": 0.7833125,
+            "frames": 37599,
+            "full_scale_samples": 0,
+            "peak_dbfs": -12.75696510460892,
+            "rms_dbfs": -24.43697144079827
+          },
+          "comparison_gain": 0.470106817724448,
+          "decoded": {
+            "duration_seconds": 0.7833125,
+            "frames": 37599,
+            "full_scale_samples": 0,
+            "peak_dbfs": -6.201121646900769,
+            "rms_dbfs": -17.880905984126066
+          },
+          "path": "comparison/025_PIKACHU_original.wav",
+          "sha256": "88221d99588eda9e2ecbcadc17af4405cd80d5b5f3a6f7d902a55e0f7d6803c6",
+          "source": {
+            "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+            "repository": "pret/pokeemerald via pinned Vanilla+",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "sound/direct_sound_samples/cries/pikachu.aif",
+            "source_sha256": "2faf098215b9bcd7d1e270c97ef40c2bae991cccbc0f11ab0920c08b569e0c57"
+          }
+        }
+      }
+    },
+    {
+      "identity": "cry.94",
+      "name": "GENGAR",
+      "national_dex": 94,
+      "quality_approved": false,
+      "tracks": {
+        "modern": {
+          "comparison": {
+            "duration_seconds": 0.8447916666666667,
+            "frames": 40550,
+            "full_scale_samples": 0,
+            "peak_dbfs": -15.04193652423005,
+            "rms_dbfs": -24.436988631488017
+          },
+          "comparison_gain": 0.31413210702863886,
+          "decoded": {
+            "duration_seconds": 0.8447916666666667,
+            "frames": 40550,
+            "full_scale_samples": 0,
+            "peak_dbfs": -4.983894253241341,
+            "rms_dbfs": -14.379221539001446
+          },
+          "path": "comparison/094_GENGAR_modern.wav",
+          "sha256": "8d0ff9e5c8566908bbcbc4bfa4518ecd035ab5c195a5538efb127f44247d075d",
+          "source": {
+            "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+            "repository": "PokeAPI/cries",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "cries/pokemon/latest/94.ogg",
+            "source_sha256": "d44d4a6c9e6e276a20ba7a3be3256f5da0e1caf1ff01b51183dedad3dd8bead8"
+          }
+        },
+        "original": {
+          "comparison": {
+            "duration_seconds": 0.6935,
+            "frames": 33288,
+            "full_scale_samples": 0,
+            "peak_dbfs": -14.08420324412857,
+            "rms_dbfs": -24.43698389648915
+          },
+          "comparison_gain": 0.41178482299193836,
+          "decoded": {
+            "duration_seconds": 0.6935,
+            "frames": 33288,
+            "full_scale_samples": 0,
+            "peak_dbfs": -6.3771856168482275,
+            "rms_dbfs": -16.73038171109424
+          },
+          "path": "comparison/094_GENGAR_original.wav",
+          "sha256": "f513e6866e93e958c3e699dadbdafed2a386e6b91c2e393959ab8ad225195a02",
+          "source": {
+            "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+            "repository": "pret/pokeemerald via pinned Vanilla+",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "sound/direct_sound_samples/cries/gengar.aif",
+            "source_sha256": "9d781984df28006195567f8dca2d49c2f6f4232df88b891fd96d4614c5c26cbe"
+          }
+        }
+      }
+    },
+    {
+      "identity": "cry.125",
+      "name": "ELECTABUZZ",
+      "national_dex": 125,
+      "quality_approved": false,
+      "tracks": {
+        "modern": {
+          "comparison": {
+            "duration_seconds": 1.4392708333333333,
+            "frames": 69085,
+            "full_scale_samples": 0,
+            "peak_dbfs": -13.011660412623836,
+            "rms_dbfs": -24.43697740207988
+          },
+          "comparison_gain": 0.4238805384512161,
+          "decoded": {
+            "duration_seconds": 1.4392708333333333,
+            "frames": 69085,
+            "full_scale_samples": 0,
+            "peak_dbfs": -5.556113546410508,
+            "rms_dbfs": -16.98184453920126
+          },
+          "path": "comparison/125_ELECTABUZZ_modern.wav",
+          "sha256": "f02137ed228577ea0e612dc4e4f4b756dc2de3e7391b331a3becf66f7c773ea3",
+          "source": {
+            "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+            "repository": "PokeAPI/cries",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "cries/pokemon/latest/125.ogg",
+            "source_sha256": "89fec055d836af8cde57325d19a2e516c4c338238eec102e96c7b377b8cfd27e"
+          }
+        },
+        "original": {
+          "comparison": {
+            "duration_seconds": 1.4552916666666667,
+            "frames": 69854,
+            "full_scale_samples": 0,
+            "peak_dbfs": -12.74201025483885,
+            "rms_dbfs": -24.436979632660826
+          },
+          "comparison_gain": 0.5036900766891415,
+          "decoded": {
+            "duration_seconds": 1.4552916666666667,
+            "frames": 69854,
+            "full_scale_samples": 0,
+            "peak_dbfs": -6.784857589620655,
+            "rms_dbfs": -18.480242888512507
+          },
+          "path": "comparison/125_ELECTABUZZ_original.wav",
+          "sha256": "a200cd66e873b8e962281db94f83f62306d17b165d4623c6279376a0fe1a4b11",
+          "source": {
+            "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+            "repository": "pret/pokeemerald via pinned Vanilla+",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "sound/direct_sound_samples/cries/electabuzz.aif",
+            "source_sha256": "4c3459ef4b82ee7866ffa819f56b11714c5efda4e2cbe1b90ec3ddec42ddab19"
+          }
+        }
+      }
+    },
+    {
+      "identity": "cry.150",
+      "name": "MEWTWO",
+      "national_dex": 150,
+      "quality_approved": false,
+      "tracks": {
+        "modern": {
+          "comparison": {
+            "duration_seconds": 1.5957083333333333,
+            "frames": 76594,
+            "full_scale_samples": 0,
+            "peak_dbfs": -14.905218244474492,
+            "rms_dbfs": -24.43697125221284
+          },
+          "comparison_gain": 0.33456168728402064,
+          "decoded": {
+            "duration_seconds": 1.5957083333333333,
+            "frames": 76594,
+            "full_scale_samples": 0,
+            "peak_dbfs": -5.394304830062648,
+            "rms_dbfs": -14.926499107172791
+          },
+          "path": "comparison/150_MEWTWO_modern.wav",
+          "sha256": "644e962fbb8a7ee151753c89c153c2c1a5ce67b6db7f31564be798c8bdda32eb",
+          "source": {
+            "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+            "repository": "PokeAPI/cries",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "cries/pokemon/latest/150.ogg",
+            "source_sha256": "84b90df6aff3484ba3eab06a57a5108c84f636b59e8f1a284a5e410ac01f2bbe"
+          }
+        },
+        "original": {
+          "comparison": {
+            "duration_seconds": 1.4328541666666668,
+            "frames": 68777,
+            "full_scale_samples": 0,
+            "peak_dbfs": -12.571291519474187,
+            "rms_dbfs": -24.4369715010761
+          },
+          "comparison_gain": 0.49308551232089454,
+          "decoded": {
+            "duration_seconds": 1.4328541666666668,
+            "frames": 68777,
+            "full_scale_samples": 0,
+            "peak_dbfs": -6.429819138810621,
+            "rms_dbfs": -18.295419840697853
+          },
+          "path": "comparison/150_MEWTWO_original.wav",
+          "sha256": "27c72c51c5172b0cf9797fbcd4c1f5f8845899c035d91becf8bc2ce8f14da5e4",
+          "source": {
+            "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+            "repository": "pret/pokeemerald via pinned Vanilla+",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "sound/direct_sound_samples/cries/mewtwo.aif",
+            "source_sha256": "71058e7a4e4964a40524608c8b9d066a32167345d19559fa01c07866d9411fdd"
+          }
+        }
+      }
+    },
+    {
+      "identity": "cry.201",
+      "name": "UNOWN",
+      "national_dex": 201,
+      "quality_approved": false,
+      "tracks": {
+        "modern": {
+          "comparison": {
+            "duration_seconds": 0.6883541666666667,
+            "frames": 33041,
+            "full_scale_samples": 0,
+            "peak_dbfs": -14.405306905545878,
+            "rms_dbfs": -24.436962000932084
+          },
+          "comparison_gain": 0.36211425464016433,
+          "decoded": {
+            "duration_seconds": 0.6883541666666667,
+            "frames": 33041,
+            "full_scale_samples": 0,
+            "peak_dbfs": -5.582284980116231,
+            "rms_dbfs": -15.613887415743555
+          },
+          "path": "comparison/201_UNOWN_modern.wav",
+          "sha256": "8196b76c8a80f57dff1beaa20ad9e4eb2a33da059d3903b44568f10fb1f5a7a3",
+          "source": {
+            "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+            "repository": "PokeAPI/cries",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "cries/pokemon/latest/201.ogg",
+            "source_sha256": "559fe3f583959d91fe9d09ebd516a00bfb45be7dac7260151b49c44aebba62cd"
+          }
+        },
+        "original": {
+          "comparison": {
+            "duration_seconds": 0.6177708333333334,
+            "frames": 29653,
+            "full_scale_samples": 0,
+            "peak_dbfs": -13.222877863172746,
+            "rms_dbfs": -24.436963633422444
+          },
+          "comparison_gain": 0.4637673079227568,
+          "decoded": {
+            "duration_seconds": 0.6177708333333334,
+            "frames": 29653,
+            "full_scale_samples": 0,
+            "peak_dbfs": -6.549001251097652,
+            "rms_dbfs": -17.762977610614787
+          },
+          "path": "comparison/201_UNOWN_original.wav",
+          "sha256": "dd757d22bc3c85fd3602edd1ec9deef3a423d4c8145799224f8f7779efc27656",
+          "source": {
+            "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+            "repository": "pret/pokeemerald via pinned Vanilla+",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "sound/direct_sound_samples/cries/unown.aif",
+            "source_sha256": "76b601b94feaaed782279b34c906132b4464fb72a1036320507254209ef891bd"
+          }
+        }
+      }
+    },
+    {
+      "identity": "cry.252",
+      "name": "TREECKO",
+      "national_dex": 252,
+      "quality_approved": false,
+      "tracks": {
+        "modern": {
+          "comparison": {
+            "duration_seconds": 0.7509166666666667,
+            "frames": 36044,
+            "full_scale_samples": 0,
+            "peak_dbfs": -10.541387394754187,
+            "rms_dbfs": -24.436976339012567
+          },
+          "comparison_gain": 0.6372242467891955,
+          "decoded": {
+            "duration_seconds": 0.7509166666666667,
+            "frames": 36044,
+            "full_scale_samples": 0,
+            "peak_dbfs": -6.627668585361138,
+            "rms_dbfs": -20.522820844840194
+          },
+          "path": "comparison/252_TREECKO_modern.wav",
+          "sha256": "406faf66f58f23a12c98a8a37076df5d599b11aeca3fafcc312340ac1a9110c5",
+          "source": {
+            "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+            "repository": "PokeAPI/cries",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "cries/pokemon/latest/252.ogg",
+            "source_sha256": "92b285cc60c645ca7d04d53396655f2a836e3c616e8e24860bdeea4ed610e183"
+          }
+        },
+        "original": {
+          "comparison": {
+            "duration_seconds": 0.547375,
+            "frames": 26274,
+            "full_scale_samples": 0,
+            "peak_dbfs": -12.514003193913606,
+            "rms_dbfs": -24.436983881166682
+          },
+          "comparison_gain": 0.5310447113083225,
+          "decoded": {
+            "duration_seconds": 0.547375,
+            "frames": 26274,
+            "full_scale_samples": 0,
+            "peak_dbfs": -7.017183495389884,
+            "rms_dbfs": -18.939596753203826
+          },
+          "path": "comparison/252_TREECKO_original.wav",
+          "sha256": "67cfee6f70f15aee15a7e19ae7afdec5f5f5ba7c73ebe11d79192a0a3b05127e",
+          "source": {
+            "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+            "repository": "pret/pokeemerald via pinned Vanilla+",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "sound/direct_sound_samples/cries/treecko.aif",
+            "source_sha256": "47ac861dbef6ae5ae29e186acbf447022b8f0c9df13c0a660bdb3de5e0af228d"
+          }
+        }
+      }
+    },
+    {
+      "identity": "cry.282",
+      "name": "GARDEVOIR",
+      "national_dex": 282,
+      "quality_approved": false,
+      "tracks": {
+        "modern": {
+          "comparison": {
+            "duration_seconds": 1.3141041666666666,
+            "frames": 63077,
+            "full_scale_samples": 0,
+            "peak_dbfs": -13.33536561871535,
+            "rms_dbfs": -24.436983641341136
+          },
+          "comparison_gain": 0.42474892133669834,
+          "decoded": {
+            "duration_seconds": 1.3141041666666666,
+            "frames": 63077,
+            "full_scale_samples": 0,
+            "peak_dbfs": -5.897423606537774,
+            "rms_dbfs": -16.999620685085716
+          },
+          "path": "comparison/282_GARDEVOIR_modern.wav",
+          "sha256": "4fde54ffbfb6f62abb5b816f55e22793931f7b87d1f466c313026e1532380098",
+          "source": {
+            "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+            "repository": "PokeAPI/cries",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "cries/pokemon/latest/282.ogg",
+            "source_sha256": "93bd2d69970abad8c2be0244b2dad575066d17bc4152951df986b66835f2f914"
+          }
+        },
+        "original": {
+          "comparison": {
+            "duration_seconds": 1.1484166666666666,
+            "frames": 55124,
+            "full_scale_samples": 0,
+            "peak_dbfs": -13.984172699358696,
+            "rms_dbfs": -24.436974589405324
+          },
+          "comparison_gain": 0.5020247835276196,
+          "decoded": {
+            "duration_seconds": 1.1484166666666666,
+            "frames": 55124,
+            "full_scale_samples": 0,
+            "peak_dbfs": -7.998119738549971,
+            "rms_dbfs": -18.45147814333927
+          },
+          "path": "comparison/282_GARDEVOIR_original.wav",
+          "sha256": "e1529fcd7e7128f32b20c8e6ec12cb7bc7ac3b90276ff25b98142a6516488e68",
+          "source": {
+            "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+            "repository": "pret/pokeemerald via pinned Vanilla+",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "sound/direct_sound_samples/cries/gardevoir.aif",
+            "source_sha256": "53fe659e4f350c1bc5621043d300d8417ad01542230ad48804e75319a8bdbeb6"
+          }
+        }
+      }
+    },
+    {
+      "identity": "cry.306",
+      "name": "AGGRON",
+      "national_dex": 306,
+      "quality_approved": false,
+      "tracks": {
+        "modern": {
+          "comparison": {
+            "duration_seconds": 1.3766875,
+            "frames": 66081,
+            "full_scale_samples": 0,
+            "peak_dbfs": -15.164115678754957,
+            "rms_dbfs": -24.43696897136099
+          },
+          "comparison_gain": 0.3028856563916309,
+          "decoded": {
+            "duration_seconds": 1.3766875,
+            "frames": 66081,
+            "full_scale_samples": 0,
+            "peak_dbfs": -4.789418969851399,
+            "rms_dbfs": -14.062549135282488
+          },
+          "path": "comparison/306_AGGRON_modern.wav",
+          "sha256": "682f6ddab0b75dc78077755922548b22800e9abc005e4feec7042e0e8b0317e3",
+          "source": {
+            "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+            "repository": "PokeAPI/cries",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "cries/pokemon/latest/306.ogg",
+            "source_sha256": "ada6518505a1ed77829295f48e981b7fe9ef6890180bdc76fedc2ce75c5aa1d7"
+          }
+        },
+        "original": {
+          "comparison": {
+            "duration_seconds": 1.2075833333333332,
+            "frames": 57964,
+            "full_scale_samples": 0,
+            "peak_dbfs": -14.348422831112897,
+            "rms_dbfs": -24.436974151018752
+          },
+          "comparison_gain": 0.3987193076575739,
+          "decoded": {
+            "duration_seconds": 1.2075833333333332,
+            "frames": 57964,
+            "full_scale_samples": 0,
+            "peak_dbfs": -6.362284636593123,
+            "rms_dbfs": -16.450320322887084
+          },
+          "path": "comparison/306_AGGRON_original.wav",
+          "sha256": "ed11425339fe48dd8f149113b0aab1504b9b197bfd01618dab8d6e1ecabd1a6f",
+          "source": {
+            "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+            "repository": "pret/pokeemerald via pinned Vanilla+",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "sound/direct_sound_samples/cries/aggron.aif",
+            "source_sha256": "91c32dc8a5a9df496a7a4adb4355e80cc823f86578af7705a430ecd033fa6415"
+          }
+        }
+      }
+    },
+    {
+      "identity": "cry.351",
+      "name": "CASTFORM",
+      "national_dex": 351,
+      "quality_approved": false,
+      "tracks": {
+        "modern": {
+          "comparison": {
+            "duration_seconds": 0.6570625,
+            "frames": 31539,
+            "full_scale_samples": 0,
+            "peak_dbfs": -11.994671940274483,
+            "rms_dbfs": -24.436973652844966
+          },
+          "comparison_gain": 0.46166978719216717,
+          "decoded": {
+            "duration_seconds": 0.6570625,
+            "frames": 31539,
+            "full_scale_samples": 0,
+            "peak_dbfs": -5.28158858926031,
+            "rms_dbfs": -17.723604075939996
+          },
+          "path": "comparison/351_CASTFORM_modern.wav",
+          "sha256": "d709b65445011cd4c9448c40b9bd94428dbc000abf575a077fecb424e6409b16",
+          "source": {
+            "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+            "repository": "PokeAPI/cries",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "cries/pokemon/latest/351.ogg",
+            "source_sha256": "cd1d6e06bdda67fcd9e0ab0879115d70d42cfa550662d63338e9990afb6bf10d"
+          }
+        },
+        "original": {
+          "comparison": {
+            "duration_seconds": 0.5917083333333333,
+            "frames": 28402,
+            "full_scale_samples": 0,
+            "peak_dbfs": -12.116808489390982,
+            "rms_dbfs": -24.436983826239583
+          },
+          "comparison_gain": 0.503534898334035,
+          "decoded": {
+            "duration_seconds": 0.5917083333333333,
+            "frames": 28402,
+            "full_scale_samples": 0,
+            "peak_dbfs": -6.157926980208216,
+            "rms_dbfs": -18.477566501189393
+          },
+          "path": "comparison/351_CASTFORM_original.wav",
+          "sha256": "45ca7a20f40e005486f376a2aae09a7b8ca23467673438a028bcbec95649a3b8",
+          "source": {
+            "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+            "repository": "pret/pokeemerald via pinned Vanilla+",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "sound/direct_sound_samples/cries/castform.aif",
+            "source_sha256": "8f39016d896a8cb500222f141d2f100d4c1d876d71b1c4c0e0b81420bf50e233"
+          }
+        }
+      }
+    },
+    {
+      "identity": "cry.384",
+      "name": "RAYQUAZA",
+      "national_dex": 384,
+      "quality_approved": false,
+      "tracks": {
+        "modern": {
+          "comparison": {
+            "duration_seconds": 1.5018333333333334,
+            "frames": 72088,
+            "full_scale_samples": 0,
+            "peak_dbfs": -15.454496073100392,
+            "rms_dbfs": -24.43697518182489
+          },
+          "comparison_gain": 0.30004606176109344,
+          "decoded": {
+            "duration_seconds": 1.5018333333333334,
+            "frames": 72088,
+            "full_scale_samples": 0,
+            "peak_dbfs": -4.998020716787859,
+            "rms_dbfs": -13.980733608927004
+          },
+          "path": "comparison/384_RAYQUAZA_modern.wav",
+          "sha256": "4b89c50e7f858b9a0d5b92f37d86446cb7a46978b29c4e9142cacf8834fb45b9",
+          "source": {
+            "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+            "repository": "PokeAPI/cries",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "cries/pokemon/latest/384.ogg",
+            "source_sha256": "cd85f81a2e4e5c2d716a22b743396d8e8cb8cd5d9cdf7d474a5572ed3cfce7ac"
+          }
+        },
+        "original": {
+          "comparison": {
+            "duration_seconds": 1.374625,
+            "frames": 65982,
+            "full_scale_samples": 0,
+            "peak_dbfs": -14.22348335661248,
+            "rms_dbfs": -24.436976774366876
+          },
+          "comparison_gain": 0.42339125674603734,
+          "decoded": {
+            "duration_seconds": 1.374625,
+            "frames": 65982,
+            "full_scale_samples": 0,
+            "peak_dbfs": -6.758268700597116,
+            "rms_dbfs": -16.971812699620116
+          },
+          "path": "comparison/384_RAYQUAZA_original.wav",
+          "sha256": "a5e74c0199dbf327e584acbad9d8c8bdd12296a3e422f7a797e61c44b02601ec",
+          "source": {
+            "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+            "repository": "pret/pokeemerald via pinned Vanilla+",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "sound/direct_sound_samples/cries/rayquaza.aif",
+            "source_sha256": "0067909d1ca08ec96b5d5febcafe9d489894f5e38db7e35cc6c7ba39809e87aa"
+          }
+        }
+      }
+    },
+    {
+      "identity": "cry.386",
+      "name": "DEOXYS",
+      "national_dex": 386,
+      "quality_approved": false,
+      "tracks": {
+        "modern": {
+          "comparison": {
+            "duration_seconds": 1.0638125,
+            "frames": 51063,
+            "full_scale_samples": 0,
+            "peak_dbfs": -14.307035095698845,
+            "rms_dbfs": -24.43697931191956
+          },
+          "comparison_gain": 0.3400752480860721,
+          "decoded": {
+            "duration_seconds": 1.0638125,
+            "frames": 51063,
+            "full_scale_samples": 0,
+            "peak_dbfs": -4.938843344247354,
+            "rms_dbfs": -15.06847546333534
+          },
+          "path": "comparison/386_DEOXYS_modern.wav",
+          "sha256": "b5be5fef0dca6a61cdc97bb21768db937c23ff9e15e6703489f1a442e62840d8",
+          "source": {
+            "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+            "repository": "PokeAPI/cries",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "cries/pokemon/latest/386.ogg",
+            "source_sha256": "0e531059df1bf9244cc3f8be8b7c5497a16d5d6fa4e46e74b2ccca72b2c230dc"
+          }
+        },
+        "original": {
+          "comparison": {
+            "duration_seconds": 0.9804166666666667,
+            "frames": 47060,
+            "full_scale_samples": 0,
+            "peak_dbfs": -14.11511152485588,
+            "rms_dbfs": -24.436979425846946
+          },
+          "comparison_gain": 0.4097606459784262,
+          "decoded": {
+            "duration_seconds": 0.9804166666666667,
+            "frames": 47060,
+            "full_scale_samples": 0,
+            "peak_dbfs": -6.365593757074342,
+            "rms_dbfs": -16.687579907934328
+          },
+          "path": "comparison/386_DEOXYS_original.wav",
+          "sha256": "05127ad6ed7036e2b14c2f0a8097683afb95d2e4da9a8911db3d7be52dd78cc0",
+          "source": {
+            "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+            "repository": "pret/pokeemerald via pinned Vanilla+",
+            "rights": "Pokemon audio copyright The Pokemon Company; private evaluation only; not redistributable by repository CC0",
+            "source_path": "sound/direct_sound_samples/cries/deoxys.aif",
+            "source_sha256": "d30115a8cc7b61ce792c86ff46d1e7f0b5b202a1cc001513c72a8f2709236bb1"
+          }
+        }
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "dex": 6,
+      "end_seconds": 1.908,
+      "pokemon": "CHARIZARD",
+      "profile": "original",
+      "start_seconds": 1.0
+    },
+    {
+      "dex": 6,
+      "end_seconds": 3.559,
+      "pokemon": "CHARIZARD",
+      "profile": "modern",
+      "start_seconds": 2.558
+    },
+    {
+      "dex": 25,
+      "end_seconds": 5.592,
+      "pokemon": "PIKACHU",
+      "profile": "original",
+      "start_seconds": 4.809
+    },
+    {
+      "dex": 25,
+      "end_seconds": 7.168,
+      "pokemon": "PIKACHU",
+      "profile": "modern",
+      "start_seconds": 6.242
+    },
+    {
+      "dex": 94,
+      "end_seconds": 9.112,
+      "pokemon": "GENGAR",
+      "profile": "original",
+      "start_seconds": 8.418
+    },
+    {
+      "dex": 94,
+      "end_seconds": 10.606,
+      "pokemon": "GENGAR",
+      "profile": "modern",
+      "start_seconds": 9.762
+    },
+    {
+      "dex": 125,
+      "end_seconds": 13.312,
+      "pokemon": "ELECTABUZZ",
+      "profile": "original",
+      "start_seconds": 11.856
+    },
+    {
+      "dex": 125,
+      "end_seconds": 15.401,
+      "pokemon": "ELECTABUZZ",
+      "profile": "modern",
+      "start_seconds": 13.962
+    },
+    {
+      "dex": 150,
+      "end_seconds": 18.084,
+      "pokemon": "MEWTWO",
+      "profile": "original",
+      "start_seconds": 16.651
+    },
+    {
+      "dex": 150,
+      "end_seconds": 20.33,
+      "pokemon": "MEWTWO",
+      "profile": "modern",
+      "start_seconds": 18.734
+    },
+    {
+      "dex": 201,
+      "end_seconds": 22.197,
+      "pokemon": "UNOWN",
+      "profile": "original",
+      "start_seconds": 21.58
+    },
+    {
+      "dex": 201,
+      "end_seconds": 23.536,
+      "pokemon": "UNOWN",
+      "profile": "modern",
+      "start_seconds": 22.847
+    },
+    {
+      "dex": 252,
+      "end_seconds": 25.333,
+      "pokemon": "TREECKO",
+      "profile": "original",
+      "start_seconds": 24.786
+    },
+    {
+      "dex": 252,
+      "end_seconds": 26.734,
+      "pokemon": "TREECKO",
+      "profile": "modern",
+      "start_seconds": 25.983
+    },
+    {
+      "dex": 282,
+      "end_seconds": 29.132,
+      "pokemon": "GARDEVOIR",
+      "profile": "original",
+      "start_seconds": 27.984
+    },
+    {
+      "dex": 282,
+      "end_seconds": 31.096,
+      "pokemon": "GARDEVOIR",
+      "profile": "modern",
+      "start_seconds": 29.782
+    },
+    {
+      "dex": 306,
+      "end_seconds": 33.554,
+      "pokemon": "AGGRON",
+      "profile": "original",
+      "start_seconds": 32.346
+    },
+    {
+      "dex": 306,
+      "end_seconds": 35.581,
+      "pokemon": "AGGRON",
+      "profile": "modern",
+      "start_seconds": 34.204
+    },
+    {
+      "dex": 351,
+      "end_seconds": 37.422,
+      "pokemon": "CASTFORM",
+      "profile": "original",
+      "start_seconds": 36.831
+    },
+    {
+      "dex": 351,
+      "end_seconds": 38.73,
+      "pokemon": "CASTFORM",
+      "profile": "modern",
+      "start_seconds": 38.072
+    },
+    {
+      "dex": 384,
+      "end_seconds": 41.354,
+      "pokemon": "RAYQUAZA",
+      "profile": "original",
+      "start_seconds": 39.98
+    },
+    {
+      "dex": 384,
+      "end_seconds": 43.506,
+      "pokemon": "RAYQUAZA",
+      "profile": "modern",
+      "start_seconds": 42.004
+    },
+    {
+      "dex": 386,
+      "end_seconds": 45.736,
+      "pokemon": "DEOXYS",
+      "profile": "original",
+      "start_seconds": 44.756
+    },
+    {
+      "dex": 386,
+      "end_seconds": 47.45,
+      "pokemon": "DEOXYS",
+      "profile": "modern",
+      "start_seconds": 46.386
+    }
+  ],
+  "unreal_import_validated": false
+}

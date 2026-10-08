@@ -1,0 +1,32 @@
+{
+  "archives": {
+    "normal": {
+      "bytes": 34117563,
+      "historical_sha256": "971047d5b59d3ca6662cb431bbdc1663e7c6def88c66fa794a8aadb87a3921b6",
+      "matches_historical_container": false,
+      "members": 777,
+      "sha256": "a0f1ca22176a7be1a653205a6270ba4cf000c10b1ef85b55070a785c2ec799f6"
+    },
+    "special": {
+      "bytes": 311477953,
+      "historical_sha256": "902880df75d9587e7a6f9b2815b3727d3761e12aa78552a6c087b27ab06223c8",
+      "matches_historical_container": false,
+      "members": 5412,
+      "sha256": "6cfa7a4c99b71051601b00d00dff7b9a7d76f2a668f12363545c4447f345376b"
+    }
+  },
+  "hardware_audio_equivalence_verified": false,
+  "individual_listening_verified": false,
+  "manifest_sha256": "1e0cb80a72723a8bc0aedbdbd4962854d6f3948543b47d089b97a737566696d8",
+  "missing_other_audio_semantics": 609,
+  "normal_wavs_match_history": 386,
+  "prepared_special_candidates": 4632,
+  "recipe_sha256": "5c56e7bb43803ca6c4b181be6d6c8eb36ccbb54f0fe7bcf39ad5a7a29394e873",
+  "schema": "r15-cry-recovery-audit-v1",
+  "source_commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+  "source_masters_match_history": 386,
+  "source_parameter_pin": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+  "special_manifest_matches_history": true,
+  "total_cry_candidates": 5018,
+  "unreal_import_validated": false
+}

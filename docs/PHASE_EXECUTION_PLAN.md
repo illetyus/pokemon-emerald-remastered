@@ -1,6 +1,6 @@
 # Phase Execution Plan — Through Real Unreal Runtime Validation
 
-Date: 2026-10-06
+Date: 2026-10-08
 Status: active execution plan
 Canonical roadmap source: `docs/ROADMAP.md`
 
@@ -407,6 +407,13 @@ Main HEAD + CI terminal-success. Pass -> R15-P1.
 
 # R15 — Audio
 
+Current preparation/pilot evidence: [R15_AUDIO_PREPARATION.md](R15_AUDIO_PREPARATION.md).
+Pre-real-UE source/preparation G1 is passed; completion evidence is recorded in
+[R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md). F1/merge/main gates are pending.
+386 normal cries, 4,632 special-mode candidates and 209 Original-style BGM/jingle
+candidates are prepared. Actual assets/import, fidelity/listening, owner/platform
+attachment and engine/device tests remain explicit R18/runtime obligations.
+
 ### R15-P1 — Semantic audio inventory
 Inventory gameplay/presentation music, SFX, jingle, cry and ambience IDs/events
 and existing playback bridge surfaces.
@@ -712,7 +719,7 @@ that has identified a concrete missing behavior/test/doc/build requirement.
 The closure prompt must name that exact gap, touch only the minimum required
 surface, and route back to the verification/gate that detected it.
 
-# Current resume point
+# Historical resume records
 
 R13 and R16 are complete on `main`. R17 is the active phase.
 
@@ -876,3 +883,62 @@ All 386 modern species models are missing; zero Unreal imports are claimed.
 Contract, local pipeline, event-batch snapshot limits, runtime deferrals and
 evidence: `docs/R14_BATTLE_PRESENTATION_COMPLETION.md`. R14-M1/M2 remain pending;
 next preparation phase is R15, which does not start under this instruction.
+
+# Current resume point — 2026-10-08
+
+The current user instruction authorizes applying the full agreed plan. Historical
+phase-only preparation restrictions above describe their earlier checkpoints.
+Canonical branch/PR/final-gate/main-CI rules and the R18 runtime stop remain.
+
+Main: `a7ed422da7817c05aa1eac21bdbca6bd6edced5e`, accepted R17, 9/9 main
+workflows terminal-success. Dependent chain: R6 → R7 → R9 → R14 → R15.
+R6/R7/R9/R14 pre-real-Unreal source/preparation acceptance is verified; M1/M2 open.
+
+R15-V1-Closure-1 is VERIFIED_COMPLETE at
+`3b9b208f934ecba9ac9be857cd40e38e88cbfec0`.
+Workflow 37763598815: 35/35 targeted Python, 271/271 full Python, 67/67 CTest,
+zero skips; required FFmpeg transform ran in both Python suites.
+
+R15-I3-Closure-1 is VERIFIED_COMPLETE at
+`9df9fae1d56420259f9d48ab950183800a5eea06`.
+Local historical master/normal hashes, full special manifest, 5,018 private
+candidates and both ZIP contents passed. New container hashes are explicit.
+Published-head workflow 37766890311 reached terminal success: 43/43 targeted
+Python, 279/279 full Python, 67/67 CTest, zero skips. Evidence and reproduction:
+[R15_AUDIO_PACK_RECOVERY.md](R15_AUDIO_PACK_RECOVERY.md).
+
+R15-I2-Closure-1 is VERIFIED_COMPLETE at
+`4f8ef9a9769b0f4211e129c80e0dc6ae8181e72e`.
+Source recipes/timelines cover 191 real music jobs, 18 jingles and 80 reserved
+zero-track rows; historical resolver/cry pack contracts remain unchanged.
+Local 13/13 tests and all 209 compiled pinned-converter recipe oracles pass.
+Exact-head workflow 37769695700 reached terminal success: 56/56 targeted Python,
+292/292 full Python and 67/67 CTest; zero Python skips. Evidence:
+[R15_BGM_SOURCE_PLAN.md](R15_BGM_SOURCE_PLAN.md).
+
+R15-I2-Closure-2 is VERIFIED_COMPLETE at
+`2ae0e2602ce3e01479ddd748bbce84e26059ffd9`.
+Four actual private candidates passed source blob
+integrity, 707 renderer engine tests, decoded PCM probes and native/rational
+loop-frame comparisons. Fresh-build WAV hashes repeat exactly; 12/12 new local
+regressions pass. Exact-head workflow 37777810560 completed successfully:
+68/68 targeted Python, 304/304 full Python and 67/67 CTest, zero Python skips. Evidence:
+[R15_BGM_RENDER_PILOT.md](R15_BGM_RENDER_PILOT.md).
+R15-I2-Closure-3 is VERIFIED_COMPLETE at
+`5a5475103b736ae5d9c8b0abf442238b8edc05be`.
+The private full-coverage pipeline binds the 380 bank inputs and all
+209 MIDI inputs to versioned source receipts, reuses the pinned renderer and
+keeps runtime-loop/listening/import readiness false. Exact-head workflow
+37779942858 passed 74 targeted Python, 310 full Python and 67 CTest, zero skips.
+Evidence: [R15_BGM_RENDER_COVERAGE.md](R15_BGM_RENDER_COVERAGE.md).
+R15-G1/D1 is VERIFIED_COMPLETE at `695d01b56b6afdc2d73ad8b066ca12479125549a`;
+workflow 37780786306 passed 74 targeted Python, 310 full Python and 67 CTest,
+zero Python skips.
+The canonical four source acceptance bullets pass; runtime/local asset obligations
+remain explicitly open in [R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md).
+Current checkpoint: **R15-F1 — independent final gate**. Independent source
+reconciliation passed at `695d01b`; this publication requires exact-head CI.
+After terminal success, integrate R6 → R7 → R9 → R14 → R15 through each named
+M1/M2 gate before R8-P1. No actual runtime/local asset obligation is closed.
+Continue the named subphases/closure gates, then integrate the verified dependent
+phase PRs in order before R8-P1. Stop after R18-M2 at REAL UNREAL RUNTIME VALIDATION.

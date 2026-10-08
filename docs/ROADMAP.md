@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
-Date: 2026-10-07
-Status: **R0-R5, R10-R13, R16 and R17 complete; R6 source/preparation acceptance verified; R7 source/preparation acceptance verified on dependent branch; R6/R7 merge/main gates pending.**
+Date: 2026-10-08
+Status: **R0-R5, R10-R13, R16 and R17 complete on main; R6/R7/R9/R14 source/preparation acceptance verified on dependent branches, merge/main gates pending; R15 active, cry payload recovery passed locally and final audio gates remain open.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -525,6 +525,11 @@ silently ignored.
 
 ## R15 — Audio
 
+Preparation/pilot status: [R15_AUDIO_PREPARATION.md](R15_AUDIO_PREPARATION.md).
+Modern style selected after the 12-species pilot; 386 normal cries and 4,632
+special-mode candidates are prepared. Special-mode listening/hardware comparison,
+music/FX and runtime gates remain open.
+
 ### Goal
 
 Preserve Emerald audio identity while replacing playback infrastructure.
@@ -895,25 +900,45 @@ of successful UE compilation or Android runtime.
 
 # 14. Immediate next action
 
-The active preparation phase is **R14 — Battle presentation + Pokémon asset pipeline**.
-The user directly authorized R14 after R9 source/preparation. The dependent
-`r14-battle-presentation` branch starts from verified R9 head
-`4b0da018913867e9f8e83d76c0cb3662501ba3cd`. Main remains R17 at
+The active preparation phase is **R15 Audio** on `r15-audio-modernization`.
+Main remains the accepted R17 merge at
 `a7ed422da7817c05aa1eac21bdbca6bd6edced5e`.
+R6/R7/R9/R14 source/preparation gates are verified; their M1/M2 gates remain open.
 
-R14 implementation covers all 386 species, 832 exact form/skin keys, 93 trainer
-pictures and 25 canonical battle/VFX events. All modern Pokémon models have
-explicit visible fallback dispositions; zero 3D Pokémon imports are claimed.
-R14-P1/P2, I1-I8, T1, V1/G1 and D1/F1 are VERIFIED_COMPLETE for source/preparation.
-Implementation `f1d7a44c575723ddc3a22c462b276f8557fa59a6` passed
-[hosted run 37643401453](https://github.com/illetyus/pokemon-emerald-remastered/actions/runs/37643401453):
-236 Python tests and 66/66 complete CMake/CTest checks. All 23 published blobs
-match local bytes; core/vendor files are unchanged. Current checkpoint: verify
-this final documentation-head CI before handoff.
-Completion evidence: [R14_BATTLE_PRESENTATION_COMPLETION.md](R14_BATTLE_PRESENTATION_COMPLETION.md).
-R6/R7/R9/R14 PR/merge/main boundaries remain; integrate in dependency order when
-those gates are authorized. Next preparation phase is R15 Audio; this instruction
-does not start it automatically.
+R15-V1-Closure-1 is VERIFIED_COMPLETE at
+`3b9b208f934ecba9ac9be857cd40e38e88cbfec0`: hosted
+[workflow 37763598815](https://github.com/illetyus/pokemon-emerald-remastered/actions/runs/37763598815)
+passed 35/35 targeted Python, 271/271 full Python and 67/67 CTest with zero skips.
+
+R15-I3-Closure-1 is VERIFIED_COMPLETE at
+`9df9fae1d56420259f9d48ab950183800a5eea06` (workflow 37766890311).
+The unavailable local pack contents were recovered from pinned receipts:
+386 normal WAV hashes and the entire historical special manifest match exactly.
+5,018 candidates and both complete ZIP contents passed local verification.
+New ZIP containers have new hashes, recorded separately from unchanged historical
+evidence. Its exact-head CI passed 43 targeted Python, 279 full Python and 67 CTest.
+[Recovery evidence and next steps](R15_AUDIO_PACK_RECOVERY.md).
+
+R15-I2-Closure-1 and Closure-2 are VERIFIED_COMPLETE at `4f8ef9a` and `2ae0e26`.
+Their exact-head workflows 37769695700 and 37777810560 completed successfully;
+Closure-2 passed 68 targeted Python, 304 full Python and 67 CTest with zero skips.
+
+R15-I2-Closure-3 is VERIFIED_COMPLETE at `5a547510`:
+workflow 37779942858 passed 74 targeted Python, 310 full Python and 67 CTest,
+zero skips; 209/209 music/jingle candidates and all 176 loop bounds passed.
+[Full coverage evidence](R15_BGM_RENDER_COVERAGE.md) records private source
+rendering without promoting loop playback, listening or engine/device readiness.
+R15-G1/D1 is VERIFIED_COMPLETE at `695d01b`; workflow 37780786306 passed
+74 targeted Python, 310 full Python and 67 CTest, zero skips.
+The four canonical source acceptance bullets pass; actual assets/import, listening,
+owner/platform attachment and engine/device obligations remain explicitly open in
+[R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md).
+Current checkpoint: **R15-F1 — independent final gate**. Independent source
+reconciliation passed at `695d01b`; exact published-head CI remains required.
+After success, next named state is **R6-M1 — dependent phase PR integration**.
+R15 actual runtime/asset gates remain open under the completion ledger.
+Integrate verified phases in dependency order R6 → R7 → R9 → R14 → R15, with
+each phase's final gate, PR and main CI terminal-success before advancing to R8.
 
 Real Unreal build remains R18 work. After R18 main verification, stop at
 REAL UNREAL RUNTIME VALIDATION; do not automatically run physical Android
