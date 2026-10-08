@@ -939,7 +939,9 @@ R15-F1 publication `515dde0` passed workflow 37781258584 (74/310/67, zero skips)
 The verified dependent phases then integrated through PR #17/#18/#19/#20/#21
 and terminal-success main CI in order. R8-P1 is versioned at `261cef11`. R8-P2 freezes the platform/lifecycle
 schema in [R8_INPUT_CONTRACT.md](R8_INPUT_CONTRACT.md) and
-`data/r8/input_contract.json`; next named subphase is **R8-I1 — Common action router**.
+`data/r8/input_contract.json`; current implementation checkpoint is **R8-I1 — Common action router**,
+VERIFYING exact-head CI. Evidence: [R8_INPUT_IMPLEMENTATION.md](R8_INPUT_IMPLEMENTATION.md).
+After CI terminal-success, next is **R8-I2 — Touch source wiring**.
 No actual runtime/local asset obligation was closed by these source merges.
 
 Real Unreal build remains R18 work. After R18 main verification, stop at

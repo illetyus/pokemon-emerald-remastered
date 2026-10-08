@@ -1079,3 +1079,16 @@ else()
     target_compile_options(r15_audio_policy_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r15_audio_resolver_and_policy COMMAND r15_audio_policy_test)
+
+# Platform-neutral input router, also available to the production UE host.
+add_executable(r8_input_router_test tests/r8_input_router_test.cpp)
+target_include_directories(r8_input_router_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_input_router_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_input_router_test PRIVATE /W4)
+else()
+    target_compile_options(r8_input_router_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_common_input_router COMMAND r8_input_router_test)
+

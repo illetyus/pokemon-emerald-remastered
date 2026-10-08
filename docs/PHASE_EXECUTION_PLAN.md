@@ -945,7 +945,11 @@ no implementation changes and no push workflow trigger.
 Current checkpoint: **R8-P2 — Platform/lifecycle contract**, frozen in
 [R8_INPUT_CONTRACT.md](R8_INPUT_CONTRACT.md) and `data/r8/input_contract.json`.
 This is a policy/doc checkpoint; no input/gameplay behavior changes.
-Next: **R8-I1 — Common action router**, regression before implementation.
+R8-P2 is versioned at `d9771a8d`. Current implementation checkpoint:
+**R8-I1 — Common action router**, VERIFYING exact published-head CI.
+[Actual RED/native evidence](R8_INPUT_IMPLEMENTATION.md): 191 local native
+checks PASS; no UE controller/touch/lifecycle/repeat wiring is claimed yet.
+After CI terminal-success, next: **R8-I2 — Touch source wiring**.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,
 R20 and R18; stop at the actual environment/runtime boundary. All deferred
