@@ -1,6 +1,7 @@
 # R8 input source regression matrix
 
-State: T1/V1 VERIFIED_COMPLETE at `d1730592`; Closure-1 VERIFYING exact-head CI. Contract: [R8_INPUT_CONTRACT.md](R8_INPUT_CONTRACT.md).
+State: T1/V1 and Closure-1/G1 VERIFIED_COMPLETE; workflow 37851201049 passed
+8/75/328. [Completion/final gates](R8_INPUT_COMPLETION.md). Contract: [R8_INPUT_CONTRACT.md](R8_INPUT_CONTRACT.md).
 Source pin: `70db90c9077aed1272e746fc2537d9f12b95a91c`.
 Branch: `r8-input-infrastructure`. No real engine/device certification.
 

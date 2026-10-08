@@ -86,7 +86,12 @@ Optional Enhanced Input is an adapter to the same schema. An available action
 suppresses only its equivalent native fallback; an absent/invalid action leaves
 the fallback. Asset-backed mapping readiness must remain explicit.
 Started/changed/released/canceled axis and button events must not duplicate native
-bindings. No separate Enhanced gameplay handler is allowed.
+bindings. Closure-1 makes equivalence physical-key-specific: only covered keys
+are suppressed; uncovered aliases and gamepad/keyboard controls remain native.
+Reserved keys assigned to another action, positional Touch keys and incomplete
+left-stick axis assets are rejected atomically. Native paired stick polling is
+replaced only by complete mapped stick coverage. Cooked modifiers/triggers still
+require actual engine/runtime validation. No separate Enhanced gameplay handler is allowed.
 
 Analog coordinates must be finite and within [-1,1]. Magnitudes below or equal
 to 0.25 are neutral. Above the dead zone, the largest magnitude selects one

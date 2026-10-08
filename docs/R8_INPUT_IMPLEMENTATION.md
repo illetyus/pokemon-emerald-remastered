@@ -283,7 +283,10 @@ After targeted/full exact-head CI, next: **R8-V1 — Targeted CI reconciliation*
 
 ## R8-G1 → R8-Closure-1 — Partial Enhanced fallback coverage
 
-G1 state: **NEEDS_CLOSURE** at `d1730592`; closure publication is **VERIFYING**.
+Initial G1: **NEEDS_CLOSURE** at `d1730592`; Closure-1 is **VERIFIED_COMPLETE**
+at `19f8716d9db199f7c7ae42f0ed214a6224503f74`. Workflow 37851201049 passed
+8/8 targeted CTest, 75/75 full CTest, 328/328 Python and Unreal source guards.
+V1/G1 re-verification passed. D1 publication is VERIFYING; F1 remains required.
 Acceptance review found that a valid keyboard-only Enhanced action suppressed
 all native equivalents, including unmapped gamepad controls. The existing action-
 level tests had not covered partial mapping assets. This violated I3 equivalence.
@@ -309,3 +312,7 @@ No gameplay/persistence/timing or lifecycle rule changed. Exact hosted R4/R9/ful
 regressions remain required before re-running V1/G1. Actual Enhanced modifiers,
 cooked assets and UE/device callback behavior remain explicit runtime obligations.
 Next after closure CI: **R8-V1 → R8-G1 re-verification**.
+
+
+G1 acceptance and completion ledger: [R8_INPUT_COMPLETION.md](R8_INPUT_COMPLETION.md).
+Next: D1 exact-head CI, then independent F1 reconciliation before PR/main gates.
