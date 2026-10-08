@@ -1,0 +1,929 @@
+{
+  "identity_findings": {
+    "OBJ_EVENT_GFX_CAMERAMAN": {
+      "asset_id": 299514,
+      "note": "Pinned Emerald maps use CAMERAMAN for Ty. The ORAS Interviewers archive has two models, but submodel-to-name assignment is not yet verified.",
+      "resolution": "package_pair_submodel_unresolved",
+      "source_role": "Ty"
+    },
+    "OBJ_EVENT_GFX_CYCLING_TRIATHLETE_F": {
+      "asset_id": 299537,
+      "note": "Triathlete archive contains two base models for four Emerald run/cycle identities; final gender/submodel mapping remains pending.",
+      "resolution": "package_pair_state_gender_mapping_unresolved"
+    },
+    "OBJ_EVENT_GFX_CYCLING_TRIATHLETE_M": {
+      "asset_id": 299537,
+      "note": "Triathlete archive contains two base models for four Emerald run/cycle identities; final gender/submodel mapping remains pending.",
+      "resolution": "package_pair_state_gender_mapping_unresolved"
+    },
+    "OBJ_EVENT_GFX_LIZA": {
+      "asset_id": 296325,
+      "note": "Liza & Tate archive contains two DAE models; visual/source-ID assignment remains pending.",
+      "resolution": "package_pair_submodel_unresolved"
+    },
+    "OBJ_EVENT_GFX_REPORTER_F": {
+      "asset_id": 299514,
+      "note": "Pinned Emerald maps use REPORTER_F for Gabby. The ORAS Interviewers archive has two models, but submodel-to-name assignment is not yet verified.",
+      "resolution": "package_pair_submodel_unresolved",
+      "source_role": "Gabby"
+    },
+    "OBJ_EVENT_GFX_REPORTER_M": {
+      "note": "Pinned Emerald uses REPORTER_M independently from Gabby/Ty; the two-model ORAS Interviewers archive is not sufficient for this identity.",
+      "rejected_asset_id": 299514,
+      "resolution": "source_gap",
+      "source_role": "generic_male_reporter"
+    },
+    "OBJ_EVENT_GFX_RUNNING_TRIATHLETE_F": {
+      "asset_id": 299537,
+      "note": "Triathlete archive contains two base models for four Emerald run/cycle identities; final gender/submodel mapping remains pending.",
+      "resolution": "package_pair_state_gender_mapping_unresolved"
+    },
+    "OBJ_EVENT_GFX_RUNNING_TRIATHLETE_M": {
+      "asset_id": 299537,
+      "note": "Triathlete archive contains two base models for four Emerald run/cycle identities; final gender/submodel mapping remains pending.",
+      "resolution": "package_pair_state_gender_mapping_unresolved"
+    },
+    "OBJ_EVENT_GFX_SWIMMER_F": {
+      "asset_id": 299535,
+      "model_path": "Swimmer female/rstr0113_00_fi.dae",
+      "note": "Archive explicitly names the only model Swimmer female.",
+      "resolution": "package_model_explicit"
+    },
+    "OBJ_EVENT_GFX_SWIMMER_M": {
+      "note": "Asset 299535 contains only the female swimmer model; male swimmer requires owned-ORAS extraction or another verified source.",
+      "rejected_asset_id": 299535,
+      "resolution": "source_gap"
+    },
+    "OBJ_EVENT_GFX_TATE": {
+      "asset_id": 296325,
+      "note": "Liza & Tate archive contains two DAE models; visual/source-ID assignment remains pending.",
+      "resolution": "package_pair_submodel_unresolved"
+    },
+    "OBJ_EVENT_GFX_TUBER_M": {
+      "asset_id": 299538,
+      "model_path": "Tuber Boy/rstr0110_00_fi.dae",
+      "note": "One rigged base model is present.",
+      "resolution": "single_base_model"
+    },
+    "OBJ_EVENT_GFX_TUBER_M_SWIMMING": {
+      "asset_id": 299538,
+      "model_path": "Tuber Boy/rstr0110_00_fi.dae",
+      "note": "Only one Tuber Boy model is present; swimming should remain a presentation-state decision until source behavior is mapped.",
+      "resolution": "reuse_base_state_pending"
+    },
+    "OBJ_EVENT_GFX_WALLY": {
+      "asset_id": 296336,
+      "note": "Wally archive contains two DAE variants; exact variant policy remains pending.",
+      "resolution": "variant_package_submodel_unresolved"
+    },
+    "OBJ_EVENT_GFX_YOUNGSTER": {
+      "asset_id": 299541,
+      "note": "Youngster archive contains one base and two alternate DAE models; selection policy remains pending.",
+      "resolution": "variant_package_submodel_unresolved"
+    }
+  },
+  "packages": [
+    {
+      "asset_id": 296297,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Flannery/rstr0020_00_fi.dae"
+      ],
+      "name": "Flannery",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_FLANNERY"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "3605e5e85788b427e6faa40f5e152e687b6587abf2c1f642698bfde5d7534f16",
+      "source_archive_size_bytes": 83196,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296297/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296308,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Phoebe/rstr0014_00_fi.dae"
+      ],
+      "name": "Phoebe",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_PHOEBE"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "82e7186a4ad4124b5cbe2b9a15b0ea8c34acde05684c0cc1fcf520ad2da6b56d",
+      "source_archive_size_bytes": 91820,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296308/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296309,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Sidney/rstr0013_00_fi.dae"
+      ],
+      "name": "Sidney",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_SIDNEY"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "177fd27119f3ed914efcdba9251ac17d9927cbff0dda5e42aaa92ffe21f05a7d",
+      "source_archive_size_bytes": 78922,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296309/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296310,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Winona/rstr0022_00_fi.dae"
+      ],
+      "name": "Winona",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_WINONA"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "984cfe456e22eafc87c08fbf88ec2ecbb312b1113088bd3ce456abf09b368f7d",
+      "source_archive_size_bytes": 83561,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296310/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296311,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Brawly/rstr0018_00_fi.dae"
+      ],
+      "name": "Brawly",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_BRAWLY"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "d95ab4bef4097642c84f7f73cfcb7aa3ea6b1931b26a2f33e3c383c753e42117",
+      "source_archive_size_bytes": 76404,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296311/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296313,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Norman/rstr0053_00_fi.dae"
+      ],
+      "name": "Norman",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_NORMAN"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "4c58478201d49e0c4caa9cb752afc0fae1f7dcbdcad4b4292e11f03dfd2c5846",
+      "source_archive_size_bytes": 72622,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296313/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296314,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Professor Birch/rstr0009_00_fi.dae"
+      ],
+      "name": "Professor Birch",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_PROF_BIRCH"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "33d4e516b2c5ea36fb210d3d90acbec6494043a1232a7de054596f5523cc9231",
+      "source_archive_size_bytes": 77935,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296314/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296316,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Female Team Aqua Grunt/rstr0035_00_fi.dae"
+      ],
+      "name": "Team Aqua Grunt (Female)",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_AQUA_MEMBER_F"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "985d124d9a5f989dd879a54b3c8320e31ac0c6113b2b40d3cca5018ec5757ab0",
+      "source_archive_size_bytes": 76679,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296316/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296317,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Male Team Aqua Grunt/rstr0034_00_fi.dae"
+      ],
+      "name": "Team Aqua Grunt (Male)",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_AQUA_MEMBER_M"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "9ec48465b1850b9bb24f1a87ddc25772ea3c151d87c7c5e634915ddde7a3066a",
+      "source_archive_size_bytes": 69107,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296317/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296323,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Drake/rstr0016_00_fi.dae"
+      ],
+      "name": "Drake",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_DRAKE"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "2772f85a981fe2a2e98a93049906c371567492914c0c36842781048195d30275",
+      "source_archive_size_bytes": 78567,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296323/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296324,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Female Team Magma Grunt/rstr0030_00_fi.dae"
+      ],
+      "name": "Team Magma Grunt (Female)",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_MAGMA_MEMBER_F"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "e91fddfddb1040d5b2d699223fd1950aa655da8624ab69b969d2c231c34aff32",
+      "source_archive_size_bytes": 67107,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296324/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296325,
+      "embedded_dae_animation_present": false,
+      "model_count": 2,
+      "model_paths": [
+        "Liza & Tate/rstr0023_00_fi.dae",
+        "Liza & Tate/rstr0024_00_fi.dae"
+      ],
+      "name": "Liza & Tate",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_LIZA",
+        "OBJ_EVENT_GFX_TATE"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "2ac3f300f2dfde46c8744f8ae40392426f51ec18d55babd8f6b8a8ff28c4ccd5",
+      "source_archive_size_bytes": 157337,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296325/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296326,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Male Team Magma Grunt/rstr0029_00_fi.dae"
+      ],
+      "name": "Team Magma Grunt (Male)",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_MAGMA_MEMBER_M"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "ba3125981d29a8eed95a73a86564f56ecf106af33e8e40e3e7514a8815df3d49",
+      "source_archive_size_bytes": 65443,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296326/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296327,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Roxanne/rstr0017_00_fi.dae"
+      ],
+      "name": "Roxanne",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_ROXANNE"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "8ecfabc339f96384d9cc00e6237302ad2022aa9c4427305ed2f812230b09ab89",
+      "source_archive_size_bytes": 79039,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296327/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296329,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Wallace/rstr0025_00_fi.dae"
+      ],
+      "name": "Wallace",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_WALLACE"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "6777ab40b176126b00761a8fcd0ca9d5e4561f4259ef35d9479857f3d47e987d",
+      "source_archive_size_bytes": 89261,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296329/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296330,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Wattson/rstr0019_00_fi.dae"
+      ],
+      "name": "Wattson",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_WATTSON"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "1ad737d8d84435a24c2d1e12215c67648b9391c13161e40311c38455c15329ac",
+      "source_archive_size_bytes": 86641,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296330/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296331,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Glacia/rstr0015_00_fi.dae"
+      ],
+      "name": "Glacia",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_GLACIA"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "cf1c10502e4c66c99f1bf2d41b4cf84ead29db5fa296f150f6d5e4398ded41d3",
+      "source_archive_size_bytes": 78863,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296331/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296332,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Archie/rstr0031_00_fi.dae"
+      ],
+      "name": "Archie",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_ARCHIE"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "5586b4abeb346d12f4b03a18a73f410f6e1cec14efb7fed04bf04af87489ffbe",
+      "source_archive_size_bytes": 93388,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296332/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296333,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Maxie/rstr0026_00_fi.dae"
+      ],
+      "name": "Maxie",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_MAXIE"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "4e07b8b0757a6296ac6b3c476b16f397051850c872db032b94aa87594e544d11",
+      "source_archive_size_bytes": 93990,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296333/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296334,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Steven/rstr0012_00_fi.dae"
+      ],
+      "name": "Steven",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_STEVEN"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "46aad39d00ac1d0e39fb641707de5f32005ea6d15eebfe0387eaeb4f2ab987b8",
+      "source_archive_size_bytes": 90557,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296334/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296336,
+      "embedded_dae_animation_present": false,
+      "model_count": 2,
+      "model_paths": [
+        "Wally/rstr0010_00_fi.dae",
+        "Wally/rstr0011_00_fi.dae"
+      ],
+      "name": "Wally",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_WALLY"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "8cdf82c1f3c21c893c8e86a57b8b306ef02098b02f197ef1e9a90b14f064af7d",
+      "source_archive_size_bytes": 195927,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296336/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296685,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Players Mother/rstr0163_00_fi.dae"
+      ],
+      "name": "Player's Mother",
+      "section": "Unique NPCs (Overworld)",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_MOM"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "8a5f0eeee5d9a7bb81c76d34a24fb238ae7573e1afa99725bb48adcd7241ddbe",
+      "source_archive_size_bytes": 76010,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/296685/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299499,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Beauty/rstr0135_00_fi.dae"
+      ],
+      "name": "Beauty",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_BEAUTY"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "b53e1a6052e0988622657fe575e0c79c64ec8fc2ceb03d55f968ff2662f1de53",
+      "source_archive_size_bytes": 84518,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299499/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299501,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Bug Catcher/rstr0103_00_fi.dae"
+      ],
+      "name": "Bug Catcher",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_BUG_CATCHER"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "470413f1eb53882cb4e4d4cb029761bf7eba37744d47d399310a1891ed121b2a",
+      "source_archive_size_bytes": 86265,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299501/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299503,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Camper/rstr0106_00_fi.dae"
+      ],
+      "name": "Camper",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_CAMPER"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "5fdb15fe05359519d7fdf930fb4199d39daf46b7c6da3227f4682bc5c38e3896",
+      "source_archive_size_bytes": 80160,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299503/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299507,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Expert Female/rstr0208_00_fi.dae"
+      ],
+      "name": "Expert (Female)",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_EXPERT_F"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "058ab49fc29d6bcf47a703a5e4313f178d43c08fadefa866497b10f10035aaac",
+      "source_archive_size_bytes": 91403,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299507/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299508,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Expert Male/rstr0207_00_fi.dae"
+      ],
+      "name": "Expert (Male)",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_EXPERT_M"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "01f451762c6f45090011dd2ac8723e0492cae394be1ab1c7444084b9e3146086",
+      "source_archive_size_bytes": 81985,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299508/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299509,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Fisherman/rstr0122_00_fi.dae"
+      ],
+      "name": "Fisherman",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_FISHERMAN"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "18336c8cd6880a1d91f4a7800655c5ba63053ac5253ced86048e79d02967bdde",
+      "source_archive_size_bytes": 93192,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299509/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299512,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Gentleman/rstr0114_00_fi.dae"
+      ],
+      "name": "Gentleman",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_GENTLEMAN"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "ed2dc0b0c97294179ebc1e3f90cdea0eab30b2400180825c4f6b6706a6dda13b",
+      "source_archive_size_bytes": 79014,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299512/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299514,
+      "embedded_dae_animation_present": false,
+      "model_count": 2,
+      "model_paths": [
+        "Interviewers/rstr0147_00_fi.dae",
+        "Interviewers/rstr0148_00_fi.dae"
+      ],
+      "name": "Interviewers",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_REPORTER_M",
+        "OBJ_EVENT_GFX_REPORTER_F",
+        "OBJ_EVENT_GFX_CAMERAMAN"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "9a12ddb7864006992ebbd88327fd31a5545bec4bfc96b0b1819e8f6e862570c8",
+      "source_archive_size_bytes": 175056,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299514/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299517,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Lass/rstr0200_00_fi.dae"
+      ],
+      "name": "Lass",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_LASS"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "8cfbdd168990b33598ea27f05c97dd7b4a8a4cfe2ef9f14d343713649f43bae1",
+      "source_archive_size_bytes": 80010,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299517/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299518,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Ninja Boy/rstr0128_00_fi.dae"
+      ],
+      "name": "Ninja Boy",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_NINJA_BOY"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "212f0311bde495df15e5f53f1e5a517fe49355ffe8d8c17f438ca7af87a0d528",
+      "source_archive_size_bytes": 80468,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299518/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299520,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Picnicker/rstr0107_00_fi.dae"
+      ],
+      "name": "Picnicker",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_PICNICKER"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "18f1243431587ceadc34a2a594c98a32298a37dcb3ec2183aa7db8129e0de667",
+      "source_archive_size_bytes": 81112,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299520/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299521,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Poke Fan Female/rstr0139_00_fi.dae"
+      ],
+      "name": "Pok\u00e9 Fan (Female)",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_POKEFAN_F"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "f5cff038ccaaadd62cb79252249a6a5a16127534b1cc418d98a7be0bc00f0df4",
+      "source_archive_size_bytes": 92623,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299521/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299522,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Poke Fan Male/rstr0138_00_fi.dae"
+      ],
+      "name": "Pok\u00e9 Fan (Male)",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_POKEFAN_M"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "c23c92f378b1456faf49fd33423fbc80b5458b15f30120c72b157aa40eabf68c",
+      "source_archive_size_bytes": 77973,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299522/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299523,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Poke Maniac/rstr0123_00_fi.dae"
+      ],
+      "name": "Pok\u00e9 Maniac",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_MANIAC"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "f1084266cf61396c2b780b65734b1118e8a2e51357f78e2c0a17336afe7ef359",
+      "source_archive_size_bytes": 90447,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299523/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299528,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Rich Boy/rstr0108_00_fi.dae"
+      ],
+      "name": "Rich Boy",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_RICH_BOY"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "9cfebcecd888c4e394c6400655c8d8c31b4be5e7d03af077c0354e075157517f",
+      "source_archive_size_bytes": 78955,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299528/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299530,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Sailor/rstr0115_00_fi.dae"
+      ],
+      "name": "Sailor",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_SAILOR"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "4c6766c12cbcf7b51c79db9b2c2b0092e27f25691e5210307b628dcf25bea063",
+      "source_archive_size_bytes": 165580,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299530/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299535,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Swimmer female/rstr0113_00_fi.dae"
+      ],
+      "name": "Swimmer",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_SWIMMER_M",
+        "OBJ_EVENT_GFX_SWIMMER_F"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "2adc4f7dfbe997129fa2e6db71cffdb7e0c3ae8b7440035703dc968dd093dd76",
+      "source_archive_size_bytes": 88850,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299535/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299537,
+      "embedded_dae_animation_present": false,
+      "model_count": 2,
+      "model_paths": [
+        "Triathlete/rstr0140_00_fi.dae",
+        "Triathlete/rstr0142_00_fi.dae"
+      ],
+      "name": "Triathlete",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_RUNNING_TRIATHLETE_M",
+        "OBJ_EVENT_GFX_RUNNING_TRIATHLETE_F",
+        "OBJ_EVENT_GFX_CYCLING_TRIATHLETE_M",
+        "OBJ_EVENT_GFX_CYCLING_TRIATHLETE_F"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "f89778d5a8127c0a134cad92ae405a558ff4fe7d6a9a1c530dad4575d177e7c7",
+      "source_archive_size_bytes": 149742,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299537/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299538,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Tuber Boy/rstr0110_00_fi.dae"
+      ],
+      "name": "Tuber (Boy)",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_TUBER_M",
+        "OBJ_EVENT_GFX_TUBER_M_SWIMMING"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "0a2867911d3ee38e020a6e55e218632e2fb9d0391e328e3f1f5c7571293c6a31",
+      "source_archive_size_bytes": 72836,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299538/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299539,
+      "embedded_dae_animation_present": false,
+      "model_count": 1,
+      "model_paths": [
+        "Tuber Girl/rstr0111_00_fi.dae"
+      ],
+      "name": "Tuber (Girl)",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_TUBER_F"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "fbac01da97ef498cc4e7d09f1c80629be9ccfecf7ecb4dfc0ceca5b02b0d12c1",
+      "source_archive_size_bytes": 79052,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299539/",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299541,
+      "embedded_dae_animation_present": false,
+      "model_count": 3,
+      "model_paths": [
+        "Youngster/Alts/rstr0197_00_fi.dae",
+        "Youngster/Alts/rstr0199_00_fi.dae",
+        "Youngster/rstr0101_00_fi.dae"
+      ],
+      "name": "Youngster",
+      "section": "Trainer Classes",
+      "selected_identity_names": [
+        "OBJ_EVENT_GFX_YOUNGSTER"
+      ],
+      "skin_controller_present": true,
+      "smd_animation_frames_present": false,
+      "source_archive_sha256": "a456158c2f0d64735d9a259d6c683069b41fc8677eae563163fc4543b851ff43",
+      "source_archive_size_bytes": 229619,
+      "source_page": "https://models.spriters-resource.com/3ds/pokemonomegarubyalphasapphire/asset/299541/",
+      "zip_integrity_verified": true
+    }
+  ],
+  "phase": "R6-I3B",
+  "schema_version": 1,
+  "verification": {
+    "all_packages_have_skin_controller": true,
+    "all_private_archive_sha256_verified": true,
+    "all_zip_integrity_verified": true,
+    "package_count": 43,
+    "packages_with_embedded_animation": 0,
+    "private_repository_visibility_verified": "private",
+    "total_source_bytes": 4101236
+  }
+}

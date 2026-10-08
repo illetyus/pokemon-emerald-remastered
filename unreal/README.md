@@ -131,3 +131,18 @@ See the canonical plan:
 
 - `docs/ROADMAP.md`
 - `docs/ARCHITECTURE.md`
+
+## R6 character presentation
+
+Generate and verify the character catalog before cook:
+
+```sh
+python tools/build_r6_character_package.py unreal/Content/Generated/Characters
+python tools/build_r6_character_package.py unreal/Content/Generated/Characters --verify
+```
+
+The default runtime uses visible engine basic shapes. Optional exact local skeletal
+assets require matching normalized-output hashes and validated import bindings;
+no private account/network is needed. NPC transforms/visibility come from R4.
+See [R6 presentation preparation and limits](../docs/R6_PRESENTATION_COMPLETION.md).
+Real UE/UHT, cooked imports and Android device validation remain R18 work.

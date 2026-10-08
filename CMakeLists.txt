@@ -1014,3 +1014,16 @@ endif()
 add_test(NAME r17_save_fixture_matrix COMMAND
     ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r17_save_fixture_matrix.py
     --probe $<TARGET_FILE:r17_save_fixture_probe>)
+
+# The same read-only R6 adapter and async generation guard used by Unreal.
+add_executable(r6_character_presentation_test tests/r6_character_presentation_test.cpp)
+target_link_libraries(r6_character_presentation_test PRIVATE remaster_core)
+target_include_directories(r6_character_presentation_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r6_character_presentation_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r6_character_presentation_test PRIVATE /W4)
+else()
+    target_compile_options(r6_character_presentation_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r6_character_presentation_read COMMAND r6_character_presentation_test)

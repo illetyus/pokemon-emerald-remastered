@@ -1,0 +1,55 @@
+name: R6 Character Presentation
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main, r6-character-presentation, 'remaster/r6-**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: r6-character-presentation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-and-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: R6 coverage, source selections, missing assets and integrity
+        run: python -m unittest discover -s tests -p 'test_r6*.py' -v
+      - name: R3/R4/R5/R16/R17 Python regressions
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Stage package and preparation jobs
+        run: |
+          python tools/build_r6_character_package.py /tmp/r6-package
+          python tools/build_r6_character_package.py /tmp/r6-package --verify
+          python tools/build_r6_normalization_plan.py /tmp/r6-package/normalization-jobs.json
+      - name: Validate Unreal authority and fallback boundaries
+        run: python tools/validate_unreal_source.py
+      - name: Public metadata evidence only
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: r6-presentation-metadata
+          path: /tmp/r6-package
+          if-no-files-found: error
+
+  portable-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Configure source-backed catalogs
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Compile core, Unreal C++ embedding and shared R6 adapter
+        run: cmake --build build --config Release --parallel 2
+      - name: All portable regression gates
+        run: ctest --test-dir build -C Release --output-on-failure

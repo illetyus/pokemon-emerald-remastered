@@ -244,6 +244,25 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
     FString,
     MapId);
 
+// Read-only R4 view. Identity is map + local ID, never graphics ID alone.
+USTRUCT(BlueprintType)
+struct FRemasterObjectPresentationSnapshot
+{
+    GENERATED_BODY()
+    UPROPERTY(BlueprintReadOnly)
+    int32 LocalId = 0;
+    UPROPERTY(BlueprintReadOnly)
+    int32 GraphicsId = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int32 X = 0;
+    UPROPERTY(BlueprintReadOnly)
+    int32 Y = 0;
+    UPROPERTY(BlueprintReadOnly)
+    int32 Elevation = 0;
+    UPROPERTY(BlueprintReadOnly)
+    bool bVisible = false;
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
     FRemasterWildEncounterGenerated,
     const FRemasterWildEncounterPresentation&,
@@ -307,6 +326,12 @@ public:
 
     UFUNCTION(BlueprintCallable, Category="Remaster|World|Gameplay")
     bool IsObjectVisible(int32 LocalId, bool& OutVisible) const;
+
+    bool GetObjectPresentationSnapshots(
+        TArray<FRemasterObjectPresentationSnapshot>& OutSnapshots) const;
+
+    // Base geometry fallback only: this does not assert an on-foot avatar state.
+    bool GetPlayerBasePresentationGraphicsName(FString& OutName) const;
 
     /*
      * Executes one authoritative free-roaming cardinal step through the

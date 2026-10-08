@@ -1,0 +1,53 @@
+{
+  "available_clips": [],
+  "clip_status": "missing_in_all_43_npc_packages_and_both_player_packages",
+  "fallback_order": [
+    "verified_exact_clip",
+    "explicit_verified_compatible_family_clip",
+    "reference_pose"
+  ],
+  "families": [
+    "player_male",
+    "player_female",
+    "adult_male",
+    "adult_female",
+    "teen_male",
+    "teen_female",
+    "child",
+    "elderly",
+    "large_human",
+    "special_human"
+  ],
+  "family_compatible_reuse_allowed": false,
+  "notify_policy": "cosmetic_only_no_scripts_flags_movement_completion",
+  "phase": "R6-I4",
+  "retarget_gate": [
+    "hierarchy_and_rest_pose_review",
+    "bind_weight_integrity",
+    "idle_walk_run_turn_interact_visual_test",
+    "feet_ground_and_prop_alignment",
+    "android_runtime_validation"
+  ],
+  "root_motion_policy": "disabled_presentation_never_moves_gameplay",
+  "schema_version": 1,
+  "semantics": [
+    "idle",
+    "walk",
+    "run",
+    "turn",
+    "interact"
+  ],
+  "special_player_states": [
+    "mach_bike",
+    "acro_bike",
+    "surfing",
+    "underwater",
+    "field_move",
+    "fishing",
+    "watering",
+    "decorating"
+  ],
+  "timing_policy": "authoritative_snapshots_and_step_results_only",
+  "unknown_motion_policy": "idle_reference_pose",
+  "verified_shared_retarget_pairs": []
+}

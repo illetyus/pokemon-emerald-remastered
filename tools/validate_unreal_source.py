@@ -113,6 +113,11 @@ def main() -> int:
         "RemasterRenderCatalogSubsystem.cpp",
         "RemasterRenderResourceSubsystem.cpp",
         "RemasterOverworldPawn.cpp",
+        "RemasterCharacterCatalogSubsystem.cpp",
+        "RemasterCharacterVisualComponent.cpp",
+        "RemasterCharacterPresentationRead.h",
+        "RemasterCharacterAssetSet.h",
+        "RemasterNpcPresentationWorld.cpp",
     ]
     for filename in required_runtime_files:
         require((MODULE / filename).is_file(), f"missing runtime layer: {filename}", errors)
@@ -642,6 +647,32 @@ def main() -> int:
         "without coupling gameplay loading to them",
         errors,
     )
+
+    # R6 consumes R4 state and keeps asset readiness out of gameplay decisions.
+    r6_visual = (MODULE / "RemasterCharacterVisualComponent.cpp").read_text()
+    r6_world = (MODULE / "RemasterNpcPresentationWorld.cpp").read_text()
+    r6_read = (MODULE / "RemasterCharacterPresentationRead.h").read_text()
+    for source in (r6_visual, r6_world, r6_read):
+        for mutation in ("remaster_emerald_flag_set(", "remaster_emerald_var_set(",
+                         "remaster_emerald_object_runtime_set_", "StepPlayer(",
+                         "ApplyResolvedWarp(", "SetRuntimeObjectPosition("):
+            require(mutation not in source, "R6 presentation must not mutate gameplay: " + mutation, errors)
+        require("pokemon-emerald-remastered-assets" not in source,
+                "R6 runtime must not depend on the private vault", errors)
+    for token in ("Entry.NormalizedSha256.Contains(Binding->NormalizedSha256)",
+                  "bUnrealImportValidated", "RequestAsyncLoad(",
+                  "WeakThis", "LoadGeneration.Accept(Generation)",
+                  "ShowPlaceholder();", "ECollisionEnabled::NoCollision"):
+        require(token in r6_visual, "R6 asset/fallback guard missing: " + token, errors)
+    for token in ("GetObjectPresentationSnapshots(Snapshots)", "Instances.FindOrAdd(Snapshot.LocalId)",
+                  "!Snapshot.bVisible", "InstanceMapId != MapId", "ClearInstances();",
+                  "OnGameplayMapChanged.AddDynamic", "OnGameplayMapChanged.RemoveDynamic"):
+        require(token in r6_world, "R6 authoritative instance lifecycle missing: " + token, errors)
+    require("RemasterCharacterPresentation::ReadSnapshots(" in world_gameplay,
+            "R6 bridge must use the natively tested read-only adapter", errors)
+    require("remaster_emerald_object_runtime_get(" in r6_read
+            and "remaster_emerald_object_event_visible(" in r6_read,
+            "R6 snapshot must read portable runtime coordinates/visibility", errors)
 
     # No production Unreal code should include Godot/SDL presentation APIs.
     forbidden = re.compile(r"\b(?:Godot|SDL3?|GDExtension)\b")

@@ -2,11 +2,14 @@
 
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Engine/GameInstance.h"
 #include "Engine/StaticMesh.h"
 #include "EngineUtils.h"
 #include "RemasterVanillaPlusSaveSubsystem.h"
 #include "RemasterWorldActor.h"
+#include "RemasterCharacterCatalogSubsystem.h"
+#include "RemasterCharacterVisualComponent.h"
 #include "UObject/ConstructorHelpers.h"
 
 extern "C"
@@ -27,6 +30,12 @@ ARemasterOverworldPawn::ARemasterOverworldPawn()
     PresentationMesh->SetupAttachment(SceneRoot);
     PresentationMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     PresentationMesh->SetCastShadow(true);
+    PresentationMesh->SetGenerateOverlapEvents(false);
+    PresentationMesh->SetRelativeLocation(FVector(0, 0, 35));
+    CharacterMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh"));
+    CharacterMesh->SetupAttachment(SceneRoot);
+    CharacterMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    CharacterVisual = CreateDefaultSubobject<URemasterCharacterVisualComponent>(TEXT("CharacterVisual"));
 
     static ConstructorHelpers::FObjectFinder<UStaticMesh> CylinderMesh(
         TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
@@ -42,6 +51,7 @@ ARemasterOverworldPawn::ARemasterOverworldPawn()
 void ARemasterOverworldPawn::BeginPlay()
 {
     Super::BeginPlay();
+    CharacterVisual->SetupVisuals(PresentationMesh, CharacterMesh);
 
     if (UGameInstance* GI = GetGameInstance())
     {
@@ -108,6 +118,17 @@ bool ARemasterOverworldPawn::SyncFromAuthoritativeState()
     FRemasterLegacyOverworldSnapshot Snapshot;
     if (!SaveSubsystem->GetOverworldSnapshot(Snapshot))
         return false;
+
+    const URemasterWorldGameplaySubsystem* Gameplay =
+        GI->GetSubsystem<URemasterWorldGameplaySubsystem>();
+    const URemasterCharacterCatalogSubsystem* Catalog =
+        GI->GetSubsystem<URemasterCharacterCatalogSubsystem>();
+    FString BaseName;
+    FRemasterCharacterPresentationEntry Entry;
+    const bool bResolved = Gameplay && Catalog
+        && Gameplay->GetPlayerBasePresentationGraphicsName(BaseName)
+        && Catalog->ResolveGraphicsName(BaseName, Entry);
+    CharacterVisual->SetGraphicsId(bResolved ? Entry.GraphicsId : -1);
 
     SetActorLocation(
         WorldRenderer->TileToWorldLocation(

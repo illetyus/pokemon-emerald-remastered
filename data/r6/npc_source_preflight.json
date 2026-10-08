@@ -1,0 +1,1220 @@
+{
+  "packages": [
+    {
+      "asset_id": 296297,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 34,
+          "joint_names_sha256": "ad13fb45cd353f236132e148f0f54fbcb78ea0e5cdf699a1ea6d273bed99bdd9",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "48be964815fbf6f70cf77734e226f8f5ee997eedbc247b689066f5836d5fdd3e",
+          "source_submodel_file": "rstr0020_00_fi.dae",
+          "source_submodel_sha256": "c44d7599c2132762830859b6008f4e87890a7053b3d55bddbad11979d8de785c",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "87978110b852b9cd429dd5df550c544166c967d22c1985342f971917d5553f3c",
+      "source_archive_sha256": "3605e5e85788b427e6faa40f5e152e687b6587abf2c1f642698bfde5d7534f16",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296308,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 38,
+          "joint_names_sha256": "356aa16a44989b166902027fddf0e889578ac2bdc67d2259fea8ae8e85cfcce2",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "e8d96d5f24cac62b2524a060aaefeb3cdb196e66ef6ef494f98276ddeebfa714",
+          "source_submodel_file": "rstr0014_00_fi.dae",
+          "source_submodel_sha256": "bfaceecbd4ec9e4ab97088015454c85e838b1f6c24be5c35258bf2025dbb08a7",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "1c6c1e3b1526e56cdf54ae1b0a54f29ac0da78087d11f9e159ae706b531acf3a",
+      "source_archive_sha256": "82e7186a4ad4124b5cbe2b9a15b0ea8c34acde05684c0cc1fcf520ad2da6b56d",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296309,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 32,
+          "joint_names_sha256": "257ab843f16cd25e2c1153fc81ae0d09ad17fce7e337d6d533d683efc8fbbdb8",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "7718d91ecd46d76de98abcbe6143978bf82b26456037733d573005012b30c8c9",
+          "source_submodel_file": "rstr0013_00_fi.dae",
+          "source_submodel_sha256": "8fd778275490ca01437d1dd42dda96391174690fca9848b78e4e965782ff4b4a",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "fe0c3a2438211e438e1ff44bafb63976a65b40c7fd228ceca60bb796a6361c26",
+      "source_archive_sha256": "177fd27119f3ed914efcdba9251ac17d9927cbff0dda5e42aaa92ffe21f05a7d",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296310,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 35,
+          "joint_names_sha256": "f4a86dfcd048f87685906aedea7c06c1c0da60ad06c83050dcb7bde9da00b927",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "b156a25d8811f5483c962b10a8eee9d9f069708dcff91285554da2dc6b531bcb",
+          "source_submodel_file": "rstr0022_00_fi.dae",
+          "source_submodel_sha256": "4de1d5ea5fc1fda4844c416c61a145e06b996f739e0b35905ef4266628bcd1cb",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "ac3d9df31ba10d2a0f3e28db0f74c61e35b7cadba257d6f73e0ad5ed110f5823",
+      "source_archive_sha256": "984cfe456e22eafc87c08fbf88ec2ecbb312b1113088bd3ce456abf09b368f7d",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296311,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 32,
+          "joint_names_sha256": "257ab843f16cd25e2c1153fc81ae0d09ad17fce7e337d6d533d683efc8fbbdb8",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "696bf6a4e2142b0d82689c9005a31f25e2cd7a25a9a87fea259db1e282001fb8",
+          "source_submodel_file": "rstr0018_00_fi.dae",
+          "source_submodel_sha256": "d5ff15c62b23258682de36d86920ae999f1835ad7d74483eab74f7c6a559d969",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "c8e7ede87036b8cccbf228aa854b4cfde606dffed1dd25fe4c2050b26c55116a",
+      "source_archive_sha256": "d95ab4bef4097642c84f7f73cfcb7aa3ea6b1931b26a2f33e3c383c753e42117",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296313,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 32,
+          "joint_names_sha256": "257ab843f16cd25e2c1153fc81ae0d09ad17fce7e337d6d533d683efc8fbbdb8",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "6878c925257969c1b0fbe3d0a688f3e17ff1432bcb5bc4ad8d5b3ed6f8ee7e7e",
+          "source_submodel_file": "rstr0053_00_fi.dae",
+          "source_submodel_sha256": "65243ef069c743d23e5a75e74d93cc68f0b6a80ac01a160495180bb285629af5",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "291e441bf48571979b961efa543feabd78cd086cfa40ed1a13dd7e569ad37207",
+      "source_archive_sha256": "4c58478201d49e0c4caa9cb752afc0fae1f7dcbdcad4b4292e11f03dfd2c5846",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296314,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 34,
+          "joint_names_sha256": "988e23a9eb72b492e4c83aa0a5b291ae0b4b6b172f56579e6d3e1bade163f5b1",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "c1467a7697e4c11add6bffa9823b4064d344989542968f42de8c9773ea827779",
+          "source_submodel_file": "rstr0009_00_fi.dae",
+          "source_submodel_sha256": "b4043e0d6b986e16475768e4118f779a54f2e772a9acb074c1c5a84e0c183e37",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "cab7e46d879ff0d677f0b891710e8ab13315e578441ff9d918efb86c3ddba986",
+      "source_archive_sha256": "33d4e516b2c5ea36fb210d3d90acbec6494043a1232a7de054596f5523cc9231",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296316,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 33,
+          "joint_names_sha256": "aacdc269a09d8cf53ff0d33cea7878b6ea1f857fb2c1e4e88707e051b477a272",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "a473655ca8f94c3a1f8d187c6efe917e8cd9cebf6d8db3246be2606c6434859d",
+          "source_submodel_file": "rstr0035_00_fi.dae",
+          "source_submodel_sha256": "2b5aa36436aba77edb77f4c2223f1bd4a9e8595febdd88ba365ae00989a3df80",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "c9fa4f520f36d127b38b0cf9f15f02edd64f5de1f511c0e324d3afcdb0d91212",
+      "source_archive_sha256": "985d124d9a5f989dd879a54b3c8320e31ac0c6113b2b40d3cca5018ec5757ab0",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296317,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 33,
+          "joint_names_sha256": "aacdc269a09d8cf53ff0d33cea7878b6ea1f857fb2c1e4e88707e051b477a272",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "6b261f3fb8eea7121f0ddc552eb02a68174282e598c3782a0ffbfa255701d6b0",
+          "source_submodel_file": "rstr0034_00_fi.dae",
+          "source_submodel_sha256": "711d5664990526bb6e2a7092f2067f1ff40ca3be1108d7b8ba55d5bff68752c5",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "1868d6fbf96f4219a56726f7a961f1fc6ebf324fce22ce711d783c3b82600137",
+      "source_archive_sha256": "9ec48465b1850b9bb24f1a87ddc25772ea3c151d87c7c5e634915ddde7a3066a",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296323,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 35,
+          "joint_names_sha256": "50d643afc8c52e3545b11166657491e36654d78bf1e7ea88bbd54afb07400313",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "3c76d6310bb374cdff084a0456af2c2b3662c5c42988f5df61d41751d3268408",
+          "source_submodel_file": "rstr0016_00_fi.dae",
+          "source_submodel_sha256": "4fcbfbb8fb7f55d4476288f76311f1a8bc52162aadab9334faf2b566025acf8f",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "c21e3d0af9a6b0714630bb93cbbae830f2b36fc4df6a7bc33b17746b7e3e15c4",
+      "source_archive_sha256": "2772f85a981fe2a2e98a93049906c371567492914c0c36842781048195d30275",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296324,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 32,
+          "joint_names_sha256": "257ab843f16cd25e2c1153fc81ae0d09ad17fce7e337d6d533d683efc8fbbdb8",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "3104e4eaf0eb08db8d89c9b7f6390aba4b51ad31c7afcb9c77c289785bfe1c46",
+          "source_submodel_file": "rstr0030_00_fi.dae",
+          "source_submodel_sha256": "1166cf94c0669521f253aa17b6a83d5055588fd6eb028a58dc361f8339b7d4d2",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "5c28f567331024f1ab8e501f9d2d02a0c8176ce534a764af65dc1eb1e5c3bb31",
+      "source_archive_sha256": "e91fddfddb1040d5b2d699223fd1950aa655da8624ab69b969d2c231c34aff32",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296325,
+      "model_count": 2,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 34,
+          "joint_names_sha256": "946aa416a389dbddc692604c4bf78bc2d9474ae2903fa433cbb14e3cba55c036",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "74ab8f7b971dca9f8e0e3d9f4675fad2736306c9c804630ea83d47768de77aa8",
+          "source_submodel_file": "rstr0023_00_fi.dae",
+          "source_submodel_sha256": "51cc8c0f93184f0d87658974d879c067995b1e82370f23f8e1601bce6e627f84",
+          "unreal_import_status": "untested"
+        },
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 36,
+          "joint_names_sha256": "ee692d227a99f94672ebeb3b30b335a8f0f4ecc306fc86d3ebe4cbe023f8365a",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "8e249dd388d7bc2a0836ea8fd493cd058436d22070560f4bef06a190105dc8b5",
+          "source_submodel_file": "rstr0024_00_fi.dae",
+          "source_submodel_sha256": "7d39dd50da97605b4172e8a15d80935987d09cd0ff0fa214b750059696fe465f",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "4b3f7194f62fb8c319536ca9d430437a80dc6c058af7842f2f21ec933b4ea1f7",
+      "source_archive_sha256": "2ac3f300f2dfde46c8744f8ae40392426f51ec18d55babd8f6b8a8ff28c4ccd5",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296326,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 32,
+          "joint_names_sha256": "257ab843f16cd25e2c1153fc81ae0d09ad17fce7e337d6d533d683efc8fbbdb8",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "acf93e9fb6d15a48a1db70bb49f46f6632de40620c97a0afe3ed62270fb5f213",
+          "source_submodel_file": "rstr0029_00_fi.dae",
+          "source_submodel_sha256": "2ed17b6fd63917752d9cf01cdd71a2d9ffee19779550e7b80e85ec6c5e89751c",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "ce7378f472e5b04dffc05649fe6d8ab6398385aa618691217e6cbbba4a70e937",
+      "source_archive_sha256": "ba3125981d29a8eed95a73a86564f56ecf106af33e8e40e3e7514a8815df3d49",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296327,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 35,
+          "joint_names_sha256": "cc4606055ca02c5573beb6b41daff530f16876d69e9f81fda4d2fd970f66c5cb",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "9678f49bf176b7ae54e4036b9a4f368d90b78259c3bc75f41cab1577e9fba0df",
+          "source_submodel_file": "rstr0017_00_fi.dae",
+          "source_submodel_sha256": "c33fbb6616e3aaac578a56ac7bf748cb391577978c2b8e0f38ab3e18ccaaad16",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "a7ba1d9e533c77d1093f1a8e26c74232ef4ab996ee42bcb359372b4780741bc6",
+      "source_archive_sha256": "8ecfabc339f96384d9cc00e6237302ad2022aa9c4427305ed2f812230b09ab89",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296329,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 37,
+          "joint_names_sha256": "2b15863dc924478ee8c8abe4886a4ff48f29e05742ff46093998ae37e6a4b70a",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "d9f546ea168c25641d0f731128173fbe4a31573562a8fcfcfd290888580c2197",
+          "source_submodel_file": "rstr0025_00_fi.dae",
+          "source_submodel_sha256": "10c1a24fb55fef138f311ad6947ff6d1a1331cefd6ec6de8b7f5a54765ea2796",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "4f61a6f701f4ff40df59ed5bdb364327be07f2de26bc5a8c34e7540f8c8fb5be",
+      "source_archive_sha256": "6777ab40b176126b00761a8fcd0ca9d5e4561f4259ef35d9479857f3d47e987d",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296330,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 32,
+          "joint_names_sha256": "257ab843f16cd25e2c1153fc81ae0d09ad17fce7e337d6d533d683efc8fbbdb8",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "e51df20e3ed872cfe94365a71ceabf98b7c6669072f52edfc18864bcb32dc364",
+          "source_submodel_file": "rstr0019_00_fi.dae",
+          "source_submodel_sha256": "70b8cd95071b8422851c125257fcfc6cb5cdab59d58b4ca8a0653b673e4ebff0",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "8444e02bb2f058a2868fdb2bdd81c9fe14550194eba7b1d746f0d720d54486df",
+      "source_archive_sha256": "1ad737d8d84435a24c2d1e12215c67648b9391c13161e40311c38455c15329ac",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296331,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 36,
+          "joint_names_sha256": "39b0662a62491500d8f0ef84383b46b7ed153c1aafcc18291e0ebdbf6b3cc2bb",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "2517976ebd641b2c070dfd5ca7405ea58435f539bdc8aab70c3c8901c5335097",
+          "source_submodel_file": "rstr0015_00_fi.dae",
+          "source_submodel_sha256": "0926878da260d532e8751d6cacced96f9bec56b1b8b90a36afb77f64dc686a5e",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "bfc24a6c0e8458f595d28363670258a17cce39f77d8067e96c6b1e8413d447db",
+      "source_archive_sha256": "cf1c10502e4c66c99f1bf2d41b4cf84ead29db5fa296f150f6d5e4398ded41d3",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296332,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 37,
+          "joint_names_sha256": "730ebff3db204fbba303079854f8012b09e3ca50ad792642556a51f3d44b1b3e",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "54c27ec769c1bfb097fee8a94f98c092cdb6633974062c149aa819a78f6b39ea",
+          "source_submodel_file": "rstr0031_00_fi.dae",
+          "source_submodel_sha256": "12d75ac3abafe69c8d10390d97791d0856faa47e0e63752a2b0fb9eb62776cf6",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "b701bc08369f3cafe6319c3a492186a22ddac2553c1043d97f398493e5ec199a",
+      "source_archive_sha256": "5586b4abeb346d12f4b03a18a73f410f6e1cec14efb7fed04bf04af87489ffbe",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296333,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 36,
+          "joint_names_sha256": "b85b4f696e2563a6ae0d9460c6889b4869dd2e76c73db8b54d578f72631b3d00",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "a5b1295c73cd7a75debb67122b7518dcab9315d5743dce23ac8f5e3418c7ac76",
+          "source_submodel_file": "rstr0026_00_fi.dae",
+          "source_submodel_sha256": "06a2e84ba64aae70b8705e1c99ccca2b758015c76af9a2da9119d6ee8bf7f521",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "8a39656ab699821def3c03326140fe964dbc06cb5ec5bd1d67f1c52a516d5535",
+      "source_archive_sha256": "4e07b8b0757a6296ac6b3c476b16f397051850c872db032b94aa87594e544d11",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296334,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 35,
+          "joint_names_sha256": "a18bb29d519f84d6fed658b59260f5f9dfbb48cabeb79205dffc12b6899a42ed",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "ec21328171c96ca34faf2854ecb586e32de6e9e7f872487290cb404746bcef49",
+          "source_submodel_file": "rstr0012_00_fi.dae",
+          "source_submodel_sha256": "17f8e5d10f3dcd3004d198d0c2d80d7434c79bf0bf7050a8afc6ec85b2a9fc62",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "4db14202e98dfb8f7d5a9b3c959e76a798a00172c6c32d779c04031edf9f7f16",
+      "source_archive_sha256": "46aad39d00ac1d0e39fb641707de5f32005ea6d15eebfe0387eaeb4f2ab987b8",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296336,
+      "model_count": 2,
+      "models": [
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 33,
+          "joint_names_sha256": "401f6eaea79bdde6e31a72089739676921f22bd4f979de6eb96afe422c7fc735",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "971ba419f49c2365dbc2edf3619748129e0e4c0f2258de8d03c4f909025146a5",
+          "source_submodel_file": "rstr0010_00_fi.dae",
+          "source_submodel_sha256": "7709ca7165219d7b32f2d4ed5e0e1fcb21bece081d57d959e568941e204e61fe",
+          "unreal_import_status": "untested"
+        },
+        {
+          "declared_unit_meter": "1",
+          "declared_up_axis": "Z_UP",
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 3,
+          "joint_count": 35,
+          "joint_names_sha256": "0468323b82e3aa7b574c1540664c04f9508dcfb63eb0fe58265aaf9e383d5788",
+          "material_count": 3,
+          "normalization_status": "pending",
+          "skin_controller_count": 3,
+          "source_scene_sha256": "7b6dfab7ea1fd5a15bc588ccc6e18cb405dbec94a461140f5a5f9f06f214eefe",
+          "source_submodel_file": "rstr0011_00_fi.dae",
+          "source_submodel_sha256": "5870c1c95d53be615c54b7a6051f5f63cf35774db89fdd419ab61a1b1d6911e2",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "44961bf87b56863498ce461553c54e723ebc2e9eca5eb16ce3d5cfa7023dd6f0",
+      "source_archive_sha256": "8cdf82c1f3c21c893c8e86a57b8b306ef02098b02f197ef1e9a90b14f064af7d",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 296685,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "2b562453d344534a9b7bfa2efaf3f9df0a5f200beb8e2487680b140d8cefef46",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "95fa37574f8f48c0ff56f6328a5d05b433cd3e4418f6cbb781e649b63b3f7a1e",
+          "source_submodel_file": "rstr0163_00_fi.dae",
+          "source_submodel_sha256": "ead6362db80030c8deae965dfeda987cc125cfa5e99099a683a76e4a81c5f095",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "16d939d2ea97303c201c9a3345ee7ecff95941209a103575f73f512294b2526d",
+      "source_archive_sha256": "8a5f0eeee5d9a7bb81c76d34a24fb238ae7573e1afa99725bb48adcd7241ddbe",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299499,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "20473a0aaadbb25d3d8ec86104f49a17f9baba1a6df62591446a50c1bb44719a",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "c089a5f2841790a63e60047612afe4b46f1d7a2b0d85ea18d420a3a23af6aa09",
+          "source_submodel_file": "rstr0135_00_fi.dae",
+          "source_submodel_sha256": "72a3157534e08d4bb0c9cede376bbac7bc951fa4958bc23fa6a8e7080e895e04",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "b1dce2d7d70c64418d9eed1cd81459b4111eb69da71799f865b5eb8f4f6fef04",
+      "source_archive_sha256": "b53e1a6052e0988622657fe575e0c79c64ec8fc2ceb03d55f968ff2662f1de53",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299501,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 25,
+          "joint_names_sha256": "94f32022d82e1873a9147a8b56df00952a3ff8eb677c1719e989e586c2c87060",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "b64c12f7d8d241bf04eed33eebf870059015c623e522c027357f21e3c6e9541b",
+          "source_submodel_file": "rstr0103_00_fi.dae",
+          "source_submodel_sha256": "61841919464e43d375bfbbb9f8c41d976e35953dd8fe5bde51e83c3c2d46cf79",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "43ca88245b3def406d9e15a02a412996bd37b48fcb62abd0c784a17b4f76e5dd",
+      "source_archive_sha256": "470413f1eb53882cb4e4d4cb029761bf7eba37744d47d399310a1891ed121b2a",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299503,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "eba2d3eb59bfcfd40f78da0e2860c3e15c12cbbeaf5a05ab78c020d501bcc877",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "b5d9da482a13a5be9c519a24bb0c7f03bf78d0b6e51fbf7646caa0fdc33c4d44",
+          "source_submodel_file": "rstr0106_00_fi.dae",
+          "source_submodel_sha256": "5644ec38e229e6c3b28230909d9eb609e98c085abd1b1aacfdfdb2178161ead5",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "fab254667686a57735b2adc58a75e21a64d858b4c5b11de08fc1a3608fa57d03",
+      "source_archive_sha256": "5fdb15fe05359519d7fdf930fb4199d39daf46b7c6da3227f4682bc5c38e3896",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299507,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "71f0f47123e739efd7cc06e426671941e4fbd671c8f05e93d5518417fda85fe3",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "49ad00829c94e6dbc1a6f04455f712de85cedfac6b55ab0b5a547c56d7a9da1b",
+          "source_submodel_file": "rstr0208_00_fi.dae",
+          "source_submodel_sha256": "910ba331f1109f8840f1cb72b03fbbb929dfee4bd1231e27050c6b0c7fbf985b",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "343e767cc36ea6994e43179a2fdf76bcfddba5643d6116195566c842ea67d74c",
+      "source_archive_sha256": "058ab49fc29d6bcf47a703a5e4313f178d43c08fadefa866497b10f10035aaac",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299508,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "89663595d006cfbbd150b506d287935a92431e4c64e9ab6d9c4ac849d33b6617",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "07e23424b8666c365a174eaf009ba4d677e149dba906c99e5d9e1ceaffcba095",
+          "source_submodel_file": "rstr0207_00_fi.dae",
+          "source_submodel_sha256": "8825277a79103545665306a55206ab94d39ce052f52030fa41243d2ca3c3c389",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "b6be1b1e89fb4e4c3e30c88339214cb7658b8eec962f71efc35b2e28e57cedd5",
+      "source_archive_sha256": "01f451762c6f45090011dd2ac8723e0492cae394be1ab1c7444084b9e3146086",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299509,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 25,
+          "joint_names_sha256": "7a0b1e7cb111a15ba2a492df037ea0e289c9246bdb6b9ac9810ea0e7b983565e",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "1331fb809d762d411b2ab67d454262f629d9a08de0e0a2345818ad4ed6bef3de",
+          "source_submodel_file": "rstr0122_00_fi.dae",
+          "source_submodel_sha256": "d7c0cf524d62c448b2e3c53fb185bcfc99eb3525be68827d297dad13deb9a1b3",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "9f8c6f0456fe5f24c5b85284a4e4e1912bb3486bb69e0a370e5d10ee7afbf6ab",
+      "source_archive_sha256": "18336c8cd6880a1d91f4a7800655c5ba63053ac5253ced86048e79d02967bdde",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299512,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "780622f275b60cda6f0386d736f54e72a05fea08e98763348ab2d760b091b229",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "04e93d6c5c093ed1f339d6e5f309de7f2df4be5dbeabfaadcf36b15bcd46e6ac",
+          "source_submodel_file": "rstr0114_00_fi.dae",
+          "source_submodel_sha256": "cecb859dbce490605fbbbc1c76abac61f2980aed63ec16eb4d2fc0ac22ce692b",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "b02c96c2925c7690352982ec51ecb293a4bf88bd9d46945c23eaf669eeec2517",
+      "source_archive_sha256": "ed2dc0b0c97294179ebc1e3f90cdea0eab30b2400180825c4f6b6706a6dda13b",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299514,
+      "model_count": 2,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 25,
+          "joint_names_sha256": "b09020c968ff4187e1e7b3c7d1be252768eb499c7837a259618d0bc3042344c7",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "2ac8c59f9c034e188b830279ae660aa9c73f097baebe6e633cfd3e534d36cf61",
+          "source_submodel_file": "rstr0147_00_fi.dae",
+          "source_submodel_sha256": "d87bc883157a835f997078f557c751291c7e218c5da1060afcea4caa7e50ad62",
+          "unreal_import_status": "untested"
+        },
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "eeec6c89af87f134386cb4a05de966c2ba29860caf1a04dc98e8bb4780075ffc",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "b6f4fae7524e04ad82cdf2ef3239342b85928e36c8f4ab09065fbe28fab624fb",
+          "source_submodel_file": "rstr0148_00_fi.dae",
+          "source_submodel_sha256": "d4a6b163038704419c0c8df4a9b813dc8587de647b4faf7a14c0e343e0767ca2",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "75ac0e765496e4914a67a921738d7a65e5d27266cf8146b83abe533eadb5c507",
+      "source_archive_sha256": "9a12ddb7864006992ebbd88327fd31a5545bec4bfc96b0b1819e8f6e862570c8",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299517,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "d6df4f47b56eed631bf793bae789344f65d981b00099fa969606dea6762a5e18",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "932c6b25b93cf6caf6ebc82815d445c4beccd89650ce38c6d2c7474c9af8667e",
+          "source_submodel_file": "rstr0200_00_fi.dae",
+          "source_submodel_sha256": "b18d020f080edfeb9863192c417559cf5f64a66e4924469effa664c4a7ca0912",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "620f851ca079b5ad9ff63e1ed1b0d31e514ee8fd2ae43b3dae323b730a1a1167",
+      "source_archive_sha256": "8cfbdd168990b33598ea27f05c97dd7b4a8a4cfe2ef9f14d343713649f43bae1",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299518,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "346f44bb9485059f08052a43bd3e85c3a33d2929eecfbc0a6f18e70f7b23fd39",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "74cbdb764a14ed9dc8b1df7006b0f651ed43c20480080bebbfd459200400a8b3",
+          "source_submodel_file": "rstr0128_00_fi.dae",
+          "source_submodel_sha256": "86a25fc336ff45501c946474e15506820396868cdf1134814ce2baacfec5cdb6",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "1331d8e7806818d9476ef25e2d3ef98ed7245c924d0703f63ed5a27be156159c",
+      "source_archive_sha256": "212f0311bde495df15e5f53f1e5a517fe49355ffe8d8c17f438ca7af87a0d528",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299520,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "f0fb3a1e9f1d8fb9065183e1d574744dd464ebc5973c0785351788dc94b764a8",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "9969b102b7b14d83495389229713b9b5b70d1025f755e2d124c8c55a7b5e750f",
+          "source_submodel_file": "rstr0107_00_fi.dae",
+          "source_submodel_sha256": "403e64740c9ee55ce29e1da8d1c542945823ac0e868bbcdfa22e3696b1071a96",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "b98b2165847d0f025b0a14905febac2843b137d9f6f84cf8d19b7049e5b09231",
+      "source_archive_sha256": "18f1243431587ceadc34a2a594c98a32298a37dcb3ec2183aa7db8129e0de667",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299521,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 24,
+          "joint_names_sha256": "3f501ae0aa5fce3cd48909036af616ec530cd819e1f9d78d3ae468b58669d50b",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "480189bfb7e84398b34d0ff98f25d4668f8983842da3de58b28dd8ed4e1f2e54",
+          "source_submodel_file": "rstr0139_00_fi.dae",
+          "source_submodel_sha256": "db24dca364efa6a2775b716c7f8b9bbf7ab58fffff80a3c2f224054466c90095",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "9de3bec832e19d704119659857fddf1580d79e5051a5ffc2f239b9427a6c4bb4",
+      "source_archive_sha256": "f5cff038ccaaadd62cb79252249a6a5a16127534b1cc418d98a7be0bc00f0df4",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299522,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "9b600d5429489088ce7a5253ae38952ad9d3bf875cf1b3b14f5ba7fa9f98ba4d",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "1bd466cd5120f46ec84f81b6a6b87c3462592d53fe9da892d97bc2dfb27f27d6",
+          "source_submodel_file": "rstr0138_00_fi.dae",
+          "source_submodel_sha256": "0f70259074664f529df524ae2f9751aaa35331d55abaf60d24ddb2c3e5882563",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "80f7b23988f1d8b7519819d38e18d04e2674d6a2174d363f63688ed598031cf2",
+      "source_archive_sha256": "c23c92f378b1456faf49fd33423fbc80b5458b15f30120c72b157aa40eabf68c",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299523,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "0a1dba0fec847a6d9cb3587d3a4b9f857407de625e9293f7c821d13622b29bce",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "102869a3467179323b5a870e49b8ab848711bd30a0a01db532a7a7f86edc5ae9",
+          "source_submodel_file": "rstr0123_00_fi.dae",
+          "source_submodel_sha256": "4d3e58c3c1e0194c38f6a4e3fad0eee354337663a962667c58237890adde1527",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "a67208469044694962de51b85e784c12604518da7cfb3b27af6afcf10dfb6247",
+      "source_archive_sha256": "f1084266cf61396c2b780b65734b1118e8a2e51357f78e2c0a17336afe7ef359",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299528,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "77bb4f6e905f3d03cea5b67d6a7d585ae93356bd782d08b6e06bf7aa48d7285b",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "5b61e6dfb384fe4b535c59396cbc521a84fbb5a66ae66e84b482977875512a8d",
+          "source_submodel_file": "rstr0108_00_fi.dae",
+          "source_submodel_sha256": "5ca39b603badb2cef229206344450adc3d70920b64128121eee13271408a40da",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "c140ba943719d7263f73f5e7f89dc3e58a698a52c042cc741109faf1e33c9254",
+      "source_archive_sha256": "9cfebcecd888c4e394c6400655c8d8c31b4be5e7d03af077c0354e075157517f",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299530,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "5219c57d92773dc7430952390bfc84e4ecc81aaa83480d95365de0d154d38111",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "6e2cfd037199aa7e900861d5ee04826b566febeed342bd571de14d6c65a3f67d",
+          "source_submodel_file": "rstr0115_00_fi.dae",
+          "source_submodel_sha256": "ee3b26b7a47b90c2ba8ab93d42b557d9d4b449fbb0f03813a66574498a361314",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "4106000681f7634cf7355b682ebc0768ee83241102080c37c10b68341a8822fd",
+      "source_archive_sha256": "4c6766c12cbcf7b51c79db9b2c2b0092e27f25691e5210307b628dcf25bea063",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299535,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "6f0150334b971a8e10c270cdb00269259ba1206fc658d578c2b019a1fb79cf9f",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "ac27bfacdd2e912229c42a343ea46cd39210fc447d8b6de625170b2dcdadc97b",
+          "source_submodel_file": "rstr0113_00_fi.dae",
+          "source_submodel_sha256": "690f9a1a75b3326093de6bdd046013866774cfb1effcae06887c20c9be2f8343",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "4086613be1bbf0e6d15850d064d6e8156c178d8f64ac79fa59555441897d5575",
+      "source_archive_sha256": "2adc4f7dfbe997129fa2e6db71cffdb7e0c3ae8b7440035703dc968dd093dd76",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299537,
+      "model_count": 2,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "392254401068e9af1da8dd7f74e8f1598498b4b461ff4abee70a20cf80b35708",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "992e98e1bbcc983a4a543fd9b70d6a0afd3230132a38bcca09cd32fc7ee2e2a0",
+          "source_submodel_file": "rstr0140_00_fi.dae",
+          "source_submodel_sha256": "51dba2a5125b8c43c93b646f4d125ce2569a924cd7fb9ad2c7b98bbb8e9a3013",
+          "unreal_import_status": "untested"
+        },
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "3a0cfabe19aa3ce5b1c8f260a5d79f1b95a9aaaf0899e47529a17a45c9044588",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "2ea7c027fd32fc6fa5b6abb2d6db5f27b9097336aa31d7b364aeb9fc928a33c2",
+          "source_submodel_file": "rstr0142_00_fi.dae",
+          "source_submodel_sha256": "e7514b80725e66c62f9d4c086156a057bb6c17b1c662e3102dc95b4c580d0a2b",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "6cdedf6d875f63a6bf3649f5f34055bcf0eba34099dd15da1f62a6567a60c435",
+      "source_archive_sha256": "f89778d5a8127c0a134cad92ae405a558ff4fe7d6a9a1c530dad4575d177e7c7",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299538,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "5f99ae7f5bd2833c00718917dd1c58005d14216066a8abc51c2caf693474d998",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "12698feb3474c65fd707756720cbc1f3fbacd018a7b87480fe2dc9461fece0c2",
+          "source_submodel_file": "rstr0110_00_fi.dae",
+          "source_submodel_sha256": "b2671215aba591f13a6e9d19149563e31d4c1684168a49a674e96757add234cd",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "fa9b54f49942dff342838abdab1b2199b97bc8e5f44bb1e4173a9419f4a0fc9c",
+      "source_archive_sha256": "0a2867911d3ee38e020a6e55e218632e2fb9d0391e328e3f1f5c7571293c6a31",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299539,
+      "model_count": 1,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "43f22482462cbc356637b9422b1b5ef4db4f27fff0dd564bd518387facffcf62",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "f28df9c48b1a905d1a5d2e9d840d0481f3feaa9f7fa0d326ef5df0edbb69917b",
+          "source_submodel_file": "rstr0111_00_fi.dae",
+          "source_submodel_sha256": "1c4fa7a820019fe6200dba1711c8e420acbb8e42d28038004469c8fd117830eb",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "43bbbe8160c4ba783b100c69ac7e253cc1c01f24946ae6f9783c212ec1f19839",
+      "source_archive_sha256": "fbac01da97ef498cc4e7d09f1c80629be9ccfecf7ecb4dfc0ceca5b02b0d12c1",
+      "zip_integrity_verified": true
+    },
+    {
+      "asset_id": 299541,
+      "model_count": 3,
+      "models": [
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 25,
+          "joint_names_sha256": "5057d8f0bde3642027ab213401b484a176c1d56eb3c3bc1aa1e08aeaa18fd3ec",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "608fffe9605380ad44be822f5615ed7967b2dd253cbb65ab9a73370671b898b4",
+          "source_submodel_file": "rstr0197_00_fi.dae",
+          "source_submodel_sha256": "b61b1b69f6ee0d1fd5fb60e427b2dd7a19d565021b0bcdb31cf22f92ec0ec502",
+          "unreal_import_status": "untested"
+        },
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "9163822670cfaf33d195d2381a410109ca388c5cd8415886945695284349ebfd",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "a42f37a629c1c0bd2e0e266223599ad9d21c2689d96df065728c00080732546a",
+          "source_submodel_file": "rstr0199_00_fi.dae",
+          "source_submodel_sha256": "850e76ea891ac8101390d0a5e16036bd0727c28ef599c4820d047e0815c0d22b",
+          "unreal_import_status": "untested"
+        },
+        {
+          "declared_unit_meter": null,
+          "declared_up_axis": null,
+          "embedded_animation_count": 0,
+          "family_compatible_reuse_allowed": false,
+          "image_count": 2,
+          "joint_count": 23,
+          "joint_names_sha256": "6eb7e9ee7b80cbbb7b1c9fc34cd78012b7f45fcc4e25b1ad6b7fa9684600c46e",
+          "material_count": 2,
+          "normalization_status": "pending",
+          "skin_controller_count": 2,
+          "source_scene_sha256": "cb4ff57daf79c8032defdf3a2ef7030697428b5fdfb96956e1f5eb94c5d4782f",
+          "source_submodel_file": "rstr0101_00_fi.dae",
+          "source_submodel_sha256": "bb2429628121dab6d19f980830df43253809488b3859fc13a69b626d3fe138e2",
+          "unreal_import_status": "untested"
+        }
+      ],
+      "private_provenance_record_verified": true,
+      "private_provenance_sha256": "66d5e4039c5326a13944aed38887cc640d25554c06bbb1e71d30dc1a3fe47021",
+      "source_archive_sha256": "a456158c2f0d64735d9a259d6c683069b41fc8677eae563163fc4543b851ff43",
+      "zip_integrity_verified": true
+    }
+  ],
+  "private_input_commit": "75303f4e49de60015d8ffcd28a56b6195d7cb119",
+  "schema_version": 1
+}

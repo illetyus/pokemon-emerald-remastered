@@ -788,3 +788,22 @@ format policy are in `docs/R17_SAVE_COMPAT_CONTRACT.md`.
 I1 verified format-specific checksum spans, slot choice, sector
 IDs/signatures, rotation and the explicit counter-coherence policy. No
 gameplay/implementation change belongs to P2.
+
+## Current R6 checkpoint — 2026-10-07
+
+This checkpoint supersedes the earlier R17 resume pointer above. R17 is merged
+at main `a7ed422da7817c05aa1eac21bdbca6bd6edced5e`. User-directed continuation
+completed the remaining R6 implementation slices in one cohesive branch commit:
+`f9dbf2d20bb6bd38ae921a9aa2225aa969c984b8`.
+
+R6-I3/I4/I5/I6, T1, V1 and G1 are VERIFIED_COMPLETE for the pre-real-Unreal
+source/preparation scope. Hosted run 37596293052 completed with success:
+52 R6 tests, all 181 Python regressions, source/package guards and 62/62 full
+CMake/CTest checks. No commercial payloads were added.
+
+R6-D1 evidence and F1 reconciliation are in `docs/R6_PRESENTATION_COMPLETION.md`.
+Verify this documentation checkpoint's exact committed-HEAD CI before the
+separately authorized R6-M1 PR/merge and R6-M2 main CI gates. Current authorization
+retains the PR/merge/main boundary; automatic phase advancement does not override
+that restriction. After R6-M2, next is R7-P1. Actual Unreal/UHT, normalized asset
+imports, clips/retarget/props and Android validation remain external R18 work.
