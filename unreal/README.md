@@ -146,3 +146,19 @@ assets require matching normalized-output hashes and validated import bindings;
 no private account/network is needed. NPC transforms/visibility come from R4.
 See [R6 presentation preparation and limits](../docs/R6_PRESENTATION_COMPLETION.md).
 Real UE/UHT, cooked imports and Android device validation remain R18 work.
+
+## R7 environment and camera presentation
+
+Generate and verify the metadata-only world identity/audit package before cook:
+
+```sh
+python tools/build_r7_environment_package.py vendor/vanillaplus unreal/Content/Generated/Environment
+python tools/build_r7_environment_package.py vendor/vanillaplus unreal/Content/Generated/Environment --verify
+```
+
+Camera position, map framing, runtime weather and local RTC are read from the
+authoritative core context. R5 terrain is the default fallback for all identities;
+optional private 3D fragments are exact-identity, import-validated bindings only.
+They never contribute collision, overlaps, navigation or movement. Source budgets,
+render-only camera cutaway, local pre-import validation and real-engine limits are
+recorded in [R7 completion evidence](../docs/R7_ENVIRONMENT_COMPLETION.md).

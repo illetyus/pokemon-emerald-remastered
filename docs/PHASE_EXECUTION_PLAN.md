@@ -807,3 +807,27 @@ separately authorized R6-M1 PR/merge and R6-M2 main CI gates. Current authorizat
 retains the PR/merge/main boundary; automatic phase advancement does not override
 that restriction. After R6-M2, next is R7-P1. Actual Unreal/UHT, normalized asset
 imports, clips/retarget/props and Android validation remain external R18 work.
+
+
+## R7 direct-authorization checkpoint — 2026-10-07
+
+The user explicitly instructed completion of R7 while R6 merge/main remained
+outside current authorization. The dependent R7 branch therefore starts from R6
+`db8c50c76365bd656fc5db3bad2eba25a336b83c`; this is a direct user-authorized
+preparation-sequence exception. Existing R6/R7 M1/M2 boundaries remain.
+
+R7-P1/P2, I1-I7, T1, V1/G1 and D1/F1 source/preparation implementation and
+acceptance are VERIFIED_COMPLETE on the dependent branch. Full registry
+coverage: 518 maps, 441 layouts, 75 tilesets, 18,318 source descriptor identities
+plus 85 missing-descriptor visible fallbacks in an unused layout. No used map has
+an unresolved identity. Zero modern 3D environment imports are claimed.
+
+Local validation passed 21 R7 Python tests, all 202 Python regressions and 53 shared
+native presentation checks. Hosted run 37601156961 completed with success at
+`0e9133de277bb9f884e7d32105cead205b9034f1`: all 202 Python tests, deterministic
+package/source guards and 63/63 full CMake/CTest checks. Independent raw-source
+reconciliation verified all 324,579 active tiles and all 518 map records; all
+23 published blobs match local bytes. Verify this final documentation-head CI
+before any separately authorized R6/R7 M1/M2 integration. D1/F1 evidence, actual-engine deferrals and dependency details:
+`docs/R7_ENVIRONMENT_COMPLETION.md`. Next preparation phase after R7 is R9; do not
+start it under this R7-only instruction.

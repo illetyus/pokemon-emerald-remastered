@@ -14,6 +14,7 @@
 #include "RemasterVisualStyle.h"
 #include "RemasterWorldGameplaySubsystem.h"
 #include "RemasterWorldGridMath.h"
+#include "RemasterEnvironmentAssetSet.h"
 #include "UObject/ConstructorHelpers.h"
 
 namespace
@@ -53,6 +54,8 @@ ARemasterWorldActor::ARemasterWorldActor()
 void ARemasterWorldActor::BeginPlay()
 {
     Super::BeginPlay();
+    const auto* Settings = GetDefault<URemasterEnvironmentPresentationSettings>();
+    EnvironmentAssets = Settings ? Settings->AssetSet.LoadSynchronous() : nullptr;
 
     bool bLoadedAuthoritative = false;
 
@@ -103,6 +106,9 @@ void ARemasterWorldActor::EndPlay(
 
 void ARemasterWorldActor::ClearWorld()
 {
+    ++PresentationRevision;
+    CameraOccluders.Reset();
+    EnvironmentBudgets.Reset();
     for (TPair<
             FRemasterChunkVisualKey,
             UHierarchicalInstancedStaticMeshComponent*>& Pair
@@ -329,21 +335,12 @@ ARemasterWorldActor::ComponentForMetatile(
     int32 PlaneIndex,
     const FIntPoint& Chunk)
 {
-    uint32 IdentityHash = GetTypeHash(Visual.Tileset);
-    IdentityHash = HashCombine(
-        IdentityHash,
-        GetTypeHash(Visual.LocalMetatileId));
-    IdentityHash = HashCombine(
-        IdentityHash,
-        GetTypeHash(RenderPlane));
-    IdentityHash = HashCombine(
-        IdentityHash,
-        GetTypeHash(PlaneIndex));
-
+    const FString FullIdentity = FString::Printf(TEXT("%s:%d:%s:%d"),
+        *Visual.Tileset, Visual.LocalMetatileId, *RenderPlane, PlaneIndex);
     const FRemasterChunkVisualKey Key{
         Chunk.X,
         Chunk.Y,
-        IdentityHash
+        FullIdentity
     };
 
     if (UHierarchicalInstancedStaticMeshComponent** Existing =
@@ -419,10 +416,13 @@ ARemasterWorldActor::ComponentForMetatile(
         NewObject<UHierarchicalInstancedStaticMeshComponent>(
             this,
             *FString::Printf(
-                TEXT("Chunk_%d_%d_Visual_%08X"),
+                TEXT("Chunk_%d_%d_%s_%d_%s_%d"),
                 Chunk.X,
                 Chunk.Y,
-                IdentityHash));
+                *Visual.Tileset,
+                Visual.LocalMetatileId,
+                *RenderPlane,
+                PlaneIndex));
 
     if (!Component)
         return nullptr;
@@ -430,6 +430,8 @@ ARemasterWorldActor::ComponentForMetatile(
     Component->SetupAttachment(SceneRoot);
     Component->SetStaticMesh(Mesh);
     Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    Component->SetGenerateOverlapEvents(false);
+    Component->SetCanEverAffectNavigation(false);
     Component->SetCastShadow(false);
     Component->NumCustomDataFloats =
         remaster::metatile_render::CustomDataFloats;
@@ -475,6 +477,8 @@ ARemasterWorldActor::ComponentForMetatile(
 bool ARemasterWorldActor::BuildRenderChunks()
 {
     if (!LoadedMap.IsValid()
+        || !FMath::IsFinite(TileWorldSize)
+        || !FMath::IsFinite(RenderPlaneWorldSpacing)
         || TileWorldSize <= 0.0f
         || ChunkTileSize <= 0)
     {
@@ -530,14 +534,8 @@ bool ARemasterWorldActor::BuildRenderChunks()
                 || !Metatile
                 || Metatile->RenderPlanes.Num() != 2)
             {
-                UE_LOG(
-                    LogTemp,
-                    Error,
-                    TEXT("R5 descriptor resolution failed for %s:%d: %s"),
-                    *Visual.Tileset,
-                    Visual.LocalMetatileId,
-                    *DescriptorError);
-                return false;
+                if (!AddMissingDescriptorFallback(Visual, X, Y, Chunk)) return false;
+                continue;
             }
 
             FVector Scale = FallbackScale;
@@ -548,6 +546,10 @@ bool ARemasterWorldActor::BuildRenderChunks()
                 Scale = Visual.Rule->Scale;
                 RuleHeightOffset = Visual.Rule->HeightOffset;
             }
+
+            // Optional validated 3D decoration. The R5 surface remains underneath
+            // during load failures, camera cutaway and distance culling.
+            AddEnvironmentVisual(Visual, X, Y, Chunk);
 
             for (int32 PlaneIndex = 0;
                  PlaneIndex < 2;
@@ -676,4 +678,117 @@ bool ARemasterWorldActor::BuildRenderChunks()
     }
 
     return true;
+}
+
+void ARemasterWorldActor::AddEnvironmentVisual(
+    const FResolvedMetatileVisual& Visual, int32 TileX, int32 TileY, const FIntPoint& Chunk)
+{
+    if (!EnvironmentAssets) return;
+    const FString Identity = FString::Printf(TEXT("%s:%d"), *Visual.Tileset, Visual.LocalMetatileId);
+    const FRemasterEnvironmentBinding* Binding = EnvironmentAssets->Models.Find(Identity);
+    if (!Binding || !Binding->IsUsable()) return;
+    FEnvironmentChunkBudget& Budget = EnvironmentBudgets.FindOrAdd(Chunk);
+    // Deterministic row-order admission; exceeding a source budget retains R5.
+    const FRemasterChunkVisualKey Key{Chunk.X, Chunk.Y, TEXT("R7:") + Identity};
+    UHierarchicalInstancedStaticMeshComponent* Component = nullptr;
+    if (auto** Existing = ChunkVisualComponents.Find(Key)) Component = *Existing;
+    if (!remaster::environment::can_admit(Budget.Components, Budget.Instances,
+            Budget.Lod0Triangles, Binding->Lod0Triangles, !Component)) return;
+    if (!Component)
+    {
+        UStaticMesh* Mesh = Binding->Mesh.LoadSynchronous();
+        if (!Mesh) return;
+        Component = NewObject<UHierarchicalInstancedStaticMeshComponent>(this);
+        if (!Component) return;
+        Component->SetupAttachment(SceneRoot);
+        Component->SetStaticMesh(Mesh);
+        Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Component->SetGenerateOverlapEvents(false);
+        Component->SetCanEverAffectNavigation(false);
+        Component->SetCastShadow(false);
+        Component->SetCullDistances(0, FMath::RoundToInt(Binding->CullDistance));
+        Component->RegisterComponent();
+        ChunkVisualComponents.Add(Key, Component);
+        ++Budget.Components;
+    }
+    const FTransform Transform(FRotator::ZeroRotator,
+        TileToLocalLocation(TileX, TileY, Binding->HeightOffset), Binding->Scale);
+    const int32 Instance = Component->AddInstance(Transform);
+    if (Instance == INDEX_NONE) return;
+    ++Budget.Instances;
+    Budget.Lod0Triangles += Binding->Lod0Triangles;
+    if (Binding->bCameraOccluder)
+    {
+        FCameraOccluder Item;
+        Item.Component = Component;
+        Item.InstanceIndex = Instance;
+        Item.OriginalTransform = Transform;
+        Item.LocalBounds = Component->GetStaticMesh()->GetBoundingBox().TransformBy(Transform);
+        CameraOccluders.Add(Item);
+    }
+}
+
+void ARemasterWorldActor::UpdateCameraOcclusion(const FVector& Camera, const FVector& Player)
+{
+    using namespace remaster::environment;
+    const FVector LocalCamera = GetActorTransform().InverseTransformPosition(Camera);
+    const FVector LocalPlayer = GetActorTransform().InverseTransformPosition(Player);
+    for (FCameraOccluder& Item : CameraOccluders)
+    {
+        auto* Component = Item.Component.Get();
+        if (!Component || !Item.LocalBounds.IsValid) continue;
+        const FBox& Bounds = Item.LocalBounds;
+        const bool Hidden = occludes({LocalCamera.X, LocalCamera.Y, LocalCamera.Z},
+            {LocalPlayer.X, LocalPlayer.Y, LocalPlayer.Z},
+            {Bounds.Min.X, Bounds.Min.Y, Bounds.Min.Z}, {Bounds.Max.X, Bounds.Max.Y, Bounds.Max.Z});
+        if (Hidden == Item.bHidden) continue;
+        FTransform RenderTransform = Item.OriginalTransform;
+        if (Hidden) RenderTransform.SetScale3D(FVector::ZeroVector);
+        if (Component->UpdateInstanceTransform(Item.InstanceIndex, RenderTransform, false, true, true))
+            Item.bHidden = Hidden;
+    }
+}
+
+void ARemasterWorldActor::RestoreCameraOcclusion()
+{
+    for (FCameraOccluder& Item : CameraOccluders)
+    {
+        if (Item.bHidden)
+        {
+            if (auto* Component = Item.Component.Get())
+            {
+                if (Component->UpdateInstanceTransform(Item.InstanceIndex, Item.OriginalTransform, false, true, true))
+                    Item.bHidden = false;
+            }
+        }
+    }
+}
+
+bool ARemasterWorldActor::AddMissingDescriptorFallback(
+    const FResolvedMetatileVisual& Visual, int32 TileX, int32 TileY, const FIntPoint& Chunk)
+{
+    const FRemasterChunkVisualKey Key{Chunk.X, Chunk.Y,
+        FString::Printf(TEXT("R7_missing:%s:%d"), *Visual.Tileset, Visual.LocalMetatileId)};
+    UHierarchicalInstancedStaticMeshComponent* Component = nullptr;
+    if (auto** Existing = ChunkVisualComponents.Find(Key)) Component = *Existing;
+    if (!Component)
+    {
+        if (!FallbackMesh) return false;
+        UE_LOG(LogTemp, Warning, TEXT("R7 visible descriptor fallback: %s in %s"),
+            *Key.VisualIdentity, *LoadedMap.Id);
+        Component = NewObject<UHierarchicalInstancedStaticMeshComponent>(this);
+        if (!Component) return false;
+        Component->SetupAttachment(SceneRoot);
+        Component->SetStaticMesh(FallbackMesh);
+        Component->SetMaterial(0, UMaterial::GetDefaultMaterial(MD_Surface));
+        Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Component->SetGenerateOverlapEvents(false);
+        Component->SetCanEverAffectNavigation(false);
+        Component->SetCastShadow(false);
+        Component->RegisterComponent();
+        ChunkVisualComponents.Add(Key, Component);
+    }
+    return Component->AddInstance(FTransform(FRotator::ZeroRotator,
+        TileToLocalLocation(TileX, TileY, 0.0f), FVector(TileWorldSize / 100.0f,
+        TileWorldSize / 100.0f, 1.0f))) != INDEX_NONE;
 }
