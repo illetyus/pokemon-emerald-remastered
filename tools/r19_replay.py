@@ -9,6 +9,8 @@ from pathlib import Path
 import subprocess
 import sys
 
+from r19_state import DOMAINS, fingerprint, validate_expected
+
 ROOT = Path(__file__).resolve().parents[1]
 PIN = '70db90c9077aed1272e746fc2537d9f12b95a91c'
 MATRIX = ROOT / 'tests/fixtures/r19/movement.json'
@@ -21,7 +23,7 @@ def require(condition, message):
 
 
 def validate(matrix):
-    require(matrix.get('schema') == 'remaster.r19.replay-matrix' and matrix.get('version') == 1,
+    require(matrix.get('schema') == 'remaster.r19.replay-matrix' and type(matrix.get('version')) is int and matrix['version'] == 1,
             'unsupported matrix schema/version')
     require(matrix.get('source') == {'repository': 'illetyus/pokezumrut-vanillaplus', 'commit': PIN},
             'source provenance mismatch')
@@ -47,14 +49,16 @@ def validate(matrix):
         require(isinstance(case.get('expected'), list) and len(case['expected']) == len(commands) + 1,
                 identity + ': expected snapshot count mismatch')
         for expected in case['expected']:
-            require(isinstance(expected, dict) and set(expected) == {'x', 'y', 'kind', 'collision'}
-                    and all(type(v) is int for v in expected.values()), identity + ': invalid expected observation')
+            validate_expected(expected)
+            observations = expected['observations']
+            require(set(observations) == {'x', 'y', 'kind', 'collision'}
+                    and all(type(v) is int for v in observations.values()), identity + ': invalid expected observation')
 
 
-def execute(probe, case):
+def execute(probe, case, mode=None):
     commands = ''.join(f"step {c['direction']}\n" for c in case['commands'])
     try:
-        result = subprocess.run([str(probe), case['recipe']], input=commands, text=True,
+        result = subprocess.run([str(probe), case['recipe']] + ([mode] if mode else []), input=commands, text=True,
                                 capture_output=True, timeout=30, check=False)
     except (OSError, subprocess.TimeoutExpired) as error:
         raise ValueError(f"{case['id']}: probe execution failed: {error}") from error
@@ -68,12 +72,22 @@ def execute(probe, case):
 def verify(case, actual):
     require(len(actual) == len(case['expected']), f"{case['id']}: snapshot count: expected {len(case['expected'])}, actual {len(actual)}")
     for index, (expected, observed) in enumerate(zip(case['expected'], actual)):
-        require(isinstance(observed, dict) and set(observed) == set(expected),
-                f"{case['id']}: snapshot {index}: observation schema mismatch")
-        for field in expected:
-            require(type(observed[field]) is int and observed[field] == expected[field],
+        try:
+            result = fingerprint(observed)
+        except ValueError as error:
+            raise ValueError(f"{case['id']}: snapshot {index}: {error}") from error
+        observations = result['observations']
+        require(set(observations) == set(expected['observations']), f"{case['id']}: snapshot {index}: observation schema mismatch")
+        for field, value in expected['observations'].items():
+            require(type(observations[field]) is type(value) and observations[field] == value,
                     f"{case['id']}: snapshot {index}, command {case['commands'][index-1] if index else 'initial'}, "
-                    f"field {field}: expected {expected[field]}, actual {observed[field]}")
+                    f"field {field}: expected {value}, actual {observations[field]}")
+        for domain in DOMAINS:
+            require(result['domain_hashes'][domain] == expected['domain_hashes'][domain],
+                    f"{case['id']}: snapshot {index}, command {case['commands'][index-1] if index else 'initial'}, "
+                    f"domain {domain}: expected {expected['domain_hashes'][domain]}, actual {result['domain_hashes'][domain]}")
+        require(result['state_hash'] == expected['state_hash'],
+                f"{case['id']}: snapshot {index}, state hash: expected {expected['state_hash']}, actual {result['state_hash']}")
 
 
 def run(probe, matrix):
@@ -82,6 +96,22 @@ def run(probe, matrix):
         actual = execute(probe, case)
         verify(case, actual)
         require(actual == execute(probe, case), case['id'] + ': repeat execution differs')
+        verify(case, execute(probe, case, '--transport-noise'))
+        try:
+            verify(case, execute(probe, case, '--persistent-noise'))
+        except ValueError as error:
+            require('snapshot 0' in str(error) and 'domain save_block1' in str(error),
+                    'persistent mutation failed at wrong boundary: ' + str(error))
+        else:
+            raise ValueError('persistent mutation was not detected')
+        mutated = dict(case, commands=[dict(c) for c in case['commands']])
+        mutated['commands'][0]['direction'] = 'south'
+        try:
+            verify(case, execute(probe, mutated))
+        except ValueError as error:
+            require('snapshot 1' in str(error), 'command mutation failed at wrong index: ' + str(error))
+        else:
+            raise ValueError('command mutation was not detected')
     # The native boundary independently rejects commands not accepted by Python.
     for bad in ('step diagonal\n', 'set_story_flag 1\n', 'step north extra\n'):
         result = subprocess.run([str(probe), 'synthetic-movement-v1'], input=bad,
