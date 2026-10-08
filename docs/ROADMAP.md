@@ -942,9 +942,10 @@ schema in [R8_INPUT_CONTRACT.md](R8_INPUT_CONTRACT.md) and
 `data/r8/input_contract.json`; R8-I1 is VERIFIED_COMPLETE at `1d45a91d` (workflow 37817943261: 1/68/310 PASS).
 R8-I2 is VERIFIED_COMPLETE at `c18d820c` (workflow 37846220404: 2/69/310 PASS;
 all 16 exact-head workflows including CodeQL succeeded).
-Current implementation checkpoint is **R8-I3 — Gamepad/keyboard mappings**,
+R8-I3 is VERIFIED_COMPLETE at `a39c97a3` (workflow 37847802114: 3/70/313 PASS).
+Current implementation checkpoint is **R8-I4 — UI/gameplay focus routing**,
 VERIFYING exact-head CI. Evidence: [R8_INPUT_IMPLEMENTATION.md](R8_INPUT_IMPLEMENTATION.md).
-After targeted/full CI succeeds, next is **R8-I4 — UI/gameplay focus routing**.
+After targeted/full CI succeeds, next is **R8-I5 — Lifecycle reset/reconnect**.
 No actual runtime/local asset obligation was closed by these source merges.
 
 Real Unreal build remains R18 work. After R18 main verification, stop at

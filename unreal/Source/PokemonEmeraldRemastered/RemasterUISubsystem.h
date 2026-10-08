@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "RemasterUiModel.h"
+#include "RemasterInputRouter.h"
 #include "RemasterUISubsystem.generated.h"
 
 class UUserWidget;
@@ -64,6 +65,7 @@ public:
 
     UFUNCTION(BlueprintPure, Category="Remaster|UI")
     bool BlocksWorldInput() const;
+    RemasterControls::Context ReadInputContext();
 
     // The gameplay/script/battle host supplies busy lifetimes, not the widget.
     UFUNCTION(BlueprintCallable, Category="Remaster|UI")
@@ -98,6 +100,10 @@ public:
     }
 
 private:
+    void AdvanceInputBoundary();
+    uint64 InputHostGeneration=1,LastInputRequest=0;
+    int32 LastInputScreen=-1;
+    FString LastInputMap;
     void Refresh();
     void PresentationTick();
     RemasterUi::Context ReadContext() const;

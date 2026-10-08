@@ -20,6 +20,7 @@ public:
     virtual void BeginPlay() override;
     virtual void SetupInputComponent() override;
     virtual void PlayerTick(float DeltaTime) override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Remaster|Input")
@@ -55,24 +56,10 @@ private:
     void PhysicalInput(RemasterControls::Source Source,uint16 Control,
         RemasterControls::Action Action,RemasterControls::Phase Phase);
     bool bNativeGamepadAxis = false;
-    void HandleInteract(const FInputActionValue& Value);
-    void HandleCancel(const FInputActionValue& Value);
-    void HandleMenu(const FInputActionValue& Value);
-    void HandleMap(const FInputActionValue& Value);
-    void HandleQuest(const FInputActionValue& Value);
-    void HandleQuickItem(const FInputActionValue& Value);
-
-    void StepDirection(int32 Direction);
-    void StepUp();
-    void StepDown();
-    void StepLeft();
-    void StepRight();
-    void InteractFallback();
-    void CancelFallback();
-    void MenuFallback();
-    void MapFallback();
-    void QuestFallback();
-    void QuickItemFallback();
+    bool bInputRoutingAttached = false;
+    RemasterControls::Context ReadInputContext();
+    bool DispatchInput(RemasterControls::Action Action,RemasterControls::Target Target);
+    bool StepDirection(int32 Direction);
     bool RouteUI(ERemasterUiAction Action);
     void TouchPressed(ETouchIndex::Type Finger, FVector Location);
     void TouchMoved(ETouchIndex::Type Finger, FVector Location);

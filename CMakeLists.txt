@@ -1114,3 +1114,17 @@ else()
 endif()
 add_test(NAME r8_physical_sources COMMAND r8_physical_input_test)
 
+
+# I4 compiles the same one-owner dispatcher with actual accepted R9 model/core state.
+add_executable(r8_focus_dispatch_test tests/r8_focus_dispatch_test.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterUiModel.cpp)
+target_link_libraries(r8_focus_dispatch_test PRIVATE remaster_core)
+target_include_directories(r8_focus_dispatch_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_focus_dispatch_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_focus_dispatch_test PRIVATE /W4)
+else()
+    target_compile_options(r8_focus_dispatch_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_focus_real_ui_dispatch COMMAND r8_focus_dispatch_test)

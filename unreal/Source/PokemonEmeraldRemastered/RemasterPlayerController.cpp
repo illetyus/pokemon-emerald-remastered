@@ -10,6 +10,7 @@
 #include "InputCoreTypes.h"
 #include "RemasterInputConfig.h"
 #include "RemasterInputSubsystem.h"
+#include "RemasterInputDispatch.h"
 #include "RemasterUISubsystem.h"
 #include "RemasterOverworldPawn.h"
 
@@ -60,6 +61,49 @@ void ARemasterPlayerController::BeginPlay()
     }
     if (auto* UI = GetGameInstance()->GetSubsystem<URemasterUISubsystem>())
         UI->StartNativePresentation();
+    if (auto* Input=GetGameInstance()->GetSubsystem<URemasterInputSubsystem>())
+    {
+        bInputRoutingAttached=Input->AttachRouting(this,
+            FRemasterInputContextReader::CreateUObject(this,&ARemasterPlayerController::ReadInputContext),
+            FRemasterInputDispatch::CreateUObject(this,&ARemasterPlayerController::DispatchInput));
+        if (!bInputRoutingAttached)
+            UE_LOG(LogTemp,Warning,TEXT("Input routing already has a different native owner"));
+    }
+}
+void ARemasterPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    bInputRoutingAttached=false;
+    if (auto* Input=GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
+        Input->DetachRouting(this);
+    Super::EndPlay(EndPlayReason);
+}
+RemasterControls::Context ARemasterPlayerController::ReadInputContext()
+{
+    if (auto* UI=GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterUISubsystem>() : nullptr)
+        return UI->ReadInputContext();
+    return {};
+}
+bool ARemasterPlayerController::DispatchInput(RemasterControls::Action Action,RemasterControls::Target Target)
+{
+    using namespace RemasterControls;
+    auto UI=[this](RemasterControls::Action A){return RouteUI(static_cast<ERemasterUiAction>(A));};
+    auto World=[this](RemasterControls::Action A)
+    {
+        const int32 Directions[]={REMASTER_EMERALD_DIR_NORTH,REMASTER_EMERALD_DIR_SOUTH,
+            REMASTER_EMERALD_DIR_WEST,REMASTER_EMERALD_DIR_EAST};
+        return StepDirection(Directions[static_cast<unsigned>(A)]);
+    };
+    auto Field=[this](RemasterControls::Action A)
+    {
+        auto* Input=GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr;
+        return Input && Input->DispatchNativeOwner(A,RemasterControls::Target::FieldInteract);
+    };
+    auto Battle=[this](RemasterControls::Action A)
+    {
+        auto* Input=GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr;
+        return Input && Input->DispatchNativeOwner(A,RemasterControls::Target::BattleInput);
+    };
+    return Deliver(Action,Target,UI,World,Field,Battle);
 }
 
 void ARemasterPlayerController::SetupInputComponent()
@@ -159,6 +203,7 @@ void ARemasterPlayerController::BindNativeAction(RemasterControls::Action Action
 void ARemasterPlayerController::PhysicalInput(RemasterControls::Source Source,uint16 Control,
     RemasterControls::Action Action,RemasterControls::Phase Phase)
 {
+    if (!bInputRoutingAttached) return;
     if (auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
         Input->SubmitPhysical(Source, Control, Action, Phase);
 }
@@ -170,27 +215,30 @@ void ARemasterPlayerController::HandleButton(const FInputActionValue&,
 void ARemasterPlayerController::PlayerTick(float DeltaTime)
 {
     Super::PlayerTick(DeltaTime);
+    if (!bInputRoutingAttached) return;
+    if (auto* Input=GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
+        Input->RefreshContext();
     if (bNativeGamepadAxis)
         if (auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
             Input->SubmitAxis(FVector2D(GetInputAnalogKeyState(EKeys::Gamepad_LeftX),
                 GetInputAnalogKeyState(EKeys::Gamepad_LeftY)), true);
 }
 
-void ARemasterPlayerController::StepDirection(int32 Direction)
+bool ARemasterPlayerController::StepDirection(int32 Direction)
 {
     const ERemasterUiAction UiDirection = Direction == REMASTER_EMERALD_DIR_NORTH ? ERemasterUiAction::Up
         : Direction == REMASTER_EMERALD_DIR_SOUTH ? ERemasterUiAction::Down
         : Direction == REMASTER_EMERALD_DIR_WEST ? ERemasterUiAction::Left : ERemasterUiAction::Right;
-    if (RouteUI(UiDirection)) return;
+    if (RouteUI(UiDirection)) return true;
     UGameInstance* GI = GetGameInstance();
     if (!GI)
-        return;
+        return false;
 
     URemasterWorldGameplaySubsystem* Gameplay =
         GI->GetSubsystem<URemasterWorldGameplaySubsystem>();
 
     if (!Gameplay || !Gameplay->IsMapReady())
-        return;
+        return false;
 
     FRemasterPlayerStepResult Result;
     if (!Gameplay->StepPlayer(Direction, Result))
@@ -200,7 +248,7 @@ void ARemasterPlayerController::StepDirection(int32 Direction)
             Warning,
             TEXT("Authoritative overworld step failed: direction=%d"),
             Direction);
-        return;
+        return false;
     }
 
     if (ARemasterOverworldPawn* OverworldPawn =
@@ -212,78 +260,20 @@ void ARemasterPlayerController::StepDirection(int32 Direction)
     if (auto* UI = GI->GetSubsystem<URemasterUISubsystem>())
         UI->NotifyCoreStep(!Result.ScriptId.IsEmpty(), Result.bEncounterPending, Result.bRepelWoreOff);
     BP_OnWorldStep(Result);
+    return true;
 }
 
 void ARemasterPlayerController::HandleMove(const FInputActionValue& Value)
 {
+    if (!bInputRoutingAttached) return;
     if (auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
         Input->SubmitAxis(Value.Get<FVector2D>());
 }
 void ARemasterPlayerController::HandleMoveReleased(const FInputActionValue&)
 {
+    if (!bInputRoutingAttached) return;
     if (auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
         Input->SubmitAxis(FVector2D::ZeroVector);
-}
-
-void ARemasterPlayerController::HandleInteract(
-    const FInputActionValue&)
-{
-    if (!RouteUI(ERemasterUiAction::Confirm)) BP_OnInteract();
-}
-
-void ARemasterPlayerController::HandleCancel(
-    const FInputActionValue&)
-{
-    if (!RouteUI(ERemasterUiAction::Cancel)) BP_OnCancel();
-}
-
-void ARemasterPlayerController::HandleMenu(
-    const FInputActionValue&)
-{
-    if (!RouteUI(ERemasterUiAction::Menu)) BP_OnMenu();
-}
-
-void ARemasterPlayerController::HandleMap(
-    const FInputActionValue&)
-{
-    if (!RouteUI(ERemasterUiAction::Map)) BP_OnMap();
-}
-
-void ARemasterPlayerController::HandleQuest(
-    const FInputActionValue&)
-{
-    if (!RouteUI(ERemasterUiAction::Quest)) BP_OnQuest();
-}
-
-void ARemasterPlayerController::HandleQuickItem(
-    const FInputActionValue&)
-{
-    if (!RouteUI(ERemasterUiAction::QuickItem)) BP_OnQuickItem();
-}
-
-void ARemasterPlayerController::StepUp()
-{
-    StepDirection(REMASTER_EMERALD_DIR_NORTH);
-}
-
-void ARemasterPlayerController::StepDown()
-{
-    StepDirection(REMASTER_EMERALD_DIR_SOUTH);
-}
-
-void ARemasterPlayerController::StepLeft()
-{
-    StepDirection(REMASTER_EMERALD_DIR_WEST);
-}
-
-void ARemasterPlayerController::StepRight()
-{
-    StepDirection(REMASTER_EMERALD_DIR_EAST);
-}
-
-void ARemasterPlayerController::InteractFallback()
-{
-    if (!RouteUI(ERemasterUiAction::Confirm)) BP_OnInteract();
 }
 
 bool ARemasterPlayerController::RouteUI(ERemasterUiAction Action)
@@ -292,12 +282,6 @@ bool ARemasterPlayerController::RouteUI(ERemasterUiAction Action)
         return UI->SubmitAction(Action);
     return false;
 }
-void ARemasterPlayerController::CancelFallback() { if (!RouteUI(ERemasterUiAction::Cancel)) RouteUI(ERemasterUiAction::Menu); }
-void ARemasterPlayerController::MenuFallback() { RouteUI(ERemasterUiAction::Menu); }
-void ARemasterPlayerController::MapFallback() { RouteUI(ERemasterUiAction::Map); }
-void ARemasterPlayerController::QuestFallback() { RouteUI(ERemasterUiAction::Quest); }
-void ARemasterPlayerController::QuickItemFallback() { RouteUI(ERemasterUiAction::QuickItem); }
-
 FVector2D ARemasterPlayerController::NormalizeTouch(FVector Location) const
 {
     int32 Width = 0, Height = 0;
@@ -309,16 +293,19 @@ FVector2D ARemasterPlayerController::NormalizeTouch(FVector Location) const
 }
 void ARemasterPlayerController::TouchPressed(ETouchIndex::Type Finger,FVector Location)
 {
+    if (!bInputRoutingAttached) return;
     if (auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
         Input->TouchPressed(static_cast<int32>(Finger),NormalizeTouch(Location));
 }
 void ARemasterPlayerController::TouchMoved(ETouchIndex::Type Finger,FVector Location)
 {
+    if (!bInputRoutingAttached) return;
     if (auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
         Input->TouchMoved(static_cast<int32>(Finger),NormalizeTouch(Location));
 }
 void ARemasterPlayerController::TouchReleased(ETouchIndex::Type Finger,FVector)
 {
+    if (!bInputRoutingAttached) return;
     if (auto* Input = GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
         Input->TouchReleased(static_cast<int32>(Finger));
 }

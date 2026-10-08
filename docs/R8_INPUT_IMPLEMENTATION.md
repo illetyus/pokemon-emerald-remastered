@@ -92,7 +92,9 @@ After I2 exact-head CI terminal-success, next: **R8-I3 — Gamepad/keyboard mapp
 
 ## R8-I3 — Gamepad/keyboard mappings
 
-State: **VERIFYING**; exact published-head hosted CI is required.
+State: **VERIFIED_COMPLETE** at `a39c97a3387e079d04543aaae175c4dad2996ed3`.
+Workflow 37847802114 passed targeted 3/3 CTest, full 70/70 CTest, 313/313 Python
+and Unreal source guards. Draft PR CodeQL is tracked separately from the subphase gate.
 Base: `c18d820c4e34caa3b35a94c82595e1cc161f10f1`.
 
 Regression files were created first; strict compilation was RED because the
@@ -127,3 +129,51 @@ remain required. No UE/UHT build, device bindings, cooked Enhanced assets or
 Android execution is certified.
 
 After I3 targeted/full hosted CI passes, next: **R8-I4 — UI/gameplay focus routing**.
+
+
+## R8-I4 — UI/gameplay focus routing
+
+State: **VERIFYING**; exact published-head hosted CI is required.
+Base: `a39c97a3387e079d04543aaae175c4dad2996ed3`.
+
+The production controller now leases a single native context/dispatch owner,
+without replacing another controller's owner. Each physical/touch/axis capture
+refreshes context before capturing its epoch; delivery refreshes again and then
+uses the shared compiled `RemasterInputDispatch.h` selector. A rejected owner
+returns unsupported without another owner or Blueprint gameplay fallback.
+Unbound old physical/Blueprint handlers were removed. World steps keep R9-first
+consumption and the existing R4 authoritative StepPlayer/result/pawn bridge.
+
+R9 exposes existing save/map/modal/I/O/script/battle and pending core-dialogue
+facts. Screen, map identity and request ownership changes fence holds; I/O/load,
+VM attachment, busy changes and view teardown explicitly reset the input boundary.
+The UI boundary counter fails closed at uint64 exhaustion. Cursor revisions do
+not reset the hold/repeat clock. The existing nonexistent GetCurrentMapNum call
+was corrected to GetCurrentMapNumber, verified against the actual world header.
+
+Field/battle endpoints are native single-cast boolean owners installed via
+SetFieldOwner/SetBattleOwner, with reset on replacement or detachment (empty
+delegate). Default endpoints remain unattached/unsupported. Actual core hosts
+must validate their pending request/selection revision and call ResetInputs or
+replace their owner when that request changes. These interfaces do not create a
+script VM, playable battle host, resources or a new authoritative gameplay state.
+R9 retains its existing core request/row/fingerprint checks and busy lifetimes;
+visual completion cannot authorize battle or script progression.
+
+The native R9 integration regression was written first and strict compilation was
+RED because the dispatch header did not exist. After implementation, **18/18
+native focus/real-R9 checks** passed, including modal routing, cancellation,
+stale queued delivery, unattached/rejecting owners, script/battle blockers,
+corrupt-save recovery, malformed targets, save-state fingerprint preservation
+and same-focus owner fences. The production dispatcher itself is compiled with
+the accepted R9 model and actual core code; local core files were verified against
+live Git blob hashes before reuse. The native integration and model passed
+ASan/UBSan (leak detection excluded as documented). **7/7 local R8 Python tests**
+passed; four guard actual source call/owner/context and world API boundaries.
+The R9 source test now recognizes StepDirection's boolean response signature;
+its UI-before-world assertions are unchanged. Full R4/R9, all Python and Unreal
+source guard evidence remains the exact hosted CI gate.
+
+Lifecycle callback/disconnect handling is I5; common-held R9 repeat is I6.
+No actual UE/UHT compilation or working host/device execution is certified.
+Next after targeted/full CI: **R8-I5 — Lifecycle reset/reconnect**.
