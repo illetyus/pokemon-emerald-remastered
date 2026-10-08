@@ -183,7 +183,9 @@ Next after targeted/full CI: **R8-I5 — Lifecycle reset/reconnect**.
 
 ## R8-I5 — Lifecycle reset/reconnect
 
-State: **VERIFYING**; exact published-head hosted CI is required.
+State: **VERIFIED_COMPLETE** at `6046cba6508a3624a80dcf99f6def2563fb49802`.
+Workflow 37849310238 passed targeted 5/5 CTest, full 72/72 CTest, 320/320 Python
+and Unreal source guards. No real engine/device lifecycle result is implied.
 Base: `3f04104edb78ec8e6e92cf6e152aaf85b48fbdd9`.
 
 The shared `RemasterInputLifecycle.h` treats Background, Inactive and Paused as
@@ -216,3 +218,36 @@ The actual UE 5.8.3 compile, platform event order, Enhanced rebuild/pressed-key
 flush behavior and Android/controller callbacks still require R18/runtime evidence.
 This source checkpoint does not certify them. Common-held R9 repeat is still I6.
 Next after targeted/full CI: **R8-I6 — Presentation timing QoL wiring**.
+
+
+## R8-I6 — Presentation timing QoL wiring
+
+State: **VERIFYING**; exact published-head hosted CI is required.
+Base: `6046cba6508a3624a80dcf99f6def2563fb49802`.
+
+R9 PresentationTick now reads the shared router's semantic holds rather than
+polling physical keyboard/D-pad keys. The compiled `RemasterInputRepeat.h` bridge
+uses the existing R9 Repeat, retaining 60 Hz, first tick 24 and every 3 thereafter.
+Only ModalUI/Dialogue Up/Down may repeat. Neither world/battle/recovery HUD nor
+Confirm produces repeated commands. Multiple sources holding the same direction
+retain a single countdown, including release of just one source.
+
+Epoch/focus/settings changes reset the repeat countdown and drop old presentation
+catch-up time. R9 MenuRepeat/FastText remain the existing GameUserSettings settings;
+no Emerald metadata or gameplay timing was introduced. Counter values are bounded
+by recycling the identical post-delay 3-tick interval, preserving long holds
+without a multi-year unsigned overflow. Text ticking stops while input is blocked.
+
+The regression was written first and strict compilation was RED because the
+bridge header did not exist. **11,104/11,104 native checks** passed, including
+four-source 24/3 traces, settings disable/reenable, epoch fences, semantic source
+handover, world/battle/Confirm non-repetition, dialogue scope and 10,000-tick
+cadence. ASan/UBSan passed with documented leak exclusion. **12/12 local R8 Python
+tests** passed; two new guards verify actual R9 timer integration, old-time discard,
+absence of physical polling and existing settings ownership. CMake registers
+`r8_common_held_ui_repeat` in targeted/full hosted runs.
+
+T1/V1/G1 still must reconcile the complete matrix and all acceptance requirements.
+Actual UE/UHT, platform timer/callback order, touch consumption, controller mapping
+and Android latency/device behavior remain the R18/runtime obligations.
+Next after targeted/full CI: **R8-T1 — Input contract regressions**.

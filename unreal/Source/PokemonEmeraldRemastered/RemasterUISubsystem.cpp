@@ -4,7 +4,6 @@
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
-#include "InputCoreTypes.h"
 #include "Misc/ConfigCacheIni.h"
 #include "HAL/PlatformTime.h"
 #include "TimerManager.h"
@@ -81,6 +80,7 @@ bool URemasterUISubsystem::BlocksWorldInput() const
 }
 void URemasterUISubsystem::AdvanceInputBoundary()
 {
+    CommonRepeat.Reset();TickAccumulator=0.0;LastTickSeconds=FPlatformTime::Seconds();
     if (InputHostGeneration != MAX_uint64) ++InputHostGeneration;
     if (auto* Input=GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr)
         Input->ResetInputs();
@@ -255,27 +255,33 @@ void URemasterUISubsystem::DetachCoreDialogue()
 
 void URemasterUISubsystem::PresentationTick()
 {
+    auto* Input=GetGameInstance() ? GetGameInstance()->GetSubsystem<URemasterInputSubsystem>() : nullptr;
+    if (Input) Input->RefreshContext();
     const double Now = FPlatformTime::Seconds();
+    if (!Input)
+    {
+        CommonRepeat.Reset();TickAccumulator=0.0;LastTickSeconds=Now;
+        Refresh();return;
+    }
+    const auto& Router=Input->GetRouter();
+    const bool bReset=CommonRepeat.Sync(Router,Model.repeatEnabled);
+    if (bReset) TickAccumulator=0.0;
     // Bound catch-up to presentation only; no gameplay steps or asynchronous completions.
-    TickAccumulator += FMath::Clamp(Now - LastTickSeconds, 0.0, 0.1);
+    TickAccumulator += bReset ? 0.0 : FMath::Clamp(Now - LastTickSeconds, 0.0, 0.1);
     PollAccumulator += FMath::Clamp(Now - LastTickSeconds, 0.0, 0.1);
     LastTickSeconds = Now;
     bool bChanged = Model.frame.screen == RemasterUi::Screen::Dialogue;
-    APlayerController* PC = GetGameInstance()->GetFirstLocalPlayerController();
     while (TickAccumulator >= 1.0 / 60.0)
     {
         TickAccumulator -= 1.0 / 60.0;
-        Model.TextTick();
-        const bool Up = PC && (PC->IsInputKeyDown(EKeys::Up) || PC->IsInputKeyDown(EKeys::W)
-            || PC->IsInputKeyDown(EKeys::Gamepad_DPad_Up));
-        const bool Down = PC && (PC->IsInputKeyDown(EKeys::Down) || PC->IsInputKeyDown(EKeys::S)
-            || PC->IsInputKeyDown(EKeys::Gamepad_DPad_Down));
-        if (RepeatUp.Tick(Up && Model.Modal(), Model.repeatEnabled))
+        if (Router.CurrentFocus()!=RemasterControls::Focus::Blocked) Model.TextTick();
+        const auto Repeat=CommonRepeat.Tick(Router,Model.repeatEnabled);
+        if (Repeat.up)
         {
             Model.Input(RemasterUi::Action::Up, MutableSave(), ReadContext());
             bChanged = true;
         }
-        if (RepeatDown.Tick(Down && Model.Modal(), Model.repeatEnabled))
+        if (Repeat.down)
         {
             Model.Input(RemasterUi::Action::Down, MutableSave(), ReadContext());
             bChanged = true;

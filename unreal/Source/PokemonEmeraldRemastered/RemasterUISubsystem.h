@@ -4,6 +4,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "RemasterUiModel.h"
 #include "RemasterInputRouter.h"
+#include "RemasterInputRepeat.h"
 #include "RemasterUISubsystem.generated.h"
 
 class UUserWidget;
@@ -116,7 +117,7 @@ private:
     bool bRepelPromptPending = false;
     double LastTickSeconds = 0.0, TickAccumulator = 0.0;
     double PollAccumulator = 0.0;
-    RemasterUi::Repeat RepeatUp, RepeatDown;
+    RemasterControls::UiRepeat CommonRepeat;
     FString LastFrameKey;
     UPROPERTY()
     TObjectPtr<UUserWidget> CurrentScreen;

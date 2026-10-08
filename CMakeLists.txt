@@ -1140,3 +1140,16 @@ else()
     target_compile_options(r8_lifecycle_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r8_lifecycle_source_fence COMMAND r8_lifecycle_test)
+
+# I6 uses accepted R9 repeat with router holds from every source.
+add_executable(r8_repeat_test tests/r8_repeat_test.cpp)
+target_link_libraries(r8_repeat_test PRIVATE remaster_core)
+target_include_directories(r8_repeat_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(r8_repeat_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(r8_repeat_test PRIVATE /W4)
+else()
+    target_compile_options(r8_repeat_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r8_common_held_ui_repeat COMMAND r8_repeat_test)
