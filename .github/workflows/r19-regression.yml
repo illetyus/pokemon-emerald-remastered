@@ -30,6 +30,41 @@ jobs:
         run: ctest --test-dir build -R '^r19_' --output-on-failure
       - name: All portable regressions
         run: ctest --test-dir build --output-on-failure
+      - name: Replay build artifact receipt
+        env:
+          REPLAY_CHECKOUT_SHA: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+          root = Path('.')
+          files = [Path('build/libremaster_core.a'),
+                   Path('build/generated/r2_littleroot_generated.c'),
+                   Path('build/generated/r4_littleroot_world_generated.c')]
+          receipt = {
+              'version': 1,
+              'checkout_sha': os.environ['REPLAY_CHECKOUT_SHA'],
+              'tree_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], text=True).strip(),
+              'source_commit': '70db90c9077aed1272e746fc2537d9f12b95a91c',
+              'files': {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in files},
+              'core_source_blobs': subprocess.check_output(['git', 'ls-tree', '-r', 'HEAD', '--', 'core'], text=True).splitlines(),
+              'scope': 'native replay build inputs after full CTest success; no UE/device result',
+          }
+          Path('build/r19-replay-build-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          PY
+      - name: Source-generated replay build inputs
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: r19-replay-build-inputs
+          path: |
+            build/libremaster_core.a
+            build/generated/r2_littleroot_generated.c
+            build/generated/r4_littleroot_world_generated.c
+            build/r19-replay-build-receipt.json
+          if-no-files-found: error
 
   source-regression:
     runs-on: ubuntu-latest

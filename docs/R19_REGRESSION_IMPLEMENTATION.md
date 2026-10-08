@@ -40,7 +40,10 @@ Next after exact-head CI: R19-I2 — State hash/divergence reporting.
 
 ## R19-I2 — Canonical state hash and first divergence
 
-State: VERIFYING; local implementation/negative checks passed, exact-head CI required.
+State: VERIFIED_COMPLETE at af9ffdea2c476a1fe3339f85a59f0bdf2db8b460.
+Exact-head workflow 37857133241 completed/success. Native/source jobs
+113583895591/113583895775 confirm 1 targeted / 76 full CTest, 19 targeted /
+347 full Python and Unreal source architecture guard PASS.
 RED: test_r19_state_hash.py failed with FileNotFoundError for the absent module.
 Native snapshots serialize explicit version/format, full production Vanilla+
 SaveBlock2 (0xF44), SaveBlock1 (0x3DC8), storage (0x83D0), all seven domain
@@ -65,5 +68,26 @@ a different allocation/key order hashes identically.
 
 Local strict native build and actual compiled eight-snapshot trace/negative
 probes PASS. Nineteen targeted Python checks PASS. Expected published full count
-is 346 Python / 76 CTest; only actual CI logs can close this checkpoint.
+was recorded as 346 Python / 76 CTest; the actual full count is 347 Python.
+The actual hosted results above close this source checkpoint.
 Next after exact-head CI: R19-I3 — Story/progression replay slices.
+
+## R19-I3 — Source-generated build-input readiness
+
+State: RUNNING; story/progression implementation and immutable trace gate remain open.
+Live recovery found main unchanged, branch four ahead / zero behind, draft PR #23.
+All fifteen phase PR workflows passed on I2; final CodeQL/merge remain separate.
+Canonical phase docs and production R2/R4/R10 source surfaces were re-read.
+Verified baseline R2 generated-source artifact 11582947405 / R3 provenance artifact
+11583196819 bind main workflow 37853379281 and main 7e8d027d.
+
+The connector's UTF-8 binary-file representation changed some map bytes; exact
+Git blob validation rejected them. No malformed map data or invented substitute
+is used. The native CI job now retains its already-generated R2/R4 fixture sources
+and compiled portable library after full CTest PASS, with exact checkout/tree SHA,
+source pin, core source blob listing and per-file SHA-256 receipt. This makes the
+actual build inputs available for local replay expectation review.
+Artifact generation/upload is read-only and writes no implementation commits.
+These are test build inputs, not commercial extracted assets, ROM, APK or UE
+executables. They are never committed to the public repository.
+This preparation checkpoint does not close I3 or advance to I4.
