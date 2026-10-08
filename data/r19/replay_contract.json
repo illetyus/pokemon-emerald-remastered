@@ -1,0 +1,110 @@
+{
+  "schema": "remaster.r19.replay-contract",
+  "version": 1,
+  "source": {
+    "repository": "illetyus/pokezumrut-vanillaplus",
+    "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c"
+  },
+  "fixture_version": 1,
+  "authority": "portable Emerald C core",
+  "limits": {
+    "cases": 128,
+    "commands_per_case": 4096,
+    "script_steps_per_run": 4096,
+    "probe_timeout_seconds": 30
+  },
+  "ordering": "initial snapshot index 0; one snapshot after each accepted command in array order; no timestamps or frame rate",
+  "initial": {
+    "format": "vanillaplus",
+    "setup": "named versioned recipe; all preconditions explicit; never counted as replay gameplay"
+  },
+  "commands": {
+    "step": {
+      "direction": "south|north|west|east",
+      "owner": "remaster_emerald_overworld_step_action"
+    },
+    "script_start": {
+      "script_id": "source-generated registry identity",
+      "owner": "remaster_emerald_script_runtime_dispatch_script_id"
+    },
+    "script_run": {
+      "budget": "integer 1..4096",
+      "owner": "remaster_emerald_script_runtime_run"
+    },
+    "script_complete": {
+      "type": "actual pending request type",
+      "action": "actual pending action",
+      "value": "validated completion result",
+      "owner": "remaster_emerald_script_runtime_complete; actual pending sequence required"
+    },
+    "warp": {
+      "destination": "resolved source fixture warp only",
+      "owner": "existing core transition API"
+    },
+    "save_roundtrip": {
+      "format": "same explicit initial format",
+      "owner": "R17 encode/decode in private temporary memory; no platform writes"
+    },
+    "encounter_step": {
+      "context": "named versioned scenario",
+      "owner": "remaster_emerald_encounter_step"
+    },
+    "battle_turn": {
+      "actions": "typed accepted per-battler actions",
+      "owner": "remaster_emerald_battle_resolve_turn"
+    }
+  },
+  "snapshot": {
+    "domains": [
+      "save_block2",
+      "save_block1",
+      "storage",
+      "script",
+      "objects",
+      "encounter",
+      "battle"
+    ],
+    "persistent": "exact active source-layout block bytes encoded as lowercase hex; format and declared lengths bound in snapshot",
+    "script": "versioned existing checkpoint bytes on a normalized copy: zero stack entries >= stack_depth; zero pending_request when absent; stable resource IDs resolved by pinned registry",
+    "objects": "active runtime count and every active object scalar in slot order; null only when no runtime is attached",
+    "encounter": "every declared runtime scalar/array in fixed order including RNG state/calls, bag, roamer history, immunity and previous behavior; null only when inactive",
+    "battle": "every declared state/mon scalar and fixed array; parties/caught Pokemon through source codec; active ordered events; RNG state/calls; null only when inactive",
+    "excluded": [
+      "C padding",
+      "host pointers",
+      "save transport counter/slot/status metadata",
+      "UI/audio/camera clocks and assets",
+      "remaster-only preferences",
+      "wall-clock time"
+    ],
+    "derived": "world/progression/objective/pending-request summaries are explicit observations; they never replace raw persistent or active runtime domains"
+  },
+  "hash": {
+    "algorithm": "sha256",
+    "serialization": "UTF-8 JSON, sorted keys, separators comma/colon, ensure_ascii false, no floats, trailing LF",
+    "domain": "hash canonical JSON domain value",
+    "state": "hash canonical complete snapshot including version, format, domains, observations; provenance separately pinned in fixture"
+  },
+  "expected": {
+    "immutable": "checked-in expected state/domain digests and observations per snapshot; no bless/update option in verification or CI",
+    "provenance": "source pin plus fixture recipes or explicit source blob hashes; mutation requires reviewed checkpoint"
+  },
+  "failure": {
+    "behavior": "nonzero at first invalid command/probe failure/snapshot-count mismatch/observation or digest divergence",
+    "diagnostic": [
+      "case ID",
+      "snapshot index",
+      "command",
+      "first domain or observation field",
+      "expected",
+      "actual"
+    ],
+    "incomplete": "VM error or unhandled request never treated as success; bounded slices may end at explicitly expected pending requests"
+  },
+  "execution_boundary": {
+    "pre_real_ue": true,
+    "real_unreal_executed": false,
+    "android_device_executed": false,
+    "private_commercial_payloads_required": false
+  }
+}
