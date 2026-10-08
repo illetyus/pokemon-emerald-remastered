@@ -923,15 +923,17 @@ R15-I2-Closure-1 and Closure-2 are VERIFIED_COMPLETE at `4f8ef9a` and `2ae0e26`.
 Their exact-head workflows 37769695700 and 37777810560 completed successfully;
 Closure-2 passed 68 targeted Python, 304 full Python and 67 CTest with zero skips.
 
-Current checkpoint: **R15-I2-Closure-3 — remaining music/jingle render coverage**.
+R15-I2-Closure-3 is VERIFIED_COMPLETE at `5a547510`:
+workflow 37779942858 passed 74 targeted Python, 310 full Python and 67 CTest,
+zero skips; 209/209 music/jingle candidates and all 176 loop bounds passed.
 [Full coverage evidence](R15_BGM_RENDER_COVERAGE.md) records private source
 rendering without promoting loop playback, listening or engine/device readiness.
-This checkpoint requires exact published-head CI before advancing.
-Next named subphase: **R15-G1 — pre-real-UE acceptance audit**. Reconcile the four
-canonical acceptance bullets against source evidence and enter named closure for
-any source gap. Special-mode listening/reference, other effects, actual host/runtime
-attachment and real engine/device validation remain recorded gaps; R15 final/merge
-gates are not passed by render coverage alone.
+Current checkpoint: **R15-G1/D1 — pre-real-UE acceptance and completion evidence**.
+The four canonical source acceptance bullets pass; actual assets/import, listening,
+owner/platform attachment and engine/device obligations remain explicitly open in
+[R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md).
+After exact published-head CI, next named subphase: **R15-F1 — independent final gate**.
+R15 final/merge gates are not passed by render coverage or G1 alone.
 Integrate verified phases in dependency order R6 → R7 → R9 → R14 → R15, with
 each phase's final gate, PR and main CI terminal-success before advancing to R8.
 

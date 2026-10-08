@@ -2,12 +2,15 @@
 
 Status: P1 inventory and P2 source/payload contract implemented. A 12-species
 listening pilot and presentation resolver/settings/lifecycle scaffolding exist.
-**R15 is not complete.** The modern direction was selected after the pilot.
+**R15 pre-real-UE G1 is passed; F1 and merge/main gates remain open.**
+The modern direction was selected after the pilot.
 The 386 normal cries and 4,632 special-mode candidates are prepared. All 191
 source music and 18 jingle jobs now have private original-style render candidates;
 effects, music loop readiness/listening,
 special-mode listening and hardware comparison, real host/platform attachment
-and Unreal / Android validation remain open. R15 merge remains blocked by its open final gate.
+and Unreal / Android validation remain open runtime/local asset obligations.
+Canonical source acceptance and deferrals are reconciled in
+[R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md). R15 merge remains blocked by F1.
 
 ## References and pins
 
@@ -144,9 +147,10 @@ after terminal success. Real UE/UHT has not run.
    latency, interruption/resume, decoded memory and device audio.
 6. Reconcile R15 G1/F1, then use the authorized PR/merge/main-CI boundary.
 
-P1/P2: implemented. I1/I4/I5: source scaffolding implemented and portable tests.
-I2/I3/I6: partial; assets/rendering/mode and host/platform gates remain.
-T1/V1: targeted tests implemented. G1/D1/F1/M1/M2: incomplete.
+P1/P2/I1-I6/T1/V1/G1: pre-real-UE source/preparation scope verified.
+D1: completion evidence recorded; F1/M1/M2: pending.
+The historical task list above also contains runtime/local asset obligations;
+those remain open under the explicit completion ledger and R18 boundary.
 
 ## Prior preparation implementation CI
 

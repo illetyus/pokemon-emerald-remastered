@@ -1,6 +1,8 @@
 # R15-I2-Closure-3 — full source music/jingle render coverage
 
-State: VERIFYING; exact published-head CI is required.
+State: VERIFIED_COMPLETE at `5a5475103b736ae5d9c8b0abf442238b8edc05be`.
+Exact-head workflow 37779942858 passed 74/74 targeted Python, 310/310 full
+Python and 67/67 CTest, zero Python skips.
 Parent: `2ae0e2602ce3e01479ddd748bbce84e26059ffd9`.
 Vanilla+ source: `70db90c9077aed1272e746fc2537d9f12b95a91c`.
 Poryaaaa renderer: `4000591de6c397b6c80adc07af17144e26b30dfd`.
@@ -64,8 +66,8 @@ Regression-first RED failed before the coverage tool existed. Local GREEN:
 duplicate/reserved identities, wrong bank/MIDI/renderer receipts, altered
 recipes/settings/timing, changed pilot hashes, silent/clipped/incorrect frames,
 incomplete engine checks and false runtime/quality promotion. All 589 public
-input receipts also match actual immutable pinned source bytes. Published-head
-CI remains required for the checkpoint to become VERIFIED_COMPLETE.
+input receipts also match actual immutable pinned source bytes. Exact published-head
+CI is recorded above.
 
 The private candidate manifest keeps `loop=null`, and every render receipt has
 `loop_ready=false`. Measured boundaries do not implement an Unreal intro/loop

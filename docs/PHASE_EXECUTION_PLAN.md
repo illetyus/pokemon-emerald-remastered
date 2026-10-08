@@ -408,9 +408,11 @@ Main HEAD + CI terminal-success. Pass -> R15-P1.
 # R15 — Audio
 
 Current preparation/pilot evidence: [R15_AUDIO_PREPARATION.md](R15_AUDIO_PREPARATION.md).
-P1/P2 and pilot prepared; modern style selected, 386 normal cries and 4,632 special
-mode candidates prepared. R15 completion still requires other assets, special-mode fidelity/listening,
-host attachment and actual engine/device tests.
+Pre-real-UE source/preparation G1 is passed; completion evidence is recorded in
+[R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md). F1/merge/main gates are pending.
+386 normal cries, 4,632 special-mode candidates and 209 Original-style BGM/jingle
+candidates are prepared. Actual assets/import, fidelity/listening, owner/platform
+attachment and engine/device tests remain explicit R18/runtime obligations.
 
 ### R15-P1 — Semantic audio inventory
 Inventory gameplay/presentation music, SFX, jingle, cry and ambience IDs/events
@@ -922,12 +924,16 @@ loop-frame comparisons. Fresh-build WAV hashes repeat exactly; 12/12 new local
 regressions pass. Exact-head workflow 37777810560 completed successfully:
 68/68 targeted Python, 304/304 full Python and 67/67 CTest, zero Python skips. Evidence:
 [R15_BGM_RENDER_PILOT.md](R15_BGM_RENDER_PILOT.md).
-Current write checkpoint: **R15-I2-Closure-3 — remaining music/jingle render
-coverage**. The private full-coverage pipeline binds the 380 bank inputs and all
+R15-I2-Closure-3 is VERIFIED_COMPLETE at
+`5a5475103b736ae5d9c8b0abf442238b8edc05be`.
+The private full-coverage pipeline binds the 380 bank inputs and all
 209 MIDI inputs to versioned source receipts, reuses the pinned renderer and
-keeps runtime-loop/listening/import readiness false. Published-head CI remains
-required. Evidence: [R15_BGM_RENDER_COVERAGE.md](R15_BGM_RENDER_COVERAGE.md).
-Next named subphase after successful CI: **R15-G1 — pre-real-UE acceptance audit**;
-any actual source acceptance gap must enter a named closure before D1/F1.
+keeps runtime-loop/listening/import readiness false. Exact-head workflow
+37779942858 passed 74 targeted Python, 310 full Python and 67 CTest, zero skips.
+Evidence: [R15_BGM_RENDER_COVERAGE.md](R15_BGM_RENDER_COVERAGE.md).
+Current checkpoint: **R15-G1/D1 — pre-real-UE acceptance and completion evidence**.
+The canonical four source acceptance bullets pass; runtime/local asset obligations
+remain explicitly open in [R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md).
+Next named subphase after exact-head CI: **R15-F1 — independent final gate**.
 Continue the named subphases/closure gates, then integrate the verified dependent
 phase PRs in order before R8-P1. Stop after R18-M2 at REAL UNREAL RUNTIME VALIDATION.
