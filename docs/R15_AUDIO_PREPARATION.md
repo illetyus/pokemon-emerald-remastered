@@ -5,7 +5,7 @@ listening pilot and presentation resolver/settings/lifecycle scaffolding exist.
 **R15 is not complete.** The modern direction was selected after the pilot.
 The 386 normal cries and 4,632 special-mode candidates are prepared. Music/FX,
 special-mode listening and hardware comparison, real host/platform attachment
-and Unreal / Android validation remain open. No merge to main is authorized by this step.
+and Unreal / Android validation remain open. R15 merge remains blocked by its open final gate.
 
 ## References and pins
 
@@ -274,9 +274,20 @@ production bytes, and exact recipe regeneration passed. The missing-tool checks
 confirmed an explicit failure in required mode and a skip in optional mode.
 The full source catalog and full portable suite remain hosted-CI checks.
 
-Closure acceptance requires the new exact commit's R15 workflow to reach
-terminal success, with the transform fixture executed in both Python suites
-and all portable regressions passing. Read that run's logs before marking this
-checkpoint VERIFIED_COMPLETE. The remaining R15 asset/listening/host/runtime
-gates above are still open.
+**VERIFIED_COMPLETE** at `3b9b208f934ecba9ac9be857cd40e38e88cbfec0`:
+[workflow 37763598815](https://github.com/illetyus/pokemon-emerald-remastered/actions/runs/37763598815)
+reached terminal success. Both Python suites executed the required transform:
+35/35 targeted and 271/271 full Python passed with zero skips, plus 67/67 CTest.
+Hosted FFmpeg/FFprobe were 6.1.1-3ubuntu5. The remaining R15 asset/listening/host/
+runtime gates above are still open.
 
+## R15-I3-Closure-1 — recovered cry payload replay
+
+The current GitHub asset/production repositories had no prepared audio ZIPs.
+Using the existing versioned tools and pinned source receipts, local recovery
+reproduced all 386 normal WAV hashes and the historical full special manifest.
+All 5,018 candidates and both complete ZIP contents passed the strict private
+replay. Rebuilt archive containers have new hashes; original production evidence
+was preserved. Details, current metadata receipt, reproduction and remaining
+quality/engine gates: [R15_AUDIO_PACK_RECOVERY.md](R15_AUDIO_PACK_RECOVERY.md).
+Published-head CI remains required before closing this checkpoint.

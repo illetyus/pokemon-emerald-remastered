@@ -1,6 +1,6 @@
 # Phase Execution Plan — Through Real Unreal Runtime Validation
 
-Date: 2026-10-06
+Date: 2026-10-08
 Status: active execution plan
 Canonical roadmap source: `docs/ROADMAP.md`
 
@@ -717,7 +717,7 @@ that has identified a concrete missing behavior/test/doc/build requirement.
 The closure prompt must name that exact gap, touch only the minimum required
 surface, and route back to the verification/gate that detected it.
 
-# Current resume point
+# Historical resume records
 
 R13 and R16 are complete on `main`. R17 is the active phase.
 
@@ -881,3 +881,30 @@ All 386 modern species models are missing; zero Unreal imports are claimed.
 Contract, local pipeline, event-batch snapshot limits, runtime deferrals and
 evidence: `docs/R14_BATTLE_PRESENTATION_COMPLETION.md`. R14-M1/M2 remain pending;
 next preparation phase is R15, which does not start under this instruction.
+
+# Current resume point — 2026-10-08
+
+The current user instruction authorizes applying the full agreed plan. Historical
+phase-only preparation restrictions above describe their earlier checkpoints.
+Canonical branch/PR/final-gate/main-CI rules and the R18 runtime stop remain.
+
+Main: `a7ed422da7817c05aa1eac21bdbca6bd6edced5e`, accepted R17, 9/9 main
+workflows terminal-success. Dependent chain: R6 → R7 → R9 → R14 → R15.
+R6/R7/R9/R14 pre-real-Unreal source/preparation acceptance is verified; M1/M2 open.
+
+R15-V1-Closure-1 is VERIFIED_COMPLETE at
+`3b9b208f934ecba9ac9be857cd40e38e88cbfec0`.
+Workflow 37763598815: 35/35 targeted Python, 271/271 full Python, 67/67 CTest,
+zero skips; required FFmpeg transform ran in both Python suites.
+
+Current write checkpoint: **R15-I3-Closure-1 — hash-pinned cry pack recovery**.
+Local historical master/normal hashes, full special manifest, 5,018 private
+candidates and both ZIP contents passed. New container hashes are explicit.
+Published-head CI is still required. Evidence and reproduction:
+[R15_AUDIO_PACK_RECOVERY.md](R15_AUDIO_PACK_RECOVERY.md).
+
+On this checkpoint's CI terminal-success, next state is **R15-I2 —
+BGM/loop/transition metadata**. Other audio/listening/host/runtime gaps remain;
+do not mark R15 G1/F1 or merge complete from this cry recovery.
+Continue the named subphases/closure gates, then integrate the verified dependent
+phase PRs in order before R8-P1. Stop after R18-M2 at REAL UNREAL RUNTIME VALIDATION.
