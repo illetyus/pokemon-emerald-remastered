@@ -87,6 +87,8 @@ jobs:
         run: python tools/r19_asset_audits.py
       - name: Generated metadata package integrity and corruption
         run: python tools/r19_package_integrity.py
+      - name: Production Unreal smoke source contract
+        run: python tools/r19_unreal_smoke.py
       - name: All Python regressions
         run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Unreal authority source guards

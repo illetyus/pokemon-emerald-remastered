@@ -371,7 +371,10 @@ Next after terminal-success: R19-I8 generated package/manifest/hash integrity.
 
 ## R19-I8 — Repeated clean metadata generation and corruption integrity
 
-State: VERIFYING; I9 NOT_STARTED until actual component CI succeeds.
+State: VERIFIED_COMPLETE at 73fd89dc19861daced07e51216825053bb422ba8.
+Workflow 37962037380 jobs 113927016721/113927016982 completed/success:
+6/81 CTest, 50/378 Python/source; 171 asset audits, eight clean package
+productions and all twelve deliberate corruptions rejected. Seven blobs match.
 Recovery: main unchanged, twelve ahead / zero behind, draft PR #23; I7 native,
 source and actual 171 asset components passed. Canonical docs and each owner
 package generator re-read. RED: missing package integrity module import failed.
@@ -396,3 +399,31 @@ Local partial source cache cannot regenerate the complete owners; actual hosted
 four-owner, eight-clean-generation, twelve-corruption execution is mandatory.
 Expected exact CI: 6/81 CTest, 50/378 Python/source, 171 asset audits and all
 four package receipts. Next after terminal-success: R19-I9 Unreal smoke contract.
+
+
+## R19-I9 — Production UE_LOG source smoke and private log contract
+
+State: VERIFYING; I10 NOT_STARTED until exact-head source/component CI succeeds.
+Live recovery: unchanged main, thirteen ahead / zero behind, draft PR #23;
+canonical docs and actual production save/gameplay/renderer sources re-read.
+RED: the smoke regression module could not import the missing harness.
+
+Versioned contract pins four actual producer/enum source blobs and six production
+UE_LOG/TEXT literals. No Unreal/gameplay source is changed. Single entry point
+verifies those literals, the save enum and source version; source receipt reports
+SOURCE_CONTRACT_PASS and EXTERNAL_ENV_REQUIRED, actual_runtime_verified=false.
+
+Prepared bounded private-log scenarios cover usable load/map/render/store/reload
+and source connection+warp. Error/assertion/fatal, missing marker, bad save status,
+ordering or uint32 counter/slot divergence fail. Renderer/map callback ordering
+matches the actual broadcast source. Receipts exclude raw/private paths. R0 logs
+cannot satisfy production smoke. Parser success remains LOG_CONTRACT_MATCH and
+always requires independently verified real R18 build/capture provenance; the
+seven regressions explicitly use synthetic strings and never certify execution.
+
+Full preparation/deferred observations: R19_UNREAL_SMOKE.md. Mesh/camera/UI/input,
+battle/audio/lifecycle/Android remain separate actual-runtime obligations. No UE
+compile/UHT/cook/executable or device test is claimed by this checkpoint.
+Local seven smoke negatives/source checks and all 57 R19 Python tests PASS.
+Expected CI: 6/81 CTest, 57/385 Python/source, unchanged 171 asset audits and
+four package integrity receipts. Next: R19-I10 deferred final device metadata.
