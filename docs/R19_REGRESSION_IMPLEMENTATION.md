@@ -282,7 +282,10 @@ seed/scenario matrix including accepted R16 deltas.
 
 ## R19-I6 — Complete battle field snapshots and representative seed matrix
 
-State: VERIFYING; R19-I7 NOT_STARTED until exact-head CI succeeds.
+State: VERIFIED_COMPLETE at 7c86759cf1e85a4971f2ef6a2c276c3f663caca8.
+Workflow 37960402440 and jobs 113921490032/113921490363 completed/success:
+6 targeted / 81 full CTest, 38 targeted / 366 full Python/source PASS.
+All 14 published blobs match; all 17 exact-head workflows succeeded.
 Recovery re-read live refs/compare/history/draft PR #23/CI, canonical and owning
 R13/R16/contract source files. Main unchanged; ten ahead / zero behind.
 RED: the new battle test could not import the absent battle domain validator.
@@ -331,3 +334,31 @@ Strict C99 Werror native build, actual 16/84 battle/negative replay, prior 32/25
 encounter, 3/141 story and 1/8 movement matrices and 38 targeted Python checks PASS.
 Expected exact CI: 6 targeted / 81 full CTest, 38 targeted / 366 full Python/
 source gates. Next after terminal-success: R19-I7 manifest audit orchestration.
+
+
+## R19-I7 — Asset manifest/source audit orchestration
+
+State: VERIFYING; I8 NOT_STARTED until exact-head component CI succeeds.
+Recovery: main unchanged, eleven ahead / zero behind, draft PR #23; I6 all
+17 workflows terminal-success. Canonical and all 15 owner test modules re-read.
+RED: the new six orchestration regressions failed importing the absent module.
+
+Versioned data/r19/asset_audits.json binds every existing R6/R7/R14/R15 test
+module to its exact Git blob and requires actual minimum counts 52/21/24/74.
+The new single entry point discovers and executes the 15 unchanged owner modules,
+then records actual per-phase test counts. Empty/missing phase/module coverage,
+source drift, zero/truncated execution, skips and first actual failures cannot
+report PASS. It stops with the component and failing case; no result is inferred
+from merely importing, listing tests or existing historical completion docs.
+
+Existing audits use source inputs and synthetic private package stand-ins.
+No commercial/normalized payload is required or committed. The receipt explicitly
+excludes actual Unreal runtime and device execution. Existing private asset/audio
+completion obligations are unchanged. No gameplay/asset owner implementation is
+modified. FFmpeg/ffprobe remain required by the actual hosted source job.
+
+Local six new negative/coverage checks and all 44 R19 Python regressions PASS.
+The partial local cache cannot execute all owner source audits; actual hosted
+171-test component execution is mandatory. Expected exact CI: 6/81 CTest,
+44/372 Python/source plus explicit asset components 52+21+24+74=171, zero skips.
+Next after terminal-success: R19-I8 generated package/manifest/hash integrity.

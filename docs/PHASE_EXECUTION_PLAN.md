@@ -910,8 +910,10 @@ R19-Closure-2 VERIFIED_COMPLETE at 46611975; workflow 37956783169:
 4 targeted / 79 full CTest, 29 targeted / 357 full Python/source PASS.
 R19-I5 VERIFIED_COMPLETE at ff8858d0; workflow 37958197475:
 5 targeted / 80 full CTest, 34 targeted / 362 full Python/source PASS.
-Current checkpoint: **R19-I6**, VERIFYING full battle state/seed and R16 matrix CI.
-R19-I7 remains NOT_STARTED until this checkpoint passes.
+R19-I6 VERIFIED_COMPLETE at 7c86759c; workflow 37960402440:
+6/81 CTest, 38/366 Python/source PASS; all 17 workflows terminal-success.
+Current checkpoint: **R19-I7**, VERIFYING R6/R7/R14/R15 asset audit CI.
+R19-I8 remains NOT_STARTED until this checkpoint passes.
 [Inventory](R19_REGRESSION_INVENTORY.md), [contract](R19_REPLAY_CONTRACT.md),
 [evidence](R19_REGRESSION_IMPLEMENTATION.md).
 
