@@ -1,0 +1,62 @@
+{
+  "schema": "remaster.r19.save-matrix",
+  "version": 1,
+  "source": {
+    "repository": "illetyus/pokezumrut-vanillaplus",
+    "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c"
+  },
+  "fixture": {
+    "path": "tests/fixtures/r17/matrix.json",
+    "blob_sha": "0e5711133e112aee53fd79e1049cb0aaf16032d9"
+  },
+  "case_ids": [
+    "stock-new_game",
+    "stock-rival",
+    "stock-birch",
+    "stock-petalburg",
+    "stock-roxanne",
+    "stock-game_clear",
+    "stock-checksum-backup",
+    "stock-mixed-counter",
+    "stock-missing-section",
+    "stock-corrupt-both",
+    "stock-bad-id",
+    "stock-bad-signature",
+    "stock-blank",
+    "stock-short",
+    "stock-fail-write",
+    "stock-counter-wrap",
+    "vanillaplus-new_game",
+    "vanillaplus-rival",
+    "vanillaplus-birch",
+    "vanillaplus-petalburg",
+    "vanillaplus-roxanne",
+    "vanillaplus-game_clear",
+    "vanillaplus-checksum-backup",
+    "vanillaplus-mixed-counter",
+    "vanillaplus-missing-section",
+    "vanillaplus-corrupt-both",
+    "vanillaplus-bad-id",
+    "vanillaplus-bad-signature",
+    "vanillaplus-blank",
+    "vanillaplus-short",
+    "vanillaplus-fail-write",
+    "vanillaplus-counter-wrap",
+    "vanillaplus-vp5",
+    "vanillaplus-future-vp5",
+    "vanillaplus-legacy-vp5",
+    "stock-vp5-bytes",
+    "vanillaplus-user-vp019-projection"
+  ],
+  "ctests": [
+    "r17_save_sector_validation",
+    "r17_save_domain_import",
+    "r17_save_export_transactionality",
+    "r17_save_metadata_boundary",
+    "r17_save_safe_platform_io",
+    "r17_atomic_file_save",
+    "r17_native_file_save_read",
+    "r17_save_fixture_matrix"
+  ],
+  "private_policy": "LOCAL_OPTIONAL_NOT_RUN_IN_CI"
+}

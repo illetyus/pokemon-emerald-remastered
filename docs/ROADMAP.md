@@ -959,8 +959,10 @@ R19-I1 is VERIFIED_COMPLETE at `ab3196cc`; workflow 37855418711: 1/76 CTest, 9/3
 R19-I2 is VERIFIED_COMPLETE at `af9ffdea`; workflow 37857133241: 1/76 CTest, 19/347 Python/source PASS.
 **R19-Closure-1** is VERIFIED_COMPLETE at c76443b0; workflow 37953441780:
 2 targeted / 77 full CTest, 19 targeted / 347 full Python/source PASS.
-Current checkpoint: **R19-I3**, VERIFYING source-generated story/world replay CI.
-R19-I4 remains NOT_STARTED until this checkpoint passes.
+R19-I3 VERIFIED_COMPLETE at de446656; workflow 37955312626:
+3 targeted / 78 full CTest, 22 targeted / 350 full Python/source PASS.
+Current checkpoint: **R19-I4**, VERIFYING complete R17 save-matrix orchestration CI.
+R19-I5 remains NOT_STARTED until this checkpoint passes.
 [Contract](R19_REPLAY_CONTRACT.md) / [checkpoint evidence](R19_REGRESSION_IMPLEMENTATION.md).
 No actual runtime/local asset obligation was closed by these source merges.
 

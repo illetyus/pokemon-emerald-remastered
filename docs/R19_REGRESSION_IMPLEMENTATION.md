@@ -122,7 +122,11 @@ The unversioned I3 probe/matrix work was excluded from the closure commit.
 
 ## R19-I3 — Source-generated story/world/progression replay slices
 
-State: VERIFYING; R19-I4 NOT_STARTED until exact-head CI succeeds.
+State: VERIFIED_COMPLETE at de446656d9380328f384577700c49a5fe566fd22.
+Actual workflow 37955312626 and jobs 113904213881/113904214180 succeeded:
+3 targeted / 78 full CTest and 22 targeted / 350 full Python/source PASS.
+All nine published Git blobs matched local bytes; all 17 exact-head workflows
+including CodeQL reached terminal success before I4 began.
 RED: the source-slice test rejected the unsupported active script hash domain and
 missing versioned story matrix. Closure-1 above resolved the actual emitted WORLD
 checkpoint transport gap before this source checkpoint resumed.
@@ -162,3 +166,41 @@ CMake adds r19_source_story_world_replay; exact hosted targets/full counts must
 verify the expected 3 / 78 CTest and 22 / 350 Python/source gates.
 Remaining broader full-game, object host, actual UE/Android and device obligations
 are unchanged. Next after terminal-success: R19-I4 — Save fixture orchestration.
+
+
+## R19-I4 — Complete R17 save fixture orchestration
+
+State: VERIFYING; R19-I5 NOT_STARTED until exact-head CI succeeds.
+Recovery: main unchanged, branch seven ahead / zero behind, draft PR #23,
+I3 exact source/full tests and all 17 workflows completed/success.
+RED: the new orchestration test module initially failed importing the absent
+save matrix orchestrator (ModuleNotFoundError).
+
+The R19 component binds the unchanged R17 matrix to its exact Git blob and
+requires all 37 ordered synthetic recipe IDs, all seven exhaustive owner tests
+and the existing r17_save_fixture_matrix entry (eight actual CTest executions).
+Coverage includes stock/VP progression/domain import, checksum/sector/counter
+validation, byte-exact untouched/special-sector export, VP5/migration, corrupt/
+unsupported status, MISSING/ERROR and native write/read failure safeguards.
+The original source pin, format geometry, independent oracle and real private
+save evidence remain owned by R17; no persistent or platform behavior changes.
+
+The new entry point discovers compiled commands through actual CTest JSON,
+executes only the exact required names with no-tests=error and validates complete
+JUnit evidence. Missing/duplicate owners, missing executable commands, nonzero
+process result, failure/error/skip nodes, truncated evidence, recipe deletion,
+original fixture drift and a forged private-run policy cannot report success.
+The targeted CI step is verbose so its actual component receipt is visible.
+The receipt includes exact executed names, fixture hash, 37 recipe count and
+private_real_replay=NOT_RUN_IN_CI. It never embeds private save paths/payloads.
+Existing private real replay remains optional local R17 work; its historical
+hash/evidence is preserved and no new CI replay is claimed.
+
+Local six negative/coverage regressions and all 28 R19 Python checks PASS.
+The unchanged R17 native probe compiled against verified core inputs and ran
+the actual 37 recipe independent byte/domain oracle: zero failures.
+CMake/CTest are unavailable locally; actual orchestration execution is a required
+hosted gate, not inferred from unit mocks or merely finding test registrations.
+Expected exact hosted totals: 4 targeted / 79 full CTest and 28 targeted /
+356 full Python/source checks. Next after terminal-success: R19-I5 encounter
+seed/scenario matrix.

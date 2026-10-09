@@ -1220,3 +1220,8 @@ add_test(NAME r19_source_story_world_replay COMMAND
     --matrix ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/r19/story.json
     --r2-input "${R2_LITTLEROOT_GENERATED_C}"
     --r4-input "${R4_LITTLEROOT_GENERATED_C}")
+
+# R19-I4 requires actual complete execution of all R17 save fixture owners.
+add_test(NAME r19_save_compatibility_matrix COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_save_matrix.py
+    --build-dir ${CMAKE_CURRENT_BINARY_DIR} --ctest ${CMAKE_CTEST_COMMAND})
