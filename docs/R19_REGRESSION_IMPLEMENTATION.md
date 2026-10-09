@@ -170,7 +170,11 @@ are unchanged. Next after terminal-success: R19-I4 — Save fixture orchestratio
 
 ## R19-I4 — Complete R17 save fixture orchestration
 
-State: VERIFYING; R19-I5 NOT_STARTED until exact-head CI succeeds.
+State: VERIFIED_COMPLETE at 339456009d610260be1357da637769a65303c80a.
+Workflow 37956206672 and jobs 113907241038/113907241135 completed/success:
+4 targeted / 79 full CTest and 28 targeted / 356 full Python/source PASS.
+Verbose native log confirms all eight required names, exact R17 fixture blob,
+37 recipes and NOT_RUN_IN_CI private status. All eight published blobs match.
 Recovery: main unchanged, branch seven ahead / zero behind, draft PR #23,
 I3 exact source/full tests and all 17 workflows completed/success.
 RED: the new orchestration test module initially failed importing the absent
@@ -204,3 +208,16 @@ hosted gate, not inferred from unit mocks or merely finding test registrations.
 Expected exact hosted totals: 4 targeted / 79 full CTest and 28 targeted /
 356 full Python/source checks. Next after terminal-success: R19-I5 encounter
 seed/scenario matrix.
+
+
+## R19-Closure-2 — Versioned transition command roster
+
+State: VERIFYING before R19-I5 implementation.
+I5 contract recovery found the already tested I3 connection command absent from
+the P2 machine-readable command roster. No runtime or fixture result changed.
+RED: the new versioned-command guard fails with {'connection'} undeclared.
+Closure adds only the existing source-fixture connection owner/declaration and
+the roster guard, preserving version 1 and every immutable replay expectation.
+Contract prose now explicitly binds warp/connection to the pending source event.
+Local 29 R19 Python tests PASS. Expected exact CI: 4/79 CTest, 29/357 Python/
+source gates. After terminal-success, resume R19-I5 encounter seed/scenario matrix.

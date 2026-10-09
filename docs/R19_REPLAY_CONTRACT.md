@@ -21,6 +21,10 @@ or a named source-backed checkpoint, but all setup is explicit and is not counte
 as gameplay. Unknown commands, invalid arguments, busy script dispatch, rejected
 completion, missing source IDs, truncated output and execution errors fail.
 No command can directly set a story flag/var and claim it advanced gameplay.
+Warp and connection commands resolve only the actual pending source-fixture
+event through the existing core transition owner; no arbitrary destination
+command is accepted. Every command in a versioned matrix must be declared by
+the machine-readable contract; the roster guard pins this boundary.
 Typed script completion uses actual pending type/action/sequence; choices are
 fixture inputs, not fabricated unconditional success. Bounded pending-host slices
 must pin the actual request and explain their host/slice boundary.

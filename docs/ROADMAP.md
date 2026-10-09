@@ -961,8 +961,10 @@ R19-I2 is VERIFIED_COMPLETE at `af9ffdea`; workflow 37857133241: 1/76 CTest, 19/
 2 targeted / 77 full CTest, 19 targeted / 347 full Python/source PASS.
 R19-I3 VERIFIED_COMPLETE at de446656; workflow 37955312626:
 3 targeted / 78 full CTest, 22 targeted / 350 full Python/source PASS.
-Current checkpoint: **R19-I4**, VERIFYING complete R17 save-matrix orchestration CI.
-R19-I5 remains NOT_STARTED until this checkpoint passes.
+R19-I4 VERIFIED_COMPLETE at 33945600; workflow 37956206672:
+4 targeted / 79 full CTest, 28 targeted / 356 full Python/source PASS.
+Current checkpoint: **R19-Closure-2**, VERIFYING connection command contract/roster.
+R19-I5 remains NOT_STARTED until this closure passes.
 [Contract](R19_REPLAY_CONTRACT.md) / [checkpoint evidence](R19_REGRESSION_IMPLEMENTATION.md).
 No actual runtime/local asset obligation was closed by these source merges.
 
