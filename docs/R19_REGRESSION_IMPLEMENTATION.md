@@ -434,7 +434,10 @@ four package integrity receipts. Next: R19-I10 deferred final device metadata.
 
 ## R19-I10 — Explicit deferred final Android coverage metadata
 
-State: VERIFYING; T1 NOT_STARTED until exact-head metadata CI succeeds.
+State: VERIFIED_COMPLETE at 9e301799632fe011faa29a5faeb6cc5ba704afda.
+Workflow 37963233981 jobs 113931046603/113931046823 completed/success:
+6/81 CTest, 63/391 Python/source and DEFERRED_METADATA_PASS (zero devices).
+All eight published blobs match; all 17 exact-head workflows succeeded.
 Recovery: main unchanged, fourteen ahead / zero behind, draft PR #23;
 canonical docs and current Android source config re-read. I9 actual CI succeeded.
 RED: new device-boundary regressions failed importing the absent validator.
@@ -458,3 +461,37 @@ Local six new boundary regressions, all 63 R19 Python checks and actual source
 metadata command PASS. Expected hosted CI: 6/81 CTest, 63/391 Python/source,
 171 asset audits, four package receipts, smoke SOURCE_CONTRACT_PASS and deferred
 metadata only. Next after terminal-success: R19-T1 portable full-suite entry point.
+
+
+## R19-T1 — Single ordered actual full-suite command/workflow
+
+State: VERIFYING; V1/G1 NOT_STARTED until exact-head actual full-suite CI succeeds.
+Recovery: unchanged main, fifteen ahead / zero behind, draft PR #23; canonical
+and active contract/source/workflow files re-read. I10 all 17 workflows succeeded.
+RED: new full-suite evidence regressions failed importing the absent orchestrator.
+
+One command: python tools/r19_full_suite.py --build-dir build
+--receipt build/r19-full-suite-receipt.json. Full invocation documented in
+R19_FULL_SUITE.md. The read-only dedicated workflow executes that exact command
+in one job after requiring FFmpeg/ffprobe. It writes no implementation commit.
+
+Versioned roster binds all 81 current native owners and 56 Python modules;
+new owners also execute. Actual configure/compile, complete CTest JSON/JUnit and
+full Python execute before 171 asset audits, eight package generations/twelve
+corruption checks, production smoke source, deferred metadata and source guards.
+Seven ordered components emit actual START/PASS; first failure stops/name/detail
+are retained. Missing/duplicated native commands, short/truncated/failed/skipped
+JUnit, missing Python owner and Python failure/skip/short-run cannot report PASS.
+Source counts minimum 397, no synthetic empty-success or auto-bless path.
+
+The final receipt is written only after all seven components actually succeed.
+CI retains it plus native JUnit and verified library/generated inputs with exact
+checkout/tree/core Git blobs and per-file SHA-256. Private real save replay stays
+NOT_RUN_IN_CI; smoke/device evidence stays source/deferred and runtime=false.
+No source guard is presented as a real engine executable or device proof.
+
+Local six orchestration evidence regressions and all 69 targeted R19 tests PASS.
+CMake/CTest are absent in the partial local cache; actual full command execution
+is a mandatory hosted gate. Expected CI: all 81 CTest, 397 Python with zero skips,
+171 asset audits, all four package receipts and source/deferred guards.
+Next after terminal-success: R19-V1 and G1 actual acceptance/evidence review.

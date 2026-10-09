@@ -15,21 +15,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  portable-regression:
+  full-suite:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    env:
+      REMASTER_R15_REQUIRE_FFMPEG: '1'
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - name: Configure and compile actual portable authority
+      - name: Required audio transform dependency
         run: |
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-          cmake --build build --config Release --parallel 2
-      - name: R19 portable regression components
-        run: ctest --test-dir build -R '^r19_' --output-on-failure --verbose
-      - name: All portable regressions
-        run: ctest --test-dir build --output-on-failure
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --yes ffmpeg
+          ffmpeg -version
+          ffprobe -version
+      - name: One actual portable and source full suite
+        run: python tools/r19_full_suite.py --build-dir build --receipt build/r19-full-suite-receipt.json
       - name: Replay build artifact receipt
         env:
           REPLAY_CHECKOUT_SHA: ${{ github.sha }}
@@ -43,7 +45,8 @@ jobs:
           root = Path('.')
           files = [Path('build/libremaster_core.a'),
                    Path('build/generated/r2_littleroot_generated.c'),
-                   Path('build/generated/r4_littleroot_world_generated.c')]
+                   Path('build/generated/r4_littleroot_world_generated.c'),
+                   Path('build/r19-full-suite-receipt.json'), Path('build/r19-full-native.xml')]
           receipt = {
               'version': 1,
               'checkout_sha': os.environ['REPLAY_CHECKOUT_SHA'],
@@ -64,34 +67,7 @@ jobs:
             build/generated/r2_littleroot_generated.c
             build/generated/r4_littleroot_world_generated.c
             build/r19-replay-build-receipt.json
+            build/r19-full-suite-receipt.json
+            build/r19-full-native.xml
           if-no-files-found: error
 
-  source-regression:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      REMASTER_R15_REQUIRE_FFMPEG: '1'
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-      - name: Required audio transform dependency
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends --yes ffmpeg
-          ffmpeg -version
-          ffprobe -version
-      - name: R19 orchestration regressions
-        run: python -m unittest discover -s tests -p 'test_r19_*.py' -v
-      - name: R6 R7 R14 R15 asset audit components
-        run: python tools/r19_asset_audits.py
-      - name: Generated metadata package integrity and corruption
-        run: python tools/r19_package_integrity.py
-      - name: Production Unreal smoke source contract
-        run: python tools/r19_unreal_smoke.py
-      - name: Deferred Android device metadata contract
-        run: python tools/r19_device_matrix.py
-      - name: All Python regressions
-        run: python -m unittest discover -s tests -p 'test_*.py' -v
-      - name: Unreal authority source guards
-        run: python tools/validate_unreal_source.py
