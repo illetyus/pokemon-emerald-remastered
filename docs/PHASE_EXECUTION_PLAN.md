@@ -900,7 +900,8 @@ all 15 main workflows, including CodeQL 37853378547, completed successfully.
 R19-P1/P2 are VERIFIED_COMPLETE at `915fee92` / `605a8378`.
 R19-I1 is VERIFIED_COMPLETE at `ab3196cc`; workflow 37855418711: 1/76 CTest, 9/337 Python/source PASS.
 R19-I2 is VERIFIED_COMPLETE at `af9ffdea`; workflow 37857133241: 1/76 CTest, 19/347 Python/source PASS.
-Current checkpoint: **R19-I3 — Story/progression replay slices**, RUNNING source-generated build-input readiness.
+Current checkpoint: **R19-I3**, NEEDS_CLOSURE for emitted WORLD request checkpoint transport.
+**R19-Closure-1** is VERIFYING its exact-head CI before I3 resumes.
 [Inventory](R19_REGRESSION_INVENTORY.md), [contract](R19_REPLAY_CONTRACT.md),
 [evidence](R19_REGRESSION_IMPLEMENTATION.md).
 

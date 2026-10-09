@@ -957,7 +957,8 @@ R8-M1 PR #22 merge and R8-M2 exact-main CI are VERIFIED_COMPLETE.
 R19-P1/P2 are VERIFIED_COMPLETE at `915fee92` / `605a8378`.
 R19-I1 is VERIFIED_COMPLETE at `ab3196cc`; workflow 37855418711: 1/76 CTest, 9/337 Python/source PASS.
 R19-I2 is VERIFIED_COMPLETE at `af9ffdea`; workflow 37857133241: 1/76 CTest, 19/347 Python/source PASS.
-Current checkpoint: **R19-I3 — Story/progression replay slices**, RUNNING source-generated build-input readiness.
+Current checkpoint: **R19-I3**, NEEDS_CLOSURE for emitted WORLD request checkpoint transport.
+**R19-Closure-1** is VERIFYING its exact-head CI before I3 resumes.
 [Contract](R19_REPLAY_CONTRACT.md) / [checkpoint evidence](R19_REGRESSION_IMPLEMENTATION.md).
 No actual runtime/local asset obligation was closed by these source merges.
 

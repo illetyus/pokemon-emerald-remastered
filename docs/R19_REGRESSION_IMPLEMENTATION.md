@@ -91,3 +91,27 @@ Artifact generation/upload is read-only and writes no implementation commits.
 These are test build inputs, not commercial extracted assets, ROM, APK or UE
 executables. They are never committed to the public repository.
 This preparation checkpoint does not close I3 or advance to I4.
+
+## R19-Closure-1 — Emitted WORLD checkpoint transport
+
+I3 verification -> NEEDS_CLOSURE -> RUNNING_CLOSURE -> VERIFYING.
+The source-generated male truck script immediately yields WORLD/LOCK_ALL (type
+16 / action 2). The existing version-1 checkpoint writer/read validator capped
+pending request types at SPECIAL (15), so production-emitted requests could not
+be checkpointed. This is a concrete runtime serialization gap, not a fake map,
+host acknowledgement or external-environment blocker.
+
+RED: the new native source-generated request regression exited nonzero:
+WORLD checkpoint write failed: gender=0 type=16.
+Closure changes only both request-type upper bounds in
+core/src/emerald_script_checkpoint.c to the existing WORLD enum member.
+Version remains 1 and size remains 298 bytes; no Emerald persistent layout,
+script gameplay result or host callback behavior changes.
+Native regression covers both male/female emitted requests, write/read/rewrite,
+all serialized pending fields/resource identity, stale completion rejection and
+unsupported request-type rejection. It does not acknowledge actual WORLD host
+execution. Strict local C99 build and both gender cases PASS.
+CMake adds r19_source_world_request_checkpoint; published targeted/full CI
+must verify the actual expected 2 / 77 CTest and 19 / 347 Python/source gates.
+I3 remains NEEDS_CLOSURE until this exact-head CI succeeds; its unversioned story
+probe/matrix work is excluded from this cohesive closure commit.

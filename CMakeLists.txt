@@ -1192,3 +1192,14 @@ endif()
 add_test(NAME r19_ordered_production_replay COMMAND
     ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_replay.py
     --probe $<TARGET_FILE:r19_replay_probe>)
+
+# R19-Closure-1 pins actual R2 WORLD request serialization in both directions.
+add_executable(r19_script_checkpoint_test tests/r19_script_checkpoint_test.c
+    "${R2_LITTLEROOT_GENERATED_C}")
+target_link_libraries(r19_script_checkpoint_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(r19_script_checkpoint_test PRIVATE /W4)
+else()
+    target_compile_options(r19_script_checkpoint_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r19_source_world_request_checkpoint COMMAND r19_script_checkpoint_test)
