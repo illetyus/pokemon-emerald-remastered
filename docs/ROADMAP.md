@@ -973,8 +973,10 @@ R19-I7 VERIFIED_COMPLETE at e31d5666; workflow 37961436672:
 6/81 CTest, 44/372 Python/source, 171 actual asset audits, zero skips.
 R19-I8 VERIFIED_COMPLETE at 73fd89dc; workflow 37962037380:
 6/81 CTest, 50/378 Python/source; 8 clean generations / 12 corruptions rejected.
-Current checkpoint: **R19-I9**, VERIFYING production smoke source contract CI.
-R19-I10 remains NOT_STARTED until this checkpoint passes.
+R19-I9 VERIFIED_COMPLETE at 42a5f4de; workflow 37962672669:
+6/81 CTest, 57/385 Python/source; production smoke SOURCE_CONTRACT_PASS.
+Current checkpoint: **R19-I10**, VERIFYING deferred Android metadata CI.
+R19-T1 remains NOT_STARTED until this checkpoint passes.
 [Contract](R19_REPLAY_CONTRACT.md) / [checkpoint evidence](R19_REGRESSION_IMPLEMENTATION.md).
 No actual runtime/local asset obligation was closed by these source merges.
 

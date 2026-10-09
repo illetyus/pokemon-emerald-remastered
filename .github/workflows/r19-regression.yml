@@ -89,6 +89,8 @@ jobs:
         run: python tools/r19_package_integrity.py
       - name: Production Unreal smoke source contract
         run: python tools/r19_unreal_smoke.py
+      - name: Deferred Android device metadata contract
+        run: python tools/r19_device_matrix.py
       - name: All Python regressions
         run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Unreal authority source guards

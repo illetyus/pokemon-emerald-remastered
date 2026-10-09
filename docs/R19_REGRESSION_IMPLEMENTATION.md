@@ -403,7 +403,10 @@ four package receipts. Next after terminal-success: R19-I9 Unreal smoke contract
 
 ## R19-I9 — Production UE_LOG source smoke and private log contract
 
-State: VERIFYING; I10 NOT_STARTED until exact-head source/component CI succeeds.
+State: VERIFIED_COMPLETE at 42a5f4def561cd3ae93e66ccd4e1eb8220711af1.
+Workflow 37962672669 jobs 113929185026/113929185277 completed/success:
+6/81 CTest, 57/385 Python/source and SOURCE_CONTRACT_PASS, runtime=false.
+All eight published blobs match. Actual engine/device proof remains deferred.
 Live recovery: unchanged main, thirteen ahead / zero behind, draft PR #23;
 canonical docs and actual production save/gameplay/renderer sources re-read.
 RED: the smoke regression module could not import the missing harness.
@@ -427,3 +430,31 @@ compile/UHT/cook/executable or device test is claimed by this checkpoint.
 Local seven smoke negatives/source checks and all 57 R19 Python tests PASS.
 Expected CI: 6/81 CTest, 57/385 Python/source, unchanged 171 asset audits and
 four package integrity receipts. Next: R19-I10 deferred final device metadata.
+
+
+## R19-I10 — Explicit deferred final Android coverage metadata
+
+State: VERIFYING; T1 NOT_STARTED until exact-head metadata CI succeeds.
+Recovery: main unchanged, fourteen ahead / zero behind, draft PR #23;
+canonical docs and current Android source config re-read. I9 actual CI succeeded.
+RED: new device-boundary regressions failed importing the absent validator.
+
+Versioned five-slot matrix covers source minimum/target API 26/35, intermediate
+29/31/33, ARM64, Adreno/Mali, low/mid/high and GLES31/Vulkan. RAM/resolution are
+planned selection constraints, not measured handset capabilities. Ten scenarios
+and six measurement groups are mandatory. Validator cross-checks actual Unreal
+config and rejects missing coverage, ABI/API drift, forged execution/PASS,
+provider/device/result bindings or changes to the explicit authorization boundary.
+
+All targets stay NOT_RUN; global state DEFERRED_POST_RUNTIME, automatic_execution
+false and no device/provider/result artifact. Receipt says DEFERRED_METADATA_PASS,
+devices_executed=0, runtime_verified=false. It runs no ADB/cloud/device action.
+R18 real engine support/config must be reconciled before actual selection; budgets
+and thresholds require real baseline review. Required prerequisites are verified
+R18 build/main CI, real Unreal runtime validation and newly authorized device work.
+Full deferred procedure: R19_DEFERRED_DEVICE_MATRIX.md. The current stop remains.
+
+Local six new boundary regressions, all 63 R19 Python checks and actual source
+metadata command PASS. Expected hosted CI: 6/81 CTest, 63/391 Python/source,
+171 asset audits, four package receipts, smoke SOURCE_CONTRACT_PASS and deferred
+metadata only. Next after terminal-success: R19-T1 portable full-suite entry point.
