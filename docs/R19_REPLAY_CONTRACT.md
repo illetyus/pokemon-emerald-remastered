@@ -108,3 +108,19 @@ truncated arrays fail. Result Pokemon use the authoritative 100-byte R11 codec.
 Transient C layout/padding and transport counters remain excluded. New header
 members require serializer/fixture review. Broader R12 native/source checks stay
 in the full regression suite; the representative matrix does not claim all maps.
+
+
+## Active battle matrix boundary (I6)
+
+The frozen battle runtime schema binds the portable battle and Pokemon codec
+headers to exact Git blobs. Explicit fields cover RNG, all four battlers (57
+members each), 2x6 complete party packets, all state arrays/scalars (38 members),
+caught Pokemon and every active ordered event (six members); Action has five
+typed input members. Unused event capacity/padding is excluded, while every
+declared owned array is serialized. Header/source changes require review.
+Initial unattached battle is null; battle_start explicitly attaches its owner.
+Four per-battler actions use validated integer fields in source slot order.
+battle_commit runs the existing ended-party/trainer finalizer once; R16
+qol_swap_held uses existing codecs before battle attachment. The representative
+matrix certifies synthetic source-core win/replacement/loss and held reward
+paths; it does not certify every mechanic, actual trainer/map play, UE or device.

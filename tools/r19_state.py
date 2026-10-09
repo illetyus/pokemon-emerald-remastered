@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from r19_battle_state import validate_battle
 
 DOMAINS = ('save_block2', 'save_block1', 'storage', 'script', 'objects', 'encounter', 'battle')
 LENGTHS = {'vanillaplus': {'save_block2': 0xF44, 'save_block1': 0x3DC8, 'storage': 0x83D0}}
@@ -78,8 +79,9 @@ def fingerprint(snapshot):
             and script.startswith('523253430100') and re.fullmatch('[0-9a-f]+', script) is not None),
             'invalid version-1 script checkpoint domain')
     encounter_domain(domains['encounter'])
-    # Active object/battle domains require their separately audited serializers.
-    for domain in ('objects', 'battle'):
+    validate_battle(domains['battle'])
+    # No object runtime is attached by the current representative probes.
+    for domain in ('objects',):
         require(domains[domain] is None, 'unsupported active runtime domain: ' + domain)
     require(type(snapshot['observations']) is dict, 'snapshot observations mismatch')
     return {'observations': snapshot['observations'],

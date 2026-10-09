@@ -17,9 +17,12 @@ MATRIX = ROOT / 'tests/fixtures/r19/movement.json'
 DIRECTIONS = ('south', 'north', 'west', 'east')
 ENCOUNTER_RECIPES = ('land-route101-v1', 'repel-expiry-v1', 'disabled-route101-v1', 'water-route102-v1',
                      'old-rod-route102-v1', 'good-rod-route102-v1', 'super-rod-route102-v1', 'rocks-route111-v1')
+BATTLE_RECIPES = ('wild-win-v1', 'trainer-replacement-v1', 'trainer-loss-v1', 'qol-held-reward-v1')
+ACTION_FIELDS = ('kind', 'move_slot', 'target', 'party_slot', 'item_id')
 RECIPES = {'tests/r19_replay_probe.c': ('synthetic-movement-v1',),
            'tests/r19_story_probe.c': ('opening-male-v1', 'opening-female-v1', 'house-exit-v1'),
-           'tests/r19_encounter_probe.c': ENCOUNTER_RECIPES}
+           'tests/r19_encounter_probe.c': ENCOUNTER_RECIPES,
+           'tests/r19_battle_probe.c': BATTLE_RECIPES}
 STORY_FIELDS = {'x', 'y', 'map_group', 'map_num', 'kind', 'collision', 'intro', 'rival',
                 'town', 'route101', 'lab', 'clock', 'rescued', 'pokemon_get', 'party_count',
                 'objective', 'script_status', 'pending_type', 'pending_action', 'pending_sequence',
@@ -27,6 +30,9 @@ STORY_FIELDS = {'x', 'y', 'map_group', 'map_num', 'kind', 'collision', 'intro', 
 ENCOUNTER_FIELDS = {'occurred', 'repel_wore_off', 'kind', 'area', 'rod', 'level', 'nature', 'gender',
                     'ability_num', 'species', 'modified_rate', 'rng_calls_before', 'rng_calls_after',
                     'pokemon', 'repel', 'map_group', 'map_num', 'immunity', 'rng_state', 'rng_calls'}
+BATTLE_FIELDS = {'attached', 'ended', 'outcome', 'turn', 'rng_state', 'rng_calls', 'event_count',
+                 'money_multiplier', 'player_hp', 'foe_hp', 'foe_slot', 'money', 'trainer_defeated',
+                 'held0', 'held1', 'save_hp', 'save_level', 'whiteout', 'qol_result', 'committed'}
 
 
 def require(condition, message):
@@ -49,6 +55,11 @@ def validate(matrix):
         require(type(matrix.get('inputs')) is dict and set(matrix['inputs']) == {'r2', 'r4'}
                 and all(type(v) is str and len(v) == 64 and all(c in '0123456789abcdef' for c in v)
                         for v in matrix['inputs'].values()), 'missing source-generated fixture inputs')
+    if source['path'] == 'tests/r19_battle_probe.c':
+        raw = (ROOT / 'data/r19/battle_runtime_schema.json').read_bytes().replace(b'\r\n', b'\n')
+        require(matrix.get('runtime_schema') == {'path': 'data/r19/battle_runtime_schema.json',
+                'blob_sha': hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest()},
+                'battle serializer schema drift')
     cases = matrix.get('cases')
     require(isinstance(cases, list) and 1 <= len(cases) <= 128, 'invalid cases count')
     ids = set()
@@ -57,7 +68,7 @@ def validate(matrix):
         require(isinstance(identity, str) and identity and identity not in ids, 'duplicate/invalid case ID')
         ids.add(identity)
         require(case.get('recipe') in RECIPES[source['path']], identity + ': unsupported recipe')
-        if source['path'] == 'tests/r19_encounter_probe.c':
+        if source['path'] in ('tests/r19_encounter_probe.c', 'tests/r19_battle_probe.c'):
             require(type(case.get('seed')) is int and 0 <= case['seed'] <= 0xFFFFFFFF,
                     identity + ': explicit unsigned seed required')
         else:
@@ -100,6 +111,23 @@ def validate(matrix):
             elif op == 'encounter_rock_smash':
                 require(case['recipe'] == 'rocks-route111-v1' and set(command) == {'op'},
                         f'{identity}: invalid Rock Smash command {index}')
+            elif op in ('battle_start', 'battle_commit'):
+                require(case['recipe'] in BATTLE_RECIPES and set(command) == {'op'},
+                        f'{identity}: invalid battle lifecycle command {index}')
+            elif op == 'qol_swap_held':
+                require(case['recipe'] == 'qol-held-reward-v1' and set(command) == {'op', 'first', 'second'}
+                        and all(type(command[k]) is int and 0 <= command[k] < 6 for k in ('first', 'second'))
+                        and command['first'] != command['second'], f'{identity}: invalid held-item command {index}')
+            elif op == 'battle_turn':
+                actions = command.get('actions')
+                require(case['recipe'] in BATTLE_RECIPES and set(command) == {'op', 'actions'}
+                        and type(actions) is list and len(actions) == 4, f'{identity}: invalid battle actions {index}')
+                for action in actions:
+                    require(type(action) is dict and set(action) == set(ACTION_FIELDS)
+                            and all(type(action[k]) is int and 0 <= action[k] <= maximum
+                                    for k, maximum in zip(ACTION_FIELDS, (4, 3, 3, 5, 65535)))
+                            and (action['kind'] != 0 or all(action[k] == 0 for k in ACTION_FIELDS[1:])),
+                            f'{identity}: invalid typed battler action {index}')
             else:
                 raise ValueError(f'{identity}: unsupported command {index}')
         require(isinstance(case.get('expected'), list) and len(case['expected']) == len(commands) + 1,
@@ -107,7 +135,10 @@ def validate(matrix):
         for expected in case['expected']:
             validate_expected(expected)
             observations = expected['observations']
-            if case['recipe'] in ENCOUNTER_RECIPES:
+            if case['recipe'] in BATTLE_RECIPES:
+                require(set(observations) == BATTLE_FIELDS and all(type(v) is int for v in observations.values()),
+                        identity + ': invalid battle observation')
+            elif case['recipe'] in ENCOUNTER_RECIPES:
                 pokemon = observations.get('pokemon')
                 require(set(observations) == ENCOUNTER_FIELDS
                         and all(type(v) is int for k, v in observations.items() if k != 'pokemon')
@@ -129,6 +160,9 @@ def execute(probe, case, mode=None):
         elif op == 'script_run': lines.append('script_run ' + str(c['budget']))
         elif op == 'script_complete': lines.append(f"script_complete {c['type']} {c['action']} {c['value']}")
         elif op == 'encounter_fishing': lines.append('encounter_fishing ' + str(c['rod']))
+        elif op == 'qol_swap_held': lines.append(f"qol_swap_held {c['first']} {c['second']}")
+        elif op == 'battle_turn':
+            lines.append('battle_turn ' + ' '.join(str(action[k]) for action in c['actions'] for k in ACTION_FIELDS))
         else: lines.append(op)
     commands = '\n'.join(lines) + '\n'
     try:
@@ -176,6 +210,16 @@ def run(probe, matrix, inputs=None):
         actual = execute(probe, case)
         verify(case, actual)
         require(actual == execute(probe, case), case['id'] + ': repeat execution differs')
+        if case['recipe'] in BATTLE_RECIPES:
+            verify(case, execute(probe, case, '--transport-noise'))
+            active_index = next(i for i, c in enumerate(case['commands'], 1) if c['op'] == 'battle_start')
+            try:
+                verify(case, execute(probe, case, '--runtime-noise'))
+            except ValueError as error:
+                require(f'snapshot {active_index}' in str(error) and 'domain battle' in str(error),
+                        'battle runtime mutation failed at wrong boundary: ' + str(error))
+            else:
+                raise ValueError('battle runtime mutation was not detected')
         if case['recipe'] in ENCOUNTER_RECIPES:
             verify(case, execute(probe, case, '--transport-noise'))
             try:
@@ -218,6 +262,13 @@ def run(probe, matrix, inputs=None):
             result = subprocess.run([str(probe), recipe, '0'], input=bad,
                                     text=True, capture_output=True, timeout=30, check=False)
             require(result.returncode != 0, 'native encounter accepted invalid typed command')
+    if matrix['probe_source']['path'] == 'tests/r19_battle_probe.c':
+        for recipe, bad in (('wild-win-v1', 'battle_commit\n'), ('wild-win-v1', 'battle_start extra\n'),
+                            ('wild-win-v1', 'battle_start\nbattle_turn 99 ' + '0 ' * 19 + '\n'),
+                            ('qol-held-reward-v1', 'battle_start\nqol_swap_held 0 1\n')):
+            result = subprocess.run([str(probe), recipe, '0'], input=bad,
+                                    text=True, capture_output=True, timeout=30, check=False)
+            require(result.returncode != 0, 'native battle accepted invalid lifecycle/typed command')
     if matrix['probe_source']['path'] == 'tests/r19_story_probe.c':
         for bad in ('script_complete 16 2 0\n', 'script_start UnknownScript\n',
                     'script_start LittlerootTown_EventScript_StepOffTruckMale\nscript_run 4096\nscript_complete 16 4 0\n'):

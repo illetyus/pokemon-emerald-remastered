@@ -228,7 +228,11 @@ source gates. After terminal-success, resume R19-I5 encounter seed/scenario matr
 
 ## R19-I5 — Representative encounter seed/scenario matrix
 
-State: VERIFYING; R19-I6 NOT_STARTED until exact-head CI succeeds.
+State: VERIFIED_COMPLETE at ff8858d02e4e4d329b5cfbcd3fab2f4a8a5dc6e3.
+Workflow 37958197475 and jobs 113913999481/113913999997 completed/success:
+5 targeted / 80 full CTest, 34 targeted / 362 full Python/source PASS.
+Verbose CI confirms actual 32/256 replay and native negatives; all 13 scoped
+published Git blobs match. All 17 workflows including CodeQL reached success.
 Recovery: unchanged main, branch nine ahead / zero behind, draft PR #23;
 canonical docs, contract, active source/fixtures and exact closure CI re-read.
 Primary source re-check: pinned src/wild_encounter.c blob
@@ -274,3 +278,56 @@ and all 34 targeted Python checks PASS.
 Expected exact hosted totals: 5 targeted / 80 full CTest and 34 targeted /
 362 full Python/source gates. Next after terminal-success: R19-I6 battle
 seed/scenario matrix including accepted R16 deltas.
+
+
+## R19-I6 — Complete battle field snapshots and representative seed matrix
+
+State: VERIFYING; R19-I7 NOT_STARTED until exact-head CI succeeds.
+Recovery re-read live refs/compare/history/draft PR #23/CI, canonical and owning
+R13/R16/contract source files. Main unchanged; ten ahead / zero behind.
+RED: the new battle test could not import the absent battle domain validator.
+
+Primary source re-check at the fixed VP pin:
+src/battle_util.c blob 68a5b6adaae9c5941db66c6a1856425e7727d7fb,
+src/battle_script_commands.c blob 921e1ccae078d6aab633c36a9d86539052df9e3b,
+include/constants/items.h blob daf129c76f4d5a3775489603b61955fa865531e6.
+Source player-side DOUBLE_PRIZE entry sets money multiplier 2; trainer reward
+uses it. Amulet Coin is item 189. Existing R13 and accepted R16 owners remain
+unchanged; no gameplay, persistent layout or platform changes are made.
+
+16 immutable cases / 68 ordered commands / 84 snapshots use four scenarios
+at seeds 0, 1, 0x12345678 and 0xFFFFFFFF:
+wild win; trainer faint/replacement/win; trainer loss/whiteout; R16 held swap
+before trainer battle and doubled reward. Synthetic Pokemon have explicit
+stats/moves/OT/IVs and one-HP edges. Trainer 1 names the source reward/finalizer
+metadata; the synthetic opponent party is not a played source trainer encounter.
+Broader status/ability/capture/double/R16 safety mechanics stay in existing tests.
+
+The frozen version-1 schema binds both battle and codec headers. Serializer
+covers every declared member: State 38, Mon 57, RNG 2, Event 6, Action 5;
+all four battlers, complete 2x6 party/caught packets, all future/side/status arrays,
+RNG state/calls and the active ordered event vector. R11 100-byte codec is reused.
+Explicit JSON/integers/arrays replace raw struct memory. C padding/pointers and
+inactive event capacity are excluded; null is allowed only before attachment.
+Missing/extra members, malformed arrays/packets, event-count mismatch/overflow,
+float RNG and header field changes cannot be certified.
+
+Source endpoints were reviewed before freezing:
+normal replacement leaves the turn counter unchanged; faint precedes EXP;
+loss commits zero HP and requests whiteout; wins commit surviving party and
+trainer flag; R16 swap moves Amulet Coin 189 from reserve to lead before start,
+preserves party packets and source reward increases 840 -> 1680 (money
+1000 -> 1840 vs 2680). Every case reaches its explicitly expected outcome.
+No actual Unreal/battle presentation or full-game device execution is claimed.
+
+Each case repeats in separate processes, ignores save transport metadata noise,
+and rejects a native inactive-slot future_damage mutation at its first attached
+snapshot / battle domain. Native malformed actions/lifecycle and late QoL input
+fail. Typed start/turn/commit/QoL command owners are declared by the contract and
+included in the roster guard; serializer schema and probe source blobs are pinned.
+No verification/CI bless/update path exists.
+
+Strict C99 Werror native build, actual 16/84 battle/negative replay, prior 32/256
+encounter, 3/141 story and 1/8 movement matrices and 38 targeted Python checks PASS.
+Expected exact CI: 6 targeted / 81 full CTest, 38 targeted / 366 full Python/
+source gates. Next after terminal-success: R19-I7 manifest audit orchestration.

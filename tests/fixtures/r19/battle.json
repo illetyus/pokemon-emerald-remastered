@@ -1,0 +1,4206 @@
+{
+  "schema": "remaster.r19.replay-matrix",
+  "version": 1,
+  "source": {
+    "repository": "illetyus/pokezumrut-vanillaplus",
+    "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c"
+  },
+  "probe_source": {
+    "path": "tests/r19_battle_probe.c",
+    "blob_sha": "78a3343373d4be3ffb353adbc01e1d1c40cfcf6f"
+  },
+  "runtime_schema": {
+    "path": "data/r19/battle_runtime_schema.json",
+    "blob_sha": "9cdf34f15890e6f1b01d53f7ef9258b696c0f57b"
+  },
+  "cases": [
+    {
+      "id": "wild-win-v1-seed-00000000",
+      "recipe": "wild-win-v1",
+      "seed": 0,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "80a49ece8d3969607c195ca71f1db1dac3ea1807e55af83572790fd1d7b30ff4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "25bf188110198b28bd974d0f1f117e29763a44b481e777c59380121d4fee1b58"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 1,
+            "player_hp": 51,
+            "foe_hp": 1,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "80a49ece8d3969607c195ca71f1db1dac3ea1807e55af83572790fd1d7b30ff4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "d4af671de4dc142b9ebfe8ec8904f140155be043e8a23b511e6415f8d9c60562"
+          },
+          "state_hash": "e96af3018aef88a48907c3edd243969fb7e7d57e2178f08801bcb2e116c7ba53"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 1,
+            "rng_state": 833674724,
+            "rng_calls": 4,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 51,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "80a49ece8d3969607c195ca71f1db1dac3ea1807e55af83572790fd1d7b30ff4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "c58322a0f04762c4fa34fa2fd4b5cc59330fe6e82c8926575b3884ca2e031d76"
+          },
+          "state_hash": "97290ca2e3fcad9a74c909cd49c24882ffd5e57f97dd159c9a3b34177fff89f2"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 1,
+            "rng_state": 833674724,
+            "rng_calls": 4,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 51,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "71d36058a11ca642c1323c8ee9a397eca034ada4f744613831c9ad5aeefedd11",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "c58322a0f04762c4fa34fa2fd4b5cc59330fe6e82c8926575b3884ca2e031d76"
+          },
+          "state_hash": "457f9b27b51c9952d04d95b7f4257620726487381bc4d6e70496b1ef84dbfa88"
+        }
+      ]
+    },
+    {
+      "id": "wild-win-v1-seed-00000001",
+      "recipe": "wild-win-v1",
+      "seed": 1,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "80a49ece8d3969607c195ca71f1db1dac3ea1807e55af83572790fd1d7b30ff4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "25bf188110198b28bd974d0f1f117e29763a44b481e777c59380121d4fee1b58"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 1,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 1,
+            "player_hp": 51,
+            "foe_hp": 1,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "80a49ece8d3969607c195ca71f1db1dac3ea1807e55af83572790fd1d7b30ff4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "01d8d58edd372bb6c610c01ea19d6b1d7a473f25bc6d26835444d62b6d695a59"
+          },
+          "state_hash": "dba7832d0c028012b14b240504b0c49c11e4505d87fab42857ecaceaa2c9dd44"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 1,
+            "rng_state": 532110581,
+            "rng_calls": 4,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 51,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "80a49ece8d3969607c195ca71f1db1dac3ea1807e55af83572790fd1d7b30ff4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "51498be9d66c7eb16120f431b8dbd03fc2295ef1b78084b5d95a518db82d17c5"
+          },
+          "state_hash": "2ac02165b97ed0fcef3cdca875c19b88c1e20fda56aa12c1368604df83f52a08"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 1,
+            "rng_state": 532110581,
+            "rng_calls": 4,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 51,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "71d36058a11ca642c1323c8ee9a397eca034ada4f744613831c9ad5aeefedd11",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "51498be9d66c7eb16120f431b8dbd03fc2295ef1b78084b5d95a518db82d17c5"
+          },
+          "state_hash": "fd4c7db07780f5e7f839afed36ab3cdd3813c3efe0b846caa7c8e916df50aaf5"
+        }
+      ]
+    },
+    {
+      "id": "wild-win-v1-seed-12345678",
+      "recipe": "wild-win-v1",
+      "seed": 305419896,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "80a49ece8d3969607c195ca71f1db1dac3ea1807e55af83572790fd1d7b30ff4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "25bf188110198b28bd974d0f1f117e29763a44b481e777c59380121d4fee1b58"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 305419896,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 1,
+            "player_hp": 51,
+            "foe_hp": 1,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "80a49ece8d3969607c195ca71f1db1dac3ea1807e55af83572790fd1d7b30ff4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "5170de9c2ba39fea7a128ef7151b602a8ac0dae464c2caed8844452ad62b6740"
+          },
+          "state_hash": "44b68425be19ca0461b024176d0abf8d00f2747b4d7f0d14ea3481638f487c0c"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 1,
+            "rng_state": 4108329948,
+            "rng_calls": 4,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 51,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "80a49ece8d3969607c195ca71f1db1dac3ea1807e55af83572790fd1d7b30ff4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "5deb62e46231bc7b0c0266d95136d0a8e28489e29d54b1eb00c3f9cc74685c0b"
+          },
+          "state_hash": "19c9c7f04da475ad372a99015d74dff5614a2eae2e53cb7b07adfc6f685fc9e1"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 1,
+            "rng_state": 4108329948,
+            "rng_calls": 4,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 51,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "71d36058a11ca642c1323c8ee9a397eca034ada4f744613831c9ad5aeefedd11",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "5deb62e46231bc7b0c0266d95136d0a8e28489e29d54b1eb00c3f9cc74685c0b"
+          },
+          "state_hash": "fe972e79009d0eeb31595622de4bdacac42c912cc1b474fb815fdef9b6fe197d"
+        }
+      ]
+    },
+    {
+      "id": "wild-win-v1-seed-ffffffff",
+      "recipe": "wild-win-v1",
+      "seed": 4294967295,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "80a49ece8d3969607c195ca71f1db1dac3ea1807e55af83572790fd1d7b30ff4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "25bf188110198b28bd974d0f1f117e29763a44b481e777c59380121d4fee1b58"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 4294967295,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 1,
+            "player_hp": 51,
+            "foe_hp": 1,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "80a49ece8d3969607c195ca71f1db1dac3ea1807e55af83572790fd1d7b30ff4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "aee34dc8df50575c4be67b9ed2e4a1dea09e158c7fef1042e84412ec644816de"
+          },
+          "state_hash": "a6f7eea648bcc0afc21a8c3541b687c2a63fdd34f83dd28b4ded2ea0053aaafd"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 1,
+            "rng_state": 1135238867,
+            "rng_calls": 4,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 51,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "80a49ece8d3969607c195ca71f1db1dac3ea1807e55af83572790fd1d7b30ff4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "9672db47c2567354dd267152be94300409fbef84ce0ccf5f89fc05b8244897b1"
+          },
+          "state_hash": "5d85f59acdee019ce4b96ef4166cf815ec03f3c0ad16d4b375ab3d0eb0ac9084"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 1,
+            "rng_state": 1135238867,
+            "rng_calls": 4,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 51,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 51,
+            "save_level": 20,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "71d36058a11ca642c1323c8ee9a397eca034ada4f744613831c9ad5aeefedd11",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "9672db47c2567354dd267152be94300409fbef84ce0ccf5f89fc05b8244897b1"
+          },
+          "state_hash": "0bb69e3bf9bd4a290341787607f9bb8fb288ae39f6cf11b8bcbe36417b6121e9"
+        }
+      ]
+    },
+    {
+      "id": "trainer-replacement-v1-seed-00000000",
+      "recipe": "trainer-replacement-v1",
+      "seed": 0,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "ee419e1f405f870f32e4ecefe5c93792fc84515a468f16e30ea6c6c20fe45502"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "7ad676570583216ce1800b59ab603e7a54ca59d836616691724977315d09015f"
+          },
+          "state_hash": "8fb4d898cb14d26897c7aa928ec054b8492ec001d11c1fdafdd2ef570b4814f5"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 2386711175,
+            "rng_calls": 5,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "f9b07955986a276223baabbfc4980fb473d77d3c9fe8d766bc20c6d3067f26d9"
+          },
+          "state_hash": "1b40276053a5ccecadacad11e80cb2c50b191dfe53d2efd5764e404700a2a67e"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 2386711175,
+            "rng_calls": 5,
+            "event_count": 8,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "792477a0de89b44d28f9216f548518ba052468ec2f711b3e0506d68a42b2e62d"
+          },
+          "state_hash": "81eaaca201012d3f7217a73c530db7d3704342c198bff2caeaeb2735e4806944"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 4012700850,
+            "rng_calls": 10,
+            "event_count": 14,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "19e269403c901f98ba2814848ab1cb912e69bf62fbcaf87cd56ac29fb5ba5f38"
+          },
+          "state_hash": "6910fad45a885a0afa3919a96278ded8d0e27b331fedc78a6e3e370087552f1a"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 4012700850,
+            "rng_calls": 10,
+            "event_count": 14,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 1840,
+            "trainer_defeated": 1,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "8b69624bcf32ae43eae19b107f4ed93be9de82d206013fcbbc9740abd6976514",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "19e269403c901f98ba2814848ab1cb912e69bf62fbcaf87cd56ac29fb5ba5f38"
+          },
+          "state_hash": "24b2abef8b87cfd85675dcf44fba2fcb8a72c3b449a32920e09778bdc05ea680"
+        }
+      ]
+    },
+    {
+      "id": "trainer-replacement-v1-seed-00000001",
+      "recipe": "trainer-replacement-v1",
+      "seed": 1,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "ee419e1f405f870f32e4ecefe5c93792fc84515a468f16e30ea6c6c20fe45502"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 1,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "6c1d40fc6f2cb02f3f40aa36d8587caeaa5db8b90bc597e8c5d140af6006e249"
+          },
+          "state_hash": "c975c502ed8a4dd624235d1e0acdd68ffd075fcd38ce1bd821425daebc16f451"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 2044959428,
+            "rng_calls": 5,
+            "event_count": 6,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "fa2d508308ca519913b12684b09458d2c5963d775e94224341778e7a1a06095a"
+          },
+          "state_hash": "6116a0f135fb5a404ee27778b81a51fd6fe6e65b4716057d522e66a07a6cac75"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 2044959428,
+            "rng_calls": 5,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "783106accbc51314da449e37b397407dc782412877feb76ae2cb56bd690c30a5"
+          },
+          "state_hash": "8a3c151b573c72732b5c13ba75bceb4ffaee2f8f8231568a276abb42022d1b6f"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 3729347387,
+            "rng_calls": 10,
+            "event_count": 13,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "a1af340db7a46112df2c06d007cd5eb37fabecb71afdb68fd8ea1fe7853bb488"
+          },
+          "state_hash": "fde55173c1604338123a0c8093b1d0d0c963cc30d1c314de0a865ed34ab235f8"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 3729347387,
+            "rng_calls": 10,
+            "event_count": 13,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 1840,
+            "trainer_defeated": 1,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "8b69624bcf32ae43eae19b107f4ed93be9de82d206013fcbbc9740abd6976514",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "a1af340db7a46112df2c06d007cd5eb37fabecb71afdb68fd8ea1fe7853bb488"
+          },
+          "state_hash": "76fa3f6a13e526b227a2b04e98d4ff0bb4103f415ecb155b600f005b0a0181f1"
+        }
+      ]
+    },
+    {
+      "id": "trainer-replacement-v1-seed-12345678",
+      "recipe": "trainer-replacement-v1",
+      "seed": 305419896,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "ee419e1f405f870f32e4ecefe5c93792fc84515a468f16e30ea6c6c20fe45502"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 305419896,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "7f321e9beb381c9269474aac05b5247d6389876a7aa91134d2616949b84c6518"
+          },
+          "state_hash": "9c6382b83d6de3185431be8c4d4c0bb3948657f07bba3d86c01615b779b1ae6b"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 646229279,
+            "rng_calls": 5,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "f60bb6df1527d23eba0f1e18a2baeaa6f877fb7052e4340e49e3954057a3ad01"
+          },
+          "state_hash": "3ab5ff6c60e1593d0949b7689a2c452aa8a12f7dbbc8717a0f8fd8effceb9561"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 646229279,
+            "rng_calls": 5,
+            "event_count": 8,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "16235313127fa9822d38e9bd646ec871c9df108e5c6333611158ec35ed817c3e"
+          },
+          "state_hash": "b296f16e91e3ee62d293c07aa24cde758b0e790b80206140e5b9057fdaa1559c"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 1645169386,
+            "rng_calls": 10,
+            "event_count": 14,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "8483f586e680c0c0a3ef4f0a26053f2f3789a775cca3839f65c1fc9b08a05e4c"
+          },
+          "state_hash": "df8dc6184a3b34719aa367a412338ba8a46a8f880116741a25a14cf20723467e"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 1645169386,
+            "rng_calls": 10,
+            "event_count": 14,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 1840,
+            "trainer_defeated": 1,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "8b69624bcf32ae43eae19b107f4ed93be9de82d206013fcbbc9740abd6976514",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "8483f586e680c0c0a3ef4f0a26053f2f3789a775cca3839f65c1fc9b08a05e4c"
+          },
+          "state_hash": "bb83b29a76387e1c88644b787d6134bd70c1e91e2f245f010d50e369f49a0ea9"
+        }
+      ]
+    },
+    {
+      "id": "trainer-replacement-v1-seed-ffffffff",
+      "recipe": "trainer-replacement-v1",
+      "seed": 4294967295,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "ee419e1f405f870f32e4ecefe5c93792fc84515a468f16e30ea6c6c20fe45502"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 4294967295,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "09f3c9c847a1332f8675fe83e05d8633c8362ed140277e195cfeb2f0e3191f05"
+          },
+          "state_hash": "2f4e956fab220b5bd82de639c3652b9b2979b35749e1bdf7007ae749a416dab7"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 2728462922,
+            "rng_calls": 5,
+            "event_count": 6,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "557239e0e56f2c6f88b979f832810e0631d2f1aa015df23b2d7b25ad14c42960"
+          },
+          "state_hash": "2f9597e97d0da5d978fa554ecd0fbb8596c4fbb60830f7cacba32ded807f918c"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 2728462922,
+            "rng_calls": 5,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "35a65bc609f863b7ad2b3f7f65b409ea2369fee248013827927f933e625eae84"
+          },
+          "state_hash": "c0b5b0d0ea51f6d081b164565ae096fcbb5e373f117f75de605e8d58b6e27ac5"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 1087017,
+            "rng_calls": 10,
+            "event_count": 13,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "b4a34ce1d153ba8eea62678016ef9808aab5c80fb9526893e919e9aea2908ba8",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "57d382b4be78d9d359f78899b22c68d0e7a022503128c4dc44421e47acc9a48e"
+          },
+          "state_hash": "87c4bf3fec96f441484c9915cdf4d414b4e22aab1e52182ac9074b7b29a918ea"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 1087017,
+            "rng_calls": 10,
+            "event_count": 13,
+            "money_multiplier": 1,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 1840,
+            "trainer_defeated": 1,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "8b69624bcf32ae43eae19b107f4ed93be9de82d206013fcbbc9740abd6976514",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "57d382b4be78d9d359f78899b22c68d0e7a022503128c4dc44421e47acc9a48e"
+          },
+          "state_hash": "fba23bb45230167f870058e7e283bfa75f78d9cba034ec85184198bbe03f4579"
+        }
+      ]
+    },
+    {
+      "id": "trainer-loss-v1-seed-00000000",
+      "recipe": "trainer-loss-v1",
+      "seed": 0,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 1,
+            "save_level": 5,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1365784b8f4061991b12aa6d175645d9fcf4a448c195e32d4589ae2ba124223e",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "74a2bd235c8675850d160b80b85a4a1882dde3e57bb8ba7c2ad4d9cced6ea3dd"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 1,
+            "player_hp": 1,
+            "foe_hp": 135,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 1,
+            "save_level": 5,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1365784b8f4061991b12aa6d175645d9fcf4a448c195e32d4589ae2ba124223e",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "de43eb71311b2df653e4e9c4ad44bf4de775f3ba6726146d963fb793a28baebb"
+          },
+          "state_hash": "5949f865ee7e2bb500930f84567caabead6bbbe380d6a403a42f7a65fcc98d08"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 2,
+            "turn": 1,
+            "rng_state": 2386711175,
+            "rng_calls": 5,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 0,
+            "foe_hp": 135,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 1,
+            "save_level": 5,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1365784b8f4061991b12aa6d175645d9fcf4a448c195e32d4589ae2ba124223e",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "8c8fb4f953af19c758fc36e6ca7feff56ba195e5234560b90c68ad1712bb84e1"
+          },
+          "state_hash": "d0e3a9891eb4ccf909445909b5182d27ca134fa3ed19aea1a13fc135ee1eb797"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 2,
+            "turn": 1,
+            "rng_state": 2386711175,
+            "rng_calls": 5,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 0,
+            "foe_hp": 135,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 0,
+            "save_level": 5,
+            "whiteout": 1,
+            "qol_result": -1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1a87aac2002c363026683ca302d5beaa5cd41e32b98cc6af4e51e440fb300014",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "8c8fb4f953af19c758fc36e6ca7feff56ba195e5234560b90c68ad1712bb84e1"
+          },
+          "state_hash": "75a898e0fc0140eee97843b53a34d91160798275609d2772502dff2221ce6623"
+        }
+      ]
+    },
+    {
+      "id": "trainer-loss-v1-seed-00000001",
+      "recipe": "trainer-loss-v1",
+      "seed": 1,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 1,
+            "save_level": 5,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1365784b8f4061991b12aa6d175645d9fcf4a448c195e32d4589ae2ba124223e",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "74a2bd235c8675850d160b80b85a4a1882dde3e57bb8ba7c2ad4d9cced6ea3dd"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 1,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 1,
+            "player_hp": 1,
+            "foe_hp": 135,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 1,
+            "save_level": 5,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1365784b8f4061991b12aa6d175645d9fcf4a448c195e32d4589ae2ba124223e",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "76b5efd18044e872f6b121c156996952b2a8fb6d5f726000859e23ed224496fd"
+          },
+          "state_hash": "992120e7e8fd2ed48988ad9cebd8f7ec85866e1bc3fcf7f7c70eb9267764ec71"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 2,
+            "turn": 1,
+            "rng_state": 2044959428,
+            "rng_calls": 5,
+            "event_count": 6,
+            "money_multiplier": 1,
+            "player_hp": 0,
+            "foe_hp": 135,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 1,
+            "save_level": 5,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1365784b8f4061991b12aa6d175645d9fcf4a448c195e32d4589ae2ba124223e",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "9e315e78662cc333e0f7bf458d1ab69b42ed4f0d4ceaca7af556346c499fba09"
+          },
+          "state_hash": "dae7b01ac650e8ff98360deaee5a0e198a26d9f1a0610d1f840112892c2ec9a6"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 2,
+            "turn": 1,
+            "rng_state": 2044959428,
+            "rng_calls": 5,
+            "event_count": 6,
+            "money_multiplier": 1,
+            "player_hp": 0,
+            "foe_hp": 135,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 0,
+            "save_level": 5,
+            "whiteout": 1,
+            "qol_result": -1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1a87aac2002c363026683ca302d5beaa5cd41e32b98cc6af4e51e440fb300014",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "9e315e78662cc333e0f7bf458d1ab69b42ed4f0d4ceaca7af556346c499fba09"
+          },
+          "state_hash": "2434d4e4169436773a1cccb4995299247107c0572fbd2a3ec09b4305b1923c0e"
+        }
+      ]
+    },
+    {
+      "id": "trainer-loss-v1-seed-12345678",
+      "recipe": "trainer-loss-v1",
+      "seed": 305419896,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 1,
+            "save_level": 5,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1365784b8f4061991b12aa6d175645d9fcf4a448c195e32d4589ae2ba124223e",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "74a2bd235c8675850d160b80b85a4a1882dde3e57bb8ba7c2ad4d9cced6ea3dd"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 305419896,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 1,
+            "player_hp": 1,
+            "foe_hp": 135,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 1,
+            "save_level": 5,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1365784b8f4061991b12aa6d175645d9fcf4a448c195e32d4589ae2ba124223e",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "45cd5fa7b3ff75be2533279f1af2ce20eb5490fed4d0fd80bb8edc599e646f01"
+          },
+          "state_hash": "86deba824908d11457e5323173628f9b5a839294e8bb6d8f87187fd417752c7a"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 2,
+            "turn": 1,
+            "rng_state": 646229279,
+            "rng_calls": 5,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 0,
+            "foe_hp": 135,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 1,
+            "save_level": 5,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1365784b8f4061991b12aa6d175645d9fcf4a448c195e32d4589ae2ba124223e",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "ac78482606777df4dab64db542b7ce03e1f7fa11f900a9e505f7f80f60e5a2aa"
+          },
+          "state_hash": "9dedda49c99223b33f90c8d2741af793124aa772fcb6816105cd1425dbcab4a8"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 2,
+            "turn": 1,
+            "rng_state": 646229279,
+            "rng_calls": 5,
+            "event_count": 7,
+            "money_multiplier": 1,
+            "player_hp": 0,
+            "foe_hp": 135,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 0,
+            "save_level": 5,
+            "whiteout": 1,
+            "qol_result": -1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1a87aac2002c363026683ca302d5beaa5cd41e32b98cc6af4e51e440fb300014",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "ac78482606777df4dab64db542b7ce03e1f7fa11f900a9e505f7f80f60e5a2aa"
+          },
+          "state_hash": "6a249390f70e43c0d171c41c923434b355958932dda5331f030a53192a6e4f14"
+        }
+      ]
+    },
+    {
+      "id": "trainer-loss-v1-seed-ffffffff",
+      "recipe": "trainer-loss-v1",
+      "seed": 4294967295,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 1,
+            "save_level": 5,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1365784b8f4061991b12aa6d175645d9fcf4a448c195e32d4589ae2ba124223e",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "74a2bd235c8675850d160b80b85a4a1882dde3e57bb8ba7c2ad4d9cced6ea3dd"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 4294967295,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 1,
+            "player_hp": 1,
+            "foe_hp": 135,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 1,
+            "save_level": 5,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1365784b8f4061991b12aa6d175645d9fcf4a448c195e32d4589ae2ba124223e",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "dbd67d923d55fec99abfc25174df5637577a931bd93cccaf435096a7adf1b0db"
+          },
+          "state_hash": "90da767a740a3ec832105854af2f6844f4886ad1e4c0f429cdb65a42fe366a53"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 2,
+            "turn": 1,
+            "rng_state": 2728462922,
+            "rng_calls": 5,
+            "event_count": 6,
+            "money_multiplier": 1,
+            "player_hp": 0,
+            "foe_hp": 135,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 1,
+            "save_level": 5,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1365784b8f4061991b12aa6d175645d9fcf4a448c195e32d4589ae2ba124223e",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "aabb47b28eee6e80ba70d3dcd83b5696a414ad52bad72777671b760ea5f1435f"
+          },
+          "state_hash": "5993dd548d5468419344aceab313e5cfd3229eceb579b9526a1cc0e76485a7a6"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 2,
+            "turn": 1,
+            "rng_state": 2728462922,
+            "rng_calls": 5,
+            "event_count": 6,
+            "money_multiplier": 1,
+            "player_hp": 0,
+            "foe_hp": 135,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 0,
+            "save_hp": 0,
+            "save_level": 5,
+            "whiteout": 1,
+            "qol_result": -1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "1a87aac2002c363026683ca302d5beaa5cd41e32b98cc6af4e51e440fb300014",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "aabb47b28eee6e80ba70d3dcd83b5696a414ad52bad72777671b760ea5f1435f"
+          },
+          "state_hash": "ac1895ffe92c306a5baec935b3cb57bf98db876a3ede4512f65dcc42dc517155"
+        }
+      ]
+    },
+    {
+      "id": "qol-held-reward-v1-seed-00000000",
+      "recipe": "qol-held-reward-v1",
+      "seed": 0,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "qol_swap_held",
+          "first": 0,
+          "second": 1
+        },
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 189,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "36359bf9b14fc758d4a0a404e06d6fa568abc4324dfdd9b22ef689177227cc4d",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "a923d6a058c91bbf6c5adff5828342699909f7c35e80027ed940d14088ad35de"
+        },
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "61103e84d25fecd1f81531fdcb3e189b228d5a027dd4b2902c87505f101b3601"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "e1d0e8d9cfb42face5a16a2dff04107786c829b645bb65bd48b7d7ef4e8a4d23"
+          },
+          "state_hash": "d73616fbf219a188a9a3d47880b6be9fc0b7e3b7484313985ba7050f26af20df"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 2386711175,
+            "rng_calls": 5,
+            "event_count": 7,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "89da74275fae4d522767a61d196ed99be44437533e96cf5138150064176cce17"
+          },
+          "state_hash": "272fa8801655d15e205c60884e4c23a37dc98fe7cf550003ba217fcc9feffdb3"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 2386711175,
+            "rng_calls": 5,
+            "event_count": 8,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "d907a4fdd51077dc3187f84e7a623e5a9d326bd566bc55805db1cd59dfc8cda2"
+          },
+          "state_hash": "7a3c8df3f58789445a40ab57562b48e44a5a2a66ded54eda00047ae50d27f0a3"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 4012700850,
+            "rng_calls": 10,
+            "event_count": 14,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "8a52ad46ed690d9e7e58e49ec49bddad225e0d95a95d1ffcdeb79ee3f0405166"
+          },
+          "state_hash": "ecb6aefe84d5a4a911bbb09c70f1829764c83b5f1559c4e964176e8ced41c5df"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 4012700850,
+            "rng_calls": 10,
+            "event_count": 14,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 2680,
+            "trainer_defeated": 1,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "06499b243459bbee8f35762e78f096875c7d0bb0ea9ab554c9039388c3a5e0d4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "8a52ad46ed690d9e7e58e49ec49bddad225e0d95a95d1ffcdeb79ee3f0405166"
+          },
+          "state_hash": "1a7cb5d6daa2e7f29f8d2049ea2601fc817a2dac4045bb7893c5e9563c1967d7"
+        }
+      ]
+    },
+    {
+      "id": "qol-held-reward-v1-seed-00000001",
+      "recipe": "qol-held-reward-v1",
+      "seed": 1,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "qol_swap_held",
+          "first": 0,
+          "second": 1
+        },
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 189,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "36359bf9b14fc758d4a0a404e06d6fa568abc4324dfdd9b22ef689177227cc4d",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "a923d6a058c91bbf6c5adff5828342699909f7c35e80027ed940d14088ad35de"
+        },
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "61103e84d25fecd1f81531fdcb3e189b228d5a027dd4b2902c87505f101b3601"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 1,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "56eafd12a6cb426a66b5fe9affa76969f3ffcb230d2c515f722190e5c1ff928e"
+          },
+          "state_hash": "40272487a6dfae2d0f25ced9e5eca515971183648f890a7f452e3a7785ef7458"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 2044959428,
+            "rng_calls": 5,
+            "event_count": 6,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "2ddfc742a8340ce7d0928a11d2836cbcc2367e6a7b3a6ebcf0b6d7f8f516b9b0"
+          },
+          "state_hash": "3156edcbf62ffcadddecc9545a5ef41613c5c1b3e0be36dbea38f1fb498947ae"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 2044959428,
+            "rng_calls": 5,
+            "event_count": 7,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "ab073b281fcca308a7189370769dd8bdfd4e50c382c3f311b290cf8770431eac"
+          },
+          "state_hash": "bb4898a578c0b2cc2ed10be472462451dce7fe575d23cb9beb8a0deadde5b9a4"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 3729347387,
+            "rng_calls": 10,
+            "event_count": 13,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "70c604c9082c7e3157d90596af96fb417328947ca7412a04a6e0a6fc34a6a2e3"
+          },
+          "state_hash": "047474c09f2a3ea259799122e2faf5163c12824218de8f9b953fe2f3e38259f3"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 3729347387,
+            "rng_calls": 10,
+            "event_count": 13,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 2680,
+            "trainer_defeated": 1,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "06499b243459bbee8f35762e78f096875c7d0bb0ea9ab554c9039388c3a5e0d4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "70c604c9082c7e3157d90596af96fb417328947ca7412a04a6e0a6fc34a6a2e3"
+          },
+          "state_hash": "528043c0d42db51cd9ad5eb83140ee76ccd2ec9f0167f7b079f57f6ac392b1a3"
+        }
+      ]
+    },
+    {
+      "id": "qol-held-reward-v1-seed-12345678",
+      "recipe": "qol-held-reward-v1",
+      "seed": 305419896,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "qol_swap_held",
+          "first": 0,
+          "second": 1
+        },
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 189,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "36359bf9b14fc758d4a0a404e06d6fa568abc4324dfdd9b22ef689177227cc4d",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "a923d6a058c91bbf6c5adff5828342699909f7c35e80027ed940d14088ad35de"
+        },
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "61103e84d25fecd1f81531fdcb3e189b228d5a027dd4b2902c87505f101b3601"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 305419896,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "19c58db095787b787276a27674c51e4ccc63fc3bebe7f2803d685946e567d518"
+          },
+          "state_hash": "8454c0b32a0ac55c4f396f02dc5b04bf838e10bcbbb9ec7491790ad0ff01fa35"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 646229279,
+            "rng_calls": 5,
+            "event_count": 7,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "fb68c707c0840af7c0b1ab77af3934b8e6d19f6d7bc5dac4b4cf89316c300f33"
+          },
+          "state_hash": "3e34096b5c77f9d5e01ed7320eec32789f71529ec9162a23da4d8ddb0993a12e"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 646229279,
+            "rng_calls": 5,
+            "event_count": 8,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "55a9b8e2f082c5462995d9f38bfb4feb4dbccd28dc3b705176aa668f9ed4066f"
+          },
+          "state_hash": "06961d544c32080da9652efec27da95cfdd32672d0c8e39c6fd02988c1944c34"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 1645169386,
+            "rng_calls": 10,
+            "event_count": 14,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "114e7dfee89356cd358b5a3286ef7b46c85c996ded6b4baf90bc8cef468031c5"
+          },
+          "state_hash": "56ebd2f2442ddbb8f94b7700e559aa73b50034e9414a50fefd6126cdb16b89e6"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 1645169386,
+            "rng_calls": 10,
+            "event_count": 14,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 2680,
+            "trainer_defeated": 1,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "06499b243459bbee8f35762e78f096875c7d0bb0ea9ab554c9039388c3a5e0d4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "114e7dfee89356cd358b5a3286ef7b46c85c996ded6b4baf90bc8cef468031c5"
+          },
+          "state_hash": "fc3ddc39c6d882ddfa6cb35587a717815fc6c7c99dcf445ff6ef0c5892b67095"
+        }
+      ]
+    },
+    {
+      "id": "qol-held-reward-v1-seed-ffffffff",
+      "recipe": "qol-held-reward-v1",
+      "seed": 4294967295,
+      "setup": "Explicit synthetic Pokemon/opponent fixtures over source R13 stats/moves/RNG. Fixed OT/personality/IVs, opponent/player one-HP edges, master flag; trainer 1 identifies source reward/finalization only, not a played trainer encounter. R16 held scenario starts Amulet Coin (189) on reserve.",
+      "commands": [
+        {
+          "op": "qol_swap_held",
+          "first": 0,
+          "second": 1
+        },
+        {
+          "op": "battle_start"
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_turn",
+          "actions": [
+            {
+              "kind": 1,
+              "move_slot": 0,
+              "target": 1,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            },
+            {
+              "kind": 0,
+              "move_slot": 0,
+              "target": 0,
+              "party_slot": 0,
+              "item_id": 0
+            }
+          ]
+        },
+        {
+          "op": "battle_commit"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 0,
+            "held1": 189,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": -1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "36359bf9b14fc758d4a0a404e06d6fa568abc4324dfdd9b22ef689177227cc4d",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "a923d6a058c91bbf6c5adff5828342699909f7c35e80027ed940d14088ad35de"
+        },
+        {
+          "observations": {
+            "attached": 0,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 0,
+            "rng_calls": 0,
+            "event_count": 0,
+            "money_multiplier": 0,
+            "player_hp": 0,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "61103e84d25fecd1f81531fdcb3e189b228d5a027dd4b2902c87505f101b3601"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 0,
+            "rng_state": 4294967295,
+            "rng_calls": 0,
+            "event_count": 1,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "736bcc2c1a191962e2527fde5f399cb14f8978ab6518d31dc90a84d0dc1233b6"
+          },
+          "state_hash": "c82769372517298bbe24f141766639a7f2224aa4bb74adfaf5ac7932c9fd9f02"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 2728462922,
+            "rng_calls": 5,
+            "event_count": 6,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 0,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "f7649d038ad3016821d43e78573f1af6820f91fc64fe9e86acd3bdbd84cfa3c7"
+          },
+          "state_hash": "cb61874cf338db1df480ab416542cdd2b03847820ae5568f258e855fd1fd84a5"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 0,
+            "outcome": 0,
+            "turn": 1,
+            "rng_state": 2728462922,
+            "rng_calls": 5,
+            "event_count": 7,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 1,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "5f261d8bec442df81ae8f001c2324e5607614c8932aacdfd7aec411e1d5fa3dd"
+          },
+          "state_hash": "e158740e6ed538260c8f8e3a1aaede5ca4672980196149630bd8980d1070bc65"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 1087017,
+            "rng_calls": 10,
+            "event_count": 13,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 1000,
+            "trainer_defeated": 0,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "24bdb1f869855d833647088d07c05d3cd50a3afe7b61ad43d9c275cfc596f2ef",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "c66c322383208e82080597b55c660bca8e41033fccfec63e4c720fcdd00bc4bc"
+          },
+          "state_hash": "ab7e2add12774ea8dac5b5a8b8c89aa72e93606fa06d785e164317c35541cd23"
+        },
+        {
+          "observations": {
+            "attached": 1,
+            "ended": 1,
+            "outcome": 1,
+            "turn": 2,
+            "rng_state": 1087017,
+            "rng_calls": 10,
+            "event_count": 13,
+            "money_multiplier": 2,
+            "player_hp": 142,
+            "foe_hp": 0,
+            "foe_slot": 1,
+            "money": 2680,
+            "trainer_defeated": 1,
+            "held0": 189,
+            "held1": 0,
+            "save_hp": 142,
+            "save_level": 60,
+            "whiteout": 0,
+            "qol_result": 1,
+            "committed": 1
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "06499b243459bbee8f35762e78f096875c7d0bb0ea9ab554c9039388c3a5e0d4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "c66c322383208e82080597b55c660bca8e41033fccfec63e4c720fcdd00bc4bc"
+          },
+          "state_hash": "ad9a865d30e92ea7ca5c804a781c6b7e5acb94f954122079e8d5cc12c4fdf34c"
+        }
+      ]
+    }
+  ]
+}

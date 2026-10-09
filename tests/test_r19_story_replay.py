@@ -13,7 +13,7 @@ from r19_replay import validate
 class StoryReplayTests(unittest.TestCase):
     def test_every_versioned_command_is_declared_in_contract(self):
         contract = json.loads((ROOT / 'data/r19/replay_contract.json').read_text())
-        for name in ('movement', 'story', 'encounter'):
+        for name in ('movement', 'story', 'encounter', 'battle'):
             matrix = json.loads((ROOT / ('tests/fixtures/r19/' + name + '.json')).read_text())
             used = {c['op'] for case in matrix['cases'] for c in case['commands']}
             self.assertFalse(used - set(contract['commands']), 'undeclared command in versioned fixture')

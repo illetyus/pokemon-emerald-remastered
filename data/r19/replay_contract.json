@@ -64,6 +64,19 @@
     "encounter_rock_smash": {
       "context": "named source catalog map recipe",
       "owner": "remaster_emerald_encounter_rock_smash"
+    },
+    "battle_start": {
+      "context": "named synthetic opponent setup and source catalogs",
+      "owner": "remaster_emerald_battle_state_init / remaster_emerald_battle_start_from_save"
+    },
+    "battle_commit": {
+      "precondition": "ended battle, once per case",
+      "owner": "remaster_emerald_battle_commit_player_party / remaster_emerald_battle_finalize_trainer"
+    },
+    "qol_swap_held": {
+      "first": "party slot 0..5",
+      "second": "distinct party slot 0..5, before battle",
+      "owner": "R16 remaster_emerald_qol_swap_held_items via existing R11 party codec"
     }
   },
   "snapshot": {

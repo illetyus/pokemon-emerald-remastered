@@ -1238,3 +1238,16 @@ add_test(NAME r19_encounter_seed_matrix COMMAND
     ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_replay.py
     --probe $<TARGET_FILE:r19_encounter_probe>
     --matrix ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/r19/encounter.json)
+
+# R19-I6 uses complete field/codec snapshots across battle and accepted R16 paths.
+add_executable(r19_battle_probe tests/r19_battle_probe.c)
+target_link_libraries(r19_battle_probe PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(r19_battle_probe PRIVATE /W4)
+else()
+    target_compile_options(r19_battle_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r19_battle_seed_matrix COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_replay.py
+    --probe $<TARGET_FILE:r19_battle_probe>
+    --matrix ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/r19/battle.json)
