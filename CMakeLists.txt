@@ -1203,3 +1203,20 @@ else()
     target_compile_options(r19_script_checkpoint_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r19_source_world_request_checkpoint COMMAND r19_script_checkpoint_test)
+
+# R19-I3 executes immutable opening/world slices from the actual source fixtures.
+add_executable(r19_story_probe tests/r19_story_probe.c
+    "${R2_LITTLEROOT_GENERATED_C}" "${R4_LITTLEROOT_GENERATED_C}")
+target_include_directories(r19_story_probe PRIVATE tests)
+target_link_libraries(r19_story_probe PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(r19_story_probe PRIVATE /W4)
+else()
+    target_compile_options(r19_story_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r19_source_story_world_replay COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_replay.py
+    --probe $<TARGET_FILE:r19_story_probe>
+    --matrix ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/r19/story.json
+    --r2-input "${R2_LITTLEROOT_GENERATED_C}"
+    --r4-input "${R4_LITTLEROOT_GENERATED_C}")

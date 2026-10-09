@@ -46,8 +46,12 @@ def fingerprint(snapshot):
         raw = domains[domain]
         require(type(raw) is str and len(raw) == size * 2 and re.fullmatch('[0-9a-f]+', raw) is not None,
                 'invalid source-layout domain: ' + domain)
-    # I3/I5/I6 introduce separately audited active serializers. I2 cannot certify them.
-    for domain in ('script', 'objects', 'encounter', 'battle'):
+    script = domains['script']
+    require(script is None or (type(script) is str and len(script) == 298 * 2
+            and script.startswith('523253430100') and re.fullmatch('[0-9a-f]+', script) is not None),
+            'invalid version-1 script checkpoint domain')
+    # I5/I6 introduce separately audited active encounter/battle serializers.
+    for domain in ('objects', 'encounter', 'battle'):
         require(domains[domain] is None, 'unsupported active runtime domain: ' + domain)
     require(type(snapshot['observations']) is dict, 'snapshot observations mismatch')
     return {'observations': snapshot['observations'],

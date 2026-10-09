@@ -113,5 +113,52 @@ unsupported request-type rejection. It does not acknowledge actual WORLD host
 execution. Strict local C99 build and both gender cases PASS.
 CMake adds r19_source_world_request_checkpoint; published targeted/full CI
 must verify the actual expected 2 / 77 CTest and 19 / 347 Python/source gates.
-I3 remains NEEDS_CLOSURE until this exact-head CI succeeds; its unversioned story
-probe/matrix work is excluded from this cohesive closure commit.
+Closure-1 VERIFIED_COMPLETE at c76443b09dedbe4a45410d6e7674c11c04453748.
+Actual workflow 37953441780 and jobs 113897841952/113897842288 completed/success:
+2 targeted / 77 full CTest and 19 targeted / 347 full Python/source PASS.
+All 17 exact-head workflows including CodeQL reached terminal success.
+The unversioned I3 probe/matrix work was excluded from the closure commit.
+
+
+## R19-I3 — Source-generated story/world/progression replay slices
+
+State: VERIFYING; R19-I4 NOT_STARTED until exact-head CI succeeds.
+RED: the source-slice test rejected the unsupported active script hash domain and
+missing versioned story matrix. Closure-1 above resolved the actual emitted WORLD
+checkpoint transport gap before this source checkpoint resumed.
+
+Three immutable cases execute 138 ordered commands / 141 snapshots:
+- Both source-generated Brendan/May truck scripts advance source VAR_INTRO_STATE
+  (0x4092) from 0 to 3; actual pending WARP type 12 / sequence 29 is pinned.
+  Typed presentation/object/movement acknowledgements and an explicit headless
+  lock owner are fixture inputs. No attached object runtime/motion, actual host
+  playback, follower mutation or script warp application is certified. DOMAIN,
+  STARTER_SELECTION, WARP and mutating WORLD requests cannot be acknowledged.
+- Real R4 house exit resolves the source warp to Littleroot (5,8); 15 source-map
+  moves reach the north edge, then the real connection lands on Route101 (10,19).
+  Explicit synthetic traversal setup uses town var 2 (the accepted nonblocking
+  R4 setup), lab var 3, RescuedBirch/PokemonGet and valid level-5 Treecko.
+  Setup is not a played starter or full-story proof. R10 objective 1 remains
+  derived from persistent state through the actual map transition and save.
+- Each case performs an R17 in-memory encode/decode and pins unchanged full
+  SaveBlock2, SaveBlock1 and storage bytes. No platform I/O claim is made.
+
+Active VM state uses the existing version-1 298-byte checkpoint on a normalized
+copy; inactive frames and absent pending storage are zeroed. Header field coverage
+guards require serializer/fixture review when the declared VM/runtime changes.
+Persistent domains retain actual R17 VP lengths; all inactive domains are null.
+Probe recipe is bound to its exact Git blob. Generated R2/R4 source inputs are
+bound to SHA-256 from verified build artifact 11626049917 (workflow 37953441780).
+Archive SHA-256: 103333ce197b6508d0998874d8c5cf9fe942a527d9bc3e732bdfde19bae67423.
+Its checkout/tree, full core blob list and every file digest passed before use.
+
+Reviewed expectations were frozen outside verification after the source semantic
+endpoints above were checked. No bless/update execution path exists. Each case
+runs twice in separate processes; native malformed commands and missing/wrong
+typed completions fail. A PC byte mutation changes the script domain hash.
+Strict local C99 source-fixture build, 3/141 actual replay, existing 1/8 movement
+replay, both Closure-1 gender cases and 22 targeted Python checks PASS.
+CMake adds r19_source_story_world_replay; exact hosted targets/full counts must
+verify the expected 3 / 78 CTest and 22 / 350 Python/source gates.
+Remaining broader full-game, object host, actual UE/Android and device obligations
+are unchanged. Next after terminal-success: R19-I4 — Save fixture orchestration.

@@ -15,6 +15,12 @@ ROOT = Path(__file__).resolve().parents[1]
 PIN = '70db90c9077aed1272e746fc2537d9f12b95a91c'
 MATRIX = ROOT / 'tests/fixtures/r19/movement.json'
 DIRECTIONS = ('south', 'north', 'west', 'east')
+RECIPES = {'tests/r19_replay_probe.c': ('synthetic-movement-v1',),
+           'tests/r19_story_probe.c': ('opening-male-v1', 'opening-female-v1', 'house-exit-v1')}
+STORY_FIELDS = {'x', 'y', 'map_group', 'map_num', 'kind', 'collision', 'intro', 'rival',
+                'town', 'route101', 'lab', 'clock', 'rescued', 'pokemon_get', 'party_count',
+                'objective', 'script_status', 'pending_type', 'pending_action', 'pending_sequence',
+                'pending_resource', 'host_lock'}
 
 
 def require(condition, message):
@@ -27,10 +33,16 @@ def validate(matrix):
             'unsupported matrix schema/version')
     require(matrix.get('source') == {'repository': 'illetyus/pokezumrut-vanillaplus', 'commit': PIN},
             'source provenance mismatch')
-    raw = (ROOT / 'tests/r19_replay_probe.c').read_bytes().replace(b'\r\n', b'\n')
+    source = matrix.get('probe_source', {})
+    require(type(source) is dict and source.get('path') in RECIPES, 'unsupported probe source')
+    raw = (ROOT / source['path']).read_bytes().replace(b'\r\n', b'\n')
     blob = hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest()
-    require(matrix.get('probe_source') == {'path': 'tests/r19_replay_probe.c', 'blob_sha': blob},
+    require(source == {'path': source['path'], 'blob_sha': blob},
             'probe source/recipe drift')
+    if source['path'] == 'tests/r19_story_probe.c':
+        require(type(matrix.get('inputs')) is dict and set(matrix['inputs']) == {'r2', 'r4'}
+                and all(type(v) is str and len(v) == 64 and all(c in '0123456789abcdef' for c in v)
+                        for v in matrix['inputs'].values()), 'missing source-generated fixture inputs')
     cases = matrix.get('cases')
     require(isinstance(cases, list) and 1 <= len(cases) <= 128, 'invalid cases count')
     ids = set()
@@ -38,25 +50,56 @@ def validate(matrix):
         identity = case.get('id')
         require(isinstance(identity, str) and identity and identity not in ids, 'duplicate/invalid case ID')
         ids.add(identity)
-        require(case.get('recipe') == 'synthetic-movement-v1', identity + ': unsupported recipe')
+        require(case.get('recipe') in RECIPES[source['path']], identity + ': unsupported recipe')
         commands = case.get('commands')
         require(isinstance(commands, list) and 1 <= len(commands) <= 4096, identity + ': invalid commands count')
         for index, command in enumerate(commands, 1):
-            require(isinstance(command, dict) and command.get('op') == 'step',
-                    f'{identity}: unsupported command {index}')
-            require(set(command) == {'op', 'direction'} and command['direction'] in DIRECTIONS,
-                    f'{identity}: invalid direction/command {index}')
+            require(isinstance(command, dict), f'{identity}: unsupported command {index}')
+            op = command.get('op')
+            if op == 'step':
+                require(case['recipe'] in ('synthetic-movement-v1', 'house-exit-v1')
+                        and set(command) == {'op', 'direction'} and command['direction'] in DIRECTIONS,
+                        f'{identity}: invalid direction/command {index}')
+            elif op == 'script_start':
+                value = command.get('script_id')
+                require(case['recipe'].startswith('opening-') and set(command) == {'op', 'script_id'}
+                        and type(value) is str and 1 <= len(value) <= 127
+                        and all(c.isascii() and (c.isalnum() or c == '_') for c in value),
+                        f'{identity}: invalid script command {index}')
+            elif op == 'script_run':
+                require(case['recipe'].startswith('opening-') and set(command) == {'op', 'budget'}
+                        and type(command['budget']) is int and 1 <= command['budget'] <= 4096,
+                        f'{identity}: invalid script budget {index}')
+            elif op == 'script_complete':
+                require(case['recipe'].startswith('opening-') and set(command) == {'op', 'type', 'action', 'value'}
+                        and all(type(command[k]) is int and 0 <= command[k] <= 65535 for k in ('type', 'action', 'value'))
+                        and 1 <= command['type'] <= 16, f'{identity}: invalid completion command {index}')
+            elif op in ('warp', 'connection', 'save_roundtrip'):
+                require(set(command) == {'op'} and (case['recipe'] == 'house-exit-v1' or
+                        (op == 'save_roundtrip' and case['recipe'].startswith('opening-'))),
+                        f'{identity}: invalid transition command {index}')
+            else:
+                raise ValueError(f'{identity}: unsupported command {index}')
         require(isinstance(case.get('expected'), list) and len(case['expected']) == len(commands) + 1,
                 identity + ': expected snapshot count mismatch')
         for expected in case['expected']:
             validate_expected(expected)
             observations = expected['observations']
-            require(set(observations) == {'x', 'y', 'kind', 'collision'}
-                    and all(type(v) is int for v in observations.values()), identity + ': invalid expected observation')
+            fields = {'x', 'y', 'kind', 'collision'} if case['recipe'] == 'synthetic-movement-v1' else STORY_FIELDS
+            require(set(observations) == fields and all(type(v) in (int, str, bool) for v in observations.values()),
+                    identity + ': invalid expected observation')
 
 
 def execute(probe, case, mode=None):
-    commands = ''.join(f"step {c['direction']}\n" for c in case['commands'])
+    lines = []
+    for c in case['commands']:
+        op = c['op']
+        if op == 'step': lines.append('step ' + c['direction'])
+        elif op == 'script_start': lines.append('script_start ' + c['script_id'])
+        elif op == 'script_run': lines.append('script_run ' + str(c['budget']))
+        elif op == 'script_complete': lines.append(f"script_complete {c['type']} {c['action']} {c['value']}")
+        else: lines.append(op)
+    commands = '\n'.join(lines) + '\n'
     try:
         result = subprocess.run([str(probe), case['recipe']] + ([mode] if mode else []), input=commands, text=True,
                                 capture_output=True, timeout=30, check=False)
@@ -90,12 +133,19 @@ def verify(case, actual):
                 f"{case['id']}: snapshot {index}, state hash: expected {expected['state_hash']}, actual {result['state_hash']}")
 
 
-def run(probe, matrix):
+def run(probe, matrix, inputs=None):
     validate(matrix)
+    if matrix.get('inputs'):
+        require(inputs is not None and set(inputs) == set(matrix['inputs']), 'required generated fixture inputs missing')
+        for name, path in inputs.items():
+            raw = path.read_bytes().replace(b'\r\n', b'\n')
+            require(hashlib.sha256(raw).hexdigest() == matrix['inputs'][name], 'generated source fixture drift: ' + name)
     for case in matrix['cases']:
         actual = execute(probe, case)
         verify(case, actual)
         require(actual == execute(probe, case), case['id'] + ': repeat execution differs')
+        if case['recipe'] != 'synthetic-movement-v1':
+            continue
         verify(case, execute(probe, case, '--transport-noise'))
         try:
             verify(case, execute(probe, case, '--persistent-noise'))
@@ -113,10 +163,17 @@ def run(probe, matrix):
         else:
             raise ValueError('command mutation was not detected')
     # The native boundary independently rejects commands not accepted by Python.
-    for bad in ('step diagonal\n', 'set_story_flag 1\n', 'step north extra\n'):
-        result = subprocess.run([str(probe), 'synthetic-movement-v1'], input=bad,
+    malformed_recipe = 'house-exit-v1' if matrix['probe_source']['path'] == 'tests/r19_story_probe.c' else 'synthetic-movement-v1'
+    for bad in ('step diagonal\n', 'set_story_flag 1\n', 'step north extra\n', '\n'):
+        result = subprocess.run([str(probe), malformed_recipe], input=bad,
                                 text=True, capture_output=True, timeout=30, check=False)
         require(result.returncode != 0, 'native probe accepted malformed command')
+    if matrix['probe_source']['path'] == 'tests/r19_story_probe.c':
+        for bad in ('script_complete 16 2 0\n', 'script_start UnknownScript\n',
+                    'script_start LittlerootTown_EventScript_StepOffTruckMale\nscript_run 4096\nscript_complete 16 4 0\n'):
+            result = subprocess.run([str(probe), 'opening-male-v1'], input=bad,
+                                    text=True, capture_output=True, timeout=30, check=False)
+            require(result.returncode != 0, 'source script accepted missing/wrong request completion')
     print(f"R19 ordered production replay: {len(matrix['cases'])} cases, "
           f"{sum(len(c['expected']) for c in matrix['cases'])} observations PASS")
 
@@ -125,9 +182,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--probe', type=Path, required=True)
     parser.add_argument('--matrix', type=Path, default=MATRIX)
+    parser.add_argument('--r2-input', type=Path)
+    parser.add_argument('--r4-input', type=Path)
     args = parser.parse_args()
     try:
-        run(args.probe.resolve(), json.loads(args.matrix.read_text()))
+        inputs = {'r2': args.r2_input, 'r4': args.r4_input} if args.r2_input and args.r4_input else None
+        run(args.probe.resolve(), json.loads(args.matrix.read_text()), inputs)
     except (ValueError, OSError, subprocess.TimeoutExpired) as error:
         print(f'R19 replay FAIL: {error}', file=sys.stderr)
         return 1
