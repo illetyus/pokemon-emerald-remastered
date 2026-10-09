@@ -912,8 +912,10 @@ R19-I5 VERIFIED_COMPLETE at ff8858d0; workflow 37958197475:
 5 targeted / 80 full CTest, 34 targeted / 362 full Python/source PASS.
 R19-I6 VERIFIED_COMPLETE at 7c86759c; workflow 37960402440:
 6/81 CTest, 38/366 Python/source PASS; all 17 workflows terminal-success.
-Current checkpoint: **R19-I7**, VERIFYING R6/R7/R14/R15 asset audit CI.
-R19-I8 remains NOT_STARTED until this checkpoint passes.
+R19-I7 VERIFIED_COMPLETE at e31d5666; workflow 37961436672:
+6/81 CTest, 44/372 Python/source, 171 actual asset audits, zero skips.
+Current checkpoint: **R19-I8**, VERIFYING generated metadata/hash integrity CI.
+R19-I9 remains NOT_STARTED until this checkpoint passes.
 [Inventory](R19_REGRESSION_INVENTORY.md), [contract](R19_REPLAY_CONTRACT.md),
 [evidence](R19_REGRESSION_IMPLEMENTATION.md).
 

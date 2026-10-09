@@ -338,7 +338,12 @@ source gates. Next after terminal-success: R19-I7 manifest audit orchestration.
 
 ## R19-I7 — Asset manifest/source audit orchestration
 
-State: VERIFYING; I8 NOT_STARTED until exact-head component CI succeeds.
+State: VERIFIED_COMPLETE at e31d5666da93e310c10982b58d5ba59ac6af8e5f.
+Workflow 37961436672 jobs 113924967799/113924968452 completed/success:
+6/81 CTest, 44/372 Python/source; explicit 52/21/24/74 asset audits, zero skips.
+All seven published blobs match. PR CodeQL was still running at I8 recovery;
+its terminal success remains mandatory before the phase final merge gate.
+Subsequent pre-publish check: all 17 I7 exact-head workflows completed/success.
 Recovery: main unchanged, eleven ahead / zero behind, draft PR #23; I6 all
 17 workflows terminal-success. Canonical and all 15 owner test modules re-read.
 RED: the new six orchestration regressions failed importing the absent module.
@@ -362,3 +367,32 @@ The partial local cache cannot execute all owner source audits; actual hosted
 171-test component execution is mandatory. Expected exact CI: 6/81 CTest,
 44/372 Python/source plus explicit asset components 52+21+24+74=171, zero skips.
 Next after terminal-success: R19-I8 generated package/manifest/hash integrity.
+
+
+## R19-I8 — Repeated clean metadata generation and corruption integrity
+
+State: VERIFYING; I9 NOT_STARTED until actual component CI succeeds.
+Recovery: main unchanged, twelve ahead / zero behind, draft PR #23; I7 native,
+source and actual 171 asset components passed. Canonical docs and each owner
+package generator re-read. RED: missing package integrity module import failed.
+
+Versioned package_integrity.json pins the four existing owner generator blobs
+and all 12 staged output names. Entry point creates two fresh temporary metadata
+packages per owner (R6 3, R7 5, R14 2, R15 2 files), compares every byte SHA-256,
+checks exact complete file coverage and retains digests in an actual receipt.
+R14/R15 regenerated catalog/header bytes must match committed owner outputs.
+Each of the twelve files is deliberately corrupted, must fail its own checksum,
+is restored and must verify again. Empty/missing/extra files, unsafe paths,
+symlinks and clean-generation drift cannot report integrity success.
+
+All staging/negative mutations are temporary local output; no repository source,
+vendor or committed expectations are rewritten. Receipt keeps no temp paths or
+timestamps and does not certify private meshes/textures/audio, cook, UE or device.
+R15 package here is the source catalog/header, not a private PCM package. Existing
+R15 synthetic PCM corruption/loop/provenance owner tests remain in I7 coverage.
+
+Six local integrity regressions and all 50 targeted R19 Python checks PASS.
+Local partial source cache cannot regenerate the complete owners; actual hosted
+four-owner, eight-clean-generation, twelve-corruption execution is mandatory.
+Expected exact CI: 6/81 CTest, 50/378 Python/source, 171 asset audits and all
+four package receipts. Next after terminal-success: R19-I9 Unreal smoke contract.
