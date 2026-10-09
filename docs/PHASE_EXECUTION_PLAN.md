@@ -906,8 +906,10 @@ R19-I3 VERIFIED_COMPLETE at de446656; workflow 37955312626:
 3 targeted / 78 full CTest, 22 targeted / 350 full Python/source PASS.
 R19-I4 VERIFIED_COMPLETE at 33945600; workflow 37956206672:
 4 targeted / 79 full CTest, 28 targeted / 356 full Python/source PASS.
-Current checkpoint: **R19-Closure-2**, VERIFYING connection command contract/roster.
-R19-I5 remains NOT_STARTED until this closure passes.
+R19-Closure-2 VERIFIED_COMPLETE at 46611975; workflow 37956783169:
+4 targeted / 79 full CTest, 29 targeted / 357 full Python/source PASS.
+Current checkpoint: **R19-I5**, VERIFYING encounter seed/runtime matrix CI.
+R19-I6 remains NOT_STARTED until this checkpoint passes.
 [Inventory](R19_REGRESSION_INVENTORY.md), [contract](R19_REPLAY_CONTRACT.md),
 [evidence](R19_REGRESSION_IMPLEMENTATION.md).
 

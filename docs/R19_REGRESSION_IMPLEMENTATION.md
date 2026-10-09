@@ -212,7 +212,10 @@ seed/scenario matrix.
 
 ## R19-Closure-2 — Versioned transition command roster
 
-State: VERIFYING before R19-I5 implementation.
+State: VERIFIED_COMPLETE at 4661197566efd8ac9785d99cfa0756c75514c3f8.
+Workflow 37956783169 and jobs 113909206167/113909205768 completed/success:
+4/79 CTest, 29/357 Python/source gates. All six published blobs match;
+all 17 exact-head workflows including CodeQL reached terminal success.
 I5 contract recovery found the already tested I3 connection command absent from
 the P2 machine-readable command roster. No runtime or fixture result changed.
 RED: the new versioned-command guard fails with {'connection'} undeclared.
@@ -221,3 +224,53 @@ the roster guard, preserving version 1 and every immutable replay expectation.
 Contract prose now explicitly binds warp/connection to the pending source event.
 Local 29 R19 Python tests PASS. Expected exact CI: 4/79 CTest, 29/357 Python/
 source gates. After terminal-success, resume R19-I5 encounter seed/scenario matrix.
+
+
+## R19-I5 — Representative encounter seed/scenario matrix
+
+State: VERIFYING; R19-I6 NOT_STARTED until exact-head CI succeeds.
+Recovery: unchanged main, branch nine ahead / zero behind, draft PR #23;
+canonical docs, contract, active source/fixtures and exact closure CI re-read.
+Primary source re-check: pinned src/wild_encounter.c blob
+5e5f3939fea73233b5ccff609eb70c805d7a7a51 and src/phase9_wild_ecosystem.c.
+Accepted R12 generator/catalog, core runtime and source tests remain authoritative.
+RED: active encounter snapshots were rejected and the versioned matrix was absent.
+
+32 immutable cases / 224 ordered commands / 256 snapshots use eight scenarios
+at seeds 0, 1, 0x12345678 and 0xFFFFFFFF:
+Route101 land, Repel expiry, disabled land, Route102 water, Old/Good/Super Rod
+Route102 generation, Route111 Rock Smash. Setup uses an explicit synthetic valid
+level-20 Treecko/zeroed VP save and source-generated R12 map context.
+No source gameplay, platform behavior or persistent layout is changed.
+These are trigger/generation calls, not an actual R4 walk, fishing minigame,
+battle loop or Unreal/device proof. Broader ability/outbreak/roamer/special-map
+tests remain in existing R12 coverage; this matrix claims representative scenarios.
+
+The native probe serializes every declared runtime scalar/array, RNG state/calls,
+all 64 species bag slots and three-by-two roamer history. Result scalar fields
+and complete 100-byte Pokemon packets use the existing R11 party codec.
+Hash validation enforces exact field rosters, integer bounds and array lengths.
+Header field coverage guards make added runtime/result fields require review.
+No sizeof(struct), raw struct memcmp, padding or host pointer enters a hash.
+
+Reviewed source endpoints before freezing immutable expectations:
+four initial land/water immunity steps consume zero RNG; seed-zero fifth steps
+produce a regular encounter; Repel expiry consumes zero RNG and persists zero;
+disabled calls produce no encounter/RNG; fishing retains Repel=100 and produces
+rod-specific post-minigame results; all occurring levels are within 5..35.
+Observed occurrences across seeds: land 5, Repel 3, disabled 0, water 3,
+Old/Good/Super Rod 16 each, Rock Smash 6. These are fixture evidence counts.
+
+Each case runs in fresh processes twice, retains hashes under transport metadata
+noise and rejects native runtime bag-slot mutation at snapshot 0 / encounter.
+Malformed typed commands/rods, unsigned seed overflow/bool values, missing/extra
+runtime fields and truncated bag/history fail. Contract declares the new typed
+fishing/Rock Smash owners; the command-roster guard includes encounter fixtures.
+Expectations have no verification/CI bless path.
+
+Strict local C99 Werror build against verified full core inputs, actual 32/256
+replay/negative probes, earlier 1/8 movement and 3/141 source story matrices,
+and all 34 targeted Python checks PASS.
+Expected exact hosted totals: 5 targeted / 80 full CTest and 34 targeted /
+362 full Python/source gates. Next after terminal-success: R19-I6 battle
+seed/scenario matrix including accepted R16 deltas.

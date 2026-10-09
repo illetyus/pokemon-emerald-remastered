@@ -56,6 +56,14 @@
     "connection": {
       "destination": "resolved source fixture connection only",
       "owner": "remaster_emerald_apply_connection_transition"
+    },
+    "encounter_fishing": {
+      "rod": "typed rod 1..3 matching the named recipe",
+      "owner": "remaster_emerald_encounter_fishing; explicit post-minigame generation boundary"
+    },
+    "encounter_rock_smash": {
+      "context": "named source catalog map recipe",
+      "owner": "remaster_emerald_encounter_rock_smash"
     }
   },
   "snapshot": {

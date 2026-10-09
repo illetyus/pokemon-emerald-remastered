@@ -1225,3 +1225,16 @@ add_test(NAME r19_source_story_world_replay COMMAND
 add_test(NAME r19_save_compatibility_matrix COMMAND
     ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_save_matrix.py
     --build-dir ${CMAKE_CURRENT_BINARY_DIR} --ctest ${CMAKE_CTEST_COMMAND})
+
+# R19-I5 pins full transient encounter state and RNG across representative seeds.
+add_executable(r19_encounter_probe tests/r19_encounter_probe.c)
+target_link_libraries(r19_encounter_probe PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(r19_encounter_probe PRIVATE /W4)
+else()
+    target_compile_options(r19_encounter_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r19_encounter_seed_matrix COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_replay.py
+    --probe $<TARGET_FILE:r19_encounter_probe>
+    --matrix ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/r19/encounter.json)

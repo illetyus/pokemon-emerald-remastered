@@ -15,12 +15,18 @@ ROOT = Path(__file__).resolve().parents[1]
 PIN = '70db90c9077aed1272e746fc2537d9f12b95a91c'
 MATRIX = ROOT / 'tests/fixtures/r19/movement.json'
 DIRECTIONS = ('south', 'north', 'west', 'east')
+ENCOUNTER_RECIPES = ('land-route101-v1', 'repel-expiry-v1', 'disabled-route101-v1', 'water-route102-v1',
+                     'old-rod-route102-v1', 'good-rod-route102-v1', 'super-rod-route102-v1', 'rocks-route111-v1')
 RECIPES = {'tests/r19_replay_probe.c': ('synthetic-movement-v1',),
-           'tests/r19_story_probe.c': ('opening-male-v1', 'opening-female-v1', 'house-exit-v1')}
+           'tests/r19_story_probe.c': ('opening-male-v1', 'opening-female-v1', 'house-exit-v1'),
+           'tests/r19_encounter_probe.c': ENCOUNTER_RECIPES}
 STORY_FIELDS = {'x', 'y', 'map_group', 'map_num', 'kind', 'collision', 'intro', 'rival',
                 'town', 'route101', 'lab', 'clock', 'rescued', 'pokemon_get', 'party_count',
                 'objective', 'script_status', 'pending_type', 'pending_action', 'pending_sequence',
                 'pending_resource', 'host_lock'}
+ENCOUNTER_FIELDS = {'occurred', 'repel_wore_off', 'kind', 'area', 'rod', 'level', 'nature', 'gender',
+                    'ability_num', 'species', 'modified_rate', 'rng_calls_before', 'rng_calls_after',
+                    'pokemon', 'repel', 'map_group', 'map_num', 'immunity', 'rng_state', 'rng_calls'}
 
 
 def require(condition, message):
@@ -51,6 +57,11 @@ def validate(matrix):
         require(isinstance(identity, str) and identity and identity not in ids, 'duplicate/invalid case ID')
         ids.add(identity)
         require(case.get('recipe') in RECIPES[source['path']], identity + ': unsupported recipe')
+        if source['path'] == 'tests/r19_encounter_probe.c':
+            require(type(case.get('seed')) is int and 0 <= case['seed'] <= 0xFFFFFFFF,
+                    identity + ': explicit unsigned seed required')
+        else:
+            require('seed' not in case, identity + ': unexpected seed for inactive RNG')
         commands = case.get('commands')
         require(isinstance(commands, list) and 1 <= len(commands) <= 4096, identity + ': invalid commands count')
         for index, command in enumerate(commands, 1):
@@ -78,6 +89,17 @@ def validate(matrix):
                 require(set(command) == {'op'} and (case['recipe'] == 'house-exit-v1' or
                         (op == 'save_roundtrip' and case['recipe'].startswith('opening-'))),
                         f'{identity}: invalid transition command {index}')
+            elif op == 'encounter_step':
+                require(case['recipe'] in ENCOUNTER_RECIPES[:4] and set(command) == {'op'},
+                        f'{identity}: invalid encounter step {index}')
+            elif op == 'encounter_fishing':
+                rod_recipes = ENCOUNTER_RECIPES[4:7]
+                require(case['recipe'] in rod_recipes and set(command) == {'op', 'rod'}
+                        and type(command['rod']) is int and command['rod'] == rod_recipes.index(case['recipe']) + 1,
+                        f'{identity}: invalid fishing rod/command {index}')
+            elif op == 'encounter_rock_smash':
+                require(case['recipe'] == 'rocks-route111-v1' and set(command) == {'op'},
+                        f'{identity}: invalid Rock Smash command {index}')
             else:
                 raise ValueError(f'{identity}: unsupported command {index}')
         require(isinstance(case.get('expected'), list) and len(case['expected']) == len(commands) + 1,
@@ -85,9 +107,17 @@ def validate(matrix):
         for expected in case['expected']:
             validate_expected(expected)
             observations = expected['observations']
-            fields = {'x', 'y', 'kind', 'collision'} if case['recipe'] == 'synthetic-movement-v1' else STORY_FIELDS
-            require(set(observations) == fields and all(type(v) in (int, str, bool) for v in observations.values()),
-                    identity + ': invalid expected observation')
+            if case['recipe'] in ENCOUNTER_RECIPES:
+                pokemon = observations.get('pokemon')
+                require(set(observations) == ENCOUNTER_FIELDS
+                        and all(type(v) is int for k, v in observations.items() if k != 'pokemon')
+                        and (pokemon is None or (type(pokemon) is str and len(pokemon) == 200
+                             and all(c in '0123456789abcdef' for c in pokemon))),
+                        identity + ': invalid encounter observation')
+            else:
+                fields = {'x', 'y', 'kind', 'collision'} if case['recipe'] == 'synthetic-movement-v1' else STORY_FIELDS
+                require(set(observations) == fields and all(type(v) in (int, str, bool) for v in observations.values()),
+                        identity + ': invalid expected observation')
 
 
 def execute(probe, case, mode=None):
@@ -98,10 +128,12 @@ def execute(probe, case, mode=None):
         elif op == 'script_start': lines.append('script_start ' + c['script_id'])
         elif op == 'script_run': lines.append('script_run ' + str(c['budget']))
         elif op == 'script_complete': lines.append(f"script_complete {c['type']} {c['action']} {c['value']}")
+        elif op == 'encounter_fishing': lines.append('encounter_fishing ' + str(c['rod']))
         else: lines.append(op)
     commands = '\n'.join(lines) + '\n'
     try:
-        result = subprocess.run([str(probe), case['recipe']] + ([mode] if mode else []), input=commands, text=True,
+        result = subprocess.run([str(probe), case['recipe']] + ([str(case['seed'])] if 'seed' in case else [])
+                                + ([mode] if mode else []), input=commands, text=True,
                                 capture_output=True, timeout=30, check=False)
     except (OSError, subprocess.TimeoutExpired) as error:
         raise ValueError(f"{case['id']}: probe execution failed: {error}") from error
@@ -144,6 +176,15 @@ def run(probe, matrix, inputs=None):
         actual = execute(probe, case)
         verify(case, actual)
         require(actual == execute(probe, case), case['id'] + ': repeat execution differs')
+        if case['recipe'] in ENCOUNTER_RECIPES:
+            verify(case, execute(probe, case, '--transport-noise'))
+            try:
+                verify(case, execute(probe, case, '--runtime-noise'))
+            except ValueError as error:
+                require('snapshot 0' in str(error) and 'domain encounter' in str(error),
+                        'encounter runtime mutation failed at wrong boundary: ' + str(error))
+            else:
+                raise ValueError('encounter runtime mutation was not detected')
         if case['recipe'] != 'synthetic-movement-v1':
             continue
         verify(case, execute(probe, case, '--transport-noise'))
@@ -163,11 +204,20 @@ def run(probe, matrix, inputs=None):
         else:
             raise ValueError('command mutation was not detected')
     # The native boundary independently rejects commands not accepted by Python.
-    malformed_recipe = 'house-exit-v1' if matrix['probe_source']['path'] == 'tests/r19_story_probe.c' else 'synthetic-movement-v1'
+    first = matrix['cases'][0]
+    malformed_recipe = 'house-exit-v1' if matrix['probe_source']['path'] == 'tests/r19_story_probe.c' else first['recipe']
+    native_args = [str(probe), malformed_recipe] + ([str(first['seed'])] if 'seed' in first else [])
     for bad in ('step diagonal\n', 'set_story_flag 1\n', 'step north extra\n', '\n'):
-        result = subprocess.run([str(probe), malformed_recipe], input=bad,
+        result = subprocess.run(native_args, input=bad,
                                 text=True, capture_output=True, timeout=30, check=False)
         require(result.returncode != 0, 'native probe accepted malformed command')
+    if matrix['probe_source']['path'] == 'tests/r19_encounter_probe.c':
+        for recipe, bad in (('land-route101-v1', 'encounter_step extra\n'),
+                            ('old-rod-route102-v1', 'encounter_fishing 4\n'),
+                            ('rocks-route111-v1', 'encounter_rock_smash extra\n')):
+            result = subprocess.run([str(probe), recipe, '0'], input=bad,
+                                    text=True, capture_output=True, timeout=30, check=False)
+            require(result.returncode != 0, 'native encounter accepted invalid typed command')
     if matrix['probe_source']['path'] == 'tests/r19_story_probe.c':
         for bad in ('script_complete 16 2 0\n', 'script_start UnknownScript\n',
                     'script_start LittlerootTown_EventScript_StepOffTruckMale\nscript_run 4096\nscript_complete 16 4 0\n'):

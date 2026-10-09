@@ -93,3 +93,18 @@ This checkpoint certifies no full-game story playthrough, real UE executable,
 cooked asset package, physical Android result or BrowserStack result. Existing
 R18/environment/runtime stop rules remain unchanged.
 Next: R19-I1 — Input replay harness.
+
+
+## Active encounter matrix boundary (I5)
+
+The representative source-catalog matrix requires an explicit unsigned 32-bit
+seed and typed encounter_step, encounter_fishing or encounter_rock_smash command.
+Fishing rods match their named recipe and certify generation after the minigame;
+they do not claim actual minigame, movement/avatar or battle host execution.
+Full declared encounter runtime state uses version-1 explicit integer/array JSON:
+RNG state/calls, all 64 species bag slots, all bag/map/area/rod scalars, every roamer
+history/location field, immunity and previous behavior. Missing/extra fields or
+truncated arrays fail. Result Pokemon use the authoritative 100-byte R11 codec.
+Transient C layout/padding and transport counters remain excluded. New header
+members require serializer/fixture review. Broader R12 native/source checks stay
+in the full regression suite; the representative matrix does not claim all maps.
