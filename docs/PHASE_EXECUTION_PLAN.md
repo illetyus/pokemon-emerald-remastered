@@ -1070,3 +1070,17 @@ Then next is **R18-P2 — exact Unreal installation/tool verification**; P3 and
 actual compile/cook/APK remain NOT_STARTED at this P1 checkpoint. Source/host
 compiler readiness is not an actual UE or device pass. The post-R18 runtime STOP
 and later physical Android/BrowserStack/R19-device/R21/R22 boundaries remain.
+## Latest checkpoint — R18-P2 exact installed Unreal, 2026-10-11
+
+P1 checkpoint 4cf38a5f495c0135a21da65e09924dfa0b0441ec reached terminal
+success in all 17 workflows / 31 checks. P2 now verifies exact UE 5.8.3
+CL 58210709, its launcher identity and Build.version hash, plus actual bundled
+.NET 10.0.203, UBT help and UAT help execution (all exit 0). The owning
+[R18 environment audit](R18_ENVIRONMENT_AUDIT.md) records the actual evidence
+and the initial UAT argument correction. No game target compile, cook, APK or
+runtime success is inferred from this startup check.
+
+This named P2 checkpoint requires exact-HEAD terminal-success CI, then the next
+checkpoint is R18-P3 actual Android toolchain compatibility. New logs/caches
+remain under D:\Android. The post-R18 REAL UNREAL RUNTIME VALIDATION STOP and
+later physical Android/BrowserStack/R19-device/R21/R22 boundaries remain.

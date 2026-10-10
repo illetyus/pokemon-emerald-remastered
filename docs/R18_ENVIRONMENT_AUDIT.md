@@ -1,3 +1,43 @@
+# R18-P2 — Exact installed Unreal and actual tool startup
+
+State: **EXACT_ENGINE_AND_TOOL_STARTUP_VERIFIED**, observed 2026-10-11.
+The preceding P1 checkpoint `4cf38a5f495c0135a21da65e09924dfa0b0441ec`
+reached exact-HEAD terminal success: 17 workflows / 31 checks, all success.
+P2 actual-tool evidence was produced from that clean source HEAD.
+
+- Exact engine root: `D:\Unreal\UE_5.8.3\UE_5.8`.
+- Build.version: UE 5.8.3, CL 58210709, compatible CL 55116800,
+  promoted non-licensee build, branch `++UE5+Release-5.8`.
+- Build.version SHA256:
+  `eab58750e84719489f3ee0d42d05a533ceb357eb3ee511777e9408d27a85f43c`.
+- Epic launcher engine item UE_5.8 agrees with the exact root and
+  `5.8.3-58210709+++UE5+Release-5.8-Windows`; incomplete=false.
+- Bundled Windows .NET actually executed: **10.0.203**, exit 0.
+- Installed UnrealBuildTool.dll actually executed `-Help`, exit 0.
+- Installed AutomationTool.dll actually executed `-Help`, exit 0.
+- Windows batch entry points, installed build marker, UnrealEditor executable
+  and Android platform components are present. No editor launch or target
+  compilation is claimed by presence or help execution.
+
+The initial UAT batch invocation rejected its wrapper-only
+`-noturnkeyvariables` switch when it reached the AutomationTool parser (exit 2).
+The verified invocation used the bundled dotnet executable and installed UAT
+DLL directly, with no script-module compilation, and completed exit 0.
+This invocation error did not require an engine or project source change.
+
+Actual help logs and receipt remain private under
+`D:\Android\Evidence\R18\2026-10-11\p2-35078d72681c42e28be373772aced609`.
+Fresh per-invocation UAT log directories and process-local saved/cache selectors
+use D:\Android. Previously absent fixed UBT AppData directories are junctions
+into D:\Android\Caches\UEUserState; no existing user data was moved/replaced.
+The existing Unreal 5.5 user directory is preserved.
+
+P2 tool-startup acceptance is complete locally; this named docs checkpoint
+requires its own exact-HEAD terminal-success CI before **R18-P3**.
+P3 actual Android compatibility and I1 compile/I2 cook/I3 APK remain unverified.
+After accepted R18 and exact-main CI, STOP at REAL UNREAL RUNTIME VALIDATION.
+
+---
 # R18-P1 — Actual Windows prerequisite audit
 
 State: **LOCAL_PREREQUISITES_VERIFIED**. Named documentation checkpoint CI must
