@@ -890,11 +890,12 @@ The current user instruction authorizes applying the full agreed plan. Historica
 phase-only preparation restrictions above describe their earlier checkpoints.
 Canonical branch/PR/final-gate/main-CI rules and the R18 runtime stop remain.
 
-Main: `7e8d027d6c1f00677b0f270d56bfe7d4de83590d`, R8 PR #22.
+Main: `ab057754f97fc1d8f5e9396ff8499337bb533dc3`, R19 PR #23.
 R6 → R7 → R9 → R14 → R15 → R8 M1/M2 are VERIFIED_COMPLETE; each exact main CI
 reached terminal success before the next integration (including CodeQL).
 The versioned merge/CI ledger is in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md).
-R19 is active on `r19-regression-infrastructure` from that verified main.
+R19 source acceptance and M1/M2 are complete. R20 is active on
+`r20-production-polish` from the verified R19 main.
 Main workflow 37853379312: 8 targeted / 75 full CTest, 328 Python/source PASS;
 all 15 main workflows, including CodeQL 37853378547, completed successfully.
 R19-P1/P2 are VERIFIED_COMPLETE at `915fee92` / `605a8378`.
@@ -927,9 +928,13 @@ R19-Closure-3 VERIFIED_COMPLETE at 1bd0c356; workflow 38010794841:
 R19-V1/G1 pre-real source acceptance VERIFIED_COMPLETE.
 R19-D1 VERIFIED_COMPLETE at 1489aefd; workflow 38011198536:
 81 CTest, 400 Python, 171 assets; all 17 workflows / 30 check runs succeeded.
-Current checkpoint: **R19-F1**, source reconciliation COMPLETE; final CI VERIFYING.
-[Acceptance and runtime boundary](R19_REGRESSION_COMPLETION.md).
-M1 only after final-head required CI success; R20-P1 only after M2 exact-main success.
+R19-F1 VERIFIED_COMPLETE at 416f817c: workflow 38011903730, 81/400/171;
+all 17 workflows / 31 checks succeeded. PR #23 merged at ab057754.
+R19-M2 VERIFIED_COMPLETE: workflow 38012481196, actual 81/400/171;
+all 16 exact-main workflows / 29 checks including CodeQL succeeded.
+Current checkpoint: **R20-P1**, production-tree audit publication VERIFYING.
+[Production inventory and named gaps](R20_PRODUCTION_INVENTORY.md).
+[Accepted R19 source/runtime boundary](R19_REGRESSION_COMPLETION.md).
 [Inventory](R19_REGRESSION_INVENTORY.md), [contract](R19_REPLAY_CONTRACT.md),
 [evidence](R19_REGRESSION_IMPLEMENTATION.md).
 
@@ -997,7 +1002,8 @@ passed 8/75/328 and source guards. R8-D1 is VERIFIED_COMPLETE at `ddd3ce19`;
 workflow 37851617574 passed 8/75/328; all 16 workflows including CodeQL succeeded.
 R8-F1 is VERIFIED_COMPLETE at `ea582534`; all 16 final-head workflows succeeded. [Acceptance/runtime boundaries](R8_INPUT_COMPLETION.md).
 R8-M1 PR #22 merge and R8-M2 exact-main terminal-success are VERIFIED_COMPLETE.
-R19 is active; R20/R18 have not started.
+R19 pre-real source and integration gates are complete; R20-P1 is active.
+R18 has not started.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,
 R20 and R18; stop at the actual environment/runtime boundary. All deferred

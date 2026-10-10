@@ -2,9 +2,17 @@
 
 State: G1 VERIFIED_COMPLETE for the roadmap's pre-real-Unreal source boundary;
 D1 VERIFIED_COMPLETE at 1489aefd5ae0d486826c8f44b04be8307f4c6e45.
-F1 independent source reconciliation COMPLETE; final publication CI VERIFYING.
-M1/M2 NOT_STARTED until the final-head required checks pass.
-Branch: r19-regression-infrastructure. Draft PR: #23.
+F1/M1/M2 VERIFIED_COMPLETE for the pre-real source boundary.
+Final branch head: 416f817c71a60ac485178d2b2f546cd82b036e11.
+Branch: r19-regression-infrastructure. PR #23 merged at
+ab057754f97fc1d8f5e9396ff8499337bb533dc3.
+Final workflow 38011903730 / job 114093555507: 81 CTest, 400 Python,
+171 assets; all 17 workflows / 31 checks succeeded.
+Exact-main workflow 38012481196 / job 114095342449: actual 81/400/171,
+all seven components and zero skips. All 16 main workflows / 29 check runs
+including four CodeQL analyses reached terminal-success. The merged tree equals
+the accepted final branch tree. This integration record supersedes the pending
+publication conditions recorded historically below. Next phase: R20-P1.
 Baseline main: 7e8d027d6c1f00677b0f270d56bfe7d4de83590d.
 Accepted implementation/source head: 1bd0c3562174138f28a492910b5bb77a7aac3df1.
 Source tree: 825cac710b72d8cac6a8564b10cba818ef030ebb.

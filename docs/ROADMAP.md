@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
-Date: 2026-10-08
-Status: **R0-R5, R10-R13, R16/R17 and R6/R7/R9/R14/R15/R8 pre-real-UE source phases verified complete on main; R19 regression infrastructure active. Actual engine/assets/device obligations remain open.**
+Date: 2026-10-10
+Status: **R0-R5, R10-R13, R16/R17 and R6/R7/R9/R14/R15/R8/R19 pre-real-UE source phases verified complete on main; R20 production polish active. Actual engine/assets/device obligations remain open.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -984,9 +984,13 @@ R19-Closure-3 VERIFIED_COMPLETE at 1bd0c356; workflow 38010794841:
 R19-V1/G1 pre-real source acceptance VERIFIED_COMPLETE.
 R19-D1 VERIFIED_COMPLETE at 1489aefd; workflow 38011198536:
 81 CTest, 400 Python, 171 assets; all 17 workflows / 30 check runs succeeded.
-Current checkpoint: **R19-F1**, source reconciliation COMPLETE; final CI VERIFYING.
-[Acceptance and runtime boundary](R19_REGRESSION_COMPLETION.md).
-M1 only after final-head required CI success; R20-P1 only after M2 exact-main success.
+R19-F1 VERIFIED_COMPLETE at 416f817c: workflow 38011903730, 81/400/171;
+all 17 workflows / 31 checks succeeded. PR #23 merged at ab057754.
+R19-M2 VERIFIED_COMPLETE: workflow 38012481196, actual 81/400/171;
+all 16 exact-main workflows / 29 checks including CodeQL succeeded.
+Current checkpoint: **R20-P1**, production-tree audit publication VERIFYING.
+[Production inventory and named gaps](R20_PRODUCTION_INVENTORY.md).
+[Accepted R19 source/runtime boundary](R19_REGRESSION_COMPLETION.md).
 [Contract](R19_REPLAY_CONTRACT.md) / [checkpoint evidence](R19_REGRESSION_IMPLEMENTATION.md).
 No actual runtime/local asset obligation was closed by these source merges.
 
