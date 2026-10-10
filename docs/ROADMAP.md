@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
 Date: 2026-10-10
-Status: **R0-R5, R10-R13, R16/R17 and R6/R7/R9/R14/R15/R8/R19 pre-real-UE source phases verified complete on main; R20 production source acceptance VERIFIED_COMPLETE; final publication/integration gates in progress. Actual engine/assets/device obligations remain open.**
+Status: **R0-R5, R10-R13, R16/R17 and R6/R7/R9/R14/R15/R8/R19 pre-real-UE source phases verified complete on main; R20 production source and PR/main integration VERIFIED_COMPLETE; R18-P1 EXTERNAL_ENV_REQUIRED. Actual engine/assets/device obligations remain open.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -1031,3 +1031,18 @@ Current build/prerequisite instructions: [BUILD.md](BUILD.md),
 Older phase completion snapshots are historical; the verified PR/main integration
 ledger in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md) supersedes their pending
 merge statements without promoting actual asset/engine/device evidence.
+
+## Latest integration/environment resume — 2026-10-10
+
+R20-D1/F1 VERIFIED_COMPLETE at 56e14d74: actual 81/453/171 + 53 R20 tests,
+18 workflows / 32 check runs succeeded. PR #24 merged at 466aa182;
+R20-M2 VERIFIED_COMPLETE: main workflow 38039922255 and all 17 workflows /
+30 check runs terminal-success; accepted/main trees identical. Older R20
+publication/integration-pending snapshots above are historical.
+
+Current checkpoint: **R18-P1 — EXTERNAL_ENV_REQUIRED / BLOCKED**. Selected
+cloud environment provides no actual project-PC/verified UE/Android toolchain
+control. [Versioned environment audit](R18_ENVIRONMENT_AUDIT.md) records actual
+observations and precise resume requirements. R18 compile/cook/APK is NOT_STARTED.
+Stop here; no automatic runtime, physical Android, BrowserStack, final matrix,
+R21 or R22. Resume only by re-auditing the real attached project-PC environment.

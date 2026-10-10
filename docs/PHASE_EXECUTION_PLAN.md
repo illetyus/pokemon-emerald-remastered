@@ -1035,3 +1035,20 @@ R20-I5 canonical documentation links [BUILD.md](BUILD.md) and the production
 package contract. The R6/R7/R9/R14/R15 completion documents preserve their
 historical implementation snapshots under explicit superseding integration
 banners; old per-chat permission restrictions do not govern current execution.
+
+# Latest resume — R18-P1 actual environment boundary, 2026-10-10
+
+R20-D1/F1 VERIFIED_COMPLETE at 56e14d74: actual 81/453/171 + 53 targeted,
+18 workflows / 32 checks terminal-success. R20-M1 PR #24 merged at 466aa182;
+R20-M2 verified identical accepted/main tree and all 17 workflows / 30 checks,
+including actual main R20 workflow 38039922255 / job 114177936315.
+R20 source/integration gates are complete. Historical pending snapshots above
+are superseded by this live integration evidence.
+
+CURRENT_STATE: **R18-P1 — EXTERNAL_ENV_REQUIRED / BLOCKED**.
+[Actual environment audit](R18_ENVIRONMENT_AUDIT.md) is the owning checkpoint.
+Cloud Linux lacks project-PC control, accessible verified UE 5.8.3 and Android
+SDK/NDK/JDK setup. No actual engine/build/device operation ran. R18-P2 onward
+remains NOT_STARTED; source-only CI cannot close this actual gate. Stop at this
+exact checkpoint, resume P1 only with the real attached environment, and retain
+the later REAL UNREAL RUNTIME VALIDATION / physical-device STOP contract.
