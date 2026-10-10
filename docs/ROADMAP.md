@@ -988,7 +988,9 @@ R19-F1 VERIFIED_COMPLETE at 416f817c: workflow 38011903730, 81/400/171;
 all 17 workflows / 31 checks succeeded. PR #23 merged at ab057754.
 R19-M2 VERIFIED_COMPLETE: workflow 38012481196, actual 81/400/171;
 all 16 exact-main workflows / 29 checks including CodeQL succeeded.
-Current checkpoint: **R20-P1**, production-tree audit publication VERIFYING.
+R20-P1 VERIFIED_COMPLETE at a7db2bbb (four docs only; exact publication verified).
+Current checkpoint: **R20-I1**, historical boundary/source CI VERIFYING.
+[Named implementation evidence](R20_PRODUCTION_IMPLEMENTATION.md).
 [Production inventory and named gaps](R20_PRODUCTION_INVENTORY.md).
 [Accepted R19 source/runtime boundary](R19_REGRESSION_COMPLETION.md).
 [Contract](R19_REPLAY_CONTRACT.md) / [checkpoint evidence](R19_REGRESSION_IMPLEMENTATION.md).

@@ -1,7 +1,9 @@
 # R20 — Production-tree inventory
 
 Date: 2026-10-10
-Checkpoint: R20-P1, source audit COMPLETE; versioned publication VERIFYING.
+Checkpoint: R20-P1 VERIFIED_COMPLETE at a7db2bbb07e2cfdbf0021db9949b3c6de8007881.
+Exact four-doc scope and published Git blobs verified; implementation work is
+tracked in R20_PRODUCTION_IMPLEMENTATION.md.
 Branch: r20-production-polish.
 Baseline main: ab057754f97fc1d8f5e9396ff8499337bb533dc3.
 Baseline tree: 05df5b0099a258d00984afdaff9f860a58cfc117.

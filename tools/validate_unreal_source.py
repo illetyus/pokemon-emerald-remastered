@@ -27,6 +27,13 @@ def main() -> int:
         errors,
     )
 
+    # R20: retain the original R0 visual/input reference outside the runtime module.
+    for filename in ("R0HUD.h", "R0HUD.cpp", "R0PlayerController.h", "R0PlayerController.cpp"):
+        require(not (MODULE / filename).exists(),
+                f"historical R0 presentation must not compile in production: {filename}", errors)
+        require((ROOT / "experiments" / "unreal-r0-reference" / filename).is_file(),
+                f"missing preserved R0 reference: {filename}", errors)
+
     expected_embeds = {
         "RemasterCoreEmbed.cpp": "../../../core/src/core.c",
         "RemasterPlatformEmbed.cpp": "../../../core/src/platform.c",
