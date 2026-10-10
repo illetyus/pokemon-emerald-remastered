@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
 Date: 2026-10-10
-Status: **R0-R5, R10-R13, R16/R17 and R6/R7/R9/R14/R15/R8/R19 pre-real-UE source phases verified complete on main; R20 production source acceptance VERIFIED_COMPLETE; final publication/integration gates in progress. Actual engine/assets/device obligations remain open.**
+Status: **R0-R5, R10-R13, R16/R17 and R6/R7/R9/R14/R15/R8/R19 pre-real-UE source phases verified complete on main; R20 production source and PR/main integration VERIFIED_COMPLETE; R18-P1 EXTERNAL_ENV_REQUIRED. Actual engine/assets/device obligations remain open.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -1031,3 +1031,94 @@ Current build/prerequisite instructions: [BUILD.md](BUILD.md),
 Older phase completion snapshots are historical; the verified PR/main integration
 ledger in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md) supersedes their pending
 merge statements without promoting actual asset/engine/device evidence.
+
+## Latest integration/environment resume — 2026-10-10
+
+R20-D1/F1 VERIFIED_COMPLETE at 56e14d74: actual 81/453/171 + 53 R20 tests,
+18 workflows / 32 check runs succeeded. PR #24 merged at 466aa182;
+R20-M2 VERIFIED_COMPLETE: main workflow 38039922255 and all 17 workflows /
+30 check runs terminal-success; accepted/main trees identical. Older R20
+publication/integration-pending snapshots above are historical.
+
+Current checkpoint: **R18-P1 — EXTERNAL_ENV_REQUIRED / BLOCKED**. Selected
+cloud environment provides no actual project-PC/verified UE/Android toolchain
+control. [Versioned environment audit](R18_ENVIRONMENT_AUDIT.md) records actual
+observations and precise resume requirements. R18 compile/cook/APK is NOT_STARTED.
+Stop here; no automatic runtime, physical Android, BrowserStack, final matrix,
+R21 or R22. Resume only by re-auditing the real attached project-PC environment.
+
+## Latest resume — R18-P1 native Windows preparation, 2026-10-11
+
+The earlier cloud-only EXTERNAL_ENV_REQUIRED boundary is superseded by actual
+project-PC access and completed native Windows prerequisite preparation.
+R18-P1 **LOCAL_PREREQUISITES_VERIFIED**: complete isolated source worktree,
+accepted vendor tree, Microsoft-signed SDK/Build Tools installs (both exit 0),
+real MSVC and Clang-adapter C99/C++17 compile/run, and required tool versions.
+All new work uses D:\Android with only the explicitly approved mandatory
+Microsoft system component exception on C:. See the owning
+[R18 environment audit](R18_ENVIRONMENT_AUDIT.md) for actual paths/versions and
+compiler family-directory versus binary-patch distinction.
+
+This named docs checkpoint still requires its own exact-HEAD terminal-success CI.
+Then next is **R18-P2 — exact Unreal installation/tool verification**; P3 and
+actual compile/cook/APK remain NOT_STARTED at this P1 checkpoint. Source/host
+compiler readiness is not an actual UE or device pass. The post-R18 runtime STOP
+and later physical Android/BrowserStack/R19-device/R21/R22 boundaries remain.
+## Latest checkpoint — R18-P2 exact installed Unreal, 2026-10-11
+
+P1 checkpoint 4cf38a5f495c0135a21da65e09924dfa0b0441ec reached terminal
+success in all 17 workflows / 31 checks. P2 now verifies exact UE 5.8.3
+CL 58210709, its launcher identity and Build.version hash, plus actual bundled
+.NET 10.0.203, UBT help and UAT help execution (all exit 0). The owning
+[R18 environment audit](R18_ENVIRONMENT_AUDIT.md) records the actual evidence
+and the initial UAT argument correction. No game target compile, cook, APK or
+runtime success is inferred from this startup check.
+
+This named P2 checkpoint requires exact-HEAD terminal-success CI, then the next
+checkpoint is R18-P3 actual Android toolchain compatibility. New logs/caches
+remain under D:\Android. The post-R18 REAL UNREAL RUNTIME VALIDATION STOP and
+later physical Android/BrowserStack/R19-device/R21/R22 boundaries remain.
+
+## Latest checkpoint — R18-P3 actual Android validation, 2026-10-11
+
+P2 exact HEAD f4b5cfdbdce0f902c69d7123f2e3377720b6b2ef reached all
+17 workflows / 31 checks completed success. P3 now has actual UBT Android VALID
+r27c and UAT Turnkey Android Status=Valid evidence, with the selected D:\Android
+SDK/NDK and Temurin21 process. Genuine UE-selected Android Studio Koala was
+installed on D: after the initial Invalid-host result; official archive hash
+and Google launcher signature were verified. No device/update request was made.
+
+The Windows JDK CRLF parser defect was reproduced before its minimum fix; all
+13 relevant preflight regression tests pass with zero skips. The owning
+[R18 environment audit](R18_ENVIRONMENT_AUDIT.md) records evidence, rejected
+initial results and presence/validation/actual-target distinctions. This named
+source/docs checkpoint requires exact-HEAD terminal-success CI, then Windows
+R19/R20 source reproduction precedes I1 actual production compile. Compile,
+cook, APK and runtime remain unverified. The post-R18 runtime STOP remains.
+
+## R18-I1 preparation — Windows diagnostic path closure, 2026-10-11
+
+P3 exact commit 9e4e6ff6c7fe16cba0464fcbd8714e68e68b8c5b reached all
+17 workflows / 31 checks completed success. First actual Windows source run:
+MSVC build and81 CTests passed with zero failures/skips; Python component stopped
+at a canonical-path diagnostic mismatch. The minimum script error formatting
+closure passed all21 relevant converter tests and preserves vendor/gameplay.
+
+The next failfast Python probe reached test84 before Windows denied its real
+symlink negative fixture with WinError1314. Native elevation is required; the
+test will not be skipped and global security settings were not changed. See the
+[R18 environment audit](R18_ENVIRONMENT_AUDIT.md) for rejected/accepted evidence.
+This preparation closure needs exact-HEAD CI, then a fresh ordered source run.
+Actual I1 production compile remains NOT_STARTED; full-source/compile/cook/APK
+acceptance and later runtime STOP boundaries are not advanced by these probes.
+## R18-I1 preparation — Windows audio catalog closure, 2026-10-11
+
+Previous preparation HEAD947b51697c5d4aae02300f4aa10ff3165eb00e2e passed
+all17 workflows/31 checks. The elevated fresh Windows source run passed81
+CTests and real symlink fixtures; Python stopped at test114 on source audio
+catalog Windows path separators. A single relative-path as_posix() fix passed
+all7 relevant source regressions with zero skips and reproduces checked-in
+catalog/header output. Vendor/audio/gameplay and acceptance boundaries remain.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md) for failed/green evidence. This named
+closure requires its own exact-HEAD CI and a fresh ordered Windows source run.
+Actual I1 compile, cook, APK and full source acceptance remain unverified.

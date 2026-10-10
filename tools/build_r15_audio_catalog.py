@@ -42,7 +42,7 @@ def build():
         songs.append({'source_id': i, 'identity': f'song.{i}', 'source_symbol': symbol,
             'constant_aliases': sorted(names.get(i, [])), 'category': category,
             'source_player': int(player), 'source_group': int(group),
-            'source_files': [{'path':str(p.relative_to(VENDOR)), 'sha256':sha(p)} for p in files],
+            'source_files': [{'path':p.relative_to(VENDOR).as_posix(), 'sha256':sha(p)} for p in files],
             'original': 'silent' if i==0 else 'missing_local_render',
             'modern': 'silent' if i==0 else 'missing_local_render',
             'loop': {'status':'requires_rendered_frame_metadata' if category=='music' else 'one_shot',
