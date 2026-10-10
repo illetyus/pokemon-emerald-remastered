@@ -50,7 +50,9 @@ guards, then R20-I2. M1/M2 remain NOT_STARTED.
 
 ## R20-I2 — Required production dependency surface
 
-State: VERIFYING publication/source CI.
+State: VERIFIED_COMPLETE at f842514922b7ea6a85910da7bac4954db43adaf8.
+Exact workflow 38014432391 / job 114101460871: actual 81/400/171, seven components
+and zero skips. All 16 exact-head workflows succeeded; all five blobs match.
 The complete Unreal module source/header scan found no JsonUtilities or Projects
 consumer; only Build.cs declared them. Remove those two explicit dependencies,
 retain every currently consumed module, and document public source tools versus
@@ -60,3 +62,23 @@ Local existing Unreal source authority guard passes with the retained modules.
 The dependency removal is a reversible source cleanup; no mirror unit test is
 added. Full portable/source CI is required, and actual Unreal linking remains R18.
 Next after exact CI: R20-I3 production package generation/layout.
+
+## R20-I3 — Fresh production package generation/layout
+
+State: VERIFYING publication and actual hosted generation.
+Missing entry point was RED; the eight new output isolation/transaction tests
+initially failed to import that missing module. After implementation all eight
+pass locally on explicit synthetic callbacks. Actual default production source
+generation is NOT_RUN locally because this workspace is a partial source cache.
+Hosted R20 source-packages runs the real complete source pipeline, and R19 runs
+full actual native/Python/asset/source regressions after publication.
+
+One command delegates to unchanged R3/R5/R6/R7 owners, source/audit checks and
+compiled R9/R14/R15 catalogs. Four runtime directories preserve owner formats.
+Output is staged transactionally: existing/source/symlink destinations are
+rejected; failed/missing-owner and concurrently created output remain safe.
+The accepted vendor tree/clean working state is checked before default generation.
+No vendor/gameplay/owner-format change or private payload upload/self-commit.
+I4 aggregate index/provenance/verification, I6 leakage and I7 staging/preflight
+remain open. No real UE/UHT/compile/cook/package/device evidence is inferred.
+Next after actual exact-head CI: R20-I4.

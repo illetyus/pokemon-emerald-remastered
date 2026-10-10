@@ -990,7 +990,9 @@ R19-M2 VERIFIED_COMPLETE: workflow 38012481196, actual 81/400/171;
 all 16 exact-main workflows / 29 checks including CodeQL succeeded.
 R20-P1 VERIFIED_COMPLETE at a7db2bbb (four docs only; exact publication verified).
 R20-I1 VERIFIED_COMPLETE at 24e8779f; workflow 38014100330: actual 81/400/171;
-all 16 workflows succeeded. Current checkpoint: **R20-I2**, dependency CI VERIFYING.
+all 16 workflows succeeded. R20-I2 VERIFIED_COMPLETE at f8425149;
+workflow 38014432391: actual 81/400/171, all 16 workflows succeeded.
+Current checkpoint: **R20-I3**, actual generation/full CI VERIFYING.
 [Named implementation evidence](R20_PRODUCTION_IMPLEMENTATION.md).
 [Production inventory and named gaps](R20_PRODUCTION_INVENTORY.md).
 [Accepted R19 source/runtime boundary](R19_REGRESSION_COMPLETION.md).

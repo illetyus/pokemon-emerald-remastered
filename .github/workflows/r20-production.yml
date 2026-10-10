@@ -1,0 +1,29 @@
+name: R20 Production Preparation
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main, r20-production-polish]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: r20-production-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-packages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Output isolation and transaction regressions
+        run: python -m unittest discover -s tests -p 'test_r20_*.py' -v
+      - name: Actual complete production owner generation
+        run: python tools/build_production_package.py --output build/production/Generated
+      # Generated render payloads remain ephemeral. No commercial package,
+      # APK, credential or implementation self-commit is uploaded.
