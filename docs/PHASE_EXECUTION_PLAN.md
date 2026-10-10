@@ -1,6 +1,6 @@
 # Phase Execution Plan — Through Real Unreal Runtime Validation
 
-Date: 2026-10-08
+Date: 2026-10-10
 Status: active execution plan
 Canonical roadmap source: `docs/ROADMAP.md`
 
@@ -409,7 +409,7 @@ Main HEAD + CI terminal-success. Pass -> R15-P1.
 
 Current preparation/pilot evidence: [R15_AUDIO_PREPARATION.md](R15_AUDIO_PREPARATION.md).
 Pre-real-UE source/preparation G1 is passed; completion evidence is recorded in
-[R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md). F1/merge/main gates are pending.
+[R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md). Source F1/PR/main gates passed.
 386 normal cries, 4,632 special-mode candidates and 209 Original-style BGM/jingle
 candidates are prepared. Actual assets/import, fidelity/listening, owner/platform
 attachment and engine/device tests remain explicit R18/runtime obligations.
@@ -890,11 +890,12 @@ The current user instruction authorizes applying the full agreed plan. Historica
 phase-only preparation restrictions above describe their earlier checkpoints.
 Canonical branch/PR/final-gate/main-CI rules and the R18 runtime stop remain.
 
-Main: `7e8d027d6c1f00677b0f270d56bfe7d4de83590d`, R8 PR #22.
+Main: `ab057754f97fc1d8f5e9396ff8499337bb533dc3`, R19 PR #23.
 R6 → R7 → R9 → R14 → R15 → R8 M1/M2 are VERIFIED_COMPLETE; each exact main CI
 reached terminal success before the next integration (including CodeQL).
 The versioned merge/CI ledger is in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md).
-R19 is active on `r19-regression-infrastructure` from that verified main.
+R19 source acceptance and M1/M2 are complete. R20 is active on
+`r20-production-polish` from the verified R19 main.
 Main workflow 37853379312: 8 targeted / 75 full CTest, 328 Python/source PASS;
 all 15 main workflows, including CodeQL 37853378547, completed successfully.
 R19-P1/P2 are VERIFIED_COMPLETE at `915fee92` / `605a8378`.
@@ -927,9 +928,35 @@ R19-Closure-3 VERIFIED_COMPLETE at 1bd0c356; workflow 38010794841:
 R19-V1/G1 pre-real source acceptance VERIFIED_COMPLETE.
 R19-D1 VERIFIED_COMPLETE at 1489aefd; workflow 38011198536:
 81 CTest, 400 Python, 171 assets; all 17 workflows / 30 check runs succeeded.
-Current checkpoint: **R19-F1**, source reconciliation COMPLETE; final CI VERIFYING.
-[Acceptance and runtime boundary](R19_REGRESSION_COMPLETION.md).
-M1 only after final-head required CI success; R20-P1 only after M2 exact-main success.
+R19-F1 VERIFIED_COMPLETE at 416f817c: workflow 38011903730, 81/400/171;
+all 17 workflows / 31 checks succeeded. PR #23 merged at ab057754.
+R19-M2 VERIFIED_COMPLETE: workflow 38012481196, actual 81/400/171;
+all 16 exact-main workflows / 29 checks including CodeQL succeeded.
+R20-P1 VERIFIED_COMPLETE at a7db2bbb (four docs only; exact publication verified).
+R20-I1 VERIFIED_COMPLETE at 24e8779f; workflow 38014100330: actual 81/400/171;
+all 16 workflows succeeded. R20-I2 VERIFIED_COMPLETE at f8425149;
+workflow 38014432391: actual 81/400/171, all 16 workflows succeeded.
+R20-I3 VERIFIED_COMPLETE at 8a809ef1; actual generation and 81/408/171;
+all 18 workflows succeeded. R20-I4 VERIFIED_COMPLETE at aefbe4cf;
+actual trusted generation/verification: 2,473 files / 13,093 source inputs.
+R19 workflow 38015468972 passed 81/418/171; all 18 exact-head workflows succeeded.
+R20-I5 VERIFIED_COMPLETE at d4de20e1; workflow 38016057425: actual 81/418/171,
+identical trusted package hashes; all 18 exact-head workflows succeeded.
+R20-I6 VERIFIED_COMPLETE at 8c940d8b; actual 81/431/171, complete source/history
+audit zero findings/skips; all 18 exact-head workflows succeeded.
+R20-I7 VERIFIED_COMPLETE at 14f2cbf3; actual 81/443/171, complete package/security/
+source-release checks; all 18 exact-head workflows succeeded.
+R20-T1/V1 at b19fc382: NEEDS_CLOSURE; actual R19 81/451/171 passed, but
+real negative harness expected the wrong CLI exit. G1/merge remain blocked.
+R20-Closure-1 / T1 / V1 / G1 VERIFIED_COMPLETE at 1c671677;
+workflow 38025616374 passed actual 81/453/171 + 53 R20 tests, two independent
+clean packages, nine real negatives and complete zero-finding/skip security.
+All 18 workflows / 32 check runs succeeded. Current checkpoint: **R20-D1**,
+completion publication VERIFYING; then independent F1 -> PR/main M1/M2.
+[Accepted R20 source scope and actual evidence](R20_PRODUCTION_COMPLETION.md).
+[Named implementation evidence](R20_PRODUCTION_IMPLEMENTATION.md).
+[Production inventory and named gaps](R20_PRODUCTION_INVENTORY.md).
+[Accepted R19 source/runtime boundary](R19_REGRESSION_COMPLETION.md).
 [Inventory](R19_REGRESSION_INVENTORY.md), [contract](R19_REPLAY_CONTRACT.md),
 [evidence](R19_REGRESSION_IMPLEMENTATION.md).
 
@@ -997,8 +1024,14 @@ passed 8/75/328 and source guards. R8-D1 is VERIFIED_COMPLETE at `ddd3ce19`;
 workflow 37851617574 passed 8/75/328; all 16 workflows including CodeQL succeeded.
 R8-F1 is VERIFIED_COMPLETE at `ea582534`; all 16 final-head workflows succeeded. [Acceptance/runtime boundaries](R8_INPUT_COMPLETION.md).
 R8-M1 PR #22 merge and R8-M2 exact-main terminal-success are VERIFIED_COMPLETE.
-R19 is active; R20/R18 have not started.
+R19 pre-real source and integration gates are complete; R20-D1 publication and remaining F1/M1/M2 gates are active.
+R18 has not started.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,
 R20 and R18; stop at the actual environment/runtime boundary. All deferred
 asset/host/engine/device obligations remain explicit.
+
+R20-I5 canonical documentation links [BUILD.md](BUILD.md) and the production
+package contract. The R6/R7/R9/R14/R15 completion documents preserve their
+historical implementation snapshots under explicit superseding integration
+banners; old per-chat permission restrictions do not govern current execution.

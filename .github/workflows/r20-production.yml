@@ -1,0 +1,38 @@
+name: R20 Production Preparation
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main, r20-production-polish]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: r20-production-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-packages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      REMASTER_R15_REQUIRE_FFMPEG: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Required actual audio transform dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --yes ffmpeg
+      - name: One actual full suite and independent clean reproduction
+        run: python tools/r20_full_suite.py --build-dir build/r20-full --receipt build/r20-full-suite-receipt.json
+      - name: Metadata-only acceptance receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: r20-source-acceptance-receipt
+          path: build/r20-full-suite-receipt.json
+          if-no-files-found: error

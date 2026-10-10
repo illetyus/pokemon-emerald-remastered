@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
-Date: 2026-10-08
-Status: **R0-R5, R10-R13, R16/R17 and R6/R7/R9/R14/R15/R8 pre-real-UE source phases verified complete on main; R19 regression infrastructure active. Actual engine/assets/device obligations remain open.**
+Date: 2026-10-10
+Status: **R0-R5, R10-R13, R16/R17 and R6/R7/R9/R14/R15/R8/R19 pre-real-UE source phases verified complete on main; R20 production source acceptance VERIFIED_COMPLETE; final publication/integration gates in progress. Actual engine/assets/device obligations remain open.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -342,8 +342,8 @@ Make save compatibility a release-grade contract.
 
 ## R6 — Character / NPC presentation + character asset pipeline
 
-**Status: pre-real-Unreal source/preparation acceptance VERIFIED_COMPLETE on
-`r6-character-presentation`; merge/main gates pending.** See
+**Status: pre-real-Unreal source/preparation acceptance and PR/main integration
+VERIFIED_COMPLETE.** See
 [R6_PRESENTATION_COMPLETION.md](R6_PRESENTATION_COMPLETION.md) for source choices,
 explicit fallbacks, local asset workflow, 181 Python / 62 CTest results and
 remaining engine/device validation.
@@ -391,8 +391,8 @@ The repository stores only:
 
 ## R7 — Camera / environment presentation + environment asset pipeline
 
-Current checkpoint: pre-real-Unreal implementation and hosted acceptance verified
-on the dependent R7 branch; merge/main gates pending. See [R7_ENVIRONMENT_COMPLETION.md](R7_ENVIRONMENT_COMPLETION.md) for full
+Status: pre-real-Unreal source/preparation acceptance and PR/main integration
+VERIFIED_COMPLETE. See [R7_ENVIRONMENT_COMPLETION.md](R7_ENVIRONMENT_COMPLETION.md) for full
 source identity/fallback coverage, camera/environment changes, budgets and limits.
 
 ### Goal
@@ -448,10 +448,10 @@ presentation-only 3D visual assets
 
 ## R9 — UI / HUD / menu infrastructure
 
-Source/preparation implementation on dependent `r9-ui-presentation` branch:
+Pre-real-Unreal source/preparation and PR/main integration VERIFIED_COMPLETE:
 [R9 UI completion evidence](R9_UI_COMPLETION.md). This checkpoint provides the
 shared native model and source UMG/input integration; real engine/device and
-host-entry integration checks remain explicit. PR/merge/main gates are separate.
+host-entry integration checks remain explicit. Main integration passed.
 
 ### Goal
 
@@ -480,6 +480,9 @@ gameplay state.
 - input actions are abstract and platform-independent.
 
 ## R14 — Battle presentation + Pokémon asset pipeline
+
+Status: pre-real-Unreal source/preparation and PR/main integration VERIFIED_COMPLETE.
+[R14 evidence](R14_BATTLE_PRESENTATION_COMPLETION.md) retains actual host/import limits.
 
 ### Goal
 
@@ -525,7 +528,9 @@ silently ignored.
 
 ## R15 — Audio
 
-Preparation/pilot status: [R15_AUDIO_PREPARATION.md](R15_AUDIO_PREPARATION.md).
+Pre-real-Unreal source/preparation and PR/main integration VERIFIED_COMPLETE:
+[R15 completion](R15_AUDIO_COMPLETION.md). Historical preparation/pilot evidence:
+[R15_AUDIO_PREPARATION.md](R15_AUDIO_PREPARATION.md).
 Modern style selected after the 12-species pilot; 386 normal cries and 4,632
 special-mode candidates are prepared. Special-mode listening/hardware comparison,
 music/FX and runtime gates remain open.
@@ -984,9 +989,35 @@ R19-Closure-3 VERIFIED_COMPLETE at 1bd0c356; workflow 38010794841:
 R19-V1/G1 pre-real source acceptance VERIFIED_COMPLETE.
 R19-D1 VERIFIED_COMPLETE at 1489aefd; workflow 38011198536:
 81 CTest, 400 Python, 171 assets; all 17 workflows / 30 check runs succeeded.
-Current checkpoint: **R19-F1**, source reconciliation COMPLETE; final CI VERIFYING.
-[Acceptance and runtime boundary](R19_REGRESSION_COMPLETION.md).
-M1 only after final-head required CI success; R20-P1 only after M2 exact-main success.
+R19-F1 VERIFIED_COMPLETE at 416f817c: workflow 38011903730, 81/400/171;
+all 17 workflows / 31 checks succeeded. PR #23 merged at ab057754.
+R19-M2 VERIFIED_COMPLETE: workflow 38012481196, actual 81/400/171;
+all 16 exact-main workflows / 29 checks including CodeQL succeeded.
+R20-P1 VERIFIED_COMPLETE at a7db2bbb (four docs only; exact publication verified).
+R20-I1 VERIFIED_COMPLETE at 24e8779f; workflow 38014100330: actual 81/400/171;
+all 16 workflows succeeded. R20-I2 VERIFIED_COMPLETE at f8425149;
+workflow 38014432391: actual 81/400/171, all 16 workflows succeeded.
+R20-I3 VERIFIED_COMPLETE at 8a809ef1; actual generation and 81/408/171;
+all 18 workflows succeeded. R20-I4 VERIFIED_COMPLETE at aefbe4cf;
+actual trusted generation/verification: 2,473 files / 13,093 source inputs.
+R19 workflow 38015468972 passed 81/418/171; all 18 exact-head workflows succeeded.
+R20-I5 VERIFIED_COMPLETE at d4de20e1; workflow 38016057425: actual 81/418/171,
+identical trusted package hashes; all 18 exact-head workflows succeeded.
+R20-I6 VERIFIED_COMPLETE at 8c940d8b; actual 81/431/171, complete source/history
+audit zero findings/skips; all 18 exact-head workflows succeeded.
+R20-I7 VERIFIED_COMPLETE at 14f2cbf3; actual 81/443/171, complete package/security/
+source-release checks; all 18 exact-head workflows succeeded.
+R20-T1/V1 at b19fc382: NEEDS_CLOSURE; actual R19 81/451/171 passed, but
+real negative harness expected the wrong CLI exit. G1/merge remain blocked.
+R20-Closure-1 / T1 / V1 / G1 VERIFIED_COMPLETE at 1c671677;
+workflow 38025616374 passed actual 81/453/171 + 53 R20 tests, two independent
+clean packages, nine real negatives and complete zero-finding/skip security.
+All 18 workflows / 32 check runs succeeded. Current checkpoint: **R20-D1**,
+completion publication VERIFYING; then independent F1 -> PR/main M1/M2.
+[Accepted R20 source scope and actual evidence](R20_PRODUCTION_COMPLETION.md).
+[Named implementation evidence](R20_PRODUCTION_IMPLEMENTATION.md).
+[Production inventory and named gaps](R20_PRODUCTION_INVENTORY.md).
+[Accepted R19 source/runtime boundary](R19_REGRESSION_COMPLETION.md).
 [Contract](R19_REPLAY_CONTRACT.md) / [checkpoint evidence](R19_REGRESSION_IMPLEMENTATION.md).
 No actual runtime/local asset obligation was closed by these source merges.
 
@@ -994,3 +1025,9 @@ Real Unreal build remains R18 work. After R18 main verification, stop at
 REAL UNREAL RUNTIME VALIDATION; do not automatically run physical Android
 smoke, BrowserStack, final device matrix, R21 or R22.
 
+
+Current build/prerequisite instructions: [BUILD.md](BUILD.md),
+[dependencies](DEPENDENCIES.md), [package verification](R20_PRODUCTION_PACKAGE.md).
+Older phase completion snapshots are historical; the verified PR/main integration
+ledger in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md) supersedes their pending
+merge statements without promoting actual asset/engine/device evidence.

@@ -14,7 +14,6 @@ public class PokemonEmeraldRemastered : ModuleRules
             "Engine",
             "InputCore",
             "Json",
-            "JsonUtilities",
             "UMG",
             "EnhancedInput",
             "Niagara",
@@ -25,8 +24,7 @@ public class PokemonEmeraldRemastered : ModuleRules
         {
             "ApplicationCore",
             "Slate",
-            "SlateCore",
-            "Projects"
+            "SlateCore"
         });
 
         string RepoRoot = Path.GetFullPath(Path.Combine(ModuleDirectory, "..", "..", ".."));

@@ -63,3 +63,18 @@ google-credentials*.json
 /artifacts/
 __pycache__/
 *.pyc
+
+# R20 complete generated/private production boundary
+unreal/Content/Generated/World/
+unreal/Content/Generated/Render/
+unreal/Content/Generated/production-index.json
+*.srm
+*.sav
+*.gba
+*.gbc
+*.nds
+*.3ds
+*.rom
+*.zip
+*.7z
+*.rar

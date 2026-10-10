@@ -1,164 +1,68 @@
-# Unreal Production Runtime
+# Unreal production runtime
 
-Unreal Engine is the selected production presentation/platform runtime.
+Unreal hosts presentation, input, audio and platform services. The portable core
+owns gameplay, save domains, world movement/collision, scripts, progression,
+encounters, Pokémon/items and battle results.
 
-Gameplay authority remains in the portable core.
+## Engine and current evidence
 
-## Engine target
+The selected real engine is **UE 5.8.3**. The uproject's 5.8 association identifies
+a family; it does not prove the installed patch. ARM64 Android is the primary
+target. Verify SDK/NDK/JDK/UBT against that exact engine installation at R18;
+source configuration values do not establish toolchain compatibility.
 
-Planned production engine:
+The completed main phases are portable/source preparation. No licensed UE/UHT
+compile, imported modern model/audio readiness, rendered-frame acceptance,
+cooked Android package, APK launch or device result is currently claimed.
+[BUILD.md](../docs/BUILD.md) lists tools, complete checkout and private boundaries.
 
-- Unreal Engine 5.8.3;
-- Android-first runtime target;
-- ARM64;
-- real compile/cook/package deferred to R18 on the project PC.
+## Production content preparation
 
-Android SDK/NDK/JDK requirements must be re-verified against the exact installed
-UE 5.8.3 build at R18 before toolchain setup.
-
-## Current status
-
-R5 source/data world-renderer acceptance is complete.
-
-Before R18, the repository may validate:
-
-- Unreal source architecture;
-- portable core behavior;
-- converted world/render data;
-- generated manifests and package integrity.
-
-Before R18, the project does **not** claim:
-
-- successful licensed UE compilation;
-- rendered-frame runtime acceptance;
-- cooked Android package acceptance;
-- APK launch success;
-- BrowserStack real-device success.
-
-## Architecture
-
-Unreal is a presentation/input/audio/platform host.
-
-It may:
-
-- render authoritative world state;
-- present characters and Pokémon;
-- animate;
-- control camera and lighting;
-- show UI;
-- play audio;
-- collect platform input;
-- provide Android lifecycle/platform services.
-
-It must not independently own:
-
-- movement rules;
-- gameplay collision;
-- scripts;
-- flags/vars;
-- warps/connections;
-- encounter decisions;
-- Pokémon/party/item truth;
-- battle results;
-- story progression;
-- save-domain gameplay truth.
-
-Input crosses the adapter as explicit actions/commands. The core returns state
-snapshots and one-way presentation events.
-
-## Asset pipeline
-
-Commercial character, Pokémon, environment and audio assets are prepared
-locally from user-owned source data where applicable.
-
-The public repository stores only tooling and redistributable metadata such as:
-
-- converters;
-- mappings;
-- manifests;
-- hashes/provenance;
-- validators;
-- placeholders/test assets with appropriate redistribution rights.
-
-Extracted commercial models, textures, audio and ROM images must not be
-committed.
-
-## Deferred R18 build stage
-
-At R18, on the project PC:
-
-1. install/verify Unreal Engine 5.8.3;
-2. install/verify the Android toolchain required by that UE build;
-3. compile the production Unreal target;
-4. cook/package Android ARM64;
-5. produce an installable APK;
-6. run local physical-device smoke;
-7. fix compile/cook/runtime problems through normal branch/PR workflow.
-
-Only after a valid APK exists do BrowserStack real-device tests begin.
-
-## Presentation phases awaiting real runtime validation
-
-The following phases may be source/data complete before R18, but their final
-runtime gates wait for the real engine build:
-
-- R6 — character/NPC presentation;
-- R7 — environment/camera presentation;
-- R8 — Android input;
-- R9 — UI/HUD/menus;
-- R14 — battle presentation;
-- R15 — audio.
-
-## Self-hosted runner policy
-
-A self-hosted Unreal runner is **not required now**.
-
-If one is introduced later, it must not execute untrusted public-fork pull
-request code with access to the host, credentials or secrets.
-
-The default final plan is to perform the first real production UE/Android build
-on the project PC.
-
-## Historical R0 experiments
-
-SDL3 remains a low-level regression/reference baseline.
-
-Godot experiments are frozen as historical architecture evidence.
-
-Neither is the production presentation runtime.
-
-See the canonical plan:
-
-- `docs/ROADMAP.md`
-- `docs/ARCHITECTURE.md`
-
-## R6 character presentation
-
-Generate and verify the character catalog before cook:
+Use the complete clean repository; output and receipt must be fresh:
 
 ```sh
-python tools/build_r6_character_package.py unreal/Content/Generated/Characters
-python tools/build_r6_character_package.py unreal/Content/Generated/Characters --verify
+python tools/build_production_package.py --output build/production/Generated --receipt build/r20-generation-receipt.json
+python tools/build_production_package.py --output build/production/Generated --verify --expected-index-sha256 <hash-from-trusted-generation-receipt> --receipt build/r20-verification-receipt.json
 ```
 
-The default runtime uses visible engine basic shapes. Optional exact local skeletal
-assets require matching normalized-output hashes and validated import bindings;
-no private account/network is needed. NPC transforms/visibility come from R4.
-See [R6 presentation preparation and limits](../docs/R6_PRESENTATION_COMPLETION.md).
-Real UE/UHT, cooked imports and Android device validation remain R18 work.
+Keep the trusted receipt outside the package. World, Render, Characters and
+Environment retain their owning formats; the index seals every file and source
+input. Source/native R9/R14/R15 catalogs are checked by the entry point.
+[Package contract](../docs/R20_PRODUCTION_PACKAGE.md) explains transactionality
+and integrity. [Source staging and installation preflight](../docs/R20_RELEASE_PREPARATION.md)
+closes R20-I7; actual compile/cook/package remains R18.
 
-## R7 environment and camera presentation
+Default characters use visible engine basic shapes; environment identities use
+source-backed R5 descriptors or explicit fallback. Optional private model/audio
+bindings require exact provenance, normalization hashes and real editor import
+validation. No private account or file is required for public source acceptance.
 
-Generate and verify the metadata-only world identity/audit package before cook:
+## Actual R18 gate
 
-```sh
-python tools/build_r7_environment_package.py vendor/vanillaplus unreal/Content/Generated/Environment
-python tools/build_r7_environment_package.py vendor/vanillaplus unreal/Content/Generated/Environment --verify
-```
+On the project PC, audit access and the exact engine/toolchain, compile the
+production target, cook, package Android ARM64 and verify the actual APK.
+A local PC/emulator launch may be a build smoke only within the validated
+environment. Close real build failures through the normal source branch/PR gate.
 
-Camera position, map framing, runtime weather and local RTC are read from the
-authoritative core context. R5 terrain is the default fallback for all identities;
-optional private 3D fragments are exact-identity, import-validated bindings only.
-They never contribute collision, overlaps, navigation or movement. Source budgets,
-render-only camera cutaway, local pre-import validation and real-engine limits are
-recorded in [R7 completion evidence](../docs/R7_ENVIRONMENT_COMPLETION.md).
+If actual project-PC control is unavailable, R18-P1 stops EXTERNAL_ENV_REQUIRED.
+After R18 acceptance and main CI, stop at REAL UNREAL RUNTIME VALIDATION.
+Physical Android smoke, BrowserStack, final device matrix and releases are later
+gates; they do not start automatically and are not substitutes for an R18 build.
+
+## Remaining presentation obligations
+
+R6/R7/R8/R9/R14/R15 evidence records actual imports, visuals, animation, audio
+listening/loops, touch/lifecycle, device performance and host attachment that
+source tests cannot certify. Story/script resource dispatch, battle request
+ownership and naming/field-item hosts need their documented actual integration.
+Do not mark those ready merely because a source validator or package passes.
+
+Any future self-hosted Unreal runner must execute only trusted main/manual code,
+with private payloads and APKs retained locally. SDL/Godot and
+`experiments/unreal-r0-reference` preserve historical evidence.
+[Roadmap](../docs/ROADMAP.md) and [architecture](../docs/ARCHITECTURE.md)
+remain authoritative.
+
+[R20 source completion](../docs/R20_PRODUCTION_COMPLETION.md) records actual
+portable/source/reproduction/security acceptance. It does not close the real
+engine, import, host or device obligations above.

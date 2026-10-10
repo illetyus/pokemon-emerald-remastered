@@ -1,5 +1,11 @@
 # R7 Environment and Camera — Source and Preparation Acceptance
 
+> Current integration status (R20-I5 reconciliation): pre-real-Unreal source
+> acceptance and PR/main integration are VERIFIED_COMPLETE. The integration
+> ledger in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md) supersedes historical
+> merge-pending/per-chat authorization statements below. Actual asset, host,
+> engine, runtime and device obligations retain their documented limits.
+
 Status: **pre-real-Unreal source/preparation implementation and acceptance VERIFIED_COMPLETE on the R7 branch; merge/main gates pending**.
 This checkpoint covers pre-real-Unreal code, deterministic metadata, explicit
 fallbacks and source budget validation. It does not assert a rendered 3D scene,

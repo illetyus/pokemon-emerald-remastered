@@ -1,5 +1,11 @@
 # R15 Audio — source and preparation acceptance
 
+> Current integration status (R20-I5 reconciliation): pre-real-Unreal source
+> acceptance and PR/main integration are VERIFIED_COMPLETE. The integration
+> ledger in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md) supersedes historical
+> merge-pending/per-chat authorization statements below. Actual asset, host,
+> engine, runtime and device obligations retain their documented limits.
+
 G1: **VERIFIED_COMPLETE** for the canonical pre-real-UE source/preparation scope
 at `5a5475103b736ae5d9c8b0abf442238b8edc05be`.
 D1: completion evidence recorded here.

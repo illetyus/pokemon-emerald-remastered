@@ -1,5 +1,11 @@
 # R9 UI / HUD / Menu — Source and Preparation Acceptance
 
+> Current integration status (R20-I5 reconciliation): pre-real-Unreal source
+> acceptance and PR/main integration are VERIFIED_COMPLETE. The integration
+> ledger in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md) supersedes historical
+> merge-pending/per-chat authorization statements below. Actual asset, host,
+> engine, runtime and device obligations retain their documented limits.
+
 Status: **pre-real-Unreal source/preparation implementation and acceptance VERIFIED_COMPLETE on the R9 branch; merge/main gates pending**.
 This is the pre-real-Unreal source/preparation scope used for R6 and R7. The
 shared UI model is compiled natively; the Unreal subsystem, controller and UMG
