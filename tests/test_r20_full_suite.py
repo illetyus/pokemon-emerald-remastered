@@ -1,11 +1,15 @@
 """Evidence gates reject incomplete, failed and falsely certified receipts."""
 import copy
+import hashlib
 from pathlib import Path
 from types import SimpleNamespace
 import sys
+import subprocess
+import tempfile
 import unittest
+from unittest import mock
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from r20_full_suite import validate_r19, validate_targeted, compare_packages, validate_verification, MODULES
+from r20_full_suite import validate_r19, validate_targeted, compare_packages, validate_verification, rejection, MODULES
 
 
 class FullSuiteGates(unittest.TestCase):
@@ -65,6 +69,29 @@ class FullSuiteGates(unittest.TestCase):
         validate_verification(v, a)
         v['index_sha256'] = 'c' * 64
         with self.assertRaises(ValueError): validate_verification(v, a)
+
+    def test_negative_runner_accepts_only_known_validation_exit_and_reason(self):
+        reason = 'package file coverage/checksum mismatch'
+        prefix = b'R20 production package failed: '
+        cases = [(1, prefix + reason.encode(), True), (0, b'', False),
+                 (2, b'usage: missing argument', False), (1, b'Traceback: crashed', False),
+                 (1, prefix + b'unexpected error', False)]
+        for code, stderr, valid in cases:
+            with self.subTest(code=code, stderr=stderr), mock.patch('r20_full_suite.subprocess.run', return_value=subprocess.CompletedProcess(['fixture'], code, b'', stderr)):
+                if valid: rejection(['explicit-fixture'], Path('.'), reason)
+                else:
+                    with self.assertRaises(ValueError): rejection(['explicit-fixture'], Path('.'), reason)
+
+    def test_actual_production_cli_validation_uses_exit_one(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp)
+            raw = b'{}\n'
+            (output / 'production-index.json').write_bytes(raw)
+            script = Path(__file__).resolve().parents[1] / 'tools/build_production_package.py'
+            result = subprocess.run([sys.executable, str(script), '--output', tmp, '--verify',
+                                     '--expected-index-sha256', hashlib.sha256(raw).hexdigest()], capture_output=True)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn(b'R20 production package failed: index schema/provenance mismatch', result.stderr)
 
 
 if __name__ == '__main__': unittest.main()

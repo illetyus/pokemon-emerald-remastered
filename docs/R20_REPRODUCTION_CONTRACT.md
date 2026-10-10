@@ -37,3 +37,9 @@ acceptance refusal; actual reproduction/security/full-suite counts come only
 from the hosted default execution. No local full-suite claim is made from this
 partial source cache. Cross-toolchain reproducibility, engine compile/cook/APK,
 imports, listening/quality and devices remain R18/runtime obligations.
+
+The negative CLI contract is validation-handler exit **1** plus the exact
+case-specific R20 production-package failure message. Exit 0, argparse exit 2,
+traceback/crash or a different rejection reason cannot count as successful
+negative evidence. Closure-1 pins this against an actual malformed-index CLI
+invocation and explicit return/message refusal cases.

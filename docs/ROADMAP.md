@@ -1007,7 +1007,9 @@ R20-I6 VERIFIED_COMPLETE at 8c940d8b; actual 81/431/171, complete source/history
 audit zero findings/skips; all 18 exact-head workflows succeeded.
 R20-I7 VERIFIED_COMPLETE at 14f2cbf3; actual 81/443/171, complete package/security/
 source-release checks; all 18 exact-head workflows succeeded.
-Current checkpoint: **R20-T1/V1**, independent clean reproduction/full CI VERIFYING.
+R20-T1/V1 at b19fc382: NEEDS_CLOSURE; actual R19 81/451/171 passed, but
+real negative harness expected the wrong CLI exit. G1/merge remain blocked.
+Current checkpoint: **R20-Closure-1**, narrow exit/message contract fix VERIFYING.
 [Named implementation evidence](R20_PRODUCTION_IMPLEMENTATION.md).
 [Production inventory and named gaps](R20_PRODUCTION_INVENTORY.md).
 [Accepted R19 source/runtime boundary](R19_REGRESSION_COMPLETION.md).

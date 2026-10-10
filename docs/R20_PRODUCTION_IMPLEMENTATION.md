@@ -177,3 +177,19 @@ cases, actual whole tracked/history audit and source release check. No mock
 generator/default fixture replaces actual production. Metadata-only CI upload.
 Contract: R20_REPRODUCTION_CONTRACT.md. G1 waits for actual terminal-success;
 concrete failures use named closure, then repeat V1/G1.
+
+## R20-Closure-1 — Actual production validation exit contract
+
+T1/V1 at b19fc382 entered NEEDS_CLOSURE: R20 workflows 38025287826/38025289611
+failed at clean_package_reproduction after actual R19 81/451/171 and all 51
+R20 tests passed. G1/merge did not advance. Production validation correctly
+returned exit 1; the negative harness incorrectly required parser/misuse exit 2.
+The unchanged CLI's malformed-index invocation reproduces exit 1 locally.
+
+State: RUNNING_CLOSURE -> VERIFYING actual default hosted rerun.
+Two new regressions pin the real CLI contract and require both exit 1 and the
+exact case-specific validation message. Success, parser errors, traceback/crash
+and wrong validation reasons fail. The old harness was RED for that contract;
+all 53 targeted R20 tests pass after the narrow harness fix. Production validators,
+generation, source inputs, core/vendor and acceptance boundaries are unchanged.
+Next: actual V1 -> G1; no success is inferred from synthetic tests alone.

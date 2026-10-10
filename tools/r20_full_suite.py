@@ -65,9 +65,10 @@ def cli_json(command, cwd):
     return json.loads(result.stdout.strip().splitlines()[-1])
 
 
-def rejection(command, cwd):
+def rejection(command, cwd, reason):
     result = subprocess.run(command, cwd=cwd, capture_output=True, timeout=900)
-    if result.returncode != 2:
+    expected = b'R20 production package failed: ' + reason.encode('utf-8')
+    if result.returncode != 1 or result.stderr.strip() != expected:
         raise ValueError('corrupt package did not produce the expected validation rejection')
 
 
@@ -97,18 +98,18 @@ def reproduce(build_dir):
                 path = output / owner / 'manifest.json'; original = path.read_bytes()
                 try:
                     path.write_bytes(original + b'\ncorrupt')
-                    rejection(verify, checkout); rejected.append('corrupt-' + owner)
+                    rejection(verify, checkout, 'package file coverage/checksum mismatch'); rejected.append('corrupt-' + owner)
                 finally:
                     path.write_bytes(original)
             path = output / 'World/manifest.json'; original = path.read_bytes()
             try:
-                path.unlink(); rejection(verify, checkout); rejected.append('missing-owner-file')
+                path.unlink(); rejection(verify, checkout, 'package file coverage/checksum mismatch'); rejected.append('missing-owner-file')
             finally:
                 path.write_bytes(original)
             extra = output / 'World/unexpected.txt'
             try:
                 extra.write_text('explicit corruption fixture')
-                rejection(verify, checkout); rejected.append('extra-file')
+                rejection(verify, checkout, 'package file coverage/checksum mismatch'); rejected.append('extra-file')
             finally:
                 extra.unlink(missing_ok=True)
             index = output / 'production-index.json'; original_index = index.read_bytes()
@@ -117,19 +118,19 @@ def reproduce(build_dir):
                 changed = json.loads(original_index)
                 from r20_package_integrity import make_index, inventory, encode
                 index.write_bytes(encode(make_index(inventory(output), changed['source_inputs'])))
-                rejection(verify, checkout); rejected.append('rewritten-index-self-blessing')
+                rejection(verify, checkout, 'trusted index checksum mismatch'); rejected.append('rewritten-index-self-blessing')
             finally:
                 path.write_bytes(original); index.write_bytes(original_index)
             link = output / 'World/unexpected-link'
             try:
                 link.symlink_to(path)
-                rejection(verify, checkout); rejected.append('symlink-file')
+                rejection(verify, checkout, 'package symlink'); rejected.append('symlink-file')
             finally:
                 link.unlink(missing_ok=True)
             generator = checkout / 'tools/build_production_package.py'; original_generator = generator.read_bytes()
             try:
                 generator.write_bytes(original_generator + b'\n# explicit source drift fixture\n')
-                rejection(verify, checkout); rejected.append('generator-source-drift')
+                rejection(verify, checkout, 'production source working tree is not clean'); rejected.append('generator-source-drift')
             finally:
                 generator.write_bytes(original_generator)
             validate_verification(cli_json(verify, checkout), generations[0])
