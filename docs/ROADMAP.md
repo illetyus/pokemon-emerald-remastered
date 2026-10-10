@@ -1003,7 +1003,9 @@ actual trusted generation/verification: 2,473 files / 13,093 source inputs.
 R19 workflow 38015468972 passed 81/418/171; all 18 exact-head workflows succeeded.
 R20-I5 VERIFIED_COMPLETE at d4de20e1; workflow 38016057425: actual 81/418/171,
 identical trusted package hashes; all 18 exact-head workflows succeeded.
-Current checkpoint: **R20-I6**, public-source/history security audit VERIFYING.
+R20-I6 VERIFIED_COMPLETE at 8c940d8b; actual 81/431/171, complete source/history
+audit zero findings/skips; all 18 exact-head workflows succeeded.
+Current checkpoint: **R20-I7**, staging/install-preflight source CI VERIFYING.
 [Named implementation evidence](R20_PRODUCTION_IMPLEMENTATION.md).
 [Production inventory and named gaps](R20_PRODUCTION_INVENTORY.md).
 [Accepted R19 source/runtime boundary](R19_REGRESSION_COMPLETION.md).

@@ -130,7 +130,12 @@ Next after exact-head CI: R20-I6 leakage/security.
 
 ## R20-I6 — Public source leakage/security boundary
 
-State: VERIFYING publication and actual complete-repository/history audit.
+State: VERIFIED_COMPLETE at 8c940d8bfa417df3ef94323dc1328e7947cf43f7.
+Actual R20 workflow 38016578180 / job 114108075307: 31 targeted tests; package
+2,473 files / 13,094 inputs verified. Security: 13,376 tracked files, 13,107
+unique reachable blobs / 103,149,273 bytes, zero findings/skipped blobs.
+R19 workflow 38016582804 / job 114108087985: actual 81/431/171, seven components,
+zero skips. All 18 exact-head workflows succeeded; all nine published blobs match.
 Absent security module was RED; 13 temporary-Git negative/coverage regressions
 now pass locally. Full real-repository scanning is NOT_RUN in the partial cache.
 The default hosted audit measures tracked paths and all reachable HEAD blobs,
@@ -140,3 +145,17 @@ saves/ROMs/archives. Manual Unreal jobs are trusted-main only; APK upload remove
 No gameplay, vendor, owner format or native package configuration changes.
 Scope/limits and exact run command: R20_PUBLIC_SOURCE_SECURITY.md.
 Next after actual CI: R20-I7 release configuration and real-install preflight.
+
+## R20-I7 — Release source staging and installation preflight
+
+State: VERIFYING publication and exact-head CI.
+Missing preflight module was RED; 12 fake-installation/source regressions pass.
+World/Render now stage with Characters/Environment; Entry/basic-shape cook intent
+is explicit. Source Android identity/ABI/SDK values are retained. Installation
+preflight requires exact 5.8.3 metadata and complete target tools; missing Android
+prerequisites fail instead of warning. Linux/Win64 host paths are distinguished.
+Manual trusted-main workflow prepares/verifies content before real commands;
+no actual dispatch/build, imported asset readiness or APK result is claimed.
+Source-only and installation-presence receipts explicitly deny actual build and
+toolchain compatibility. Source/docs details: R20_RELEASE_PREPARATION.md.
+Next after actual CI: R20-T1 clean reproduction and security/integrity negatives.

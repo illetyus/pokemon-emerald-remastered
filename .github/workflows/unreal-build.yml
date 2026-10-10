@@ -1,4 +1,4 @@
-name: Unreal 5.8 Linux Build
+name: Unreal 5.8.3 Trusted PC Build
 
 permissions:
   contents: read
@@ -38,9 +38,9 @@ jobs:
 
           candidates=(
             "${UE_ROOT:-}"
-            "/opt/UnrealEngine-5.8"
+            "/opt/UnrealEngine-5.8.3.3"
             "/opt/UnrealEngine"
-            "$HOME/UnrealEngine-5.8"
+            "$HOME/UnrealEngine-5.8.3"
             "$HOME/UnrealEngine"
           )
 
@@ -52,15 +52,25 @@ jobs:
             fi
           done
 
-          echo "Unreal Engine 5.8 installation not found." >&2
+          echo "Unreal Engine 5.8.3 installation not found." >&2
           echo "Set UE_ROOT on the runner or install UE under /opt/UnrealEngine-5.8." >&2
           exit 1
 
-      - name: Linux Unreal preflight
+      - name: Source and exact installation preflight
         shell: bash
         run: |
           set -euo pipefail
-          bash tools/unreal_linux_preflight.sh "$UE_ROOT"
+          args=(--engine-root "$UE_ROOT" --host Linux --receipt build/r18-installation-preflight.json)
+          if [[ "${{ inputs.package_android }}" == "true" ]]; then args+=(--android); fi
+          python tools/unreal_preflight.py "${args[@]}"
+
+      - name: Generate and verify trusted production content
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tools/build_production_package.py --output unreal/Content/Generated --receipt build/r18-generation-receipt.json
+          task_index_sha="$(python -c 'import json; print(json.load(open("build/r18-generation-receipt.json"))["index_sha256"])')"
+          python tools/build_production_package.py --output unreal/Content/Generated --verify --expected-index-sha256 "$task_index_sha" --receipt build/r18-content-verification.json
 
       - name: Build Linux Development
         shell: bash

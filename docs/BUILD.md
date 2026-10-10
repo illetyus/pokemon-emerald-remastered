@@ -83,3 +83,8 @@ rendered correctness, performance, audio listening, Android lifecycle and physic
 input behavior need real runtime checks. After verified R18 main CI, stop at
 REAL UNREAL RUNTIME VALIDATION. Physical Android, BrowserStack, final device
 matrix, R21/R22 do not run automatically.
+
+Source release/install preflight and staged owner directories:
+[R20_RELEASE_PREPARATION.md](R20_RELEASE_PREPARATION.md). Complete tracked-source/
+history leakage and credential-signature audit:
+[R20_PUBLIC_SOURCE_SECURITY.md](R20_PUBLIC_SOURCE_SECURITY.md).

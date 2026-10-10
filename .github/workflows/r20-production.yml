@@ -34,3 +34,5 @@ jobs:
       # APK, credential or implementation self-commit is uploaded.
       - name: Tracked source and reachable-history security audit
         run: python tools/audit_public_repository.py --receipt build/r20-security-receipt.json
+      - name: Production source staging and release intent
+        run: python tools/unreal_preflight.py --source-only --receipt build/r20-release-receipt.json
