@@ -152,7 +152,7 @@
     "test_r9_ui",
     "test_world_fingerprint"
   ],
-  "minimum_python_tests": 397,
+  "minimum_python_tests": 400,
   "private_real_save_replay": "NOT_RUN_IN_CI",
   "actual_unreal_device_execution": false
 }

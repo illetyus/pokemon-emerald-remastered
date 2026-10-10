@@ -117,7 +117,10 @@ def run(build_dir, config):
     def load(name): return json.loads((ROOT / 'data/r19' / name).read_text())
     def smoke_source():
         contract = load('unreal_smoke_contract.json'); r19_unreal_smoke.validate(contract)
-        return {'status': 'SOURCE_CONTRACT_PASS', 'markers': len(contract['markers']), 'actual_runtime_verified': False}
+        return {'status': 'SOURCE_CONTRACT_PASS', 'markers': len(contract['markers']),
+                'packaged_markers': len(contract['packaged_smoke_markers']),
+                'packaged_producer_status': contract['packaged_producer_status'],
+                'actual_runtime_verified': False}
     def source_guards():
         if validate_unreal_source.main() != 0: raise ValueError('Unreal source guard failed')
         return {'status': 'SOURCE_GUARDS_PASS', 'actual_runtime_verified': False}

@@ -36,6 +36,26 @@ synthetic strings can satisfy a parser. R18 must separately bind real engine
 version, exact checkout, executable/build artifacts and capture provenance before
 accepting an actual smoke result. This tool cannot manufacture that evidence.
 
+## Canonical packaged smoke contract
+
+The seven downstream ROADMAP markers are also frozen in the machine contract,
+in canonical order: REM_SMOKE: BOOT_OK, RENDER_PACKAGE_OK, HOUSE_RENDER_OK,
+HOUSE_WARP_OK, LITTLEROOT_RENDER_OK, ROUTE101_RENDER_OK and PASS. The source
+validator cross-checks the exact roster against docs/ROADMAP.md. They are a
+separate packaged smoke contract; the six existing diagnostic producers above
+cannot substitute for it. Current packaged producer status is explicitly
+NOT_EMITTED_REQUIRES_REAL_HARNESS. No current Unreal source emits these markers.
+
+The later real packaged harness must emit each marker only after the actual
+corresponding boot/package/render/transition succeeds. Prepare log checks with
+`python tools/r19_unreal_smoke.py --log PRIVATE_CAPTURE --case packaged`.
+Standalone PASS, truncation, duplication, reordered markers, unexpected FAIL,
+Error/Fatal/assertion lines fail. A matching sequence still reports only
+LOG_CONTRACT_MATCH and actual_runtime_verified=false; synthetic strings cannot
+prove execution. R18 and the separately authorized downstream runtime/device
+work must implement/verify the real producers and bind build/capture provenance.
+This source checkpoint defines/guards that required interface, not its execution.
+
 Character mesh/animation, camera/occlusion, UI/input, battle presentation, actual
 audio playback, lifecycle and Android frame pacing need independent real-runtime
 observations. These six log producers do not certify them. Physical Android,

@@ -83,5 +83,15 @@
     "audio_playback",
     "lifecycle",
     "Android_frame_pacing"
-  ]
+  ],
+  "packaged_smoke_markers": [
+    "BOOT_OK",
+    "RENDER_PACKAGE_OK",
+    "HOUSE_RENDER_OK",
+    "HOUSE_WARP_OK",
+    "LITTLEROOT_RENDER_OK",
+    "ROUTE101_RENDER_OK",
+    "PASS"
+  ],
+  "packaged_producer_status": "NOT_EMITTED_REQUIRES_REAL_HARNESS"
 }

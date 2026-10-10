@@ -465,7 +465,12 @@ metadata only. Next after terminal-success: R19-T1 portable full-suite entry poi
 
 ## R19-T1 — Single ordered actual full-suite command/workflow
 
-State: VERIFYING; V1/G1 NOT_STARTED until exact-head actual full-suite CI succeeds.
+State: VERIFIED_COMPLETE at fc83fd2cf2cbff8ade97313941d384dfc06912ef.
+Actual workflow 37964067675 / job 113933870305 completed/success:
+81 CTest, 397 Python, 171 explicit asset audits, eight clean generations,
+twelve corruptions rejected, all seven components executed and zero devices.
+All 17 exact-head workflows including four CodeQL analyses succeeded.
+All 49 branch/main Git blobs match the reviewed local files.
 Recovery: unchanged main, fifteen ahead / zero behind, draft PR #23; canonical
 and active contract/source/workflow files re-read. I10 all 17 workflows succeeded.
 RED: new full-suite evidence regressions failed importing the absent orchestrator.
@@ -495,3 +500,44 @@ CMake/CTest are absent in the partial local cache; actual full command execution
 is a mandatory hosted gate. Expected CI: all 81 CTest, 397 Python with zero skips,
 171 asset audits, all four package receipts and source/deferred guards.
 Next after terminal-success: R19-V1 and G1 actual acceptance/evidence review.
+
+
+## R19-V1/G1 — Actual aggregate acceptance review
+
+V1 VERIFIED_COMPLETE on fc83fd2: actual seven-component workflow/log/JUnit and
+artifact 11631979157 independently checked against exact checkout/tree/source pin,
+43 core Git blobs and all five receipt file SHA-256 values. Archive SHA-256:
+ce98d03515c6fa103fcd6c449108ae8538e7e58374f32b669388ae09b0758b07.
+Native 81 / Python 397 / assets 171 / metadata clean generations 8 / corruptions
+rejected 12; no skipped owner, private real replay or real UE/device execution.
+ROADMAP source gate entry point, first divergence and CI-gated package/data audits
+are satisfied. During the smoke contract comparison G1 moved to NEEDS_CLOSURE:
+I9 bound six actual diagnostic producers but omitted the separate seven canonical
+future packaged REM_SMOKE markers required by ROADMAP section 7.
+
+## R19-Closure-3 — Canonical future packaged smoke contract
+
+G1 VERIFYING -> NEEDS_CLOSURE -> RUNNING_CLOSURE -> VERIFYING.
+RED: new roster regression found no packaged_smoke_markers; parser regressions
+failed because inspect_packaged_log was absent. The closure changes only source
+orchestration/metadata/tests/docs, no core gameplay or Unreal producer code.
+
+Machine contract now freezes BOOT_OK, RENDER_PACKAGE_OK, HOUSE_RENDER_OK,
+HOUSE_WARP_OK, LITTLEROOT_RENDER_OK, ROUTE101_RENDER_OK, PASS in canonical order
+and compares the exact list to ROADMAP. Producer status stays explicitly
+NOT_EMITTED_REQUIRES_REAL_HARNESS. Packaged logs have bounded length, exact complete
+ordered markers and failure checks; standalone PASS/truncation/reordering/duplicate/
+FAIL/assertion cannot pass. A parsed sequence still only LOG_CONTRACT_MATCH with
+actual_runtime_verified=false. Actual emission/executable/capture provenance stays
+owned by the future R18/runtime/device stage. Six existing diagnostics remain
+separate; no R0 or synthetic string is promoted into actual production evidence.
+
+Full-suite smoke receipt records seven defined packaged markers and their unmet
+producer state. Three additional regressions raise the actual expected Python
+count from 397 to 400; the versioned minimum is updated accordingly. Local all
+72 R19 tests and actual source contract command PASS. All source/default field
+checks preserve explicit deferred state and source pin.
+
+State: VERIFYING; exact closure CI must execute 81 native / 400 Python, 171 asset
+audits, four package integrity components and all source/deferred guards before
+G1 can close. D1/F1 and M1/M2 remain NOT_STARTED. No merge before final checks.

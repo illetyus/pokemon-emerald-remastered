@@ -17,7 +17,7 @@ for original source generation and package prerequisites.
 The versioned data/r19/full_suite.json freezes 81 original native test names and
 56 Python modules including this orchestration's regression module. Added tests
 also execute; deleting/replacing a required owner is rejected. Python must actually
-execute at least 397 tests without skip. Native execution uses actual compiled
+execute at least 400 tests without skip. Native execution uses actual compiled
 CTest JSON discovery, full execution with no-tests=error and complete exact JUnit
 name coverage. The source suite never accepts only a mock, listing or old receipt.
 
@@ -32,7 +32,8 @@ Seven ordered components execute in one process/command:
 3. Execute all 171 current R6/R7/R14/R15 source/synthetic asset audits.
 4. Twice regenerate four metadata packages; verify all twelve hashes and reject
    deliberate corruption of every file.
-5. Verify actual production Unreal smoke literals/enum/source provenance.
+5. Verify actual production Unreal smoke literals/enum/source provenance and the
+   seven canonical future packaged REM_SMOKE markers (not emitted/verified yet).
 6. Verify deferred Android metadata/authorization boundary; execute zero devices.
 7. Run the existing Unreal authority source guard.
 

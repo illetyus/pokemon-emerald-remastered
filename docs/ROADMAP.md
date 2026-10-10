@@ -977,8 +977,11 @@ R19-I9 VERIFIED_COMPLETE at 42a5f4de; workflow 37962672669:
 6/81 CTest, 57/385 Python/source; production smoke SOURCE_CONTRACT_PASS.
 R19-I10 VERIFIED_COMPLETE at 9e301799; workflow 37963233981:
 6/81 CTest, 63/391 Python/source; DEFERRED_METADATA_PASS, zero devices.
-Current checkpoint: **R19-T1**, VERIFYING one actual full-suite command/workflow.
-R19-V1/G1 remain NOT_STARTED until this checkpoint passes.
+R19-T1/V1 VERIFIED_COMPLETE at fc83fd2; workflow 37964067675:
+81 CTest, 397 Python, 171 asset audits; all 17 exact-head workflows succeeded.
+G1 canonical smoke audit found a required-marker contract gap.
+Current checkpoint: **R19-Closure-3**, VERIFYING canonical packaged marker contract.
+R19-G1/D1/F1 remain open until closure CI passes (81 CTest / 400 Python expected).
 [Contract](R19_REPLAY_CONTRACT.md) / [checkpoint evidence](R19_REGRESSION_IMPLEMENTATION.md).
 No actual runtime/local asset obligation was closed by these source merges.
 

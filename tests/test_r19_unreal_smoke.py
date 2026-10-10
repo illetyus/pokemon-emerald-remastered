@@ -53,5 +53,29 @@ class UnrealSmokeContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'before save load'):
             smoke.inspect_log('\n'.join(transitions) + '\n' + self.log, 'map_transition')
 
+    def test_packaged_marker_roster_is_the_canonical_roadmap_contract(self):
+        expected = ['BOOT_OK', 'RENDER_PACKAGE_OK', 'HOUSE_RENDER_OK', 'HOUSE_WARP_OK',
+                    'LITTLEROOT_RENDER_OK', 'ROUTE101_RENDER_OK', 'PASS']
+        self.assertEqual(self.config.get('packaged_smoke_markers'), expected)
+        self.assertEqual(self.config.get('packaged_producer_status'), 'NOT_EMITTED_REQUIRES_REAL_HARNESS')
+
+    def test_packaged_pass_alone_truncation_reorder_or_duplicate_cannot_pass(self):
+        names = ['BOOT_OK', 'RENDER_PACKAGE_OK', 'HOUSE_RENDER_OK', 'HOUSE_WARP_OK',
+                 'LITTLEROOT_RENDER_OK', 'ROUTE101_RENDER_OK', 'PASS']
+        for values in [['PASS'], names[:-1], [names[1], names[0]] + names[2:],
+                       names + ['PASS'], names[:-1] + ['FAIL']]:
+            with self.assertRaisesRegex(ValueError, 'packaged marker'):
+                smoke.inspect_packaged_log('\n'.join('REM_SMOKE: ' + n for n in values))
+
+    def test_packaged_log_match_keeps_unverified_runtime_boundary(self):
+        names = ['BOOT_OK', 'RENDER_PACKAGE_OK', 'HOUSE_RENDER_OK', 'HOUSE_WARP_OK',
+                 'LITTLEROOT_RENDER_OK', 'ROUTE101_RENDER_OK', 'PASS']
+        log = '\n'.join('LogTemp: Display: REM_SMOKE: ' + n for n in names)
+        result = smoke.inspect_packaged_log(log)
+        self.assertEqual(result['status'], 'LOG_CONTRACT_MATCH')
+        self.assertFalse(result['actual_runtime_verified'])
+        with self.assertRaisesRegex(ValueError, 'failure'):
+            smoke.inspect_packaged_log(log + '\nFatal error: synthetic negative fixture')
+
 
 if __name__ == '__main__': unittest.main()
