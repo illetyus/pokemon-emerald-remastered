@@ -1,5 +1,11 @@
 # R6 Character Presentation — Source and Preparation Acceptance
 
+> Current integration status (R20-I5 reconciliation): pre-real-Unreal source
+> acceptance and PR/main integration are VERIFIED_COMPLETE. The integration
+> ledger in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md) supersedes historical
+> merge-pending/per-chat authorization statements below. Actual asset, host,
+> engine, runtime and device obligations retain their documented limits.
+
 Status: **pre-real-Unreal implementation and acceptance VERIFIED_COMPLETE on the R6 branch; merge/main gates pending**.
 This closes the pre-real-Unreal scope. Actual import, animation/retarget validation,
 normalized model output and Android execution remain explicit R18/local asset work.

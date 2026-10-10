@@ -89,7 +89,13 @@ Next after actual exact-head CI: R20-I4.
 
 ## R20-I4 — Whole-package bytes and trusted input provenance
 
-State: VERIFYING publication and actual hosted seal/verification.
+State: VERIFIED_COMPLETE at aefbe4cf761d076e491b6856f520c64ffaf45f6b.
+R20 workflow 38015465245 / job 114104626001 passed actual generation and trusted
+verification: 2,473 files / 13,093 input files; index SHA-256
+33ae24747001bd35dbb2a4ffebed3f541596104f82b8be1c59f7c5f2128ff359.
+R19 workflow 38015468972 / job 114104637518 passed actual 81 CTest / 418 Python /
+171 asset audits, seven components, zero skips. All 18 exact-head workflows
+succeeded and all eight published files match verified strings/blobs.
 Ten new integrity regressions initially failed for the absent aggregate module.
 All 18 R20 isolation/integrity tests pass locally on explicit tiny fixtures.
 Actual complete generation/seal/verification remains the hosted default pipeline.
@@ -103,3 +109,17 @@ are sealed inside I3's transaction before publication. No owner format, vendor,
 gameplay/save field change or private payload upload. Runtime certification false.
 CLI --verify without an explicit trusted hash fails before touching output.
 Next after actual exact-head CI: R20-I5 documentation/prerequisite reconciliation.
+
+## R20-I5 — Canonical build and prerequisite reconciliation
+
+State: VERIFYING publication and exact-head portable/source CI.
+README/Unreal guide now identify completed source main phases and the exact
+R20 -> R18 -> STOP boundary. BUILD.md lists every public clean-checkout/tool/
+generation/verification requirement and all optional private save/model/audio
+instructions. No private input is mandatory for public source acceptance.
+Canonical docs distinguish current main integration from historical snapshots;
+phase evidence gains explicit superseding banners without deleting its history.
+No gameplay, vendor, owner package, dependency or runtime configuration changes.
+Existing source/full CI and package generation remain actual verification; no
+implementation-mirroring tests were added for documentation edits.
+Next after exact-head CI: R20-I6 leakage/security.

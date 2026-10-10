@@ -1,5 +1,11 @@
 # R14 — battle presentation and Pokémon asset preparation
 
+> Current integration status (R20-I5 reconciliation): pre-real-Unreal source
+> acceptance and PR/main integration are VERIFIED_COMPLETE. The integration
+> ledger in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md) supersedes historical
+> merge-pending/per-chat authorization statements below. Actual asset, host,
+> engine, runtime and device obligations retain their documented limits.
+
 ## Scope and checkpoint
 
 R14-P1/P2, I1-I8, T1, V1/G1 and D1/F1 are VERIFIED_COMPLETE for the

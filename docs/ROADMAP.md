@@ -342,8 +342,8 @@ Make save compatibility a release-grade contract.
 
 ## R6 — Character / NPC presentation + character asset pipeline
 
-**Status: pre-real-Unreal source/preparation acceptance VERIFIED_COMPLETE on
-`r6-character-presentation`; merge/main gates pending.** See
+**Status: pre-real-Unreal source/preparation acceptance and PR/main integration
+VERIFIED_COMPLETE.** See
 [R6_PRESENTATION_COMPLETION.md](R6_PRESENTATION_COMPLETION.md) for source choices,
 explicit fallbacks, local asset workflow, 181 Python / 62 CTest results and
 remaining engine/device validation.
@@ -391,8 +391,8 @@ The repository stores only:
 
 ## R7 — Camera / environment presentation + environment asset pipeline
 
-Current checkpoint: pre-real-Unreal implementation and hosted acceptance verified
-on the dependent R7 branch; merge/main gates pending. See [R7_ENVIRONMENT_COMPLETION.md](R7_ENVIRONMENT_COMPLETION.md) for full
+Status: pre-real-Unreal source/preparation acceptance and PR/main integration
+VERIFIED_COMPLETE. See [R7_ENVIRONMENT_COMPLETION.md](R7_ENVIRONMENT_COMPLETION.md) for full
 source identity/fallback coverage, camera/environment changes, budgets and limits.
 
 ### Goal
@@ -448,10 +448,10 @@ presentation-only 3D visual assets
 
 ## R9 — UI / HUD / menu infrastructure
 
-Source/preparation implementation on dependent `r9-ui-presentation` branch:
+Pre-real-Unreal source/preparation and PR/main integration VERIFIED_COMPLETE:
 [R9 UI completion evidence](R9_UI_COMPLETION.md). This checkpoint provides the
 shared native model and source UMG/input integration; real engine/device and
-host-entry integration checks remain explicit. PR/merge/main gates are separate.
+host-entry integration checks remain explicit. Main integration passed.
 
 ### Goal
 
@@ -480,6 +480,9 @@ gameplay state.
 - input actions are abstract and platform-independent.
 
 ## R14 — Battle presentation + Pokémon asset pipeline
+
+Status: pre-real-Unreal source/preparation and PR/main integration VERIFIED_COMPLETE.
+[R14 evidence](R14_BATTLE_PRESENTATION_COMPLETION.md) retains actual host/import limits.
 
 ### Goal
 
@@ -525,7 +528,9 @@ silently ignored.
 
 ## R15 — Audio
 
-Preparation/pilot status: [R15_AUDIO_PREPARATION.md](R15_AUDIO_PREPARATION.md).
+Pre-real-Unreal source/preparation and PR/main integration VERIFIED_COMPLETE:
+[R15 completion](R15_AUDIO_COMPLETION.md). Historical preparation/pilot evidence:
+[R15_AUDIO_PREPARATION.md](R15_AUDIO_PREPARATION.md).
 Modern style selected after the 12-species pilot; 386 normal cries and 4,632
 special-mode candidates are prepared. Special-mode listening/hardware comparison,
 music/FX and runtime gates remain open.
@@ -993,7 +998,10 @@ R20-I1 VERIFIED_COMPLETE at 24e8779f; workflow 38014100330: actual 81/400/171;
 all 16 workflows succeeded. R20-I2 VERIFIED_COMPLETE at f8425149;
 workflow 38014432391: actual 81/400/171, all 16 workflows succeeded.
 R20-I3 VERIFIED_COMPLETE at 8a809ef1; actual generation and 81/408/171;
-all 18 workflows succeeded. Current checkpoint: **R20-I4**, integrity CI VERIFYING.
+all 18 workflows succeeded. R20-I4 VERIFIED_COMPLETE at aefbe4cf;
+actual trusted generation/verification: 2,473 files / 13,093 source inputs.
+R19 workflow 38015468972 passed 81/418/171; all 18 exact-head workflows succeeded.
+Current checkpoint: **R20-I5**, canonical/build documentation publication VERIFYING.
 [Named implementation evidence](R20_PRODUCTION_IMPLEMENTATION.md).
 [Production inventory and named gaps](R20_PRODUCTION_INVENTORY.md).
 [Accepted R19 source/runtime boundary](R19_REGRESSION_COMPLETION.md).
@@ -1004,3 +1012,9 @@ Real Unreal build remains R18 work. After R18 main verification, stop at
 REAL UNREAL RUNTIME VALIDATION; do not automatically run physical Android
 smoke, BrowserStack, final device matrix, R21 or R22.
 
+
+Current build/prerequisite instructions: [BUILD.md](BUILD.md),
+[dependencies](DEPENDENCIES.md), [package verification](R20_PRODUCTION_PACKAGE.md).
+Older phase completion snapshots are historical; the verified PR/main integration
+ledger in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md) supersedes their pending
+merge statements without promoting actual asset/engine/device evidence.

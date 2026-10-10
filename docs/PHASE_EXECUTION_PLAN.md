@@ -1,6 +1,6 @@
 # Phase Execution Plan — Through Real Unreal Runtime Validation
 
-Date: 2026-10-08
+Date: 2026-10-10
 Status: active execution plan
 Canonical roadmap source: `docs/ROADMAP.md`
 
@@ -409,7 +409,7 @@ Main HEAD + CI terminal-success. Pass -> R15-P1.
 
 Current preparation/pilot evidence: [R15_AUDIO_PREPARATION.md](R15_AUDIO_PREPARATION.md).
 Pre-real-UE source/preparation G1 is passed; completion evidence is recorded in
-[R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md). F1/merge/main gates are pending.
+[R15_AUDIO_COMPLETION.md](R15_AUDIO_COMPLETION.md). Source F1/PR/main gates passed.
 386 normal cries, 4,632 special-mode candidates and 209 Original-style BGM/jingle
 candidates are prepared. Actual assets/import, fidelity/listening, owner/platform
 attachment and engine/device tests remain explicit R18/runtime obligations.
@@ -937,7 +937,10 @@ R20-I1 VERIFIED_COMPLETE at 24e8779f; workflow 38014100330: actual 81/400/171;
 all 16 workflows succeeded. R20-I2 VERIFIED_COMPLETE at f8425149;
 workflow 38014432391: actual 81/400/171, all 16 workflows succeeded.
 R20-I3 VERIFIED_COMPLETE at 8a809ef1; actual generation and 81/408/171;
-all 18 workflows succeeded. Current checkpoint: **R20-I4**, integrity CI VERIFYING.
+all 18 workflows succeeded. R20-I4 VERIFIED_COMPLETE at aefbe4cf;
+actual trusted generation/verification: 2,473 files / 13,093 source inputs.
+R19 workflow 38015468972 passed 81/418/171; all 18 exact-head workflows succeeded.
+Current checkpoint: **R20-I5**, canonical/build documentation publication VERIFYING.
 [Named implementation evidence](R20_PRODUCTION_IMPLEMENTATION.md).
 [Production inventory and named gaps](R20_PRODUCTION_INVENTORY.md).
 [Accepted R19 source/runtime boundary](R19_REGRESSION_COMPLETION.md).
@@ -1008,9 +1011,14 @@ passed 8/75/328 and source guards. R8-D1 is VERIFIED_COMPLETE at `ddd3ce19`;
 workflow 37851617574 passed 8/75/328; all 16 workflows including CodeQL succeeded.
 R8-F1 is VERIFIED_COMPLETE at `ea582534`; all 16 final-head workflows succeeded. [Acceptance/runtime boundaries](R8_INPUT_COMPLETION.md).
 R8-M1 PR #22 merge and R8-M2 exact-main terminal-success are VERIFIED_COMPLETE.
-R19 pre-real source and integration gates are complete; R20-P1 is active.
+R19 pre-real source and integration gates are complete; R20-I5 is active.
 R18 has not started.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,
 R20 and R18; stop at the actual environment/runtime boundary. All deferred
 asset/host/engine/device obligations remain explicit.
+
+R20-I5 canonical documentation links [BUILD.md](BUILD.md) and the production
+package contract. The R6/R7/R9/R14/R15 completion documents preserve their
+historical implementation snapshots under explicit superseding integration
+banners; old per-chat permission restrictions do not govern current execution.
