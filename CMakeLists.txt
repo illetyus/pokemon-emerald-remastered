@@ -1180,3 +1180,74 @@ else()
     target_compile_options(r8_enhanced_coverage_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME r8_partial_enhanced_fallback_coverage COMMAND r8_enhanced_coverage_test)
+
+# R19-I1 replays ordered commands against production Emerald movement authority.
+add_executable(r19_replay_probe tests/r19_replay_probe.c)
+target_link_libraries(r19_replay_probe PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(r19_replay_probe PRIVATE /W4)
+else()
+    target_compile_options(r19_replay_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r19_ordered_production_replay COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_replay.py
+    --probe $<TARGET_FILE:r19_replay_probe>)
+
+# R19-Closure-1 pins actual R2 WORLD request serialization in both directions.
+add_executable(r19_script_checkpoint_test tests/r19_script_checkpoint_test.c
+    "${R2_LITTLEROOT_GENERATED_C}")
+target_link_libraries(r19_script_checkpoint_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(r19_script_checkpoint_test PRIVATE /W4)
+else()
+    target_compile_options(r19_script_checkpoint_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r19_source_world_request_checkpoint COMMAND r19_script_checkpoint_test)
+
+# R19-I3 executes immutable opening/world slices from the actual source fixtures.
+add_executable(r19_story_probe tests/r19_story_probe.c
+    "${R2_LITTLEROOT_GENERATED_C}" "${R4_LITTLEROOT_GENERATED_C}")
+target_include_directories(r19_story_probe PRIVATE tests)
+target_link_libraries(r19_story_probe PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(r19_story_probe PRIVATE /W4)
+else()
+    target_compile_options(r19_story_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r19_source_story_world_replay COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_replay.py
+    --probe $<TARGET_FILE:r19_story_probe>
+    --matrix ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/r19/story.json
+    --r2-input "${R2_LITTLEROOT_GENERATED_C}"
+    --r4-input "${R4_LITTLEROOT_GENERATED_C}")
+
+# R19-I4 requires actual complete execution of all R17 save fixture owners.
+add_test(NAME r19_save_compatibility_matrix COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_save_matrix.py
+    --build-dir ${CMAKE_CURRENT_BINARY_DIR} --ctest ${CMAKE_CTEST_COMMAND})
+
+# R19-I5 pins full transient encounter state and RNG across representative seeds.
+add_executable(r19_encounter_probe tests/r19_encounter_probe.c)
+target_link_libraries(r19_encounter_probe PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(r19_encounter_probe PRIVATE /W4)
+else()
+    target_compile_options(r19_encounter_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r19_encounter_seed_matrix COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_replay.py
+    --probe $<TARGET_FILE:r19_encounter_probe>
+    --matrix ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/r19/encounter.json)
+
+# R19-I6 uses complete field/codec snapshots across battle and accepted R16 paths.
+add_executable(r19_battle_probe tests/r19_battle_probe.c)
+target_link_libraries(r19_battle_probe PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(r19_battle_probe PRIVATE /W4)
+else()
+    target_compile_options(r19_battle_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME r19_battle_seed_matrix COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_replay.py
+    --probe $<TARGET_FILE:r19_battle_probe>
+    --matrix ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/r19/battle.json)

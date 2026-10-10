@@ -1,7 +1,7 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
 Date: 2026-10-08
-Status: **R0-R5, R10-R13, R16/R17 and R6/R7/R9/R14/R15 pre-real-UE source phases verified complete on main; R8 input infrastructure active. Actual engine/assets/device obligations remain open.**
+Status: **R0-R5, R10-R13, R16/R17 and R6/R7/R9/R14/R15/R8 pre-real-UE source phases verified complete on main; R19 regression infrastructure active. Actual engine/assets/device obligations remain open.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
@@ -900,12 +900,13 @@ of successful UE compilation or Android runtime.
 
 # 14. Immediate next action
 
-The active phase is **R8 Input infrastructure** on `r8-input-infrastructure`.
-Verified main is `b8d789e697ee06c466c5546dfbebfb546b4e89e2`: R15 PR #21,
-all 14 workflows terminal-success including CodeQL; 74 targeted Python,
-310 full Python and 67 CTest PASS, zero Python skips.
-R6/R7/R9/R14/R15 M1/M2 are VERIFIED_COMPLETE. The exact merge/CI ledger and
-R8-P1 audit are in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md).
+The active phase is **R19 Regression infrastructure** on
+`r19-regression-infrastructure`. Verified main is
+`7e8d027d6c1f00677b0f270d56bfe7d4de83590d`: R8 PR #22, all 15
+workflows terminal-success including CodeQL. Main R8 workflow 37853379312
+passed 8 targeted / 75 full CTest and 328 Python tests plus source guards.
+R6/R7/R9/R14/R15/R8 M1/M2 are VERIFIED_COMPLETE.
+[R19-P1 inventory and remaining source/runtime gaps](R19_REGRESSION_INVENTORY.md).
 
 R15-V1-Closure-1 is VERIFIED_COMPLETE at
 `3b9b208f934ecba9ac9be857cd40e38e88cbfec0`: hosted
@@ -950,10 +951,43 @@ R8-T1/V1 passed at `d1730592` (workflow 37850579912: 7/74/326 PASS).
 R8-Closure-1/V1/G1 is VERIFIED_COMPLETE at `19f8716d`; workflow 37851201049
 passed 8/75/328. R8-D1 is VERIFIED_COMPLETE at `ddd3ce19`; workflow
 37851617574 passed 8/75/328 and all 16 exact-head workflows including CodeQL succeeded.
-R8-F1 source reconciliation passed; final documentation publication CI is VERIFYING.
+R8-F1 is VERIFIED_COMPLETE at `ea582534`; all 16 final-head push/PR workflows succeeded.
 [Acceptance/evidence/runtime boundaries](R8_INPUT_COMPLETION.md). Evidence: [R8_INPUT_IMPLEMENTATION.md](R8_INPUT_IMPLEMENTATION.md).
-Next after final exact-head CI is **R8-M1 — PR #22 merge**, then **R8-M2**.
-R19-P1 starts only after R8-M2 main terminal-success.
+R8-M1 PR #22 merge and R8-M2 exact-main CI are VERIFIED_COMPLETE.
+R19-P1/P2 are VERIFIED_COMPLETE at `915fee92` / `605a8378`.
+R19-I1 is VERIFIED_COMPLETE at `ab3196cc`; workflow 37855418711: 1/76 CTest, 9/337 Python/source PASS.
+R19-I2 is VERIFIED_COMPLETE at `af9ffdea`; workflow 37857133241: 1/76 CTest, 19/347 Python/source PASS.
+**R19-Closure-1** is VERIFIED_COMPLETE at c76443b0; workflow 37953441780:
+2 targeted / 77 full CTest, 19 targeted / 347 full Python/source PASS.
+R19-I3 VERIFIED_COMPLETE at de446656; workflow 37955312626:
+3 targeted / 78 full CTest, 22 targeted / 350 full Python/source PASS.
+R19-I4 VERIFIED_COMPLETE at 33945600; workflow 37956206672:
+4 targeted / 79 full CTest, 28 targeted / 356 full Python/source PASS.
+R19-Closure-2 VERIFIED_COMPLETE at 46611975; workflow 37956783169:
+4 targeted / 79 full CTest, 29 targeted / 357 full Python/source PASS.
+R19-I5 VERIFIED_COMPLETE at ff8858d0; workflow 37958197475:
+5 targeted / 80 full CTest, 34 targeted / 362 full Python/source PASS.
+R19-I6 VERIFIED_COMPLETE at 7c86759c; workflow 37960402440:
+6/81 CTest, 38/366 Python/source PASS; all 17 workflows terminal-success.
+R19-I7 VERIFIED_COMPLETE at e31d5666; workflow 37961436672:
+6/81 CTest, 44/372 Python/source, 171 actual asset audits, zero skips.
+R19-I8 VERIFIED_COMPLETE at 73fd89dc; workflow 37962037380:
+6/81 CTest, 50/378 Python/source; 8 clean generations / 12 corruptions rejected.
+R19-I9 VERIFIED_COMPLETE at 42a5f4de; workflow 37962672669:
+6/81 CTest, 57/385 Python/source; production smoke SOURCE_CONTRACT_PASS.
+R19-I10 VERIFIED_COMPLETE at 9e301799; workflow 37963233981:
+6/81 CTest, 63/391 Python/source; DEFERRED_METADATA_PASS, zero devices.
+R19-T1/V1 VERIFIED_COMPLETE at fc83fd2; workflow 37964067675:
+81 CTest, 397 Python, 171 asset audits; all 17 exact-head workflows succeeded.
+R19-Closure-3 VERIFIED_COMPLETE at 1bd0c356; workflow 38010794841:
+81 CTest, 400 Python, 171 asset audits; all seven source components passed.
+R19-V1/G1 pre-real source acceptance VERIFIED_COMPLETE.
+R19-D1 VERIFIED_COMPLETE at 1489aefd; workflow 38011198536:
+81 CTest, 400 Python, 171 assets; all 17 workflows / 30 check runs succeeded.
+Current checkpoint: **R19-F1**, source reconciliation COMPLETE; final CI VERIFYING.
+[Acceptance and runtime boundary](R19_REGRESSION_COMPLETION.md).
+M1 only after final-head required CI success; R20-P1 only after M2 exact-main success.
+[Contract](R19_REPLAY_CONTRACT.md) / [checkpoint evidence](R19_REGRESSION_IMPLEMENTATION.md).
 No actual runtime/local asset obligation was closed by these source merges.
 
 Real Unreal build remains R18 work. After R18 main verification, stop at

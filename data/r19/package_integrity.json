@@ -1,0 +1,55 @@
+{
+  "schema": "remaster.r19.package-integrity",
+  "version": 1,
+  "source_commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+  "components": [
+    {
+      "id": "R6",
+      "owner": {
+        "path": "tools/build_r6_character_package.py",
+        "blob_sha": "c68d4bdcf42fae5cef88fb335552dc282af9169d"
+      },
+      "files": [
+        "coverage.json",
+        "manifest.json",
+        "manifest.sha256"
+      ]
+    },
+    {
+      "id": "R7",
+      "owner": {
+        "path": "tools/build_r7_environment_package.py",
+        "blob_sha": "6785d6d5156a4f3af7c8137459b1df907d02c963"
+      },
+      "files": [
+        "contract.json",
+        "manifest.json",
+        "map-audit.json",
+        "package-sha256.json",
+        "source-inputs.json"
+      ]
+    },
+    {
+      "id": "R14",
+      "owner": {
+        "path": "tools/build_r14_battle_package.py",
+        "blob_sha": "6781c5c630f9b32fc9202371e03985ae3034f9e1"
+      },
+      "files": [
+        "RemasterBattleCatalog.inl",
+        "species_audit.json"
+      ]
+    },
+    {
+      "id": "R15",
+      "owner": {
+        "path": "tools/build_r15_audio_catalog.py",
+        "blob_sha": "fd9a933becba77f7c7c8bd6df4407b83d1b6f63b"
+      },
+      "files": [
+        "RemasterAudioCatalog.inl",
+        "source_audio_catalog.json"
+      ]
+    }
+  ]
+}

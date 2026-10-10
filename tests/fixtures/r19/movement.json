@@ -1,0 +1,194 @@
+{
+  "schema": "remaster.r19.replay-matrix",
+  "version": 1,
+  "source": {
+    "repository": "illetyus/pokezumrut-vanillaplus",
+    "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c"
+  },
+  "cases": [
+    {
+      "id": "movement-loop",
+      "recipe": "synthetic-movement-v1",
+      "commands": [
+        {
+          "op": "step",
+          "direction": "north"
+        },
+        {
+          "op": "step",
+          "direction": "east"
+        },
+        {
+          "op": "step",
+          "direction": "south"
+        },
+        {
+          "op": "step",
+          "direction": "west"
+        },
+        {
+          "op": "step",
+          "direction": "west"
+        },
+        {
+          "op": "step",
+          "direction": "north"
+        },
+        {
+          "op": "step",
+          "direction": "east"
+        }
+      ],
+      "expected": [
+        {
+          "observations": {
+            "x": 1,
+            "y": 1,
+            "kind": 0,
+            "collision": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "a60ba16399a695d44779b7c5927a2a24d57b6f8f5fed697aabc4ef94474a3741",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "f34c5b05b1490294c3f5d0c87d9d0f072b43e4a534e5e4ae3e707fc14438bf0c"
+        },
+        {
+          "observations": {
+            "x": 1,
+            "y": 1,
+            "kind": 1,
+            "collision": 2
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "a60ba16399a695d44779b7c5927a2a24d57b6f8f5fed697aabc4ef94474a3741",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "35b626670bee3ee9157effef6aa59d8125bd1a317e36329449092ab330d92c19"
+        },
+        {
+          "observations": {
+            "x": 2,
+            "y": 1,
+            "kind": 2,
+            "collision": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "23b0d547395238550b97e3d6ab31ee9dc921f8edf3dae1ad6ac2936157f97b87",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "9f10a6e614170cc26baf743f9ee8cb3d434b0fc65a8c2f64c82eb99b8a38fa93"
+        },
+        {
+          "observations": {
+            "x": 2,
+            "y": 2,
+            "kind": 2,
+            "collision": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "8759a8d548210e7c7e0d51d939dff86ac1ab354585795428dc9db5617e2e5177",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "20d4dcc009b3bb012c0b3d84bc89fa8879b521a7128dc86527e13ee0bc41a026"
+        },
+        {
+          "observations": {
+            "x": 1,
+            "y": 2,
+            "kind": 2,
+            "collision": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "dcfa58b2956a4fb62bca0e30dc5a921d8e817fbf6d68db19030ce7f415ba930b",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "2a12eb3c1e1927f431b600794edfc102c1f3909fe352327b6587a6ae67cd7437"
+        },
+        {
+          "observations": {
+            "x": 0,
+            "y": 2,
+            "kind": 2,
+            "collision": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "3cc8edda0ff87dbbe4c10d2a9ac21f6d237cbbda2a58b92c1860e3689d357016",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "6a562b6087f70fef005e45967092cece9d5cc211afb4ba07413fb39200aecf10"
+        },
+        {
+          "observations": {
+            "x": 0,
+            "y": 1,
+            "kind": 2,
+            "collision": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "a6f3855f8be3080058224c226d1eb4e73ba2beeda9c71236acf3da1c531d5ee4",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "b72670c1bc535a330fb4a163826d451388d866dbbfcced8510c9e17c9758a43a"
+        },
+        {
+          "observations": {
+            "x": 1,
+            "y": 1,
+            "kind": 2,
+            "collision": 0
+          },
+          "domain_hashes": {
+            "save_block2": "3f65bf1e530795ed3aff777c339120b0f2b8e2c15c7abaec1aaeab22fa45feff",
+            "save_block1": "a60ba16399a695d44779b7c5927a2a24d57b6f8f5fed697aabc4ef94474a3741",
+            "storage": "9f85fb75de7a5d97f8e97a6f892587e883cbf8658a8a1788c997de3749825ea2",
+            "script": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "objects": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "encounter": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+            "battle": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+          },
+          "state_hash": "908d8cea54238d70f45c72ccf1c786c2e2aeecf9f4db14d92995ffa5e3ba2f32"
+        }
+      ]
+    }
+  ],
+  "probe_source": {
+    "path": "tests/r19_replay_probe.c",
+    "blob_sha": "1ffa8b0ac283853d2d95aaa3348410fefa4a3975"
+  }
+}

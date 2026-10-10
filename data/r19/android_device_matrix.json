@@ -1,0 +1,117 @@
+{
+  "schema": "remaster.r19.deferred-android-matrix",
+  "version": 1,
+  "source_commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+  "status": "DEFERRED_POST_RUNTIME",
+  "automatic_execution": false,
+  "minimum_api": 26,
+  "target_api": 35,
+  "abi": "arm64-v8a",
+  "prerequisites": [
+    "R18_VERIFIED_BUILD_AND_MAIN_CI",
+    "REAL_UNREAL_RUNTIME_VALIDATION",
+    "USER_AUTHORIZED_DEVICE_STAGE"
+  ],
+  "scenarios": [
+    "cold_start_save_load",
+    "movement_connection_warp",
+    "story_script_continuation",
+    "save_store_reload",
+    "encounter_battle_win_loss",
+    "ui_touch_controller_focus",
+    "character_environment_fallback",
+    "cry_sfx_bgm_mix",
+    "background_foreground_save",
+    "rtc_clock_boundary"
+  ],
+  "measurements": [
+    "cpu_gpu_frame_time_p50_p95_p99",
+    "peak_resident_memory",
+    "thermal_sustained_20min",
+    "save_commit_latency_and_reload_integrity",
+    "audio_dropouts_and_mix",
+    "crash_anr_and_lifecycle_trace"
+  ],
+  "targets": [
+    {
+      "id": "api26-low-adreno-gles31",
+      "api": 26,
+      "tier": "low",
+      "gpu_family": "Adreno",
+      "backend": "gles31",
+      "minimum_ram_gib": 4,
+      "reference_landscape_pixels": [
+        1280,
+        720
+      ],
+      "status": "NOT_RUN",
+      "device_model": null,
+      "provider": null,
+      "result_artifact": null
+    },
+    {
+      "id": "api29-mid-adreno-vulkan",
+      "api": 29,
+      "tier": "mid",
+      "gpu_family": "Adreno",
+      "backend": "vulkan",
+      "minimum_ram_gib": 6,
+      "reference_landscape_pixels": [
+        1920,
+        1080
+      ],
+      "status": "NOT_RUN",
+      "device_model": null,
+      "provider": null,
+      "result_artifact": null
+    },
+    {
+      "id": "api31-mid-mali-gles31",
+      "api": 31,
+      "tier": "mid",
+      "gpu_family": "Mali",
+      "backend": "gles31",
+      "minimum_ram_gib": 6,
+      "reference_landscape_pixels": [
+        1920,
+        1080
+      ],
+      "status": "NOT_RUN",
+      "device_model": null,
+      "provider": null,
+      "result_artifact": null
+    },
+    {
+      "id": "api33-high-adreno-vulkan",
+      "api": 33,
+      "tier": "high",
+      "gpu_family": "Adreno",
+      "backend": "vulkan",
+      "minimum_ram_gib": 8,
+      "reference_landscape_pixels": [
+        1920,
+        1080
+      ],
+      "status": "NOT_RUN",
+      "device_model": null,
+      "provider": null,
+      "result_artifact": null
+    },
+    {
+      "id": "api35-high-mali-vulkan",
+      "api": 35,
+      "tier": "high",
+      "gpu_family": "Mali",
+      "backend": "vulkan",
+      "minimum_ram_gib": 8,
+      "reference_landscape_pixels": [
+        2560,
+        1440
+      ],
+      "status": "NOT_RUN",
+      "device_model": null,
+      "provider": null,
+      "result_artifact": null
+    }
+  ]
+}

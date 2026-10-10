@@ -1,0 +1,109 @@
+{
+  "schema": "remaster.r19.asset-audits",
+  "version": 1,
+  "source": {
+    "repo": "illetyus/pokezumrut-vanillaplus",
+    "commit": "70db90c9077aed1272e746fc2537d9f12b95a91c"
+  },
+  "components": [
+    {
+      "id": "R6",
+      "minimum_tests": 52,
+      "modules": [
+        {
+          "name": "test_r6_character_manifest",
+          "path": "tests/test_r6_character_manifest.py",
+          "blob_sha": "07366ef120c176b1099f671ec429e463a1958d79"
+        },
+        {
+          "name": "test_r6_npc_asset_acquisition",
+          "path": "tests/test_r6_npc_asset_acquisition.py",
+          "blob_sha": "8f37b1d4ea6135a22adbe6b4749dec2620822283"
+        },
+        {
+          "name": "test_r6_npc_model_mapping",
+          "path": "tests/test_r6_npc_model_mapping.py",
+          "blob_sha": "ba1e36a133ea562a925b5ec2463fb4ad4ccc16e9"
+        },
+        {
+          "name": "test_r6_npc_source_inventory",
+          "path": "tests/test_r6_npc_source_inventory.py",
+          "blob_sha": "9981e57f6abeb2acd73b8309721cad2314148d12"
+        },
+        {
+          "name": "test_r6_player_presentation_states",
+          "path": "tests/test_r6_player_presentation_states.py",
+          "blob_sha": "01cc7b3f767c75e2dfc51b5a2c7dad264d68647d"
+        },
+        {
+          "name": "test_r6_presentation_closure",
+          "path": "tests/test_r6_presentation_closure.py",
+          "blob_sha": "850734a9dd7e481a0e5e29a7b749032dd4091b89"
+        }
+      ]
+    },
+    {
+      "id": "R7",
+      "minimum_tests": 21,
+      "modules": [
+        {
+          "name": "test_r7_environment",
+          "path": "tests/test_r7_environment.py",
+          "blob_sha": "95a4bda65b4a63c11e135db5b6734ef0ddca4830"
+        }
+      ]
+    },
+    {
+      "id": "R14",
+      "minimum_tests": 24,
+      "modules": [
+        {
+          "name": "test_r14_battle_presentation",
+          "path": "tests/test_r14_battle_presentation.py",
+          "blob_sha": "635a66aa7a5f0a4e1804562f2e2cca3f33bd9113"
+        }
+      ]
+    },
+    {
+      "id": "R15",
+      "minimum_tests": 74,
+      "modules": [
+        {
+          "name": "test_r15_audio",
+          "path": "tests/test_r15_audio.py",
+          "blob_sha": "21e69578ff63955cfd5c761a466503f5b9e426fe"
+        },
+        {
+          "name": "test_r15_bgm_coverage",
+          "path": "tests/test_r15_bgm_coverage.py",
+          "blob_sha": "ff112c9a21bfb99788da0620660de4c7480b1301"
+        },
+        {
+          "name": "test_r15_bgm_pilot",
+          "path": "tests/test_r15_bgm_pilot.py",
+          "blob_sha": "cec167cef293eecdf5ac431dd63ea994b91e3571"
+        },
+        {
+          "name": "test_r15_bgm_plan",
+          "path": "tests/test_r15_bgm_plan.py",
+          "blob_sha": "5ce8de80b0ef1af7fdc6d869cc749f12b84d6f41"
+        },
+        {
+          "name": "test_r15_cry_recovery",
+          "path": "tests/test_r15_cry_recovery.py",
+          "blob_sha": "bc2354d0561e25a034ff5acfdccd8578ef81f2f5"
+        },
+        {
+          "name": "test_r15_modern_pack",
+          "path": "tests/test_r15_modern_pack.py",
+          "blob_sha": "d0bf50e69d94c70796a19d9424de02a127741ea2"
+        },
+        {
+          "name": "test_r15_special_cries",
+          "path": "tests/test_r15_special_cries.py",
+          "blob_sha": "62940355efc98871deea322ddd05d19aa05473ab"
+        }
+      ]
+    }
+  ]
+}

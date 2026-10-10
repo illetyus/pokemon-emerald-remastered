@@ -890,11 +890,48 @@ The current user instruction authorizes applying the full agreed plan. Historica
 phase-only preparation restrictions above describe their earlier checkpoints.
 Canonical branch/PR/final-gate/main-CI rules and the R18 runtime stop remain.
 
-Main: `b8d789e697ee06c466c5546dfbebfb546b4e89e2`, R15 PR #21.
-R6 → R7 → R9 → R14 → R15 M1/M2 are VERIFIED_COMPLETE; each exact main CI
+Main: `7e8d027d6c1f00677b0f270d56bfe7d4de83590d`, R8 PR #22.
+R6 → R7 → R9 → R14 → R15 → R8 M1/M2 are VERIFIED_COMPLETE; each exact main CI
 reached terminal success before the next integration (including CodeQL).
 The versioned merge/CI ledger is in [R8_INPUT_INVENTORY.md](R8_INPUT_INVENTORY.md).
-R8 is active on `r8-input-infrastructure` from that verified main.
+R19 is active on `r19-regression-infrastructure` from that verified main.
+Main workflow 37853379312: 8 targeted / 75 full CTest, 328 Python/source PASS;
+all 15 main workflows, including CodeQL 37853378547, completed successfully.
+R19-P1/P2 are VERIFIED_COMPLETE at `915fee92` / `605a8378`.
+R19-I1 is VERIFIED_COMPLETE at `ab3196cc`; workflow 37855418711: 1/76 CTest, 9/337 Python/source PASS.
+R19-I2 is VERIFIED_COMPLETE at `af9ffdea`; workflow 37857133241: 1/76 CTest, 19/347 Python/source PASS.
+**R19-Closure-1** is VERIFIED_COMPLETE at c76443b0; workflow 37953441780:
+2 targeted / 77 full CTest, 19 targeted / 347 full Python/source PASS.
+R19-I3 VERIFIED_COMPLETE at de446656; workflow 37955312626:
+3 targeted / 78 full CTest, 22 targeted / 350 full Python/source PASS.
+R19-I4 VERIFIED_COMPLETE at 33945600; workflow 37956206672:
+4 targeted / 79 full CTest, 28 targeted / 356 full Python/source PASS.
+R19-Closure-2 VERIFIED_COMPLETE at 46611975; workflow 37956783169:
+4 targeted / 79 full CTest, 29 targeted / 357 full Python/source PASS.
+R19-I5 VERIFIED_COMPLETE at ff8858d0; workflow 37958197475:
+5 targeted / 80 full CTest, 34 targeted / 362 full Python/source PASS.
+R19-I6 VERIFIED_COMPLETE at 7c86759c; workflow 37960402440:
+6/81 CTest, 38/366 Python/source PASS; all 17 workflows terminal-success.
+R19-I7 VERIFIED_COMPLETE at e31d5666; workflow 37961436672:
+6/81 CTest, 44/372 Python/source, 171 actual asset audits, zero skips.
+R19-I8 VERIFIED_COMPLETE at 73fd89dc; workflow 37962037380:
+6/81 CTest, 50/378 Python/source; 8 clean generations / 12 corruptions rejected.
+R19-I9 VERIFIED_COMPLETE at 42a5f4de; workflow 37962672669:
+6/81 CTest, 57/385 Python/source; production smoke SOURCE_CONTRACT_PASS.
+R19-I10 VERIFIED_COMPLETE at 9e301799; workflow 37963233981:
+6/81 CTest, 63/391 Python/source; DEFERRED_METADATA_PASS, zero devices.
+R19-T1/V1 VERIFIED_COMPLETE at fc83fd2; workflow 37964067675:
+81 CTest, 397 Python, 171 asset audits; all 17 exact-head workflows succeeded.
+R19-Closure-3 VERIFIED_COMPLETE at 1bd0c356; workflow 38010794841:
+81 CTest, 400 Python, 171 asset audits; all seven source components passed.
+R19-V1/G1 pre-real source acceptance VERIFIED_COMPLETE.
+R19-D1 VERIFIED_COMPLETE at 1489aefd; workflow 38011198536:
+81 CTest, 400 Python, 171 assets; all 17 workflows / 30 check runs succeeded.
+Current checkpoint: **R19-F1**, source reconciliation COMPLETE; final CI VERIFYING.
+[Acceptance and runtime boundary](R19_REGRESSION_COMPLETION.md).
+M1 only after final-head required CI success; R20-P1 only after M2 exact-main success.
+[Inventory](R19_REGRESSION_INVENTORY.md), [contract](R19_REPLAY_CONTRACT.md),
+[evidence](R19_REGRESSION_IMPLEMENTATION.md).
 
 R15-V1-Closure-1 is VERIFIED_COMPLETE at
 `3b9b208f934ecba9ac9be857cd40e38e88cbfec0`.
@@ -942,7 +979,7 @@ R15-F1 publication `515dde0` passed workflow 37781258584: 74 targeted Python,
 310 full Python, 67 CTest, zero skips. PR #21 merge and main CI then passed.
 R8-P1 is VERIFIED_COMPLETE at `261cef11`: versioned source/action inventory,
 no implementation changes and no push workflow trigger.
-Current checkpoint: **R8-P2 — Platform/lifecycle contract**, frozen in
+Historical R8-P2 — Platform/lifecycle contract, frozen in
 [R8_INPUT_CONTRACT.md](R8_INPUT_CONTRACT.md) and `data/r8/input_contract.json`.
 This is a policy/doc checkpoint; no input/gameplay behavior changes.
 R8-P2 is versioned at `d9771a8d`; I1 is VERIFIED_COMPLETE at `1d45a91d`.
@@ -958,8 +995,9 @@ R8-T1/V1 passed at `d1730592`; workflow 37850579912 passed 7/74/326.
 R8-Closure-1/V1/G1 is VERIFIED_COMPLETE at `19f8716d`; workflow 37851201049
 passed 8/75/328 and source guards. R8-D1 is VERIFIED_COMPLETE at `ddd3ce19`;
 workflow 37851617574 passed 8/75/328; all 16 workflows including CodeQL succeeded.
-R8-F1 source reconciliation passed; final documentation publication CI is VERIFYING. [Acceptance/runtime boundaries](R8_INPUT_COMPLETION.md).
-Next after final exact-head CI: **R8-M1** PR #22 merge → **R8-M2** main terminal-success, then R19-P1.
+R8-F1 is VERIFIED_COMPLETE at `ea582534`; all 16 final-head workflows succeeded. [Acceptance/runtime boundaries](R8_INPUT_COMPLETION.md).
+R8-M1 PR #22 merge and R8-M2 exact-main terminal-success are VERIFIED_COMPLETE.
+R19 is active; R20/R18 have not started.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,
 R20 and R18; stop at the actual environment/runtime boundary. All deferred

@@ -1,0 +1,409 @@
+{
+  "schema": "remaster.r19.battle-runtime",
+  "version": 1,
+  "header": {
+    "path": "core/include/remaster/emerald_battle.h",
+    "blob_sha": "1fc0fb242833104cb0e269d1a43dc13f6cdfb80b"
+  },
+  "structs": {
+    "RemasterEmeraldBattleRng": {
+      "state": {
+        "type": "u32"
+      },
+      "calls": {
+        "type": "u64"
+      }
+    },
+    "RemasterEmeraldBattleEvent": {
+      "kind": {
+        "type": "u16"
+      },
+      "battler": {
+        "type": "u8"
+      },
+      "target": {
+        "type": "u8"
+      },
+      "move_id": {
+        "type": "u16"
+      },
+      "value": {
+        "type": "i32"
+      },
+      "aux": {
+        "type": "u32"
+      }
+    },
+    "RemasterEmeraldBattleAction": {
+      "kind": {
+        "type": "u8"
+      },
+      "move_slot": {
+        "type": "u8"
+      },
+      "target": {
+        "type": "u8"
+      },
+      "party_slot": {
+        "type": "u8"
+      },
+      "item_id": {
+        "type": "u16"
+      }
+    },
+    "RemasterEmeraldBattleMon": {
+      "pokemon": {
+        "type": "party-codec"
+      },
+      "species": {
+        "type": "u16"
+      },
+      "held_item": {
+        "type": "u16"
+      },
+      "moves": {
+        "type": "u16",
+        "shape": [
+          4
+        ]
+      },
+      "pp": {
+        "type": "u8",
+        "shape": [
+          4
+        ]
+      },
+      "types": {
+        "type": "u8",
+        "shape": [
+          2
+        ]
+      },
+      "ability": {
+        "type": "u8"
+      },
+      "stat_stages": {
+        "type": "u8",
+        "shape": [
+          8
+        ]
+      },
+      "status2": {
+        "type": "u32"
+      },
+      "status3": {
+        "type": "u32"
+      },
+      "substitute_hp": {
+        "type": "u16"
+      },
+      "last_move": {
+        "type": "u16"
+      },
+      "last_taken_move": {
+        "type": "u16"
+      },
+      "choice_locked_move": {
+        "type": "u16"
+      },
+      "last_damage": {
+        "type": "u16"
+      },
+      "bide_damage": {
+        "type": "u16"
+      },
+      "trapped_move": {
+        "type": "u16"
+      },
+      "last_damage_from": {
+        "type": "u8"
+      },
+      "last_damage_type": {
+        "type": "u8"
+      },
+      "last_damage_was_physical": {
+        "type": "u8"
+      },
+      "last_damage_turn": {
+        "type": "u8"
+      },
+      "side": {
+        "type": "u8"
+      },
+      "party_slot": {
+        "type": "u8"
+      },
+      "active": {
+        "type": "u8"
+      },
+      "fainted": {
+        "type": "u8"
+      },
+      "protected_turn": {
+        "type": "u8"
+      },
+      "endure_turn": {
+        "type": "u8"
+      },
+      "entered_turn": {
+        "type": "u8"
+      },
+      "protect_chain": {
+        "type": "u8"
+      },
+      "stockpile": {
+        "type": "u8"
+      },
+      "rollout_count": {
+        "type": "u8"
+      },
+      "fury_cutter_count": {
+        "type": "u8"
+      },
+      "trapped_turns": {
+        "type": "u8"
+      },
+      "rampage_turns": {
+        "type": "u8"
+      },
+      "uproar_turns": {
+        "type": "u8"
+      },
+      "bide_turns": {
+        "type": "u8"
+      },
+      "lock_on_turns": {
+        "type": "u8"
+      },
+      "lock_on_target": {
+        "type": "u8"
+      },
+      "perish_count": {
+        "type": "u8"
+      },
+      "toxic_counter": {
+        "type": "u8"
+      },
+      "flash_fire": {
+        "type": "u8"
+      },
+      "taunt_turns": {
+        "type": "u8"
+      },
+      "encore_turns": {
+        "type": "u8"
+      },
+      "encore_move_slot": {
+        "type": "u8"
+      },
+      "disable_turns": {
+        "type": "u8"
+      },
+      "disable_move_slot": {
+        "type": "u8"
+      },
+      "destiny_bond_turn": {
+        "type": "u8"
+      },
+      "grudge_turn": {
+        "type": "u8"
+      },
+      "charging_move": {
+        "type": "u16"
+      },
+      "charging_move_slot": {
+        "type": "u8"
+      },
+      "charging_target": {
+        "type": "u8"
+      },
+      "helping_hand": {
+        "type": "u8"
+      },
+      "magic_coat": {
+        "type": "u8"
+      },
+      "snatch": {
+        "type": "u8"
+      },
+      "imprison": {
+        "type": "u8"
+      },
+      "temporary_move_mask": {
+        "type": "u8"
+      },
+      "last_consumed_item": {
+        "type": "u16"
+      }
+    },
+    "RemasterEmeraldBattleState": {
+      "battle_type_flags": {
+        "type": "u32"
+      },
+      "rng": {
+        "type": "RemasterEmeraldBattleRng"
+      },
+      "battlers": {
+        "type": "RemasterEmeraldBattleMon",
+        "shape": [
+          4
+        ]
+      },
+      "parties": {
+        "type": "party-codec",
+        "shape": [
+          2,
+          6
+        ]
+      },
+      "party_count": {
+        "type": "u8",
+        "shape": [
+          2
+        ]
+      },
+      "active_party_slot": {
+        "type": "u8",
+        "shape": [
+          4
+        ]
+      },
+      "side_status": {
+        "type": "u32",
+        "shape": [
+          2
+        ]
+      },
+      "spikes_layers": {
+        "type": "u8",
+        "shape": [
+          2
+        ]
+      },
+      "weather": {
+        "type": "u8"
+      },
+      "weather_turns": {
+        "type": "u8"
+      },
+      "player_badge_mask": {
+        "type": "u8"
+      },
+      "terrain": {
+        "type": "u8"
+      },
+      "called_move_depth": {
+        "type": "u8"
+      },
+      "follow_me_target": {
+        "type": "u8",
+        "shape": [
+          2
+        ]
+      },
+      "follow_me_turns": {
+        "type": "u8",
+        "shape": [
+          2
+        ]
+      },
+      "wish_turns": {
+        "type": "u8",
+        "shape": [
+          4
+        ]
+      },
+      "wish_amount": {
+        "type": "u16",
+        "shape": [
+          4
+        ]
+      },
+      "future_turns": {
+        "type": "u8",
+        "shape": [
+          4
+        ]
+      },
+      "future_attacker": {
+        "type": "u8",
+        "shape": [
+          4
+        ]
+      },
+      "pursuit_boost": {
+        "type": "u8",
+        "shape": [
+          4
+        ]
+      },
+      "future_move": {
+        "type": "u16",
+        "shape": [
+          4
+        ]
+      },
+      "future_damage": {
+        "type": "u16",
+        "shape": [
+          4
+        ]
+      },
+      "turn_number": {
+        "type": "u32"
+      },
+      "run_tries": {
+        "type": "u8"
+      },
+      "pyramid_run_multiplier": {
+        "type": "u8"
+      },
+      "outcome": {
+        "type": "u8"
+      },
+      "ended": {
+        "type": "u8"
+      },
+      "caught_valid": {
+        "type": "u8"
+      },
+      "caught_pokemon": {
+        "type": "party-codec"
+      },
+      "money_reward": {
+        "type": "u32"
+      },
+      "last_exp_gain": {
+        "type": "u32"
+      },
+      "money_multiplier": {
+        "type": "u8"
+      },
+      "leveled_up_party_mask": {
+        "type": "u8"
+      },
+      "opponent_trainer_id": {
+        "type": "u16"
+      },
+      "opponent_trainer_items": {
+        "type": "u16",
+        "shape": [
+          4
+        ]
+      },
+      "opponent_trainer_ai_flags": {
+        "type": "u32"
+      },
+      "events": {
+        "type": "active-events"
+      },
+      "event_count": {
+        "type": "count"
+      }
+    }
+  },
+  "codec_header": {
+    "path": "core/include/remaster/emerald_pokemon.h",
+    "blob_sha": "0f131d3a5a670e6b0ab1eae46755a5423bcbb41f"
+  }
+}

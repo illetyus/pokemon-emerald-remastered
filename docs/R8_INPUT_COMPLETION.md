@@ -2,9 +2,9 @@
 
 G1: **VERIFIED_COMPLETE** at `19f8716d9db199f7c7ae42f0ed214a6224503f74`.
 D1: **VERIFIED_COMPLETE** at `ddd3ce193fb41a8db8beefd738ed6c1f5711c9d6`.
-F1 source reconciliation: **VERIFIED_COMPLETE** against that immutable D1 head;
-the final documentation publication still requires its own exact-head CI.
-M1/M2: NOT_STARTED; merge and main terminal-success remain separate gates.
+F1: **VERIFIED_COMPLETE** at `ea5825341b7b344199ac28679e1a90b02da1f713`;
+all 16 final-head push/PR workflows including CodeQL succeeded.
+M1/M2: **VERIFIED_COMPLETE**; PR #22 merged, all exact-main workflows succeeded.
 Branch: `r8-input-infrastructure`. PR: [#22](https://github.com/illetyus/pokemon-emerald-remastered/pull/22).
 Base main: `b8d789e697ee06c466c5546dfbebfb546b4e89e2`.
 Authority: `illetyus/pokezumrut-vanillaplus@70db90c9077aed1272e746fc2537d9f12b95a91c`.
@@ -112,3 +112,19 @@ This F1 documentation publication changes no implementation. Read its live
 exact SHA/checks again after commit. Merge only after its final PR workflows and
 required CodeQL contexts succeed. Then read the actual main merge SHA and all
 main workflows to terminal-success. Only that M2 result permits R19-P1.
+
+## R8-M1/M2 — Actual integration and main verification
+
+PR #22 merged accepted head ea5825341b7b344199ac28679e1a90b02da1f713
+into main 7e8d027d6c1f00677b0f270d56bfe7d4de83590d.
+Merge tree 1d80571a5ecef3cb233b563c285b2795fb5198bb equals the accepted
+source tree. Phase branch is preserved; live main...phase compare is 0 ahead /
+1 behind / no file differences.
+
+All 15 exact-main workflows completed successfully, including dynamic CodeQL
+37853378547 and all four language analyses. No failed main check-run remains.
+R8 main workflow 37853379312 jobs 113571650319/113571650592 confirm
+8 targeted CTest, 75 full CTest, 328 Python tests and Unreal source guard PASS.
+Main remained at the merge SHA in the post-CI live recovery.
+R8 is VERIFIED_COMPLETE for its pre-real-UE source scope.
+Next phase: R19-P1. The actual engine/assets/host/device obligations above remain.

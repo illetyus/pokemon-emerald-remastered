@@ -1,0 +1,97 @@
+{
+  "schema": "remaster.r19.unreal-smoke",
+  "version": 1,
+  "source_commit": "70db90c9077aed1272e746fc2537d9f12b95a91c",
+  "actual_runtime_verified": false,
+  "requires_real_engine": "5.8.3",
+  "producers": [
+    {
+      "path": "unreal/Source/PokemonEmeraldRemastered/RemasterVanillaPlusSaveSubsystem.cpp",
+      "blob_sha": "2e12f9dc042cd625fc183be68f97083ff2c3dc68"
+    },
+    {
+      "path": "unreal/Source/PokemonEmeraldRemastered/RemasterWorldGameplaySubsystem.cpp",
+      "blob_sha": "1fef2fde354e9749a4752746284895e32c66a3e0"
+    },
+    {
+      "path": "unreal/Source/PokemonEmeraldRemastered/RemasterWorldActor.cpp",
+      "blob_sha": "95eff0c6fd836cf129aec4315406891d14e44151"
+    },
+    {
+      "path": "unreal/Source/PokemonEmeraldRemastered/RemasterVanillaPlusSaveSubsystem.h",
+      "blob_sha": "6c498ea4406bb04b0ae1873c4364c29e5b528174"
+    }
+  ],
+  "markers": [
+    {
+      "id": "load",
+      "producer": "unreal/Source/PokemonEmeraldRemastered/RemasterVanillaPlusSaveSubsystem.cpp",
+      "prefix": "Vanilla+ save load status=",
+      "pattern": "Vanilla\\+ save load status=(?P<status>\\d+) path=.* counter=(?P<counter>\\d+) slot=(?P<slot>\\d+)"
+    },
+    {
+      "id": "store",
+      "producer": "unreal/Source/PokemonEmeraldRemastered/RemasterVanillaPlusSaveSubsystem.cpp",
+      "prefix": "Vanilla+ save stored counter=",
+      "pattern": "Vanilla\\+ save stored counter=(?P<counter>\\d+) slot=(?P<slot>\\d+)"
+    },
+    {
+      "id": "map_ready",
+      "producer": "unreal/Source/PokemonEmeraldRemastered/RemasterWorldGameplaySubsystem.cpp",
+      "prefix": "Vanilla+ gameplay map ready:",
+      "pattern": "Vanilla\\+ gameplay map ready: \\S+ \\(\\d+,\\d+\\) objects=\\d+ warps=\\d+ coords=\\d+"
+    },
+    {
+      "id": "rendered",
+      "producer": "unreal/Source/PokemonEmeraldRemastered/RemasterWorldActor.cpp",
+      "prefix": "R5 authoritative map rendered:",
+      "pattern": "R5 authoritative map rendered: \\S+ \\(\\d+x\\d+, chunk=\\d+\\)"
+    },
+    {
+      "id": "connection",
+      "producer": "unreal/Source/PokemonEmeraldRemastered/RemasterWorldGameplaySubsystem.cpp",
+      "prefix": "Vanilla+ connection applied:",
+      "pattern": "Vanilla\\+ connection applied: map=\\S+ \\(\\d+,\\d+\\) dir=\\d+ offset=-?\\d+"
+    },
+    {
+      "id": "warp",
+      "producer": "unreal/Source/PokemonEmeraldRemastered/RemasterWorldGameplaySubsystem.cpp",
+      "prefix": "Vanilla+ warp applied:",
+      "pattern": "Vanilla\\+ warp applied: map=\\S+ \\(\\d+,\\d+\\) warp=-?\\d+ dynamic=[01]"
+    }
+  ],
+  "cases": {
+    "save_roundtrip": [
+      "load",
+      "map_ready",
+      "rendered",
+      "store"
+    ],
+    "map_transition": [
+      "load",
+      "map_ready",
+      "rendered",
+      "connection",
+      "warp"
+    ]
+  },
+  "deferred_observations": [
+    "character_assets",
+    "camera_occlusion",
+    "ui_input",
+    "battle_presentation",
+    "audio_playback",
+    "lifecycle",
+    "Android_frame_pacing"
+  ],
+  "packaged_smoke_markers": [
+    "BOOT_OK",
+    "RENDER_PACKAGE_OK",
+    "HOUSE_RENDER_OK",
+    "HOUSE_WARP_OK",
+    "LITTLEROOT_RENDER_OK",
+    "ROUTE101_RENDER_OK",
+    "PASS"
+  ],
+  "packaged_producer_status": "NOT_EMITTED_REQUIRES_REAL_HARNESS"
+}

@@ -149,7 +149,7 @@ static int runtime_checkpoint_valid(
         if (runtime->pending_request.type
                 <= REMASTER_EMERALD_SCRIPT_REQUEST_NONE
             || runtime->pending_request.type
-                > REMASTER_EMERALD_SCRIPT_REQUEST_SPECIAL
+                > REMASTER_EMERALD_SCRIPT_REQUEST_WORLD
             || !program_pc_valid(
                 runtime->vm.registry,
                 runtime->pending_request.program_index,
@@ -338,7 +338,7 @@ int remaster_emerald_script_runtime_checkpoint_read(
     if (has_pending) {
         if (status != REMASTER_EMERALD_SCRIPT_YIELDED
             || pending.type <= REMASTER_EMERALD_SCRIPT_REQUEST_NONE
-            || pending.type > REMASTER_EMERALD_SCRIPT_REQUEST_SPECIAL
+            || pending.type > REMASTER_EMERALD_SCRIPT_REQUEST_WORLD
             || !program_pc_valid(
                 registry,
                 pending.program_index,
