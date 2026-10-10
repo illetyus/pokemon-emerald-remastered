@@ -98,9 +98,24 @@ def build(root, output, generator=generate):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--verify', action='store_true')
+    parser.add_argument('--expected-index-sha256')
+    parser.add_argument('--receipt', type=Path)
     args = parser.parse_args()
+    if args.verify != bool(args.expected_index_sha256):
+        parser.error('--verify requires --expected-index-sha256 from a trusted generation receipt')
     try:
-        print(json.dumps(build(ROOT, args.output), sort_keys=True))
+        receipt_path = destination(ROOT, args.receipt) if args.receipt else None
+        if receipt_path and receipt_path.is_relative_to(args.output.resolve()):
+            raise ValueError('trusted receipt must stay outside the package')
+        from r20_package_integrity import build_indexed, verify_package
+        result = (verify_package(args.output, args.expected_index_sha256, root=ROOT)
+                  if args.verify else build_indexed(ROOT, args.output))
+        if receipt_path:
+            receipt_path.parent.mkdir(parents=True, exist_ok=True)
+            with receipt_path.open('x', encoding='utf-8') as stream:
+                stream.write(json.dumps(result, indent=2, sort_keys=True) + '\n')
+        print(json.dumps(result, sort_keys=True))
     except (ValueError, OSError, KeyError, subprocess.CalledProcessError) as exc:
         print('R20 production package failed: ' + str(exc), file=sys.stderr)
         return 1

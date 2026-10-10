@@ -1,41 +1,57 @@
 # Production source/data package preparation
 
-R20-I3 establishes one fresh generation entry point. I4 adds aggregate
-hash/provenance verification; T1 proves clean reproducibility. None is an
-Unreal compile, asset import, APK or rendered runtime result.
+One command generates World, Render, Characters and Environment through their
+unchanged owners, checks the native R9/R14/R15 catalogs, and seals every produced
+file plus source/generator provenance before publishing the output directory.
+This is source/data preparation, not Unreal compilation, imports, APK or runtime.
 
-From a complete clean source checkout with the dependencies in DEPENDENCIES.md:
+From a complete clean checkout with DEPENDENCIES.md tools:
 
 ```sh
-python tools/build_production_package.py --output build/production/Generated
+python tools/build_production_package.py --output build/production/Generated --receipt build/r20-generation-receipt.json
 ```
 
-The four directories retain their existing runtime owner formats:
-World (518 maps / 441 layouts, scripts/encounters/source provenance),
-Render (75 tilesets with exact source render payloads),
-Characters (full identity/fallback/coverage metadata),
-Environment (full source identity/audit/fallback metadata).
-R9 UI, R14 battle and R15 audio native source catalogs are checked with their
-existing --check commands; they are not copied private model/audio assets.
+The directories preserve existing formats: World has 518 maps / 441 layouts
+and authoritative scripts/encounters/provenance; Render has 75 exact source
+tilesets; Characters/Environment contain complete identity/audit/fallback data.
+Optional modern models/audio/imports remain private, separately documented inputs.
 
-Source lock, exact accepted vendor Git tree and clean vendor working status
-must pass. Each actual owner generator/auditor runs; a missing owner manifest,
-failed source audit/check or conversion error fails the command. A complete
-clean checkout is required: a hand-copied partial text/source cache is not one.
+Generation requires the exact source pin and accepted clean vendor Git tree.
+A fresh isolated stage holds all conversion/audit/check work. Failed conversion
+or sealing never publishes partial output; existing or concurrently created
+output is preserved. Source/core/vendor and symlink output destinations fail.
+Inside the checkout use ignored build/out/local/generated subdirectories or
+unreal/Content/Generated; elsewhere select a new explicit destination.
 
-Generation uses a private fresh staging directory. Existing output is rejected,
-including local private packages; failed conversion never publishes partial
-output, and a destination created concurrently is preserved. Source/core/vendor
-destinations and symlink ancestors are rejected. Inside the checkout use ignored
-build/out/local/generated roots or unreal/Content/Generated; outside it select
-a new explicit destination. Existing package update is not an implicit repair.
+## Trusted whole-package verification
 
-Default outputs contain no normalized modern meshes/audio. Source-derived render
-payloads are local/ephemeral generated data, never public Git contents or
-workflow uploads. Optional private imports remain separately documented and
-ignored. Staging into the actual Unreal content tree/configuration is I7 work.
+production-index.json is canonical UTF-8/LF JSON: complete relative file SHA-256
+inventory (excluding the index itself), package digest, source pin/vendor tree,
+complete conservative source-input inventory and input digest. Inputs are
+tracked vendor/vanillaplus, tools, data, external, core, unreal/Source and Config.
+This records a conservative source boundary, not a minimal dependency graph.
+Source working changes or source/generator drift are rejected. No absolute host
+path, timestamp, pointer, credential, save field or actual-build claim is stored.
 
-R20 Production Preparation runs the transaction tests and one actual complete
-generation on GitHub. R19 separately runs the actual full native/Python/asset/
-source suite. The isolated layout tests use explicit tiny synthetic owner
-callbacks to test transaction behavior; those are not source-generation evidence.
+Keep the generation receipt outside the package in a trusted local/evidence
+location. Verification requires its index_sha256 explicitly:
+
+```sh
+python tools/build_production_package.py --output build/production/Generated --verify --expected-index-sha256 <hash-from-trusted-generation-receipt> --receipt build/r20-verification-receipt.json
+```
+
+Do not recompute that trusted checksum from an untrusted received index and
+treat it as proof. A changed payload plus rewritten adjacent index fails the
+external witness check. Missing/extra/corrupt files, noncanonical or unsupported
+index, unsafe paths, symlinks and source/input provenance changes fail.
+Receipt destinations are fresh, outside the package and never overwrite a
+private file. Generation and verification print compact evidence with actual
+file/input counts and false actual_unreal_build.
+
+R20 CI runs transaction/integrity negatives, actual complete generation and
+verification against its separately retained generation receipt. No generated
+commercial payload is uploaded. R19 separately runs the actual full native/
+Python/asset/source suite. Tiny unit fixtures test isolation/integrity semantics;
+actual source corpus evidence comes from the default hosted generation.
+Clean-repeat proof is T1; leak/security is I6 and actual content staging/preflight
+is I7. Cross-toolchain/device/import quality is separately measured at R18/runtime.

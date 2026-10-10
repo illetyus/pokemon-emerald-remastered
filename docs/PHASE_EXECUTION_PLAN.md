@@ -936,7 +936,8 @@ R20-P1 VERIFIED_COMPLETE at a7db2bbb (four docs only; exact publication verified
 R20-I1 VERIFIED_COMPLETE at 24e8779f; workflow 38014100330: actual 81/400/171;
 all 16 workflows succeeded. R20-I2 VERIFIED_COMPLETE at f8425149;
 workflow 38014432391: actual 81/400/171, all 16 workflows succeeded.
-Current checkpoint: **R20-I3**, actual generation/full CI VERIFYING.
+R20-I3 VERIFIED_COMPLETE at 8a809ef1; actual generation and 81/408/171;
+all 18 workflows succeeded. Current checkpoint: **R20-I4**, integrity CI VERIFYING.
 [Named implementation evidence](R20_PRODUCTION_IMPLEMENTATION.md).
 [Production inventory and named gaps](R20_PRODUCTION_INVENTORY.md).
 [Accepted R19 source/runtime boundary](R19_REGRESSION_COMPLETION.md).

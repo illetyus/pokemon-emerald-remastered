@@ -65,7 +65,11 @@ Next after exact CI: R20-I3 production package generation/layout.
 
 ## R20-I3 — Fresh production package generation/layout
 
-State: VERIFYING publication and actual hosted generation.
+State: VERIFIED_COMPLETE at 8a809ef1c27c3890c250992276b28ca7d4333701.
+R20 workflow 38014899367 / job 114102889539 passed all eight isolation tests and
+actual complete owner generation. R19 workflow 38014902328 / job 114102898257
+passed actual 81 CTest / 408 Python / 171 assets, seven components, zero skips.
+All 18 exact-head workflows succeeded; all seven published blobs match.
 Missing entry point was RED; the eight new output isolation/transaction tests
 initially failed to import that missing module. After implementation all eight
 pass locally on explicit synthetic callbacks. Actual default production source
@@ -82,3 +86,20 @@ No vendor/gameplay/owner-format change or private payload upload/self-commit.
 I4 aggregate index/provenance/verification, I6 leakage and I7 staging/preflight
 remain open. No real UE/UHT/compile/cook/package/device evidence is inferred.
 Next after actual exact-head CI: R20-I4.
+
+## R20-I4 — Whole-package bytes and trusted input provenance
+
+State: VERIFYING publication and actual hosted seal/verification.
+Ten new integrity regressions initially failed for the absent aggregate module.
+All 18 R20 isolation/integrity tests pass locally on explicit tiny fixtures.
+Actual complete generation/seal/verification remains the hosted default pipeline.
+
+The canonical index covers every owner file and a conservative complete tracked
+source/generator/input inventory. External generation receipt binds index SHA-256;
+rewriting both file and adjacent index cannot self-bless. Unsafe/missing/extra/
+corrupt/symlink/unsupported/noncanonical data and source/input drift fail.
+Default source inputs must be clean, are measured before/after generation, and
+are sealed inside I3's transaction before publication. No owner format, vendor,
+gameplay/save field change or private payload upload. Runtime certification false.
+CLI --verify without an explicit trusted hash fails before touching output.
+Next after actual exact-head CI: R20-I5 documentation/prerequisite reconciliation.
