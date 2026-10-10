@@ -1117,3 +1117,14 @@ test will not be skipped and global security settings were not changed. See the
 This preparation closure needs exact-HEAD CI, then a fresh ordered source run.
 Actual I1 production compile remains NOT_STARTED; full-source/compile/cook/APK
 acceptance and later runtime STOP boundaries are not advanced by these probes.
+## R18-I1 preparation — Windows audio catalog closure, 2026-10-11
+
+Previous preparation HEAD947b51697c5d4aae02300f4aa10ff3165eb00e2e passed
+all17 workflows/31 checks. The elevated fresh Windows source run passed81
+CTests and real symlink fixtures; Python stopped at test114 on source audio
+catalog Windows path separators. A single relative-path as_posix() fix passed
+all7 relevant source regressions with zero skips and reproduces checked-in
+catalog/header output. Vendor/audio/gameplay and acceptance boundaries remain.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md) for failed/green evidence. This named
+closure requires its own exact-HEAD CI and a fresh ordered Windows source run.
+Actual I1 compile, cook, APK and full source acceptance remain unverified.

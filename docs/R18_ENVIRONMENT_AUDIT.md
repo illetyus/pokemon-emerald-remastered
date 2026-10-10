@@ -1,3 +1,29 @@
+# R18-I1 preparation — Windows audio catalog path closure
+
+State: **SOURCE_REPRODUCTION_IN_PROGRESS**, observed 2026-10-11.
+The previous preparation HEAD947b51697c5d4aae02300f4aa10ff3165eb00e2e
+completed17 workflows /31 checks successfully. The fresh elevated Windows run
+passed all81 native CTests and the real symlink negative fixtures, then stopped
+at Python test114: source audio catalog paths contained Windows backslashes
+instead of the existing checked-in canonical slash format. ExitCode1 and no
+R19/R20 acceptance receipt were retained.
+
+The minimum fix uses Path.as_posix() for the existing relative source-file
+path. It changes no audio data, catalog identity, quality/import acceptance,
+gameplay or vendor content. All7 actual SourceCoverage regressions passed,
+including exact catalog/header reproduction, with zero skips. The whole-Python
+probe is supplementary; a fresh clean ordered R20 run remains required after
+this named checkpoint's exact-HEAD terminal-success CI.
+
+Private failed-run evidence:
+D:\Android\Evidence\R18\2026-10-11\windows-source-052eeca1af914195a40fc53243cc25e9.
+Relevant green source regression: windows-audio-catalog-source-green.log in the
+same date evidence root. Native UAC was approved; no global Developer Mode or
+user security setting was changed. No full Windows source pass, actual Unreal
+compile/cook/ARM64 APK, runtime or main merge is claimed. The final stop remains
+REAL UNREAL RUNTIME VALIDATION after actual accepted R18 and exact-main CI.
+
+---
 # R18-I1 preparation — Windows script diagnostic path closure
 
 State: **SOURCE_REPRODUCTION_IN_PROGRESS**, observed 2026-10-11.
