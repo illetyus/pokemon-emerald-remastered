@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+import unittest.mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 from unreal_preflight import source_preflight, installation_preflight
@@ -48,6 +49,13 @@ class ReleasePreflight(unittest.TestCase):
         self.assertFalse(r['toolchain_compatibility_verified'])
         self.assertNotIn(str(self.root), json.dumps(r))
 
+    def test_crlf_jdk_release_metadata_preserves_presence_only_status(self):
+        (self.java / 'release').write_bytes(b'JAVA_VERSION="21.0.12.1"\r\n')
+        report = self.install()
+        self.assertEqual(report['jdk_version_present'], '21.0.12.1')
+        self.assertFalse(report['toolchain_compatibility_verified'])
+        self.assertFalse(report['actual_unreal_build'])
+
     def test_engine_family_or_different_patch_cannot_pass(self):
         for patch in [2, 4, True, '3']:
             self.put('engine/Engine/Build/Build.version', json.dumps({'MajorVersion': 5, 'MinorVersion': 8, 'PatchVersion': patch}))
@@ -60,9 +68,20 @@ class ReleasePreflight(unittest.TestCase):
             self.install()
 
     def test_nonexecutable_linux_launcher_fails(self):
-        (self.engine / 'Engine/Build/BatchFiles/RunUAT.sh').chmod(0o644)
-        with self.assertRaises(ValueError):
-            self.install()
+        launcher = self.engine / 'Engine/Build/BatchFiles/RunUAT.sh'
+        launcher.chmod(0o644)
+        if os.name == 'nt':
+            # Windows chmod cannot express the POSIX executable bit. Exercise
+            # the Linux access rejection without skipping the contract test.
+            access = os.access
+            with unittest.mock.patch('unreal_preflight.os.access',
+                                     side_effect=lambda path, mode: False if path == launcher else access(path, mode)) as probe:
+                with self.assertRaises(ValueError):
+                    self.install()
+                probe.assert_any_call(launcher, os.X_OK)
+        else:
+            with self.assertRaises(ValueError):
+                self.install()
 
     def test_android_requires_each_toolchain_root(self):
         for key in ['sdk', 'ndk', 'java']:

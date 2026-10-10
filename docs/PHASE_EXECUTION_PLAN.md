@@ -1084,3 +1084,20 @@ This named P2 checkpoint requires exact-HEAD terminal-success CI, then the next
 checkpoint is R18-P3 actual Android toolchain compatibility. New logs/caches
 remain under D:\Android. The post-R18 REAL UNREAL RUNTIME VALIDATION STOP and
 later physical Android/BrowserStack/R19-device/R21/R22 boundaries remain.
+
+## Latest checkpoint — R18-P3 actual Android validation, 2026-10-11
+
+P2 exact HEAD f4b5cfdbdce0f902c69d7123f2e3377720b6b2ef reached all
+17 workflows / 31 checks completed success. P3 now has actual UBT Android VALID
+r27c and UAT Turnkey Android Status=Valid evidence, with the selected D:\Android
+SDK/NDK and Temurin21 process. Genuine UE-selected Android Studio Koala was
+installed on D: after the initial Invalid-host result; official archive hash
+and Google launcher signature were verified. No device/update request was made.
+
+The Windows JDK CRLF parser defect was reproduced before its minimum fix; all
+13 relevant preflight regression tests pass with zero skips. The owning
+[R18 environment audit](R18_ENVIRONMENT_AUDIT.md) records evidence, rejected
+initial results and presence/validation/actual-target distinctions. This named
+source/docs checkpoint requires exact-HEAD terminal-success CI, then Windows
+R19/R20 source reproduction precedes I1 actual production compile. Compile,
+cook, APK and runtime remain unverified. The post-R18 runtime STOP remains.

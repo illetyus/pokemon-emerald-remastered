@@ -1,3 +1,64 @@
+# R18-P3 — Actual Android SDK validation and Windows preflight closure
+
+State: **ANDROID_SDK_VALIDATED**, observed 2026-10-11.
+P2 checkpoint `f4b5cfdbdce0f902c69d7123f2e3377720b6b2ef` reached exact-HEAD
+terminal success in all 17 workflows / 31 checks before P3 execution.
+
+The exact installed UE 5.8.3 tools ran actual Android validation:
+
+- UBT ValidatePlatforms: Android VALID r27c; command exit 0.
+- UAT Turnkey VerifySdk: **Android Status=Valid**, Current_Sdk=r27c,
+  supported r27c–r29, InstalledSdk_ValidVersionExists, Support_FullSdk and
+  Sdk_HasBestVersion; command exit 0. No invalid-host-prerequisite flag.
+- Selected SDK root: `D:\Android\Sdk`; NDK root: its `ndk\27.2.12479018`.
+- Selected JAVA_HOME: `D:\Android\Java\jdk-21.0.12.1+1`;
+  actual java/javac commands exit 0, Temurin 21.0.12.1+1.
+- Actual installation preflight exit 0, INSTALLATION_PREREQUISITES_PRESENT;
+  it deliberately retains compatibility/build=false in its presence receipt.
+- Android Studio Koala 2024.1.2 Patch 1 / distribution 2024.1.2.13,
+  matching this engine's Turnkey manifest, is installed under
+  `D:\Android\Tools\AndroidStudio2024.1.2.13\android-studio`.
+  Official Google ZIP SHA256 matched
+  `e36b2ba026032f10111d2a6bb895bb31628d8a1bc3ffe6718a67b20d4c211a0f`;
+  studio64.exe signature Valid / Google LLC. Actual IDE startup is not claimed.
+
+The initial UAT exit-0 result reported **Invalid** because Android Studio was
+absent; it was rejected as acceptance. After the genuine verified IDE payload
+was installed, a fresh report explicitly became Valid. Verification ran without
+UpdateIfNeeded, forced SDK installation or any requested device operation.
+UBT's Win64 VALID 10.0.22621.0 output is the engine's main/preferred SDK label,
+not proof of a selected installed target compiler or SDK. I1 owns that proof.
+
+SDK platforms 35/36/36.1, build-tools 35.0.1/36.0.0/36.1.0 and SDK CMake3.22.1
+are present. Validation does not establish which compile platform/build-tools
+or CMake invocation a final target will use; I1/I3 logs must record that choice.
+Project intent stays ARM64-only, package com.illetyus.emeraldremaster.r0unreal,
+MinSDK26 / TargetSDK35. Host CMake3.31.12 is separate from SDK CMake3.22.1.
+
+The real Windows JDK release file uses CRLF. The bounded preflight parser
+incorrectly rejected that metadata despite working java/javac. A regression
+reproduced the failure before implementation; the minimum optional-CR parser
+fix passed afterward. All **13 relevant release-preflight tests passed, zero
+skips**. The Linux executable-bit rejection test retains actual chmod/access
+coverage on POSIX; on Windows it explicitly probes the access rejection because
+Windows chmod cannot express a POSIX executable bit. No test is skipped.
+
+Private successful logs/receipt are under
+`D:\Android\Evidence\R18\2026-10-11\p3-0ece1ad919ef4092a04cd53421d0a569`.
+The probe used P2 HEAD plus the uncommitted minimal preflight regression fix;
+this checkpoint commits that fix. No production content or gameplay changed.
+Native Windows elevation created only a previously absent UAT XML-cache file
+symlink into D:\Android. The normal engine cache generation/validation then
+produced the real cache there. Fixed UBT, Turnkey and IDE detection paths use
+previously absent junctions into D: payloads; existing user data is preserved.
+No XML-cache override, fake IDE marker or engine-source patch was used.
+
+This named P3 source/docs checkpoint requires exact-HEAD terminal-success CI.
+Next is Windows R19/R20 source reproduction before I1 production compile.
+No Windows full-suite acceptance, actual game compile, cook, APK, launch,
+runtime/device proof or main merge is claimed. The post-R18 runtime STOP remains.
+
+---
 # R18-P2 — Exact installed Unreal and actual tool startup
 
 State: **EXACT_ENGINE_AND_TOOL_STARTUP_VERIFIED**, observed 2026-10-11.
