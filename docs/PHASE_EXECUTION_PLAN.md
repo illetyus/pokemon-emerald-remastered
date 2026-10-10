@@ -933,7 +933,8 @@ all 17 workflows / 31 checks succeeded. PR #23 merged at ab057754.
 R19-M2 VERIFIED_COMPLETE: workflow 38012481196, actual 81/400/171;
 all 16 exact-main workflows / 29 checks including CodeQL succeeded.
 R20-P1 VERIFIED_COMPLETE at a7db2bbb (four docs only; exact publication verified).
-Current checkpoint: **R20-I1**, historical boundary/source CI VERIFYING.
+R20-I1 VERIFIED_COMPLETE at 24e8779f; workflow 38014100330: actual 81/400/171;
+all 16 workflows succeeded. Current checkpoint: **R20-I2**, dependency CI VERIFYING.
 [Named implementation evidence](R20_PRODUCTION_IMPLEMENTATION.md).
 [Production inventory and named gaps](R20_PRODUCTION_INVENTORY.md).
 [Accepted R19 source/runtime boundary](R19_REGRESSION_COMPLETION.md).

@@ -14,7 +14,10 @@ All 16 exact-head workflows succeeded before I1 publication.
 
 ## R20-I1 — Historical presentation excluded from production
 
-State: VERIFYING publication/source CI.
+State: VERIFIED_COMPLETE at 24e8779f18d16ee2387f1dc35c39d5aef9b9aec5.
+Exact workflow 38014100330 / job 114100459405: actual 81/400/171 and all seven
+source components passed, zero skips. All 16 exact-head workflows succeeded.
+All ten published file records match; four moves preserve original Git blobs.
 Before: unused R0HUD and R0PlayerController UCLASS pairs lived in unreal/Source
 and were compiled/scanned by the production Unreal module despite having no
 consumer outside their own pairs. The configured R0GameMode already selected
@@ -44,3 +47,16 @@ acceptance is claimed; that remains R18/runtime evidence.
 
 Next: verify this exact published HEAD's R19 full-suite and earlier-phase source
 guards, then R20-I2. M1/M2 remain NOT_STARTED.
+
+## R20-I2 — Required production dependency surface
+
+State: VERIFYING publication/source CI.
+The complete Unreal module source/header scan found no JsonUtilities or Projects
+consumer; only Build.cs declared them. Remove those two explicit dependencies,
+retain every currently consumed module, and document public source tools versus
+engine/private/historical inputs. No engine-owned SDK/NDK/JDK version is invented.
+No gameplay, core, vendor, generated owner catalog or package identity changes.
+Local existing Unreal source authority guard passes with the retained modules.
+The dependency removal is a reversible source cleanup; no mirror unit test is
+added. Full portable/source CI is required, and actual Unreal linking remains R18.
+Next after exact CI: R20-I3 production package generation/layout.
