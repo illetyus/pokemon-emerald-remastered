@@ -148,7 +148,12 @@ Next after actual CI: R20-I7 release configuration and real-install preflight.
 
 ## R20-I7 — Release source staging and installation preflight
 
-State: VERIFYING publication and exact-head CI.
+State: VERIFIED_COMPLETE at 14f2cbf3606729b929a8f9411f0aed940b290611.
+R20 workflow 38024760954 / job 114133135123: 43 targeted tests, complete package
+2,473 files / 13,095 inputs verified; security 13,379 paths / 13,118 blobs,
+103,266,921 bytes, zero findings/skips; source release intent passed.
+R19 workflow 38024762455 / job 114133140070: actual 81/443/171, seven components,
+zero skips. All 18 exact-head workflows succeeded; all 11 published blobs match.
 Missing preflight module was RED; 12 fake-installation/source regressions pass.
 World/Render now stage with Characters/Environment; Entry/basic-shape cook intent
 is explicit. Source Android identity/ABI/SDK values are retained. Installation
@@ -159,3 +164,16 @@ no actual dispatch/build, imported asset readiness or APK result is claimed.
 Source-only and installation-presence receipts explicitly deny actual build and
 toolchain compatibility. Source/docs details: R20_RELEASE_PREPARATION.md.
 Next after actual CI: R20-T1 clean reproduction and security/integrity negatives.
+
+## R20-T1 / R20-V1 — Clean independent reproduction and full source suite
+
+State: VERIFYING actual hosted default execution after publication.
+Eight receipt-gate regressions were RED for the absent full-suite entry point;
+all 51 targeted R20 tests now pass locally. Full real native/source/checkouts
+are NOT_RUN in this partial cache. The new default entry runs the entire R19
+suite plus mandatory R20 regression coverage, two real clean detached worktree
+productions and external-witness verification, nine real rejection/restoration
+cases, actual whole tracked/history audit and source release check. No mock
+generator/default fixture replaces actual production. Metadata-only CI upload.
+Contract: R20_REPRODUCTION_CONTRACT.md. G1 waits for actual terminal-success;
+concrete failures use named closure, then repeat V1/G1.

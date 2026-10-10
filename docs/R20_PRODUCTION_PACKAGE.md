@@ -55,3 +55,8 @@ Python/asset/source suite. Tiny unit fixtures test isolation/integrity semantics
 actual source corpus evidence comes from the default hosted generation.
 Clean-repeat proof is T1; leak/security is I6 and actual content staging/preflight
 is I7. Cross-toolchain/device/import quality is separately measured at R18/runtime.
+
+The aggregate R20 default now runs all R19 checks, two independent clean Git
+worktree productions, external-witness verification, nine real negatives and
+complete source security/release checks. Command and metadata evidence:
+[R20_REPRODUCTION_CONTRACT.md](R20_REPRODUCTION_CONTRACT.md).

@@ -17,22 +17,22 @@ jobs:
   source-packages:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      REMASTER_R15_REQUIRE_FFMPEG: '1'
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Output isolation and transaction regressions
-        run: python -m unittest discover -s tests -p 'test_r20_*.py' -v
-      - name: Actual complete production owner generation
-        run: python tools/build_production_package.py --output build/production/Generated --receipt build/r20-generation-receipt.json
-      - name: Verify complete bytes against the trusted generation receipt
+      - name: Required actual audio transform dependencies
         run: |
-          r20_index_sha=$(python -c "import json; print(json.load(open('build/r20-generation-receipt.json'))['index_sha256'])")
-          python tools/build_production_package.py --output build/production/Generated --verify --expected-index-sha256 "$r20_index_sha" --receipt build/r20-verification-receipt.json
-      # Generated render payloads remain ephemeral. No commercial package,
-      # APK, credential or implementation self-commit is uploaded.
-      - name: Tracked source and reachable-history security audit
-        run: python tools/audit_public_repository.py --receipt build/r20-security-receipt.json
-      - name: Production source staging and release intent
-        run: python tools/unreal_preflight.py --source-only --receipt build/r20-release-receipt.json
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --yes ffmpeg
+      - name: One actual full suite and independent clean reproduction
+        run: python tools/r20_full_suite.py --build-dir build/r20-full --receipt build/r20-full-suite-receipt.json
+      - name: Metadata-only acceptance receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: r20-source-acceptance-receipt
+          path: build/r20-full-suite-receipt.json
+          if-no-files-found: error

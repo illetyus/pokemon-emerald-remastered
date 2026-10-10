@@ -88,3 +88,12 @@ Source release/install preflight and staged owner directories:
 [R20_RELEASE_PREPARATION.md](R20_RELEASE_PREPARATION.md). Complete tracked-source/
 history leakage and credential-signature audit:
 [R20_PUBLIC_SOURCE_SECURITY.md](R20_PUBLIC_SOURCE_SECURITY.md).
+
+R20 complete portable/source acceptance with two independent clean productions
+and real security/integrity negatives (fresh output required):
+
+```sh
+python tools/r20_full_suite.py --build-dir build/r20-full --receipt build/r20-full-suite-receipt.json
+```
+
+[Actual reproduction contract and evidence boundary](R20_REPRODUCTION_CONTRACT.md).
