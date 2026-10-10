@@ -1046,3 +1046,21 @@ control. [Versioned environment audit](R18_ENVIRONMENT_AUDIT.md) records actual
 observations and precise resume requirements. R18 compile/cook/APK is NOT_STARTED.
 Stop here; no automatic runtime, physical Android, BrowserStack, final matrix,
 R21 or R22. Resume only by re-auditing the real attached project-PC environment.
+
+## Latest resume — R18-P1 native Windows preparation, 2026-10-11
+
+The earlier cloud-only EXTERNAL_ENV_REQUIRED boundary is superseded by actual
+project-PC access and completed native Windows prerequisite preparation.
+R18-P1 **LOCAL_PREREQUISITES_VERIFIED**: complete isolated source worktree,
+accepted vendor tree, Microsoft-signed SDK/Build Tools installs (both exit 0),
+real MSVC and Clang-adapter C99/C++17 compile/run, and required tool versions.
+All new work uses D:\Android with only the explicitly approved mandatory
+Microsoft system component exception on C:. See the owning
+[R18 environment audit](R18_ENVIRONMENT_AUDIT.md) for actual paths/versions and
+compiler family-directory versus binary-patch distinction.
+
+This named docs checkpoint still requires its own exact-HEAD terminal-success CI.
+Then next is **R18-P2 — exact Unreal installation/tool verification**; P3 and
+actual compile/cook/APK remain NOT_STARTED at this P1 checkpoint. Source/host
+compiler readiness is not an actual UE or device pass. The post-R18 runtime STOP
+and later physical Android/BrowserStack/R19-device/R21/R22 boundaries remain.

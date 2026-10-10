@@ -1,4 +1,97 @@
-# R18-P1 — Actual environment prerequisite audit
+# R18-P1 — Actual Windows prerequisite audit
+
+State: **LOCAL_PREREQUISITES_VERIFIED**. Named documentation checkpoint CI must
+reach terminal success before R18-P2. This is not actual UE build acceptance.
+Observed: 2026-10-11, Europe/Istanbul.
+Audited branch baseline: `r18-real-unreal-build` at
+`ed136002319e61dcc2ee0b2338a39bad20a8a2c5`; verified main remains
+`466aa1821c0959a93e04251e46f9d0f551c5b2ce`. PR #25 remains open/draft.
+
+The executing agent now has actual native Windows file/tool access. The old
+cloud-only access boundary below is historical and superseded. Current user
+execution authorization selects **D:\Android** for all new downloads, SDK/tool
+payloads, sources, work and evidence, with an explicit exception only for
+mandatory Microsoft system/installer components on C:. Existing licensed Unreal
+installation is retained; engine verification is the separate R18-P2 checkpoint.
+
+## Selected paths and source recovery
+
+- Full-history base clone: `D:\Android\Sources\pokemon-emerald-remastered`.
+- Isolated phase worktree: `D:\Android\Work\PokemonEmeraldRemastered`.
+- Downloads / tools / caches / temporary files: the corresponding directories
+  under `D:\Android`.
+- Private evidence: `D:\Android\Evidence\R18\2026-10-11`.
+- SDK: `D:\Android\Sdk`; JDK: `D:\Android\Java\jdk-21.0.12.1+1`.
+- Existing engine candidate: `D:\Unreal\UE_5.8.3\UE_5.8`.
+
+The clone is not shallow (1,318 reachable commits at audit time), CRLF conversion
+is disabled, and the phase worktree was clean before this docs-only checkpoint.
+The accepted `vendor/vanillaplus` tree is exactly
+`5a551f1f9e40184278c57dfb8d25f68a0a1c99dc`; the pinned source commit remains
+`70db90c9077aed1272e746fc2537d9f12b95a91c`. No vendor/gameplay/save changes occurred.
+Live main, phase ref and PR state were checked again immediately before editing.
+
+## Actual prerequisite evidence
+
+| Item | Verified observation |
+| --- | --- |
+| Windows | Native Windows, OS build 26100; installation and compiler execution accessible |
+| Physical RAM | 11.93 GiB at initial Windows API inspection; build scheduling needs a fresh capacity check |
+| Free storage after setup | C: approximately 14.0 GiB; D: approximately 394.5 GiB |
+| Git / Python | 2.55.0.windows.5 / 3.12.10, actual version commands exit 0 |
+| CMake / CTest | 3.31.12 under Tools; publisher archive SHA256 matched; actual commands exit 0 |
+| FFmpeg / ffprobe | 9.0.2 essentials under Tools; publisher archive SHA256 matched; actual commands exit 0 |
+| Microsoft Build Tools | VS 2026 18.10.3, installation version 18.10.12224.181; installer exit 0; registered complete/launchable, no reboot required |
+| Production compiler candidate | Actual cl.exe ProductVersion **14.50.35739.0**, FileVersion 19.50.35739.0; x64 host/target selected |
+| Toolset family directory | **14.50.35717**; this directory name does not identify the compiler patch version |
+| Windows SDK | Installer 10.1.26100.9457 exit 0; 10.0.26100.0 headers/libs under Tools/WindowsKits/10; registered KitsRoot10 selects D: |
+| Native MSVC probes | C99/C11 designated initialization + Win32 header/link/execution PASS; C++17 optional/filesystem + execution PASS |
+| Portable test compiler adapters | clang/clang++ 22.1.3 on Windows; cc/gcc and c++/g++ adapters compile/run the same C99/C++17 probes; these are not GCC installations |
+| Java selection | Process-local JDK 21.0.12.1+1; java/javac commands exit 0; machine Java 17 is retained |
+| Android SDK CMake / Ninja | SDK manager install exit 0; 3.22.1 / 1.10.2 actually executed |
+| Existing Android components | API 35 and 36, build-tools 35.0.1 and 36.0.0, NDK 27.2.12479018; actual UE selection/compatibility belongs to P3 |
+
+MSVC binary version 14.50.35739 is above the installed engine metadata's banned
+14.50.0–14.50.35722 range. The engine's real UBT selection still needs verification;
+installed metadata or standalone compiler probes cannot substitute for it.
+The newer LLVM is for portable test command compatibility, not a claim that it
+is the selected/supported Unreal production compiler. Later native source suites
+must execute with zero skips; they have not run on this Windows worktree yet.
+
+## Installation integrity and execution controls
+
+Microsoft SDK/Build Tools bootstrapper signatures were Valid / Microsoft before
+execution. Both installers completed exit 0. The official VS installer recorded
+successful SHA256 verification for its own downloaded packages. A separately
+fetched VS catalog did not match its channel's advertised SHA256, including one
+fresh retry; it was not treated as trusted or supplied to installation, and no
+verification was bypassed. Published CMake/FFmpeg archive hashes matched.
+
+The local `Enter-R18Environment.ps1` selects the pinned MSVC family through the
+installed `Common7/Tools/VsDevCmd.bat`, imports only public compiler selectors,
+and scopes SDK/JDK, PATH, temp, Gradle, Python, NuGet/.NET and Unreal data caches
+to this run. Global Java/Android PATH settings were not changed. Microsoft system
+installer/shared components retain their mandatory C: locations under the user
+exception; main SDK/tool payloads and VS package cache use the selected D: paths.
+Private logs, installer results, source recovery, full version receipts, and the
+MSVC/Clang native compiler probe receipts remain outside public tracking.
+
+## Acceptance boundary and next checkpoint
+
+R18-P1 local prerequisite preparation is verified; this commit's exact-HEAD CI
+is a separate publication gate. After terminal-success, next is **R18-P2**.
+R18-P2/P3/I1-I5/G1/D1/F1/M1/M2 remain NOT_STARTED at this P1 checkpoint.
+No Unreal target compile, cook, ARM64 APK, launch, runtime/device acceptance or
+Windows full source-suite pass is claimed by these setup/compiler checks.
+
+After actual R18 acceptance and exact-main CI terminal-success, STOP at
+**REAL UNREAL RUNTIME VALIDATION**. Do not automatically run physical Android
+smoke, BrowserStack, final R19 device matrix, R21 or R22.
+
+---
+
+# Historical cloud audit — 2026-10-10 (superseded access boundary)
+## Original R18-P1 cloud prerequisite audit
 
 State: **EXTERNAL_ENV_REQUIRED / BLOCKED**.
 Observed: 2026-10-10 12:33:58 Europe/Istanbul.
