@@ -1,7 +1,9 @@
 # R19 — Pre-real-Unreal regression completion evidence
 
 State: G1 VERIFIED_COMPLETE for the roadmap's pre-real-Unreal source boundary;
-D1 publication VERIFYING; F1/M1/M2 NOT_STARTED.
+D1 VERIFIED_COMPLETE at 1489aefd5ae0d486826c8f44b04be8307f4c6e45.
+F1 independent source reconciliation COMPLETE; final publication CI VERIFYING.
+M1/M2 NOT_STARTED until the final-head required checks pass.
 Branch: r19-regression-infrastructure. Draft PR: #23.
 Baseline main: 7e8d027d6c1f00677b0f270d56bfe7d4de83590d.
 Accepted implementation/source head: 1bd0c3562174138f28a492910b5bb77a7aac3df1.
@@ -103,3 +105,31 @@ After R20 source completion/main CI, enter R18. Without the real project-PC
 UE5.8.3/Android environment, stop EXTERNAL_ENV_REQUIRED. After actual R18/main
 verification, stop at REAL UNREAL RUNTIME VALIDATION. No automatic physical
 Android, BrowserStack, final R19 device execution or R21/R22.
+
+
+## Independent R19-F1 reconciliation
+
+Fresh live main remains 7e8d027d; branch 1489aefd is eighteen ahead / zero behind.
+Canonical docs, actual source/contract/fixtures, history, open PRs, CI/review/rules
+were re-read rather than inferred from chat. All 50 branch/main Git blobs match.
+Fixture totals were independently recomputed (52 cases, 437 commands, 489
+snapshots); all four original matrix rosters remain intact. Production core was
+compared directly to main: exactly two SPECIAL -> WORLD checkpoint bounds, no
+other core/persistent/gameplay change. No vendor, ROM/APK or private payload path
+belongs to the phase diff. Other open PRs #8/#4/#2 remain untouched.
+
+Exact D1-head workflow 38011198536 / job 114091364840 passed 81 CTest, 400 Python,
+171 asset audits and all seven source components. All 17 workflows are terminal
+success; all 30 check runs, including actions/c-cpp/csharp/python CodeQL analyses,
+are success. Main's fifteen baseline workflows were independently rechecked
+terminal-success. Strict main rules require PR, fresh checks and resolved threads;
+there are no unresolved threads or outstanding change requests.
+
+Source smoke/metadata commands were checked separately: six actual diagnostics,
+seven canonical future packaged markers, NOT_EMITTED_REQUIRES_REAL_HARNESS,
+zero executed devices and false runtime certification. No real UE build, asset
+quality or device acceptance is inferred. No unresolved pre-real source RED was
+found. This final publication changes four docs only. Full F1 remains VERIFYING
+until all required checks on its new exact published HEAD succeed; then M1 merge
+is authorized. Any live drift must first be reconciled. M2 exact-main all CI
+terminal-success is still mandatory before R20-P1.

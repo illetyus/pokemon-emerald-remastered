@@ -550,7 +550,10 @@ CodeQL is still pending at D1 preparation; no merge before final-head success.
 
 ## R19-D1 — Versioned completion/evidence boundary
 
-State: VERIFYING publication of four docs only. Completion evidence is
+State: VERIFIED_COMPLETE at 1489aefd5ae0d486826c8f44b04be8307f4c6e45.
+Exact workflow 38011198536 / job 114091364840 passed 81/400/171 and all seven
+source components. All four doc blobs match; all 17 workflows/all 30 checks and
+four CodeQL language analyses reached terminal-success. Four docs only. Completion evidence is
 R19_REGRESSION_COMPLETION.md: exact actual CI/counts/receipts, source acceptance,
 all 52 replay cases/489 observations, separate 37 R17 recipes, source closures,
 full-suite command and explicit deferred real-runtime/device portion.
@@ -559,3 +562,21 @@ Main unchanged, branch seventeen ahead / zero behind; no conflicting drift.
 No implementation/vendor/private payload change belongs to this checkpoint.
 F1 independent fresh reconciliation is NOT_STARTED until publication CI passes.
 M1/M2 and R20 remain gated. Next: R19-F1 independent final gate.
+
+
+## R19-F1 — Independent fresh source and final integration gate
+
+State: VERIFYING final four-doc publication CI; source reconciliation COMPLETE.
+Live main unchanged, branch eighteen ahead / zero behind; draft PR #23 current
+head 1489aefd, no unresolved review thread/change request. Main baseline CI green.
+Independent file hash/scope and fixture count audit PASS on all 50 changed blobs:
+52 cases / 437 commands / 489 snapshots. Direct main/core content comparison
+proves exactly the two existing checkpoint bounds; no other production behavior
+or persistent/vendor/private asset change. Canonical acceptance/source boundary,
+seven packaged marker definitions and deferred device status independently checked.
+D1 actual full CI/check runs including all four CodeQL analyses succeeded.
+
+Full evidence/provenance/actual boundary is R19_REGRESSION_COMPLETION.md.
+After final new-head required CI is terminal-success, F1 VERIFIED_COMPLETE ->
+M1 authorized PR #23 merge -> M2 exact main all CI success -> R20-P1.
+No direct-main commit or workflow self-commit. Actual runtime stop is unchanged.

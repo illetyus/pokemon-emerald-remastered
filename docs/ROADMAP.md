@@ -982,9 +982,11 @@ R19-T1/V1 VERIFIED_COMPLETE at fc83fd2; workflow 37964067675:
 R19-Closure-3 VERIFIED_COMPLETE at 1bd0c356; workflow 38010794841:
 81 CTest, 400 Python, 171 asset audits; all seven source components passed.
 R19-V1/G1 pre-real source acceptance VERIFIED_COMPLETE.
-Current checkpoint: **R19-D1**, VERIFYING completion evidence publication.
+R19-D1 VERIFIED_COMPLETE at 1489aefd; workflow 38011198536:
+81 CTest, 400 Python, 171 assets; all 17 workflows / 30 check runs succeeded.
+Current checkpoint: **R19-F1**, source reconciliation COMPLETE; final CI VERIFYING.
 [Acceptance and runtime boundary](R19_REGRESSION_COMPLETION.md).
-R19-F1/M1/M2 remain open; R20-P1 only after exact-main CI terminal-success.
+M1 only after final-head required CI success; R20-P1 only after M2 exact-main success.
 [Contract](R19_REPLAY_CONTRACT.md) / [checkpoint evidence](R19_REGRESSION_IMPLEMENTATION.md).
 No actual runtime/local asset obligation was closed by these source merges.
 
