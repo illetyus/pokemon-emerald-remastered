@@ -940,7 +940,9 @@ R20-I3 VERIFIED_COMPLETE at 8a809ef1; actual generation and 81/408/171;
 all 18 workflows succeeded. R20-I4 VERIFIED_COMPLETE at aefbe4cf;
 actual trusted generation/verification: 2,473 files / 13,093 source inputs.
 R19 workflow 38015468972 passed 81/418/171; all 18 exact-head workflows succeeded.
-Current checkpoint: **R20-I5**, canonical/build documentation publication VERIFYING.
+R20-I5 VERIFIED_COMPLETE at d4de20e1; workflow 38016057425: actual 81/418/171,
+identical trusted package hashes; all 18 exact-head workflows succeeded.
+Current checkpoint: **R20-I6**, public-source/history security audit VERIFYING.
 [Named implementation evidence](R20_PRODUCTION_IMPLEMENTATION.md).
 [Production inventory and named gaps](R20_PRODUCTION_INVENTORY.md).
 [Accepted R19 source/runtime boundary](R19_REGRESSION_COMPLETION.md).
@@ -1011,7 +1013,7 @@ passed 8/75/328 and source guards. R8-D1 is VERIFIED_COMPLETE at `ddd3ce19`;
 workflow 37851617574 passed 8/75/328; all 16 workflows including CodeQL succeeded.
 R8-F1 is VERIFIED_COMPLETE at `ea582534`; all 16 final-head workflows succeeded. [Acceptance/runtime boundaries](R8_INPUT_COMPLETION.md).
 R8-M1 PR #22 merge and R8-M2 exact-main terminal-success are VERIFIED_COMPLETE.
-R19 pre-real source and integration gates are complete; R20-I5 is active.
+R19 pre-real source and integration gates are complete; R20-I6 is active.
 R18 has not started.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,

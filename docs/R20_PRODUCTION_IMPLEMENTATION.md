@@ -112,7 +112,11 @@ Next after actual exact-head CI: R20-I5 documentation/prerequisite reconciliatio
 
 ## R20-I5 — Canonical build and prerequisite reconciliation
 
-State: VERIFYING publication and exact-head portable/source CI.
+State: VERIFIED_COMPLETE at d4de20e159cc6f786f0b7ed634b83c7ac8566af2.
+Exact R19 workflow 38016057425 / job 114106441693: 81 CTest / 418 Python / 171
+assets, seven components, zero skips. R20 workflow 38016054252 actual generation
+and trusted verification repeat I4's identical index/package hashes and counts.
+All 18 exact-head workflows succeeded; all 12 documentation blobs match.
 README/Unreal guide now identify completed source main phases and the exact
 R20 -> R18 -> STOP boundary. BUILD.md lists every public clean-checkout/tool/
 generation/verification requirement and all optional private save/model/audio
@@ -123,3 +127,16 @@ No gameplay, vendor, owner package, dependency or runtime configuration changes.
 Existing source/full CI and package generation remain actual verification; no
 implementation-mirroring tests were added for documentation edits.
 Next after exact-head CI: R20-I6 leakage/security.
+
+## R20-I6 — Public source leakage/security boundary
+
+State: VERIFYING publication and actual complete-repository/history audit.
+Absent security module was RED; 13 temporary-Git negative/coverage regressions
+now pass locally. Full real-repository scanning is NOT_RUN in the partial cache.
+The default hosted audit measures tracked paths and all reachable HEAD blobs,
+including vendor/binary bytes, redacts matched values and fails on incomplete
+coverage. Expanded ignore rules protect missing World/Render/index and private
+saves/ROMs/archives. Manual Unreal jobs are trusted-main only; APK upload removed.
+No gameplay, vendor, owner format or native package configuration changes.
+Scope/limits and exact run command: R20_PUBLIC_SOURCE_SECURITY.md.
+Next after actual CI: R20-I7 release configuration and real-install preflight.
