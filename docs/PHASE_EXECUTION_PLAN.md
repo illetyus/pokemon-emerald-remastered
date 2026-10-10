@@ -1101,3 +1101,19 @@ initial results and presence/validation/actual-target distinctions. This named
 source/docs checkpoint requires exact-HEAD terminal-success CI, then Windows
 R19/R20 source reproduction precedes I1 actual production compile. Compile,
 cook, APK and runtime remain unverified. The post-R18 runtime STOP remains.
+
+## R18-I1 preparation — Windows diagnostic path closure, 2026-10-11
+
+P3 exact commit 9e4e6ff6c7fe16cba0464fcbd8714e68e68b8c5b reached all
+17 workflows / 31 checks completed success. First actual Windows source run:
+MSVC build and81 CTests passed with zero failures/skips; Python component stopped
+at a canonical-path diagnostic mismatch. The minimum script error formatting
+closure passed all21 relevant converter tests and preserves vendor/gameplay.
+
+The next failfast Python probe reached test84 before Windows denied its real
+symlink negative fixture with WinError1314. Native elevation is required; the
+test will not be skipped and global security settings were not changed. See the
+[R18 environment audit](R18_ENVIRONMENT_AUDIT.md) for rejected/accepted evidence.
+This preparation closure needs exact-HEAD CI, then a fresh ordered source run.
+Actual I1 production compile remains NOT_STARTED; full-source/compile/cook/APK
+acceptance and later runtime STOP boundaries are not advanced by these probes.

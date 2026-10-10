@@ -1,3 +1,39 @@
+# R18-I1 preparation — Windows script diagnostic path closure
+
+State: **SOURCE_REPRODUCTION_IN_PROGRESS**, observed 2026-10-11.
+P3 exact HEAD `9e4e6ff6c7fe16cba0464fcbd8714e68e68b8c5b` completed all
+17 workflows / 31 checks successfully. Actual Windows R20 full-suite then
+invoked the real R19 CLI on a fresh build/receipt destination.
+
+The Windows MSVC 19.50.35739.0 native build completed and all **81 CTest cases
+passed, failures=0, skipped=0** in its actual JUnit report. The ordered Python
+component stopped at test19: an unclassified-script diagnostic used native
+Windows backslashes while its existing contract requires canonical slash paths.
+No R19/R20 full acceptance receipt was produced, and that failure was retained.
+
+The minimum converter closure uses Path.as_posix() consistently in five existing
+script error messages; classification, source data, dependency ownership and
+command behavior are unchanged. The existing regression reproduced RED in the
+actual Windows run; all **21 script converter tests passed** after the fix.
+The accepted vendor tree remains unchanged.
+
+An additional failfast Python probe with the diagnostic fix advanced to test84,
+then hit **WinError1314** when its real path-escape/symlink rejection fixture
+attempted to create a symbolic link. Windows requires native elevation for that
+fixture; this is an environment permission boundary, not a validator failure or
+a skipped test. No Developer Mode or global user security setting was changed.
+A fresh full source run must execute with the needed privilege and zero skips.
+
+Private baseline evidence:
+`D:\Android\Evidence\R18\2026-10-11\windows-source-14cb64895f894dc6a3fc908ab3b4d51c`.
+Relevant converter regression and the rejected Python privilege probe remain
+in the same external evidence root. This named preparation closure requires
+its own exact-HEAD terminal-success CI before the next full ordered source run.
+It does not close actual I1 UHT/C++/link acceptance. No full Windows R19/R20
+pass, production UE compile/cook/APK, runtime or main merge is claimed.
+The post-R18 REAL UNREAL RUNTIME VALIDATION stop boundary remains.
+
+---
 # R18-P3 — Actual Android SDK validation and Windows preflight closure
 
 State: **ANDROID_SDK_VALIDATED**, observed 2026-10-11.
