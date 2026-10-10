@@ -948,7 +948,12 @@ R20-I7 VERIFIED_COMPLETE at 14f2cbf3; actual 81/443/171, complete package/securi
 source-release checks; all 18 exact-head workflows succeeded.
 R20-T1/V1 at b19fc382: NEEDS_CLOSURE; actual R19 81/451/171 passed, but
 real negative harness expected the wrong CLI exit. G1/merge remain blocked.
-Current checkpoint: **R20-Closure-1**, narrow exit/message contract fix VERIFYING.
+R20-Closure-1 / T1 / V1 / G1 VERIFIED_COMPLETE at 1c671677;
+workflow 38025616374 passed actual 81/453/171 + 53 R20 tests, two independent
+clean packages, nine real negatives and complete zero-finding/skip security.
+All 18 workflows / 32 check runs succeeded. Current checkpoint: **R20-D1**,
+completion publication VERIFYING; then independent F1 -> PR/main M1/M2.
+[Accepted R20 source scope and actual evidence](R20_PRODUCTION_COMPLETION.md).
 [Named implementation evidence](R20_PRODUCTION_IMPLEMENTATION.md).
 [Production inventory and named gaps](R20_PRODUCTION_INVENTORY.md).
 [Accepted R19 source/runtime boundary](R19_REGRESSION_COMPLETION.md).
@@ -1019,7 +1024,7 @@ passed 8/75/328 and source guards. R8-D1 is VERIFIED_COMPLETE at `ddd3ce19`;
 workflow 37851617574 passed 8/75/328; all 16 workflows including CodeQL succeeded.
 R8-F1 is VERIFIED_COMPLETE at `ea582534`; all 16 final-head workflows succeeded. [Acceptance/runtime boundaries](R8_INPUT_COMPLETION.md).
 R8-M1 PR #22 merge and R8-M2 exact-main terminal-success are VERIFIED_COMPLETE.
-R19 pre-real source and integration gates are complete; R20-Closure-1 is active.
+R19 pre-real source and integration gates are complete; R20-D1 publication and remaining F1/M1/M2 gates are active.
 R18 has not started.
 The historical phase-only restrictions above are superseded by the current
 full-plan authorization. Continue named subphases/closure gates through R19,

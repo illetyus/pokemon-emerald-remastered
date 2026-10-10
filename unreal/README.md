@@ -29,7 +29,8 @@ Keep the trusted receipt outside the package. World, Render, Characters and
 Environment retain their owning formats; the index seals every file and source
 input. Source/native R9/R14/R15 catalogs are checked by the entry point.
 [Package contract](../docs/R20_PRODUCTION_PACKAGE.md) explains transactionality
-and integrity. R20-I7 owns the source staging/preflight closure before R18.
+and integrity. [Source staging and installation preflight](../docs/R20_RELEASE_PREPARATION.md)
+closes R20-I7; actual compile/cook/package remains R18.
 
 Default characters use visible engine basic shapes; environment identities use
 source-backed R5 descriptors or explicit fallback. Optional private model/audio
@@ -61,3 +62,7 @@ with private payloads and APKs retained locally. SDL/Godot and
 `experiments/unreal-r0-reference` preserve historical evidence.
 [Roadmap](../docs/ROADMAP.md) and [architecture](../docs/ARCHITECTURE.md)
 remain authoritative.
+
+[R20 source completion](../docs/R20_PRODUCTION_COMPLETION.md) records actual
+portable/source/reproduction/security acceptance. It does not close the real
+engine, import, host or device obligations above.

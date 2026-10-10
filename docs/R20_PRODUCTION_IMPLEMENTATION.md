@@ -167,7 +167,8 @@ Next after actual CI: R20-T1 clean reproduction and security/integrity negatives
 
 ## R20-T1 / R20-V1 — Clean independent reproduction and full source suite
 
-State: VERIFYING actual hosted default execution after publication.
+Initial publication b19fc382: NEEDS_CLOSURE; final T1/V1 passed through
+Closure-1 below. Initial local unit evidence is retained as the historical snapshot.
 Eight receipt-gate regressions were RED for the absent full-suite entry point;
 all 51 targeted R20 tests now pass locally. Full real native/source/checkouts
 are NOT_RUN in this partial cache. The new default entry runs the entire R19
@@ -186,10 +187,26 @@ R20 tests passed. G1/merge did not advance. Production validation correctly
 returned exit 1; the negative harness incorrectly required parser/misuse exit 2.
 The unchanged CLI's malformed-index invocation reproduces exit 1 locally.
 
-State: RUNNING_CLOSURE -> VERIFYING actual default hosted rerun.
+State: VERIFIED_COMPLETE at 1c6716770b1b643637bfa9ba51ae57f4b9ed3680.
+Actual R20 workflow 38025616374 / job 114135716084 passed all five aggregate
+components: 81/453/171 plus 53 targeted R20 tests, two independent clean
+productions, nine exact-message rejections/restoration, complete security with
+zero findings/skips and source-release preparation. All 18 exact-head workflows
+and 32 check runs succeeded. G1 source acceptance is VERIFIED_COMPLETE.
 Two new regressions pin the real CLI contract and require both exit 1 and the
 exact case-specific validation message. Success, parser errors, traceback/crash
 and wrong validation reasons fail. The old harness was RED for that contract;
 all 53 targeted R20 tests pass after the narrow harness fix. Production validators,
 generation, source inputs, core/vendor and acceptance boundaries are unchanged.
 Next: actual V1 -> G1; no success is inferred from synthetic tests alone.
+
+## R20-D1 — Versioned completion evidence
+
+State: VERIFYING this documentation publication and exact-head actual CI.
+R20_PRODUCTION_COMPLETION.md records all named source checkpoints, actual
+coverage/index/package hashes, security scope/limits and all four G1 bullets.
+Canonical resume/build docs point to the accepted R20 source boundary and
+remaining F1/PR/main gates. No implementation or generated input changed.
+After exact publication/full CI, F1 independently reconciles the current live
+HEAD, tree/diff, default actual receipt, all checks, rules and review threads;
+M1/M2 follow only after that fresh green gate. Next phase: R18-P1 environment audit.

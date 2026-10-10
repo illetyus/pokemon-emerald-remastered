@@ -41,9 +41,10 @@ their formats. All files and conservative source inputs are sealed before
 transactional publication. [Package policy](R20_PRODUCTION_PACKAGE.md) defines
 output isolation, unsafe-path rejection and verification.
 
-Current R20 work separately closes ignored private/generated outputs, security,
-Unreal staging, preflight and clean-repeat proof. Until their named checkpoints
-pass, generation success alone does not close those obligations.
+R20 source acceptance closes ignored private/generated outputs, bounded security,
+Unreal staging/preflight source intent and independent clean-repeat proof.
+[R20 completion evidence](R20_PRODUCTION_COMPLETION.md) records actual coverage
+and final publication/integration gates. Generation alone is not an engine build.
 
 ## Private optional presentation and save inputs
 

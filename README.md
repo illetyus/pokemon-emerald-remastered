@@ -6,8 +6,9 @@ Unreal presentation, input, audio and platform integration.
 ## Current state
 
 R0–R5, R10–R13, R16/R17 and the pre-real-Unreal source phases
-R6/R7/R9/R14/R15/R8/R19 are verified and merged on main. R20 production polish
-is active on `r20-production-polish` / PR #24. R19 main acceptance at
+R6/R7/R9/R14/R15/R8/R19 are verified and merged on main. R20 production source acceptance is
+verified on `r20-production-polish` / PR #24; final publication/PR/main integration
+uses the live gates in the execution plan. R19 main acceptance at
 `ab057754f97fc1d8f5e9396ff8499337bb533dc3` passed 81 CTest checks,
 400 Python tests and 171 asset audits; all 16 exact-main workflows succeeded.
 
@@ -57,3 +58,9 @@ Public source contains converters, mappings, manifests, hashes, validators and
 redistributable fixtures. ROMs, extracted commercial models/textures/audio,
 private saves, APKs, credentials and secrets stay outside public tracking.
 SDL/Godot and the removed R0 presentation pair remain historical references.
+
+Latest R20 source acceptance: 81 CTest, 453 full Python, 53 R20 regressions,
+171 asset audits, two independently produced identical complete packages and
+nine real validation negatives; all 18 exact-head workflows succeeded.
+[Completion evidence and actual-runtime limits](docs/R20_PRODUCTION_COMPLETION.md).
+After R20 final-head and main CI gates, the next checkpoint is R18-P1.
