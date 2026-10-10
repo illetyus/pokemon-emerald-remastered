@@ -922,9 +922,12 @@ R19-I10 VERIFIED_COMPLETE at 9e301799; workflow 37963233981:
 6/81 CTest, 63/391 Python/source; DEFERRED_METADATA_PASS, zero devices.
 R19-T1/V1 VERIFIED_COMPLETE at fc83fd2; workflow 37964067675:
 81 CTest, 397 Python, 171 asset audits; all 17 exact-head workflows succeeded.
-G1 canonical smoke audit found a required-marker contract gap.
-Current checkpoint: **R19-Closure-3**, VERIFYING canonical packaged marker contract.
-R19-G1/D1/F1 remain open until closure CI passes (81 CTest / 400 Python expected).
+R19-Closure-3 VERIFIED_COMPLETE at 1bd0c356; workflow 38010794841:
+81 CTest, 400 Python, 171 asset audits; all seven source components passed.
+R19-V1/G1 pre-real source acceptance VERIFIED_COMPLETE.
+Current checkpoint: **R19-D1**, VERIFYING completion evidence publication.
+[Acceptance and runtime boundary](R19_REGRESSION_COMPLETION.md).
+R19-F1/M1/M2 remain open; R20-P1 only after exact-main CI terminal-success.
 [Inventory](R19_REGRESSION_INVENTORY.md), [contract](R19_REPLAY_CONTRACT.md),
 [evidence](R19_REGRESSION_IMPLEMENTATION.md).
 

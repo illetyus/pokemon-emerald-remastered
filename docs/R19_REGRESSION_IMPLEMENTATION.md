@@ -538,6 +538,24 @@ count from 397 to 400; the versioned minimum is updated accordingly. Local all
 72 R19 tests and actual source contract command PASS. All source/default field
 checks preserve explicit deferred state and source pin.
 
-State: VERIFYING; exact closure CI must execute 81 native / 400 Python, 171 asset
-audits, four package integrity components and all source/deferred guards before
-G1 can close. D1/F1 and M1/M2 remain NOT_STARTED. No merge before final checks.
+State: VERIFIED_COMPLETE at 1bd0c3562174138f28a492910b5bb77a7aac3df1.
+Actual workflow 38010794841 / job 114090072788 completed/success:
+81 native / 400 Python, 171 assets, all seven components, eight metadata clean
+generations and twelve corruptions rejected. All ten changed blobs match.
+Artifact 11653094222 exact checkout/tree/43 core blobs/file hashes/receipts verified.
+Archive SHA-256: 174877a5ec6351b864a970d442d161e48a8ecb3c0ec936bf8e4e9bc60f80256d.
+V1 source components and G1 pre-real roadmap acceptance VERIFIED_COMPLETE.
+CodeQL is still pending at D1 preparation; no merge before final-head success.
+
+
+## R19-D1 — Versioned completion/evidence boundary
+
+State: VERIFYING publication of four docs only. Completion evidence is
+R19_REGRESSION_COMPLETION.md: exact actual CI/counts/receipts, source acceptance,
+all 52 replay cases/489 observations, separate 37 R17 recipes, source closures,
+full-suite command and explicit deferred real-runtime/device portion.
+Recovery re-read canonical docs, live main/branch/history/compare/draft PR/CI.
+Main unchanged, branch seventeen ahead / zero behind; no conflicting drift.
+No implementation/vendor/private payload change belongs to this checkpoint.
+F1 independent fresh reconciliation is NOT_STARTED until publication CI passes.
+M1/M2 and R20 remain gated. Next: R19-F1 independent final gate.
