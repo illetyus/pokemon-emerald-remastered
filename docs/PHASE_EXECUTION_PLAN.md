@@ -1128,3 +1128,13 @@ catalog/header output. Vendor/audio/gameplay and acceptance boundaries remain.
 See [R18 audit](R18_ENVIRONMENT_AUDIT.md) for failed/green evidence. This named
 closure requires its own exact-HEAD CI and a fresh ordered Windows source run.
 Actual I1 compile, cook, APK and full source acceptance remain unverified.
+## R18-I1 preparation — Windows manifest fixture closure, 2026-10-12
+
+The relocated repo is D:\Pokemon Remaster. The existing R6 negative fixture
+was reproduced RED on Windows, then changed only to write exact UTF-8 bytes;
+all15 related presentation closure tests passed with zero skips. Byte-hash and
+canonical-content rejection assertions and production validation are preserved.
+Live baseline CI has29/31 successful checks; its two full-source failures report
+R15 owner source drift, separately retained for the next integrity/source step.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md). Full Windows source acceptance and
+actual Unreal compile/cook/APK remain unverified; main is not merged.

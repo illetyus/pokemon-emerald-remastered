@@ -1,3 +1,33 @@
+# R18-I1 preparation — Windows manifest fixture byte closure, 2026-10-12
+
+State: **FOCUSED_WINDOWS_REGRESSION_VERIFIED**; full source acceptance pending.
+The local repository is now D:\Pokemon Remaster. Shared tool/SDK installations
+remain under D:\Android. Historical pre-move evidence retains its original
+paths; the relocation receipt records the current mapping.
+
+On baseline HEAD0278567bb543781e7e7bdae12a0388b46251be8d the exact R6
+manifest negative regression failed again on Windows: write_text(raw) converted
+LF to CRLF, while the replacement byte hash used raw.encode(). The validator
+correctly rejected the actual staged bytes before reaching the intended
+canonical-content rejection. This is a test fixture transport mismatch.
+
+The one-line test-only fix writes raw.encode('utf-8') with write_bytes().
+Both existing byte-hash and canonical-content rejection assertions remain.
+All15 relevant R6 presentation closure tests passed, failures=0, skipped=0.
+Production validators, source/gameplay/assets and vendor content are unchanged.
+
+Baseline CI was inspected live:29 of31 checks succeeded; source-packages and
+full-suite failed independently at package_integrity with R15 owner source drift.
+Those logs are retained separately from the local RED/GREEN evidence. This
+checkpoint does not claim exact-HEAD green CI or full Windows R19/R20 acceptance.
+The R15 integrity closure and fresh ordered full suite belong to the next step.
+
+Private RED/GREEN evidence is under local/R18/Evidence/2026-10-12/i1-prep-3-*;
+i1-prep-3-current-path.txt identifies the exact run. No actual Unreal compile,
+cook, APK, device/runtime proof or main merge is claimed. The post-R18 stop
+remains REAL UNREAL RUNTIME VALIDATION.
+
+---
 # R18-I1 preparation — Windows audio catalog path closure
 
 State: **SOURCE_REPRODUCTION_IN_PROGRESS**, observed 2026-10-11.
