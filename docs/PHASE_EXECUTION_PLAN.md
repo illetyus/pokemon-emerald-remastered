@@ -1138,3 +1138,5 @@ Live baseline CI has29/31 successful checks; its two full-source failures report
 R15 owner source drift, separately retained for the next integrity/source step.
 See [R18 audit](R18_ENVIRONMENT_AUDIT.md). Full Windows source acceptance and
 actual Unreal compile/cook/APK remain unverified; main is not merged.
+The R19 ownership Git blob pin for the changed test was refreshed; all6 source
+ownership regressions passed with zero skips. Drift detection remains enforced.

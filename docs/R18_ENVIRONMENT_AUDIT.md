@@ -15,6 +15,9 @@ The one-line test-only fix writes raw.encode('utf-8') with write_bytes().
 Both existing byte-hash and canonical-content rejection assertions remain.
 All15 relevant R6 presentation closure tests passed, failures=0, skipped=0.
 Production validators, source/gameplay/assets and vendor content are unchanged.
+The changed test's existing R19 ownership Git blob pin was refreshed to its
+exact new bytes after CI reproduced R6 audit source drift. All6 ownership
+regressions passed with zero skips; source-drift rejection remains enforced.
 
 Baseline CI was inspected live:29 of31 checks succeeded; source-packages and
 full-suite failed independently at package_integrity with R15 owner source drift.
