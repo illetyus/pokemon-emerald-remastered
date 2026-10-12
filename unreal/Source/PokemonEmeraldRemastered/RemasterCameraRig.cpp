@@ -47,11 +47,10 @@ void ARemasterCameraRig::Tick(float DeltaSeconds)
     ARemasterWorldActor* Renderer = WorldRenderer.Get();
     if (!Renderer)
     {
-        for (TActorIterator<ARemasterWorldActor> It(GetWorld()); It; ++It)
+        if (TActorIterator<ARemasterWorldActor> It(GetWorld()); It)
         {
             Renderer = *It;
             WorldRenderer = Renderer;
-            break;
         }
     }
     UGameInstance* GI = GetGameInstance();

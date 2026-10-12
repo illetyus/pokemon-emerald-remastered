@@ -8,7 +8,7 @@
 class USkeletalMeshComponent;
 class UStaticMeshComponent;
 class URemasterCharacterAssetSet;
-class FStreamableHandle;
+struct FStreamableHandle;
 
 UCLASS()
 class POKEMONEMERALDREMASTERED_API URemasterCharacterVisualComponent : public UActorComponent

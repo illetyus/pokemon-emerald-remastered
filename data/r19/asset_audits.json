@@ -8,12 +8,17 @@
   "components": [
     {
       "id": "R6",
-      "minimum_tests": 52,
+      "minimum_tests": 60,
       "modules": [
         {
           "name": "test_r6_character_manifest",
           "path": "tests/test_r6_character_manifest.py",
           "blob_sha": "07366ef120c176b1099f671ec429e463a1958d79"
+        },
+        {
+          "name": "test_r6_normalization_receipt",
+          "path": "tests/test_r6_normalization_receipt.py",
+          "blob_sha": "6ecd0ac2b0e04886a94acf4acc8da76f716e3b42"
         },
         {
           "name": "test_r6_npc_asset_acquisition",
@@ -38,7 +43,7 @@
         {
           "name": "test_r6_presentation_closure",
           "path": "tests/test_r6_presentation_closure.py",
-          "blob_sha": "850734a9dd7e481a0e5e29a7b749032dd4091b89"
+          "blob_sha": "c082a5fdd371d84b511d98d38890a5d5feaa2a69"
         }
       ]
     },

@@ -145,9 +145,9 @@ void ARemasterBattleStage::FinishAssetLoad(int32 Slot, uint64 Generation, const 
         SkeletalVisuals[Slot]->SetRelativeScale3D(Scale); SkeletalVisuals[Slot]->SetVisibility(true); Loaded = true;
         PlaySemantic(Slot, TEXT("idle"), true);
     }
-    else if (auto* Mesh = Binding->StaticMesh.Get())
+    else if (auto* StaticMesh = Binding->StaticMesh.Get())
     {
-        StaticVisuals[Slot]->SetStaticMesh(Mesh); StaticVisuals[Slot]->SetRelativeLocation(Offset);
+        StaticVisuals[Slot]->SetStaticMesh(StaticMesh); StaticVisuals[Slot]->SetRelativeLocation(Offset);
         StaticVisuals[Slot]->SetRelativeScale3D(Scale); StaticVisuals[Slot]->SetVisibility(true); Loaded = true;
     }
     Placeholders[Slot]->SetVisibility(!Loaded);

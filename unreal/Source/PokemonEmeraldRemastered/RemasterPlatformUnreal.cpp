@@ -48,9 +48,9 @@ void FRemasterPlatformUnreal::Uninstall()
     remaster_platform_install(nullptr);
 }
 
-uint64 FRemasterPlatformUnreal::MonotonicTimeNs(void*)
+uint64_t FRemasterPlatformUnreal::MonotonicTimeNs(void*)
 {
-    return static_cast<uint64>(
+    return static_cast<uint64_t>(
         FPlatformTime::Seconds() * 1000000000.0);
 }
 
@@ -147,8 +147,8 @@ void FRemasterPlatformUnreal::Log(
     RemasterLogLevel Level,
     const char* Message)
 {
-    const TCHAR* Text = UTF8_TO_TCHAR(
-        Message ? Message : "");
+    const FUTF8ToTCHAR Converted(Message ? Message : "");
+    const TCHAR* Text = Converted.Get();
 
     switch (Level)
     {
@@ -170,9 +170,9 @@ void FRemasterPlatformUnreal::Log(
 
 void FRemasterPlatformUnreal::EmitPresentationEvent(
     void* Userdata,
-    uint32 EventId,
-    int64 Arg0,
-    int64 Arg1)
+    uint32_t EventId,
+    int64_t Arg0,
+    int64_t Arg1)
 {
     UE_LOG(
         LogTemp,

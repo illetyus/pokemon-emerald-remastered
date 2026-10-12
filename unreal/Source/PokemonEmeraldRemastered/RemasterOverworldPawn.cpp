@@ -90,7 +90,7 @@ ARemasterWorldActor* ARemasterOverworldPawn::FindWorldRenderer() const
     if (!World)
         return nullptr;
 
-    for (TActorIterator<ARemasterWorldActor> It(World); It; ++It)
+    if (TActorIterator<ARemasterWorldActor> It(World); It)
     {
         return *It;
     }

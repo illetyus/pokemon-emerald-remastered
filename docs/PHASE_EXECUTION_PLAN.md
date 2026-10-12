@@ -9,6 +9,31 @@ remaining roadmap. The execution map is independent of any particular chat,
 scheduler or orchestration mechanism. It does not renumber roadmap phases and
 does not replace the canonical product/architecture rules in ROADMAP/ARCHITECTURE.
 
+## Current technical checkpoint — 2026-10-13
+
+R18 actual Win64 Game/Editor and Android ARM64 compile, Android ASTC cook,
+Development diagnostic APK and real SDK/embedded-content integrity checks are
+verified at compiled source `fb0bcd57673c059c422dc8596cf1af7dbf945e69`.
+APK SHA256 `6398e02c82bf6d1e070e886b5f2dc5f1e42f6a839fb35403c200d6cf8935d2b0`;
+175048890 bytes; minSDK26 / targetSDK35 / arm64-v8a. This docs-only checkpoint
+must retain all 162 compile input bytes captured per target and receive its own
+CI; artifacts are not relabelled as compiled at this later commit.
+
+See [current R18 audit](R18_ENVIRONMENT_AUDIT.md) for native/toolchain/source
+identities, 14 required cooked pilot assets, exact profile/config references,
+first-APK missing-OBB rejection and successful same-cook/default-staging retry.
+Local current-source Python was 456 pass / 7 WinError1314 errors; exact-head CI
+is separate proof. The base package index was verified before private overrides;
+those three files have separate actual APK hash evidence.
+
+F1 independent review and main/CI reconciliation are pending. AP02 Windows
+character runtime is accepted at its own source `12f97e0d`; actual Android
+runtime, new-game/world/story and broad playable acceptance remain open.
+The historical R18-M2 runtime boundary is still recorded before advancing.
+The user's later authorization now permits the presented AP04+ implementation
+plan after technical main closure; physical-device/release gates are not
+silently skipped or declared complete.
+
 ## Controller contract
 
 - Repository state is authoritative; chat state is not.
@@ -1035,3 +1060,189 @@ R20-I5 canonical documentation links [BUILD.md](BUILD.md) and the production
 package contract. The R6/R7/R9/R14/R15 completion documents preserve their
 historical implementation snapshots under explicit superseding integration
 banners; old per-chat permission restrictions do not govern current execution.
+
+# Latest resume — R18-P1 actual environment boundary, 2026-10-10
+
+R20-D1/F1 VERIFIED_COMPLETE at 56e14d74: actual 81/453/171 + 53 targeted,
+18 workflows / 32 checks terminal-success. R20-M1 PR #24 merged at 466aa182;
+R20-M2 verified identical accepted/main tree and all 17 workflows / 30 checks,
+including actual main R20 workflow 38039922255 / job 114177936315.
+R20 source/integration gates are complete. Historical pending snapshots above
+are superseded by this live integration evidence.
+
+CURRENT_STATE: **R18-P1 — EXTERNAL_ENV_REQUIRED / BLOCKED**.
+[Actual environment audit](R18_ENVIRONMENT_AUDIT.md) is the owning checkpoint.
+Cloud Linux lacks project-PC control, accessible verified UE 5.8.3 and Android
+SDK/NDK/JDK setup. No actual engine/build/device operation ran. R18-P2 onward
+remains NOT_STARTED; source-only CI cannot close this actual gate. Stop at this
+exact checkpoint, resume P1 only with the real attached environment, and retain
+the later REAL UNREAL RUNTIME VALIDATION / physical-device STOP contract.
+
+## Latest resume — R18-P1 native Windows preparation, 2026-10-11
+
+The earlier cloud-only EXTERNAL_ENV_REQUIRED boundary is superseded by actual
+project-PC access and completed native Windows prerequisite preparation.
+R18-P1 **LOCAL_PREREQUISITES_VERIFIED**: complete isolated source worktree,
+accepted vendor tree, Microsoft-signed SDK/Build Tools installs (both exit 0),
+real MSVC and Clang-adapter C99/C++17 compile/run, and required tool versions.
+All new work uses D:\Android with only the explicitly approved mandatory
+Microsoft system component exception on C:. See the owning
+[R18 environment audit](R18_ENVIRONMENT_AUDIT.md) for actual paths/versions and
+compiler family-directory versus binary-patch distinction.
+
+This named docs checkpoint still requires its own exact-HEAD terminal-success CI.
+Then next is **R18-P2 — exact Unreal installation/tool verification**; P3 and
+actual compile/cook/APK remain NOT_STARTED at this P1 checkpoint. Source/host
+compiler readiness is not an actual UE or device pass. The post-R18 runtime STOP
+and later physical Android/BrowserStack/R19-device/R21/R22 boundaries remain.
+## Latest checkpoint — R18-P2 exact installed Unreal, 2026-10-11
+
+P1 checkpoint 4cf38a5f495c0135a21da65e09924dfa0b0441ec reached terminal
+success in all 17 workflows / 31 checks. P2 now verifies exact UE 5.8.3
+CL 58210709, its launcher identity and Build.version hash, plus actual bundled
+.NET 10.0.203, UBT help and UAT help execution (all exit 0). The owning
+[R18 environment audit](R18_ENVIRONMENT_AUDIT.md) records the actual evidence
+and the initial UAT argument correction. No game target compile, cook, APK or
+runtime success is inferred from this startup check.
+
+This named P2 checkpoint requires exact-HEAD terminal-success CI, then the next
+checkpoint is R18-P3 actual Android toolchain compatibility. New logs/caches
+remain under D:\Android. The post-R18 REAL UNREAL RUNTIME VALIDATION STOP and
+later physical Android/BrowserStack/R19-device/R21/R22 boundaries remain.
+
+## Latest checkpoint — R18-P3 actual Android validation, 2026-10-11
+
+P2 exact HEAD f4b5cfdbdce0f902c69d7123f2e3377720b6b2ef reached all
+17 workflows / 31 checks completed success. P3 now has actual UBT Android VALID
+r27c and UAT Turnkey Android Status=Valid evidence, with the selected D:\Android
+SDK/NDK and Temurin21 process. Genuine UE-selected Android Studio Koala was
+installed on D: after the initial Invalid-host result; official archive hash
+and Google launcher signature were verified. No device/update request was made.
+
+The Windows JDK CRLF parser defect was reproduced before its minimum fix; all
+13 relevant preflight regression tests pass with zero skips. The owning
+[R18 environment audit](R18_ENVIRONMENT_AUDIT.md) records evidence, rejected
+initial results and presence/validation/actual-target distinctions. This named
+source/docs checkpoint requires exact-HEAD terminal-success CI, then Windows
+R19/R20 source reproduction precedes I1 actual production compile. Compile,
+cook, APK and runtime remain unverified. The post-R18 runtime STOP remains.
+
+## R18-I1 preparation — Windows diagnostic path closure, 2026-10-11
+
+P3 exact commit 9e4e6ff6c7fe16cba0464fcbd8714e68e68b8c5b reached all
+17 workflows / 31 checks completed success. First actual Windows source run:
+MSVC build and81 CTests passed with zero failures/skips; Python component stopped
+at a canonical-path diagnostic mismatch. The minimum script error formatting
+closure passed all21 relevant converter tests and preserves vendor/gameplay.
+
+The next failfast Python probe reached test84 before Windows denied its real
+symlink negative fixture with WinError1314. Native elevation is required; the
+test will not be skipped and global security settings were not changed. See the
+[R18 environment audit](R18_ENVIRONMENT_AUDIT.md) for rejected/accepted evidence.
+This preparation closure needs exact-HEAD CI, then a fresh ordered source run.
+Actual I1 production compile remains NOT_STARTED; full-source/compile/cook/APK
+acceptance and later runtime STOP boundaries are not advanced by these probes.
+## R18-I1 preparation — Windows audio catalog closure, 2026-10-11
+
+Previous preparation HEAD947b51697c5d4aae02300f4aa10ff3165eb00e2e passed
+all17 workflows/31 checks. The elevated fresh Windows source run passed81
+CTests and real symlink fixtures; Python stopped at test114 on source audio
+catalog Windows path separators. A single relative-path as_posix() fix passed
+all7 relevant source regressions with zero skips and reproduces checked-in
+catalog/header output. Vendor/audio/gameplay and acceptance boundaries remain.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md) for failed/green evidence. This named
+closure requires its own exact-HEAD CI and a fresh ordered Windows source run.
+Actual I1 compile, cook, APK and full source acceptance remain unverified.
+## R18-I1 preparation — Windows manifest fixture closure, 2026-10-12
+
+The relocated repo is D:\Pokemon Remaster. The existing R6 negative fixture
+was reproduced RED on Windows, then changed only to write exact UTF-8 bytes;
+all15 related presentation closure tests passed with zero skips. Byte-hash and
+canonical-content rejection assertions and production validation are preserved.
+Live baseline CI has29/31 successful checks; its two full-source failures report
+R15 owner source drift, separately retained for the next integrity/source step.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md). Full Windows source acceptance and
+actual Unreal compile/cook/APK remain unverified; main is not merged.
+The R19 ownership Git blob pin for the changed test was refreshed; all6 source
+ownership regressions passed with zero skips. Drift detection remains enforced.
+
+## R18-I1 preparation — R15 owner integrity closure, 2026-10-12
+
+Baseline f6ad25b5 has29/31 successful checks; two source-suite workflows reject
+an outdated R15 owner Git blob after the Windows canonical-path fix. The real
+validator reproduced RED. Only that exact owner pin is refreshed; all four
+Windows metadata owners completed two matching generations and12 corruption
+rejections with verified restore, exit0. Vendor and validators are preserved.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md). This checkpoint requires exact-HEAD
+CI terminal-success before a fresh elevated Windows R19/R20 full-source run.
+Full source/Unreal compile/cook/APK and main merge remain unverified.
+## R18-I1 preparation — bounded Windows full-source timeout, 2026-10-12
+
+Preparation HEAD10bf06cb passed31 checks/17 workflows. The fresh elevated
+Windows run passed81 native and454 Python tests, then reached the fixed
+1200-second parent limit during asset audits; no acceptance receipt exists.
+The bounded aggregate budget is3600 seconds; all individual limits, zero-skip
+coverage and validation gates remain. A new regression requires explicit timeout
+failure evidence and no acceptance receipt. All11 focused runner regressions passed; the55-test native symlink run awaits UAC.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md). Exact-HEAD CI and a fresh full-source
+run are required. Actual Unreal compile/cook/APK and main merge are unverified.
+
+## R18-I1 preparation — Windows source and generated content accepted, 2026-10-12
+
+Actual project HEADedd3469adaa8ff9ac368a767f6fca67d91ca1cab passed31 checks/
+17 workflows and a fresh native Windows R20 CLI including real R19, exit0.
+All81 native,455 Python,171 asset-audit and55 targeted R20 tests passed with
+zero skips. Four metadata owners had two matching generations and12 corruption
+rejections. Two clean worktrees produced identical2473-file/13096-input packages;
+all nine negatives were rejected and restored bytes verified. Public source and
+history audit had zero findings/skipped blobs. Fresh ignored Unreal Generated
+content matches those packages and passed external trusted-index verification.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md) for exact identities and private evidence.
+Next is actual Unreal I1 compile. Cook/APK/runtime remain unverified; main is
+not merged. REAL UNREAL RUNTIME VALIDATION remains the post-R18 stop.
+
+## R18-C1 — actual Win64 compile closure candidate, 2026-10-12
+
+Actual UHT passed; real MSVC exposed streamable forward-declaration type mismatch,
+shadowed local, missing generated C catalogs and unity translation-unit collisions.
+The candidate preserves gameplay and adds only exact type/local fixes, separate
+module compilation and authoritative R11/R12/R13 prebuild integration. The same
+8-bit mask avoids the observed truncation warning without suppressing diagnostics.
+Source guards,8 battle source regressions and5 fresh native codec/storage/bag/
+domain/C++ embed tests passed; generated includes match accepted CMake bytes.
+Real separate-file Unreal compile remains exploratory/in progress. Exact-head CI
+and fresh trusted-index binding are required before clean Win64 build acceptance.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md). Cook/APK/runtime and main merge remain
+unverified; actual UBA bookkeeping path is explicitly D:/Android/Caches.
+
+## R18-C1 follow-up — ticker/button APIs, 2026-10-12
+
+First C1 candidate0e829a3d passed31 checks/17 workflows. The real separate-file
+compile built the portable core and exposed ticker-handle and UButton API types.
+Only those declarations/initialization calls change; lifecycle and focus behavior
+remain. All18 input/lifecycle and10 UI regressions passed in the full compiler
+environment, zero skips; prior battle/native checks bring C1 coverage to41 tests.
+A fresh trusted source index and exact-head CI precede the final Win64 retry.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md). Final compile/cook/APK/runtime and
+main merge are unverified.
+
+## R18-C1 — constructor-only protected button initialization, 2026-10-12
+
+The d79235c6 retry passed UHT/ticker compile, then exposed that the focus
+initializer is protected. A minimal UButton subclass now initializes focus in
+its constructor before Slate creation; both buttons retain their existing base
+references and click behavior. All10 UI regressions and source guards pass.
+Exact-head CI plus a fresh trusted source package precede the clean Win64 retry.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md); final compile/cook/APK/runtime and
+main merge remain unverified.
+
+## R18-I1 — real Win64 Game build accepted, 2026-10-12
+
+Clean source HEAD047e97df20bef3fc0f8aec25d8ea022e53ac1568 passed31 checks/
+17 workflows, then actual UE5.8.3 UHT/C++/link produced the Win64 Development
+Game, exit0. The332961280-byte EXE was independently hashed and checked as
+PE AMD64; the UBT receipt and external Generated index bind target/engine/source
+identity. C1 has41 relevant passing regressions and retains authoritative
+source/gameplay/vendor behavior. See [R18 audit](R18_ENVIRONMENT_AUDIT.md).
+This is Game build acceptance only: Editor and Android ARM64 compile, cook/APK
+and runtime are still required; no executable was launched and main is unmerged.

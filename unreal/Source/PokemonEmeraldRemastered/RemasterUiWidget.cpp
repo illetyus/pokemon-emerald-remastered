@@ -13,6 +13,12 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Engine/GameInstance.h"
 
+URemasterUiButton::URemasterUiButton(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
+{
+    InitIsFocusable(false);
+}
+
 void URemasterUiRowWidget::Configure(URemasterUISubsystem* InUI, int32 InIndex,
     int64 InRevision, const FText& Label, bool bEnabled, bool bSelected)
 {
@@ -21,8 +27,7 @@ void URemasterUiRowWidget::Configure(URemasterUISubsystem* InUI, int32 InIndex,
     USizeBox* Size = WidgetTree->ConstructWidget<USizeBox>();
     Size->SetMinDesiredHeight(64.0f);
     WidgetTree->RootWidget = Size;
-    UButton* Button = WidgetTree->ConstructWidget<UButton>();
-    Button->SetIsFocusable(false);
+    UButton* Button = WidgetTree->ConstructWidget<URemasterUiButton>();
     Button->SetIsEnabled(bEnabled);
     Size->AddChild(Button);
     UTextBlock* Text = WidgetTree->ConstructWidget<UTextBlock>();
@@ -80,7 +85,7 @@ void URemasterUiWidget::NativeOnInitialized()
     Rows = WidgetTree->ConstructWidget<UVerticalBox>(); Scrolled->AddChildToVerticalBox(Rows);
     USizeBox* BackSize = WidgetTree->ConstructWidget<USizeBox>(); BackSize->SetMinDesiredHeight(64.0f);
     Content->AddChildToVerticalBox(BackSize);
-    BackButton = WidgetTree->ConstructWidget<UButton>(); BackButton->SetIsFocusable(false);
+    BackButton = WidgetTree->ConstructWidget<URemasterUiButton>();
     BackSize->AddChild(BackButton);
     UTextBlock* BackText = WidgetTree->ConstructWidget<UTextBlock>();
     BackText->SetText(FText::FromString(TEXT("Geri"))); BackButton->AddChild(BackText);

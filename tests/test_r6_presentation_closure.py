@@ -119,7 +119,7 @@ class R6PresentationClosureTests(unittest.TestCase):
                 self.assertEqual((a/name).read_bytes(),(b/name).read_bytes())
             self.assertTrue(all(r['runtime_default']=='visible_placeholder' for r in audit['records']))
             raw=(a/'manifest.json').read_text().replace('npc.prof_birch','npc.wrong_birch')
-            (a/'manifest.json').write_text(raw)
+            (a/'manifest.json').write_bytes(raw.encode('utf-8'))
             with self.assertRaisesRegex(ManifestError,'byte SHA-256 mismatch'):verify_package(a)
             (a/'manifest.sha256').write_text(hashlib.sha256(raw.encode()).hexdigest())
             with self.assertRaisesRegex(ManifestError,'canonical content'):verify_package(a)

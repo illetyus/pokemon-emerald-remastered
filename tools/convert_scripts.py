@@ -535,7 +535,7 @@ def collect_script_dependency_closure(
 
             if classification is None:
                 raise ScriptConversionError(
-                    f"{command.path}:{command.line}: {command.label}: "
+                    f"{command.path.as_posix()}:{command.line}: {command.label}: "
                     f"unclassified reachable command {command.name}"
                 )
 
@@ -607,7 +607,7 @@ def _symbolic_target_or_error(
 ) -> str:
     if target not in labels:
         raise ScriptConversionError(
-            f"{command.path}:{command.line}: {command.label}: "
+            f"{command.path.as_posix()}:{command.line}: {command.label}: "
             f"unresolved script label {target}"
         )
     return target
@@ -742,7 +742,7 @@ def _normalize_script_command(
             }
         else:
             raise ScriptConversionError(
-                f"{command.path}:{command.line}: {command.label}: "
+                f"{command.path.as_posix()}:{command.line}: {command.label}: "
                 f"invalid trainer battle arguments for {name}"
             )
 
@@ -841,7 +841,7 @@ def _normalize_script_command(
         special_name = args[0]
         if special_name not in specials:
             raise ScriptConversionError(
-                f"{command.path}:{command.line}: {command.label}: "
+                f"{command.path.as_posix()}:{command.line}: {command.label}: "
                 f"unknown special {special_name}"
             )
         return [{
@@ -854,7 +854,7 @@ def _normalize_script_command(
         special_name = args[1]
         if special_name not in specials:
             raise ScriptConversionError(
-                f"{command.path}:{command.line}: {command.label}: "
+                f"{command.path.as_posix()}:{command.line}: {command.label}: "
                 f"unknown special {special_name}"
             )
         return [{

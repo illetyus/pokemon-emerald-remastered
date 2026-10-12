@@ -44,7 +44,7 @@
       "id": "R15",
       "owner": {
         "path": "tools/build_r15_audio_catalog.py",
-        "blob_sha": "fd9a933becba77f7c7c8bd6df4407b83d1b6f63b"
+        "blob_sha": "75a89998b945636be0b89a2b30d0de9ee7678665"
       },
       "files": [
         "RemasterAudioCatalog.inl",

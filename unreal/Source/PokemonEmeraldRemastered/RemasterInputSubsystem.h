@@ -1,5 +1,6 @@
 #pragma once
 #include "CoreMinimal.h"
+#include "Containers/Ticker.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "RemasterTouchInput.h"
 #include "RemasterPhysicalInput.h"
@@ -46,7 +47,8 @@ private:
     void DeviceConnection(EInputDeviceConnectionState State,FPlatformUserId User,FInputDeviceId Device);
     bool ObserveLifecycle(float DeltaTime);
     RemasterControls::Lifecycle Lifecycle;
-    FDelegateHandle BackgroundHandle,ForegroundHandle,InactiveHandle,ReactivatedHandle,DeviceHandle,TickHandle;
+    FDelegateHandle BackgroundHandle,ForegroundHandle,InactiveHandle,ReactivatedHandle,DeviceHandle;
+    FTSTicker::FDelegateHandle TickHandle;
     FRemasterInputDispatch OnDispatch;
     FRemasterInputContextReader OnReadContext;
     FRemasterInputActionOwner FieldOwner,BattleOwner;

@@ -104,7 +104,7 @@ def installation_preflight(engine, *, android=False, sdk=None, ndk=None, java=No
         if not revision or not executable(ndk / ('toolchains/llvm/prebuilt/' + prebuilt + '/bin/clang++' + suffix), host):
             raise ValueError('NDK revision and host compiler required')
         release = read_metadata(java / 'release').decode('utf-8')
-        javersion = re.search(r'^JAVA_VERSION="([0-9][0-9A-Za-z._+-]*)"$', release, re.M)
+        javersion = re.search(r'^JAVA_VERSION="([0-9][0-9A-Za-z._+-]*)"\r?$', release, re.M)
         if not javersion or not all(executable(java / ('bin/' + name + suffix), host) for name in ('java', 'javac')):
             raise ValueError('JDK release metadata, java and javac required')
         report.update({'sdk_platforms_present': platforms, 'ndk_revision_present': revision.group(1),

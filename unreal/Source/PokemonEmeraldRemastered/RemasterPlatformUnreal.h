@@ -16,7 +16,7 @@ public:
     static void Uninstall();
 
 private:
-    static uint64 MonotonicTimeNs(void* Userdata);
+    static uint64_t MonotonicTimeNs(void* Userdata);
     static int ReadWallClock(
         void* Userdata,
         RemasterWallClock* OutClock);
@@ -48,9 +48,9 @@ private:
 
     static void EmitPresentationEvent(
         void* Userdata,
-        uint32 EventId,
-        int64 Arg0,
-        int64 Arg1);
+        uint32_t EventId,
+        int64_t Arg0,
+        int64_t Arg1);
 
     static FString SlotPath(const char* Slot);
 };

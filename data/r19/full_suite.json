@@ -137,6 +137,7 @@
     "test_r5_scene_acceptance",
     "test_r5_tileset_manifest",
     "test_r6_character_manifest",
+    "test_r6_normalization_receipt",
     "test_r6_npc_asset_acquisition",
     "test_r6_npc_model_mapping",
     "test_r6_npc_source_inventory",
@@ -152,7 +153,7 @@
     "test_r9_ui",
     "test_world_fingerprint"
   ],
-  "minimum_python_tests": 400,
+  "minimum_python_tests": 408,
   "private_real_save_replay": "NOT_RUN_IN_CI",
   "actual_unreal_device_execution": false
 }

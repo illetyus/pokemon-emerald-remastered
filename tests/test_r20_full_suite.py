@@ -82,6 +82,17 @@ class FullSuiteGates(unittest.TestCase):
                 else:
                     with self.assertRaises(ValueError): rejection(['explicit-fixture'], Path('.'), reason)
 
+    def test_parent_timeout_is_reported_without_an_acceptance_receipt(self):
+        from r20_full_suite import run
+        with tempfile.TemporaryDirectory() as tmp:
+            build = Path(tmp)
+            with mock.patch('r20_full_suite.subprocess.run',
+                            side_effect=subprocess.TimeoutExpired(['r19_full_suite.py'], 1200)):
+                with self.assertRaisesRegex(ValueError,
+                        'R20 first failing component r19_full_suite: timed out after 1200s'):
+                    run(build)
+            self.assertFalse((build / 'r19-full-suite-receipt.json').exists())
+
     def test_actual_production_cli_validation_uses_exit_one(self):
         with tempfile.TemporaryDirectory() as tmp:
             output = Path(tmp)

@@ -161,13 +161,17 @@ def run(build_dir):
         print('R20 component START ' + name, flush=True)
         try:
             value = action()
+        except subprocess.TimeoutExpired as exc:
+            raise ValueError(f'R20 first failing component {name}: timed out after {exc.timeout}s') from exc
         except (OSError, ValueError, KeyError, subprocess.SubprocessError) as exc:
             raise ValueError('R20 first failing component ' + name) from exc
         components.append({'id': name, 'status': 'PASS', 'evidence': value})
         print('R20 component PASS ' + name, flush=True)
     def full():
+        # Aggregate native, Python, asset and metadata stages on slower Windows hosts.
+        # Keep a bounded one-hour parent budget and all existing per-stage limits.
         subprocess.run([sys.executable, str(ROOT / 'tools/r19_full_suite.py'), '--build-dir', str(build_dir),
-                        '--receipt', str(r19_path)], cwd=ROOT, check=True, timeout=1200)
+                        '--receipt', str(r19_path)], cwd=ROOT, check=True, timeout=3600)
         receipt = json.loads(r19_path.read_text()); validate_r19(receipt)
         return receipt
     def security():

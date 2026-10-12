@@ -27,15 +27,14 @@ void AR0GameMode::StartPlay()
         return;
 
     bool bHasBattleStage = false;
-    for (TActorIterator<ARemasterBattleStage> It(World); It; ++It) { bHasBattleStage = true; break; }
+    if (TActorIterator<ARemasterBattleStage> It(World); It) { bHasBattleStage = true; }
     if (!bHasBattleStage)
         World->SpawnActor<ARemasterBattleStage>(ARemasterBattleStage::StaticClass(), FVector(0,0,10000), FRotator::ZeroRotator);
 
     ARemasterWorldActor* WorldRenderer = nullptr;
-    for (TActorIterator<ARemasterWorldActor> It(World); It; ++It)
+    if (TActorIterator<ARemasterWorldActor> It(World); It)
     {
         WorldRenderer = *It;
-        break;
     }
 
     if (!WorldRenderer)
@@ -85,10 +84,9 @@ void AR0GameMode::StartPlay()
     }
 
     ARemasterCameraRig* CameraRig = nullptr;
-    for (TActorIterator<ARemasterCameraRig> It(World); It; ++It)
+    if (TActorIterator<ARemasterCameraRig> It(World); It)
     {
         CameraRig = *It;
-        break;
     }
 
     if (!CameraRig)
