@@ -1,3 +1,35 @@
+# R18-C1 follow-up — ticker and button API closure, 2026-10-12
+
+State: **FINAL_WIN64_RETRY_REQUIRED**. The first C1 candidate
+0e829a3d252ac09aab4a90bcd8d6f9956f44ba47 passed31 checks/17 workflows.
+The real separate-file Win64 compile built the portable core and remaining
+runtime sources, then exposed two additional engine API mismatches: the ticker
+uses FTSTicker::FDelegateHandle, and UButton uses InitIsFocusable before its
+Slate widget is constructed. These are closed by separating the ticker handle
+from general application delegates, explicitly including Containers/Ticker.h,
+and replacing only the two button initialization calls. Input lifecycle fences,
+repeat policy, gameplay ownership and unfocusable button behavior are preserved.
+UHT must regenerate the changed header before the final retry; exploratory
+output while that header changed is not accepted as a release build.
+
+In the full compiler environment18 input/lifecycle regressions and10 UI
+regressions passed with zero skips. With the prior8 battle source and5 native
+regressions, the C1 closure has41 relevant passing tests. Initial input probe
+attempts lacked the complete compiler environment and remain as failed evidence;
+no missing compiler or native symlink test is called a pass. Architecture guards
+also pass. CoreCatalogs match the accepted native CMake outputs, and real UBT
+prebuild logs confirm the source producers run. Vendor content is unchanged.
+
+A source package was generated and externally verified for first C1 HEAD0e829a3d:
+2473 files/13097 inputs, indexf39bcba7c73d6a6e79005f32e93916707c2fda5f921e0181b6c92f7c55d1c71b,
+with payload hash unchanged from the two prior clean Windows productions. That
+index is historical after this follow-up source change; a fresh production
+output/external receipt and this checkpoint's exact-head CI must bind the final
+clean Win64 retry. Prior Generated packages are preserved in ignored local/R18.
+No final Unreal compile/cook/APK/runtime proof or main merge is claimed yet.
+Private evidence: local/R18/Evidence/2026-10-12/c1-* (current-path pointer).
+
+---
 # R18-C1 — real Win64 compiler closure in progress, 2026-10-12
 
 State: **ACTUAL_UNREAL_COMPILER_CLOSURE_IN_PROGRESS**. The source preparation

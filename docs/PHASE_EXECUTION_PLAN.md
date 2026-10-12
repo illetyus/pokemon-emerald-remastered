@@ -1189,3 +1189,14 @@ Real separate-file Unreal compile remains exploratory/in progress. Exact-head CI
 and fresh trusted-index binding are required before clean Win64 build acceptance.
 See [R18 audit](R18_ENVIRONMENT_AUDIT.md). Cook/APK/runtime and main merge remain
 unverified; actual UBA bookkeeping path is explicitly D:/Android/Caches.
+
+## R18-C1 follow-up — ticker/button APIs, 2026-10-12
+
+First C1 candidate0e829a3d passed31 checks/17 workflows. The real separate-file
+compile built the portable core and exposed ticker-handle and UButton API types.
+Only those declarations/initialization calls change; lifecycle and focus behavior
+remain. All18 input/lifecycle and10 UI regressions passed in the full compiler
+environment, zero skips; prior battle/native checks bring C1 coverage to41 tests.
+A fresh trusted source index and exact-head CI precede the final Win64 retry.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md). Final compile/cook/APK/runtime and
+main merge are unverified.

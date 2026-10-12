@@ -22,7 +22,7 @@ void URemasterUiRowWidget::Configure(URemasterUISubsystem* InUI, int32 InIndex,
     Size->SetMinDesiredHeight(64.0f);
     WidgetTree->RootWidget = Size;
     UButton* Button = WidgetTree->ConstructWidget<UButton>();
-    Button->SetIsFocusable(false);
+    Button->InitIsFocusable(false);
     Button->SetIsEnabled(bEnabled);
     Size->AddChild(Button);
     UTextBlock* Text = WidgetTree->ConstructWidget<UTextBlock>();
@@ -80,7 +80,7 @@ void URemasterUiWidget::NativeOnInitialized()
     Rows = WidgetTree->ConstructWidget<UVerticalBox>(); Scrolled->AddChildToVerticalBox(Rows);
     USizeBox* BackSize = WidgetTree->ConstructWidget<USizeBox>(); BackSize->SetMinDesiredHeight(64.0f);
     Content->AddChildToVerticalBox(BackSize);
-    BackButton = WidgetTree->ConstructWidget<UButton>(); BackButton->SetIsFocusable(false);
+    BackButton = WidgetTree->ConstructWidget<UButton>(); BackButton->InitIsFocusable(false);
     BackSize->AddChild(BackButton);
     UTextBlock* BackText = WidgetTree->ConstructWidget<UTextBlock>();
     BackText->SetText(FText::FromString(TEXT("Geri"))); BackButton->AddChild(BackText);
