@@ -93,10 +93,9 @@ void ARemasterNpcPresentationWorld::Tick(float DeltaSeconds)
         InstanceMapId = MapId;
     }
     ARemasterWorldActor* Renderer = nullptr;
-    for (TActorIterator<ARemasterWorldActor> It(GetWorld()); It; ++It)
+    if (TActorIterator<ARemasterWorldActor> It(GetWorld()); It)
     {
         Renderer = *It;
-        break;
     }
     if (!Renderer || Renderer->GetLoadedMap().Id != MapId)
     {
