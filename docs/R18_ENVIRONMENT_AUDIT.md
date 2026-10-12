@@ -1,3 +1,65 @@
+# R18 build evidence reconciliation — 2026-10-13
+
+State: **ACTUAL_WIN64_ANDROID_COMPILE_COOK_APK_INTEGRITY_VERIFIED; F1_REVIEW_MAIN_PENDING**.
+Accepted compiled source is `fb0bcd57673c059c422dc8596cf1af7dbf945e69`.
+This documentation checkpoint changes no production compile input; each of the
+three actual build captures has 162 input files, whose bytes must match this
+branch and the resulting main revision. The APK remains bound to its compiled
+source and private content profile, not to a later documentation commit.
+
+| Acceptance layer | Actual evidence and limits |
+| --- | --- |
+| Win64 Development Game and Editor | Both actual UHT/C++/link runs exited 0 at the compiled source above; stable input bytes. Game EXE 332975616 bytes, SHA256 `da4bc6065a0727e94c827955c88ee4977586169838dfd41d38fc98e0778827fe`; Editor module DLL 1967616 bytes, SHA256 `7b3a30bad274708ab1cddf7ce5c6b250f68acced260307024e99cddb9373642b`. |
+| Android Development ARM64 | Actual native compile/link exited 0; ELF64 AArch64 DYN, four 16KB-aligned load segments. Raw shared library 444423088 bytes, SHA256 `c5363a197ede915912428564490c86d9c19e51c69de227924c81e80ddbb2efb9`. Compile used `-SkipDeploy`; Gradle packaging is separate evidence. |
+| Android ASTC cook | Real cook completed 7703 shader jobs, 0 errors / 0 warnings. Successful cook reused for the corrected staging/package retry; it was not fabricated or rerun for the packaging-path closure. |
+| Development APK | Actual stage/pak/package/archive exited 0. APK 175048890 bytes, SHA256 `6398e02c82bf6d1e070e886b5f2dc5f1e42f6a839fb35403c200d6cf8935d2b0`. SDK tools verified Android Debug v2 signature, ZIP CRC, package `com.illetyus.emeraldremaster.r0unreal`, minSDK26 / targetSDK35, ARM64-only native libraries, ZIP/ELF 16KB alignment. Main native GNU build ID `4b884bc7951a8a4f9795d3e1c74c7f36e50e1d40` matches the actual accepted native compile. |
+| Packaged character content | Actual APK OBB was opened and its Pak/UToc/Ucas hashes matched staged data. All 14 required Brendan pilot assets, Vulkan/OpenGL shader libraries, three Characters profile files and the two packaged map/AssetSet config references were verified. This is a diagnostic pilot APK, not a playable-story acceptance. |
+| Windows character runtime | Separate AP02 Windows cooked/visual/motion/fallback/static acceptance is bound to source `12f97e0d`; it is not a new Android runtime proof at the APK source. |
+| Source tests / CI | Compiled source completed 31 checks / 17 workflows successfully. Its local Python run was 456 passed / 7 ERROR out of 463, all errors WinError1314 symlink privilege fixtures; no full local suite PASS or skipped-negative reinterpretation. The earlier all-green Windows preparation suite stays bound to historical `edd3469a`. This docs-only checkpoint and resulting main need their own terminal CI. |
+| Device / broad gameplay | Not verified. No validated Android emulator was used for optional R18-I5 launch smoke; physical Android, first playable sequence and full story are separate later gates. |
+
+The narrow Android Clang closure preserves first-actor selection, matches C
+`uint64_t`/`int64_t` callbacks on LP64, and keeps the named UTF8 conversion alive
+through its log call. No warning suppression, vendor edit or gameplay ownership
+change was used.
+
+The first signed APK was rejected because required cooked data was absent.
+UAT had written OBB to a custom staging path while installed UEDeployAndroid
+reads `Project/Saved/StagedBuilds/Android_ASTC.obb` (line4363). The successful
+retry used the default project staging path with `-skipcook`, without editing
+the engine. Failed APK/logs and historical false fields remain preserved.
+
+SDK native API26, Java compile SDK36 and actual APK targetSDK35 are separate
+selectors. Packaging used build-tools36.1.0; verification used36.0.0. Engine
+UE5.8.3 CL58210709, NDK27.2.12479018 (r27c), JDK21.0.12.1+1, MSVC14.50.35739 and
+Windows SDK10.0.26100.0 retain their actual build receipts.
+
+The base Generated package was independently verified before the private
+character override: index SHA256
+`28c07f96902c6a57061c8d31e580f04df942253cf43a082e53e928ae68225ad5`,
+2473 files / 13100 inputs. Three private Characters files were then separately
+hash-verified from the actual APK. The original base index is not claimed to
+certify those modified files or the additional private imported Unreal assets.
+
+Private evidence stays under `local/Assets/AP02` and
+`local/R18/Evidence/2026-10-12/ap03-*`; F1 reconciliation is under
+`local/R18/Evidence/2026-10-13/ap03-f1-v1`. Source configs and original Generated
+were restored; raw assets, source saves, APKs, binaries, keys and raw logs are
+excluded from public Git. Pokemon-only outputs are under `D:/Pokemon Remaster`;
+shared SDK/tool/cache roots remain under `D:/Android` (UE under `D:/Unreal`).
+
+Next is independent F1 review, verified PR merge and exact-main CI/source-byte
+reconciliation. Record R18-M2 at REAL UNREAL RUNTIME VALIDATION before any later
+phase. The user has now authorized continuing the presented AP04+ plan after
+that boundary; this does not turn technical APK proof into gameplay/device or
+release-distribution proof. Later device/content/release gates remain required.
+
+The following entries are immutable historical checkpoints at their own source
+revisions; their old CookVerified/APK/runtime false fields are not retroactively
+changed into this newer artifact's acceptance.
+
+---
+
 # R18-I1 — actual Win64 Game build accepted, 2026-10-12
 
 State: **WIN64_GAME_UHT_CPP_LINK_VERIFIED**. Overall I1 still requires the

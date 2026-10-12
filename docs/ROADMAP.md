@@ -1,11 +1,36 @@
 # Pokémon Emerald Remastered — Canonical Roadmap
 
 Date: 2026-10-10
-Status: **R0-R5, R10-R13, R16/R17 and R6/R7/R9/R14/R15/R8/R19 pre-real-UE source phases verified complete on main; R20 production source and PR/main integration VERIFIED_COMPLETE; R18-P1 EXTERNAL_ENV_REQUIRED. Actual engine/assets/device obligations remain open.**
+Status: **Existing source phases remain accepted on main; R18 actual compile/cook/Development diagnostic APK/integrity VERIFIED at fb0bcd57; F1/main reconciliation pending. First playable game, actual Android runtime and full content obligations remain open.**
 
 This document is the single authoritative development roadmap for the project.
 Older R0-R5 plans and evidence documents remain historical records, but they do
 not define the current phase order.
+
+## Current technical checkpoint — 2026-10-13
+
+R18 actual Win64 Game/Editor and Android ARM64 compile, Android ASTC cook,
+Development diagnostic APK and real SDK/embedded-content integrity checks are
+verified at compiled source `fb0bcd57673c059c422dc8596cf1af7dbf945e69`.
+APK SHA256 `6398e02c82bf6d1e070e886b5f2dc5f1e42f6a839fb35403c200d6cf8935d2b0`;
+175048890 bytes; minSDK26 / targetSDK35 / arm64-v8a. This docs-only checkpoint
+must retain all 162 compile input bytes captured per target and receive its own
+CI; artifacts are not relabelled as compiled at this later commit.
+
+See [current R18 audit](R18_ENVIRONMENT_AUDIT.md) for native/toolchain/source
+identities, 14 required cooked pilot assets, exact profile/config references,
+first-APK missing-OBB rejection and successful same-cook/default-staging retry.
+Local current-source Python was 456 pass / 7 WinError1314 errors; exact-head CI
+is separate proof. The base package index was verified before private overrides;
+those three files have separate actual APK hash evidence.
+
+F1 independent review and main/CI reconciliation are pending. AP02 Windows
+character runtime is accepted at its own source `12f97e0d`; actual Android
+runtime, new-game/world/story and broad playable acceptance remain open.
+The historical R18-M2 runtime boundary is still recorded before advancing.
+The user's later authorization now permits the presented AP04+ implementation
+plan after technical main closure; physical-device/release gates are not
+silently skipped or declared complete.
 
 ## 1. Product definition
 

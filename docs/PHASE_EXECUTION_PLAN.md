@@ -9,6 +9,31 @@ remaining roadmap. The execution map is independent of any particular chat,
 scheduler or orchestration mechanism. It does not renumber roadmap phases and
 does not replace the canonical product/architecture rules in ROADMAP/ARCHITECTURE.
 
+## Current technical checkpoint — 2026-10-13
+
+R18 actual Win64 Game/Editor and Android ARM64 compile, Android ASTC cook,
+Development diagnostic APK and real SDK/embedded-content integrity checks are
+verified at compiled source `fb0bcd57673c059c422dc8596cf1af7dbf945e69`.
+APK SHA256 `6398e02c82bf6d1e070e886b5f2dc5f1e42f6a839fb35403c200d6cf8935d2b0`;
+175048890 bytes; minSDK26 / targetSDK35 / arm64-v8a. This docs-only checkpoint
+must retain all 162 compile input bytes captured per target and receive its own
+CI; artifacts are not relabelled as compiled at this later commit.
+
+See [current R18 audit](R18_ENVIRONMENT_AUDIT.md) for native/toolchain/source
+identities, 14 required cooked pilot assets, exact profile/config references,
+first-APK missing-OBB rejection and successful same-cook/default-staging retry.
+Local current-source Python was 456 pass / 7 WinError1314 errors; exact-head CI
+is separate proof. The base package index was verified before private overrides;
+those three files have separate actual APK hash evidence.
+
+F1 independent review and main/CI reconciliation are pending. AP02 Windows
+character runtime is accepted at its own source `12f97e0d`; actual Android
+runtime, new-game/world/story and broad playable acceptance remain open.
+The historical R18-M2 runtime boundary is still recorded before advancing.
+The user's later authorization now permits the presented AP04+ implementation
+plan after technical main closure; physical-device/release gates are not
+silently skipped or declared complete.
+
 ## Controller contract
 
 - Repository state is authoritative; chat state is not.
