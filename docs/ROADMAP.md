@@ -1145,3 +1145,13 @@ rejections with verified restore, exit0. Vendor and validators are preserved.
 See [R18 audit](R18_ENVIRONMENT_AUDIT.md). This checkpoint requires exact-HEAD
 CI terminal-success before a fresh elevated Windows R19/R20 full-source run.
 Full source/Unreal compile/cook/APK and main merge remain unverified.
+## R18-I1 preparation — bounded Windows full-source timeout, 2026-10-12
+
+Preparation HEAD10bf06cb passed31 checks/17 workflows. The fresh elevated
+Windows run passed81 native and454 Python tests, then reached the fixed
+1200-second parent limit during asset audits; no acceptance receipt exists.
+The bounded aggregate budget is3600 seconds; all individual limits, zero-skip
+coverage and validation gates remain. A new regression requires explicit timeout
+failure evidence and no acceptance receipt. All11 focused runner regressions passed; the55-test native symlink run awaits UAC.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md). Exact-HEAD CI and a fresh full-source
+run are required. Actual Unreal compile/cook/APK and main merge are unverified.

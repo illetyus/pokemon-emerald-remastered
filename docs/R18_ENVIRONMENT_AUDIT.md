@@ -1,3 +1,30 @@
+# R18-I1 preparation — bounded full-source timeout closure, 2026-10-12
+
+State: **FULL_WINDOWS_SOURCE_RETRY_REQUIRED**. Source HEAD
+10bf06cb94ca49a4210d0fca158eb42d2218631e passed all31 checks/17 workflows.
+Its fresh elevated Windows run built with MSVC19.50.35739 and passed81 CTests
+and454 Python tests with zero skips. R6 asset audit also passed52 tests; the
+run ended during R7 asset audits at the R20 parent's fixed1200-second budget.
+Exit1 and no R19/R20 acceptance receipt were retained. The native symlink
+cases ran with approved UAC elevation; no security-policy change was needed.
+
+The aggregate parent budget is now bounded at3600 seconds, covering native,
+Python, asset and metadata stages on slower Windows hosts. Existing individual
+stage timeouts, required coverage, zero-skip checks, corruption rejection and
+receipt validation remain enforced. A timeout now reports the failing component
+and elapsed limit explicitly, without creating an acceptance receipt. The new
+negative regression reproduced RED before this diagnostic fix. All11 focused runner regressions passed afterwards with zero skips;
+the55 related regressions await native UAC symlink execution. Vendor content is unchanged.
+
+Private failed-run evidence: local/R18/Evidence/2026-10-12/
+windows-source-d1cc993460be4bbdb251d8f063023b5d. RED/GREEN closure evidence:
+local/R18/Evidence/2026-10-12/i1-prep-5-* (current-path pointer retained).
+Next: this checkpoint's exact-HEAD terminal-success CI, then a fresh elevated
+ordered R20 CLI including real R19 and two clean production worktrees.
+Full Windows source acceptance, Unreal compile/cook/APK and main merge remain
+unverified. REAL UNREAL RUNTIME VALIDATION remains the post-R18 stop.
+
+---
 # R18-I1 preparation — R15 owner identity closure, 2026-10-12
 
 State: **METADATA_INTEGRITY_VERIFIED**, full Windows source acceptance pending.
