@@ -34,6 +34,7 @@ class SourceLayoutTests(unittest.TestCase):
             'sb1.playerPartyCount':564,'sb1.objectEventTemplates':0}
         with self.assertRaises(ValueError):layout.validate_anchors(candidate)
     def test_source_pin_and_array_covers_new_game_fields(self):
+        self.assertTrue(set(layout.ANCHORS)<=set(layout.EXPRESSIONS))
         self.assertEqual(layout.AGBCC_PIN,'da598c1d918402c42c0c0d7128ba14567f3175e9')
         required={'sb1.dewfordTrends','sb1.oldMan','sb1.mail','sb1.lilycoveLady',
             'sb1.berryTrees','sb2.hallRecords1P','sb2.hallRecords2P','sb2.playerApprentice',

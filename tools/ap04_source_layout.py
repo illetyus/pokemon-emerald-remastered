@@ -20,7 +20,7 @@ EXPRESSIONS={'sb1.bytes':'sizeof(struct SaveBlock1)','sb2.bytes':'sizeof(struct 
     'storage.bytes':'sizeof(struct PokemonStorage)','object.bytes':'sizeof(struct ObjectEvent)',
     'object_template.bytes':'sizeof(struct ObjectEventTemplate)'}
 for prefix,kind,names in [
-    ('sb1','struct SaveBlock1','pos location continueGameWarp dynamicWarp lastHealLocation escapeWarp savedMusic weather mapLayoutId playerPartyCount playerParty pcItems flags vars berryTrees secretBases gabbyAndTyData easyChatProfile easyChatBattleStart easyChatBattleWon easyChatBattleLost mail oldMan dewfordTrends contestWinners mysteryGift unused_3598 trainerHillTimes roamer lilycoveLady registeredTexts trainerHill waldaPhrase'),
+    ('sb1','struct SaveBlock1','pos location continueGameWarp dynamicWarp lastHealLocation escapeWarp savedMusic weather mapLayoutId playerPartyCount playerParty objectEventTemplates pcItems flags vars berryTrees secretBases gabbyAndTyData easyChatProfile easyChatBattleStart easyChatBattleWon easyChatBattleLost mail oldMan dewfordTrends contestWinners mysteryGift unused_3598 trainerHillTimes roamer lilycoveLady registeredTexts trainerHill waldaPhrase'),
     ('sb2','struct SaveBlock2','playerName playerGender playerTrainerId localTimeOffset lastBerryTreeUpdate encryptionKey playerApprentice apprentices hallRecords1P hallRecords2P frontier follower'),
     ('storage','struct PokemonStorage','currentBox boxes boxNames boxWallpapers'),
     ('mail','struct Mail','words playerName trainerId species itemId'),
