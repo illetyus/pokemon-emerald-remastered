@@ -1210,3 +1210,14 @@ references and click behavior. All10 UI regressions and source guards pass.
 Exact-head CI plus a fresh trusted source package precede the clean Win64 retry.
 See [R18 audit](R18_ENVIRONMENT_AUDIT.md); final compile/cook/APK/runtime and
 main merge remain unverified.
+
+## R18-I1 — real Win64 Game build accepted, 2026-10-12
+
+Clean source HEAD047e97df20bef3fc0f8aec25d8ea022e53ac1568 passed31 checks/
+17 workflows, then actual UE5.8.3 UHT/C++/link produced the Win64 Development
+Game, exit0. The332961280-byte EXE was independently hashed and checked as
+PE AMD64; the UBT receipt and external Generated index bind target/engine/source
+identity. C1 has41 relevant passing regressions and retains authoritative
+source/gameplay/vendor behavior. See [R18 audit](R18_ENVIRONMENT_AUDIT.md).
+This is Game build acceptance only: Editor and Android ARM64 compile, cook/APK
+and runtime are still required; no executable was launched and main is unmerged.

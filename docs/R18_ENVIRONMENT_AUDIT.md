@@ -1,3 +1,47 @@
+# R18-I1 — actual Win64 Game build accepted, 2026-10-12
+
+State: **WIN64_GAME_UHT_CPP_LINK_VERIFIED**. Overall I1 still requires the
+Editor host and Android ARM64 compile; cook/APK/runtime remain unverified.
+Actual clean compiled source HEAD:047e97df20bef3fc0f8aec25d8ea022e53ac1568.
+Its exact-head CI completed31 checks and17 workflows successfully. Actual
+installed UE5.8.3 CL58210709 Build.bat produced the Win64 Development Game
+with MSVC14.50.35739 (family directory14.50.35717) and SDK10.0.26100.0.
+UHT, runtime C++ and real executable link all completed successfully, exit0;
+UBT target receipt identifies Game / Development / x64. No runtime was executed.
+
+Produced unreal/Binaries/Win64/PokemonEmeraldRemastered.exe is332961280 bytes,
+PE AMD64(0x8664), SHA-256
+0efaaa29a400938230f221e82f43e1e9e96728e68aa364f86a53b74928865d6d.
+The external Generated verification was checked immediately before compile:
+2473 files/13097 source inputs, index SHA-256
+5e61036f36fdd0b798872a3f4566826366d59933dbe50466de89cb8129e7783e;
+payload SHA-256 remains identical to the two accepted clean Windows productions.
+The actual target, project HEAD, engine, tool selectors, CI, index, log/exit and
+EXE hash/PE/timestamps are bound in the private artifact-acceptance receipt.
+UBA bookkeeping was explicitly on D:/Android/Caches/UnrealBuildAccelerator;
+compile/link actions ran NoUba with one parallel action. Vendor tree is unchanged.
+
+C1's real compiler failures were closed narrowly: correct streamable struct
+forward declarations, non-shadowing static-mesh local, existing authoritative
+core catalog prebuild, separate portable C translation units, equivalent8-bit
+mask, correct ticker handle type, and protected focus initialization inside a
+minimal UButton subclass constructor. Existing behavior/ownership is preserved.
+Source architecture guards and41 relevant regressions passed. This Game build
+is additional actual UE evidence; the earlier81/455/171/55 full Windows source
+suite remains bound to preparation HEADedd3469a, with its source receipts kept.
+
+Private current Game evidence: local/R18/Evidence/2026-10-12/
+unreal-i1-final-3470dbc492d84c228b00685acbf479c2. Failed/exploratory logs are
+retained separately under c1-* and earlier unreal-i1-* paths. Generated content,
+EXE and raw private evidence stay outside Git. The following documentation-only
+checkpoint retains all production input trees and requires its own exact CI.
+
+Next: actual Win64 Editor host compile, Android ARM64 compile, then cook and
+Development APK plus artifact integrity. Main stays draft/unmerged. After fully
+accepted R18 and exact-main CI, stop at REAL UNREAL RUNTIME VALIDATION;
+physical Android/BrowserStack/R21/R22 do not start automatically.
+
+---
 # R18-C1 — protected button constructor closure, 2026-10-12
 
 State: **CLEAN_WIN64_RETRY_REQUIRED**. Final retry on
