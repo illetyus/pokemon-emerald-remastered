@@ -11,7 +11,7 @@ class USkeletalMeshComponent;
 class UTextRenderComponent;
 class UCameraComponent;
 class URemasterPokemonAssetSet;
-class FStreamableHandle;
+struct FStreamableHandle;
 
 UCLASS()
 class POKEMONEMERALDREMASTERED_API ARemasterBattleStage : public AActor

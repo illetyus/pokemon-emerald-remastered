@@ -347,7 +347,7 @@ int remaster_emerald_box_pokemon_set_species(
     if (species != 0)
         pokemon->header_flags |= 0x02u;
     else
-        pokemon->header_flags &= (uint8_t)~0x02u;
+        pokemon->header_flags &= (uint8_t)0xfdu;
     return 1;
 }
 

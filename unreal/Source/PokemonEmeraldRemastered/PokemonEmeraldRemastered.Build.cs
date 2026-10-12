@@ -6,6 +6,8 @@ public class PokemonEmeraldRemastered : ModuleRules
     public PokemonEmeraldRemastered(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+        // Portable C embeds and per-file helper namespaces need separate translation units.
+        bUseUnity = false;
 
         PublicDependencyModuleNames.AddRange(new string[]
         {
@@ -29,6 +31,7 @@ public class PokemonEmeraldRemastered : ModuleRules
 
         string RepoRoot = Path.GetFullPath(Path.Combine(ModuleDirectory, "..", "..", ".."));
         PublicIncludePaths.Add(Path.Combine(RepoRoot, "core", "include"));
+        PrivateIncludePaths.Add(Path.Combine(RepoRoot, "unreal", "Intermediate", "CoreCatalogs"));
 
         PublicDefinitions.Add("REMASTER_UNREAL_RUNTIME=1");
     }

@@ -1169,3 +1169,17 @@ content matches those packages and passed external trusted-index verification.
 See [R18 audit](R18_ENVIRONMENT_AUDIT.md) for exact identities and private evidence.
 Next is actual Unreal I1 compile. Cook/APK/runtime remain unverified; main is
 not merged. REAL UNREAL RUNTIME VALIDATION remains the post-R18 stop.
+
+## R18-C1 — actual Win64 compile closure candidate, 2026-10-12
+
+Actual UHT passed; real MSVC exposed streamable forward-declaration type mismatch,
+shadowed local, missing generated C catalogs and unity translation-unit collisions.
+The candidate preserves gameplay and adds only exact type/local fixes, separate
+module compilation and authoritative R11/R12/R13 prebuild integration. The same
+8-bit mask avoids the observed truncation warning without suppressing diagnostics.
+Source guards,8 battle source regressions and5 fresh native codec/storage/bag/
+domain/C++ embed tests passed; generated includes match accepted CMake bytes.
+Real separate-file Unreal compile remains exploratory/in progress. Exact-head CI
+and fresh trusted-index binding are required before clean Win64 build acceptance.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md). Cook/APK/runtime and main merge remain
+unverified; actual UBA bookkeeping path is explicitly D:/Android/Caches.

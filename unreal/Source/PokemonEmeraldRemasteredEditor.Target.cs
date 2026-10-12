@@ -9,5 +9,6 @@ public class PokemonEmeraldRemasteredEditorTarget : TargetRules
         DefaultBuildSettings = BuildSettingsVersion.Latest;
         IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
         ExtraModuleNames.Add("PokemonEmeraldRemastered");
+        PreBuildSteps.Add("python \"$(ProjectDir)/../tools/build_unreal_core_catalogs.py\"");
     }
 }

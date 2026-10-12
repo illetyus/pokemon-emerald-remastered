@@ -1,3 +1,44 @@
+# R18-C1 — real Win64 compiler closure in progress, 2026-10-12
+
+State: **ACTUAL_UNREAL_COMPILER_CLOSURE_IN_PROGRESS**. The source preparation
+checkpoint931787ba963c984fcaf26e2db04d9d38b9aa460d passed31 checks/17 workflows,
+and preserves accepted Windows source/package input trees from edd3469a.
+Actual UE5.8.3 CL58210709 Win64 Development UHT passed. Real MSVC14.50.35739
+C++ then failed at FStreamableHandle class/struct mismatch, a shadowed Mesh
+local and missing authoritative trainer include. A later real compile exposed
+unity collisions between portable C static helpers/enumerators and per-file
+JSON helpers, plus the same streamable forward declaration in the character
+component and a truncating constant cast warning promoted to an error.
+
+The candidate fix uses the engine's struct declaration in both affected headers,
+renames only the static-mesh local, and disables unity for this runtime module
+so each portable C embed/local helper keeps its translation-unit boundary.
+The bit-clear mask is expressed as the same explicit8-bit0xfd value; gameplay
+ownership and behavior are unchanged. Game and Editor targets now run a shared
+prebuild helper invoking the existing authoritative R11/R12/R13 generators into
+ignored unreal/Intermediate/CoreCatalogs, added to module private include paths.
+All three produced includes matched the accepted native CMake suite byte hashes.
+The actual UBT log confirms the new prebuild commands ran.
+
+Relevant source architecture validation and8 battle source regressions passed.
+A fresh MSVC build passed5 meaningful existing native tests: C++ embed, Pokémon
+box codec, party/storage, bag and domain catalog, zero skips. A separate full
+24-test battle probe attempt had23 passes and one native symlink privilege error;
+that non-elevated failure is retained and is not called an audit pass. Previously
+accepted full Windows171 asset audits ran under native elevation on edd3469a.
+The current separate-file real UE compile is still running; it is exploratory,
+not final clean-HEAD build acceptance. This candidate needs its own exact-head
+CI and fresh source-index binding before a final accepted Win64 retry.
+
+The first UE launch selected UBA local bookkeeping under C: despite NoUBA; it
+was stopped without acceptance. The retry explicitly selects
+D:/Android/Caches/UnrealBuildAccelerator, confirmed by actual UBT logs; NoUba
+compile actions remain enabled. Existing shared engine/user-state links stay.
+No engine/vendor patch, warning suppression, private payload commit, cook/APK,
+device/runtime proof or main merge is included. Private evidence is under
+local/R18/Evidence/2026-10-12/c1-* and unreal-i1-* (current-path pointers).
+
+---
 # R18-I1 preparation — native Windows source acceptance, 2026-10-12
 
 State: **WINDOWS_SOURCE_AND_GENERATED_PACKAGE_VERIFIED**.
