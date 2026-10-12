@@ -1140,3 +1140,14 @@ See [R18 audit](R18_ENVIRONMENT_AUDIT.md). Full Windows source acceptance and
 actual Unreal compile/cook/APK remain unverified; main is not merged.
 The R19 ownership Git blob pin for the changed test was refreshed; all6 source
 ownership regressions passed with zero skips. Drift detection remains enforced.
+
+## R18-I1 preparation — R15 owner integrity closure, 2026-10-12
+
+Baseline f6ad25b5 has29/31 successful checks; two source-suite workflows reject
+an outdated R15 owner Git blob after the Windows canonical-path fix. The real
+validator reproduced RED. Only that exact owner pin is refreshed; all four
+Windows metadata owners completed two matching generations and12 corruption
+rejections with verified restore, exit0. Vendor and validators are preserved.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md). This checkpoint requires exact-HEAD
+CI terminal-success before a fresh elevated Windows R19/R20 full-source run.
+Full source/Unreal compile/cook/APK and main merge remain unverified.

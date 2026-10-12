@@ -1,3 +1,35 @@
+# R18-I1 preparation — R15 owner identity closure, 2026-10-12
+
+State: **METADATA_INTEGRITY_VERIFIED**, full Windows source acceptance pending.
+Baseline f6ad25b58b34ff54f29f7a6104927b6278db57db has29/31 successful checks;
+R19 full-suite and R20 source-packages reject R15 owner source drift. The
+previous Windows catalog path fix changed build_r15_audio_catalog.py, while
+its existing package-integrity Git blob ownership pin still named the old file.
+The real validator reproduced the same source-drift rejection locally.
+
+The only integrity change refreshes that exact R15 owner Git blob from
+fd9a933becba77f7c7c8bd6df4407b83d1b6f63b to
+75a89998b945636be0b89a2b30d0de9ee7678665. Source-drift rejection, expected
+file coverage, corruption detection and committed generated catalog comparison
+are preserved; no generated source, private asset or vendor file was changed.
+
+The actual Windows metadata integrity CLI passed all four owners: R6, R7,
+R14 and R15. Each completed two matching generations; all12 file-corruption
+cases were rejected (3/5/2/2), restored bytes verified, exit0. These are real
+source metadata package results, not Unreal cook/import/runtime acceptance.
+Private RED/GREEN evidence is under local/R18/Evidence/2026-10-12/i1-prep-4-*;
+the support evidence pointer identifies the exact run.
+
+Next: exact-HEAD CI terminal-success, then a fresh clean elevated native Windows
+R20 full CLI including its real R19 CLI, Python/asset/security audits and two
+complete clean production worktrees. Real symlink cases remain enabled; no
+Developer Mode/security policy change is made. Verified production content for
+Unreal is generated only into a fresh destination with an external trusted hash.
+No full Windows source pass, actual Unreal compile/cook/ARM64 APK, device/runtime
+proof or main merge is claimed. The final R18 stop remains REAL UNREAL RUNTIME
+VALIDATION; physical Android/BrowserStack/R21/R22 do not start automatically.
+
+---
 # R18-I1 preparation — Windows manifest fixture byte closure, 2026-10-12
 
 State: **FOCUSED_WINDOWS_REGRESSION_VERIFIED**; full source acceptance pending.
