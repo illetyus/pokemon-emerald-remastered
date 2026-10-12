@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
 #include "RemasterUISubsystem.h"
 #include "RemasterUiWidget.generated.h"
 
@@ -12,6 +13,15 @@ class USizeBox;
 class UBorder;
 class UCanvasPanelSlot;
 class UScrollBox;
+
+// UButton's focus initializer is protected and must run before Slate construction.
+UCLASS()
+class POKEMONEMERALDREMASTERED_API URemasterUiButton : public UButton
+{
+    GENERATED_BODY()
+public:
+    URemasterUiButton(const FObjectInitializer& ObjectInitializer);
+};
 
 // Each button retains its own frame revision; a late pointer click is rejected.
 UCLASS()

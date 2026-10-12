@@ -1,3 +1,28 @@
+# R18-C1 — protected button constructor closure, 2026-10-12
+
+State: **CLEAN_WIN64_RETRY_REQUIRED**. Final retry on
+ d79235c632ccab1054c95dbcc7b16ab4d6f196f5 passed UHT and the corrected ticker,
+controller and UI subsystem compilation. It then correctly rejected direct calls
+to UButton::InitIsFocusable because the installed engine declares it protected.
+The earlier initializer-only candidate was insufficient and is not accepted.
+
+A small runtime URemasterUiButton subclass now calls the protected initializer
+from its ObjectInitializer constructor, as the engine header requires, before
+Slate construction. Both existing row/back buttons instantiate that class; their
+UButton references, click delegates, navigation/focus behavior and sizes remain.
+No deprecated field access, warning suppression, engine edit or gameplay change
+is used. The10 existing UI regressions and source architecture guard pass again.
+The existing C1 coverage remains41 relevant tests; this compile retry will bind
+its own clean source HEAD, exact-head CI and fresh external trusted source index.
+
+The prior d79235c6 candidate completed31 checks/17 workflows successfully and
+had externally verified2473-file/13097-input source content with unchanged payload
+hash; it remains historical after this two-file source change. Actual final
+Win64 Game/Editor/Android compile, cook/APK/runtime and main merge are not yet
+accepted. Private C1/final-run evidence is retained under local/R18/Evidence/
+2026-10-12; current-path pointers identify each exact run.
+
+---
 # R18-C1 follow-up — ticker and button API closure, 2026-10-12
 
 State: **FINAL_WIN64_RETRY_REQUIRED**. The first C1 candidate

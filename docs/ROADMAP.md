@@ -1194,3 +1194,13 @@ environment, zero skips; prior battle/native checks bring C1 coverage to41 tests
 A fresh trusted source index and exact-head CI precede the final Win64 retry.
 See [R18 audit](R18_ENVIRONMENT_AUDIT.md). Final compile/cook/APK/runtime and
 main merge are unverified.
+
+## R18-C1 — constructor-only protected button initialization, 2026-10-12
+
+The d79235c6 retry passed UHT/ticker compile, then exposed that the focus
+initializer is protected. A minimal UButton subclass now initializes focus in
+its constructor before Slate creation; both buttons retain their existing base
+references and click behavior. All10 UI regressions and source guards pass.
+Exact-head CI plus a fresh trusted source package precede the clean Win64 retry.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md); final compile/cook/APK/runtime and
+main merge remain unverified.
