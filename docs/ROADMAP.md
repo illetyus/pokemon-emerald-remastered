@@ -1155,3 +1155,17 @@ coverage and validation gates remain. A new regression requires explicit timeout
 failure evidence and no acceptance receipt. All11 focused runner regressions passed; the55-test native symlink run awaits UAC.
 See [R18 audit](R18_ENVIRONMENT_AUDIT.md). Exact-HEAD CI and a fresh full-source
 run are required. Actual Unreal compile/cook/APK and main merge are unverified.
+
+## R18-I1 preparation — Windows source and generated content accepted, 2026-10-12
+
+Actual project HEADedd3469adaa8ff9ac368a767f6fca67d91ca1cab passed31 checks/
+17 workflows and a fresh native Windows R20 CLI including real R19, exit0.
+All81 native,455 Python,171 asset-audit and55 targeted R20 tests passed with
+zero skips. Four metadata owners had two matching generations and12 corruption
+rejections. Two clean worktrees produced identical2473-file/13096-input packages;
+all nine negatives were rejected and restored bytes verified. Public source and
+history audit had zero findings/skipped blobs. Fresh ignored Unreal Generated
+content matches those packages and passed external trusted-index verification.
+See [R18 audit](R18_ENVIRONMENT_AUDIT.md) for exact identities and private evidence.
+Next is actual Unreal I1 compile. Cook/APK/runtime remain unverified; main is
+not merged. REAL UNREAL RUNTIME VALIDATION remains the post-R18 stop.

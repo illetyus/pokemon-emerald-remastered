@@ -1,3 +1,46 @@
+# R18-I1 preparation — native Windows source acceptance, 2026-10-12
+
+State: **WINDOWS_SOURCE_AND_GENERATED_PACKAGE_VERIFIED**.
+Actual project source HEAD: edd3469adaa8ff9ac368a767f6fca67d91ca1cab.
+Its exact-head CI completed31/31 checks and17/17 workflows successfully.
+Fresh native Windows run windows-source-4d12e38a11d6431891af5a7929adca8c
+completed the actual ordered R20 CLI including the real R19 CLI, exit0.
+Native symlink negatives ran with approved UAC through signed system PowerShell.
+
+All seven R19 and five R20 components passed. Coverage was81 native CTests,
+455 Python regressions,171 asset-audit tests and55 targeted R20 tests, with
+zero skips. Four metadata owners each completed two matching generations;
+all12 corruption cases were rejected and restored data verified. Two fresh
+independent detached worktrees produced matching2473-file packages with13096
+source inputs. All nine package negatives were rejected, including altered
+owners, missing/extra files, rewritten trusted index, real symlink and generator
+source drift; restored package verification passed. Public source/history
+security scanned13384 tracked files and13179 blobs, with zero findings and
+zero skipped blobs. The immutable vendor tree remains
+5a551f1f9e40184278c57dfb8d25f68a0a1c99dc.
+
+Fresh ignored unreal/Content/Generated was generated and independently verified
+using an external trusted generation receipt. It matches both clean packages:
+index SHA-256 d480ace0ac3ed581683a7435456be354e330d98f57e60e30f8d3993f611223ee;
+package SHA-256 f8b0f10b699829717f751a2ae0c7dd26fe1bdeca6b2a5afb25c03ff73cf11a2b.
+Receipts' source_commit remains the pinned Vanilla+ input identity
+70db90c9077aed1272e746fc2537d9f12b95a91c; invocation/source-acceptance records
+bind these results to the actual project HEAD above. No raw evidence or generated
+payload is committed. The subsequent documentation checkpoint must retain the
+same production input trees and pass its own exact-head CI.
+
+Private receipts/log/JUnit: local/R18/Evidence/2026-10-12/
+windows-source-4d12e38a11d6431891af5a7929adca8c. Current-path pointers identify
+the source run and external generation/verification receipts.
+
+Next is actual R18-I1 Unreal Game/Editor Win64 and Android ARM64 UHT/C++/link.
+Actual Unreal compile, cook, APK and device/runtime verification remain false;
+source/fallback content acceptance does not certify modern asset import or
+quality. Main is not merged. After accepted actual R18 and exact-main CI, stop
+at REAL UNREAL RUNTIME VALIDATION; physical Android/BrowserStack/R21/R22 do
+not start automatically.
+
+---
 # R18-I1 preparation — bounded full-source timeout closure, 2026-10-12
 
 State: **FULL_WINDOWS_SOURCE_RETRY_REQUIRED**. Source HEAD
