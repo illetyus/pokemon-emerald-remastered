@@ -543,6 +543,31 @@ static int image_metadata_supported(
     return vp_metadata_supported(image + sector * 4096u + 0x758u);
 }
 
+RemasterEmeraldSaveStatus remaster_emerald_save_import_image(
+    const uint8_t *image, size_t image_size, RemasterEmeraldSaveFormat format,
+    RemasterEmeraldSave *out_save)
+{
+    RemasterEmeraldSaveValidation validation;
+    RemasterEmeraldSave candidate;
+    RemasterEmeraldSaveStatus status;
+    if (format != REMASTER_EMERALD_SAVE_FORMAT_STOCK
+        && format != REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS)
+        return REMASTER_EMERALD_SAVE_UNSUPPORTED;
+    if (out_save == 0 || image == 0)
+        return REMASTER_EMERALD_SAVE_CORRUPT;
+    if (image_size != REMASTER_EMERALD_SAVE_IMAGE_BYTES)
+        return REMASTER_EMERALD_SAVE_UNSUPPORTED;
+    status = remaster_emerald_save_validate(image, image_size, format, &validation);
+    if (status != REMASTER_EMERALD_SAVE_OK && status != REMASTER_EMERALD_SAVE_DEGRADED)
+        return REMASTER_EMERALD_SAVE_CORRUPT;
+    if (!image_metadata_supported(image, &validation))
+        return REMASTER_EMERALD_SAVE_UNSUPPORTED;
+    status = remaster_emerald_save_decode_format(image, image_size, format, &candidate);
+    if (status == REMASTER_EMERALD_SAVE_OK || status == REMASTER_EMERALD_SAVE_DEGRADED)
+        *out_save = candidate;
+    return status;
+}
+
 static RemasterEmeraldSaveStatus clear_load_result(
     RemasterEmeraldSave *save, RemasterEmeraldSaveStatus status,
     RemasterEmeraldSaveFormat format)

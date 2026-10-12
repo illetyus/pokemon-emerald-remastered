@@ -88,6 +88,14 @@ RemasterEmeraldSaveStatus remaster_emerald_save_decode_format(
     RemasterEmeraldSaveFormat format,
     RemasterEmeraldSave *out_save);
 
+/* Filesystem-import boundary: declared layout plus supported VP metadata.
+ * A found signatureless image is CORRUPT, not absence. Failure leaves the
+ * caller's complete prior wrapper unchanged. Success publishes decoded state.
+ * Does no I/O and never writes or re-encodes the supplied image. */
+RemasterEmeraldSaveStatus remaster_emerald_save_import_image(
+    const uint8_t *image, size_t image_size, RemasterEmeraldSaveFormat format,
+    RemasterEmeraldSave *out_save);
+
 /* Maps a measured Vanilla+ SB1 field offset after the ObjectEvent array to
  * its stock location. Shared fields before that boundary are unchanged. */
 size_t remaster_emerald_save_block1_offset(

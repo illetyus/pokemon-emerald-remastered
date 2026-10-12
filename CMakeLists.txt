@@ -446,7 +446,7 @@ execute_process(
     RESULT_VARIABLE R11_DOMAIN_GENERATE_RESULT
 )
 if(NOT R11_DOMAIN_GENERATE_RESULT EQUAL 0)
-    message(FATAL_ERROR "Failed to generate R11 Pokémon domain catalog")
+    message(FATAL_ERROR "Failed to generate R11 PokÃ©mon domain catalog")
 endif()
 
 target_include_directories(remaster_core
@@ -1251,3 +1251,28 @@ add_test(NAME r19_battle_seed_matrix COMMAND
     ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_replay.py
     --probe $<TARGET_FILE:r19_battle_probe>
     --matrix ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/r19/battle.json)
+
+# AP04: actual native copy-first transport plus declared-format R17 decoding.
+add_executable(ap04_save_import_test tests/ap04_save_import_test.cpp)
+target_link_libraries(ap04_save_import_test PRIVATE remaster_core)
+target_include_directories(ap04_save_import_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(ap04_save_import_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(ap04_save_import_test PRIVATE /W4)
+else()
+    target_compile_options(ap04_save_import_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME ap04_copy_first_save_import COMMAND ap04_save_import_test)
+
+add_executable(ap04_session_lifecycle_test tests/ap04_session_lifecycle_test.cpp)
+target_include_directories(ap04_session_lifecycle_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/core/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(ap04_session_lifecycle_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(ap04_session_lifecycle_test PRIVATE /W4)
+else()
+    target_compile_options(ap04_session_lifecycle_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME ap04_session_lifecycle COMMAND ap04_session_lifecycle_test)
