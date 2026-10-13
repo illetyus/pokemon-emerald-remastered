@@ -7,6 +7,10 @@
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "RemasterWorldActor.h"
+#include "RemasterVisualStyle.h"
+#include "Camera/PlayerCameraManager.h"
+#include "GameFramework/PlayerController.h"
+#include "UObject/UnrealType.h"
 #include "Engine/World.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
@@ -42,6 +46,8 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
     uint64 BeforeGeneration=0;
     TArray<uint8> BeforeFile;
     FString BeforePath;
+    TArray<uint8> BeforeNative,BeforeSelector;
+    bool bRemovedMaterial=false,bProjection=true,bHorizontal=false,bVertical=false;
     bool bFinished=false;
     void Check(bool Ok,const TCHAR* Label) {
         ++Checks;if(!Ok)++Failures;
@@ -73,13 +79,22 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
         TArray<UWidget*> Widgets;Widget->WidgetTree->GetAllWidgets(Widgets);
         for(auto* Item:Widgets)if(auto* Entry=Cast<UEditableTextBox>(Item)) {
             if(Entry->GetVisibility()!=ESlateVisibility::Visible)continue;
-            if(Name!=Entry->GetHintText().ToString().Contains(TEXT("Adın")))continue;
+            if(Name!=Entry->GetHintText().ToString().Contains(TEXT("AdÄ±n")))continue;
             Entry->SetText(FText::FromString(Value));Entry->OnTextCommitted.Broadcast(Entry->GetText(),ETextCommit::OnEnter);return true;
         }
         return false;
     }
     bool SameFile() const {
         TArray<uint8> Now;return FFileHelper::LoadFileToArray(Now,*Save()->GetLegacySavePath()) && Now==BeforeFile;
+    }
+    bool RemoveIndexedMaterial() {
+        bool Found=false;
+        for(TActorIterator<ARemasterWorldActor> It(World.Get());It;++It) {
+            auto* Property=FindFProperty<FObjectProperty>(It->GetClass(),TEXT("VisualStyle"));
+            if(!Property)return false;
+            Property->SetObjectPropertyValue_InContainer(*It,NewObject<URemasterVisualStyle>(*It));Found=true;
+        }
+        return Found;
     }
     void Next(){++Phase;PhaseTick=Ticks;}
     void Finish() {
@@ -109,6 +124,13 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
         if(Phase==0 && Ticks>30) {
             Check(UI()->GetFrame().ScreenId==1000,TEXT("startup title is the production UMG frontend"));
             Check(!Session()->IsPlaying()&&UI()->BlocksWorldInput(),TEXT("boot does not enable gameplay"));
+            if(Case==TEXT("selection-error")) {
+                BeforePath=Save()->GetLegacySavePath();BeforeNative.SetNumUninitialized(sizeof(RemasterEmeraldSave));
+                FMemory::Memcpy(BeforeNative.GetData(),Save()->GetNativeSaveHandle(),BeforeNative.Num());
+                Check(BeforePath.Contains(TEXT("import-")),TEXT("missing imported working-copy selection fixture"));
+                Check(FFileHelper::LoadFileToArray(BeforeSelector,*FPaths::Combine(FPaths::ProjectSavedDir(),TEXT("Core/session-selection.dat"))),TEXT("original selection metadata captured"));
+                Check(FFileHelper::LoadFileToArray(BeforeFile,*FPaths::Combine(FPaths::ProjectSavedDir(),TEXT("Core/vanillaplus.sav"))),TEXT("existing main checkpoint captured"));
+            }
             Screenshot(TEXT("title.png"));OldRevision=UI()->GetFrame().Revision;Next();return;
         }
         if(Phase==1 && Ticks-PhaseTick>30) {
@@ -129,6 +151,7 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
                 Screenshot(TEXT("continue.png"));Phase=90;PhaseTick=Ticks;return;
             }
             Check(Save()->GetStatus()==ERemasterLegacySaveStatus::Empty,TEXT("fresh profile is typed MISSING"));
+            if(Case==TEXT("material-error"))Check(RemoveIndexedMaterial(),TEXT("mandatory shader removed through actual reflected presentation setting"));
             Check(Click(TEXT("Yeni Oyun")),TEXT("actual UMG New Game listener delivered"));
             Check(!UI()->ActivateRow(1,OldRevision),TEXT("stale title listener rejected across form boundary"));
             Next();return;
@@ -139,14 +162,42 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
         }
         if(Phase==3 && Ticks-PhaseTick>30) {
             OldRevision=UI()->GetFrame().Revision;
-            Check(Click(TEXT("Yolculuğa Başla")),TEXT("actual UMG start listener delivered"));
-            Check(Session()->IsBusy()&&!Session()->IsPlaying(),TEXT("map readiness waits for moving-truck completion"));
+            Check(Click(TEXT("YolculuÄŸa BaÅŸla")),TEXT("actual UMG start listener delivered"));
+            if(Case==TEXT("selection-error")) {
+                Check(!Session()->IsPlaying()&&!Session()->IsBusy(),TEXT("existing main file rejects New Game before publication"));
+                Check(Save()->GetLegacySavePath()==BeforePath&&Save()->GetStatus()==ERemasterLegacySaveStatus::Empty,TEXT("failed New Game preserves active slot format/status selection"));
+                Check(FMemory::Memcmp(BeforeNative.GetData(),Save()->GetNativeSaveHandle(),BeforeNative.Num())==0,TEXT("failed New Game preserves the entire native save state"));
+                TArray<uint8> Selector,Main;
+                Check(FFileHelper::LoadFileToArray(Selector,*FPaths::Combine(FPaths::ProjectSavedDir(),TEXT("Core/session-selection.dat")))&&Selector==BeforeSelector,TEXT("failed New Game preserves actual persisted selection bytes"));
+                Check(FFileHelper::LoadFileToArray(Main,*FPaths::Combine(FPaths::ProjectSavedDir(),TEXT("Core/vanillaplus.sav")))&&Main==BeforeFile,TEXT("failed New Game preserves existing main checkpoint bytes"));
+                Screenshot(TEXT("selection-error.png"));Phase=90;PhaseTick=Ticks;return;
+            }
+            if(Case!=TEXT("material-error"))Check(Session()->IsBusy()&&!Session()->IsPlaying(),TEXT("map readiness waits for moving-truck completion"));
             Check(!UI()->ActivateRow(2,OldRevision),TEXT("late duplicate start cannot reinitialize or store twice"));
             FRemasterPlayerStepResult Step;Check(!Gameplay->StepPlayer(1,Step),TEXT("world API rejects movement during intro"));
             BeforeGeneration=Session()->GetGeneration();Next();return;
         }
         if(Phase==4) {
-            if(!Session()->IsPlaying())return;
+            if(Case==TEXT("door-error")&&!bRemovedMaterial) {
+                Check(Session()->IsBusy()&&Gameplay->IsMapReady(),TEXT("door negative starts after real initial map rendering"));
+                Check(RemoveIndexedMaterial(),TEXT("final door refresh renderer will reject unavailable mandatory shader"));bRemovedMaterial=true;
+            }
+            if(Case==TEXT("material-error")||Case==TEXT("door-error")) {
+                if(Session()->IsBusy())return;
+                Check(!Session()->IsPlaying()&&Session()->GetPhase()==static_cast<int32>(RemasterSession::State::Error),TEXT("failed authoritative rendering cannot publish Playing"));
+                FRemasterPlayerStepResult Step;Check(!Gameplay->StepPlayer(1,Step),TEXT("render failure fences actual world movement"));
+                Screenshot(Case==TEXT("door-error")?TEXT("door-error.png"):TEXT("material-error.png"));Phase=90;PhaseTick=Ticks;return;
+            }
+            if(!Session()->IsPlaying()) {
+                const FVector Offset=Session()->GetTruckCameraOffset();bProjection=bProjection&&FMath::Abs(Offset.X)<0.0001;
+                bHorizontal=bHorizontal||FMath::Abs(Offset.Y)>0.001;bVertical=bVertical||FMath::Abs(Offset.Z)>0.001;
+                if(auto* PC=World->GetFirstPlayerController())if(PC->PlayerCameraManager) {
+                    const auto Rotation=PC->PlayerCameraManager->GetCameraRotation().Quaternion();
+                    for(int32 Id=1;Id<=3;++Id)bProjection=bProjection&&FMath::Abs(Rotation.UnrotateVector(Session()->GetTruckBoxOffset(Id)).X)<0.0001;
+                }
+                return;
+            }
+            Check(bProjection&&bHorizontal&&bVertical,TEXT("actual source camera and box offsets use screen right/up basis without forward dolly"));
             Check(Session()->GetGeneration()==BeforeGeneration,TEXT("intro completed in its current session generation"));
             Check(RemasterSession::IsTruckMap(TCHAR_TO_UTF8(*Gameplay->GetCurrentMapId())),TEXT("canonical truck destination retained"));
             FRemasterLegacyOverworldSnapshot Snapshot;
@@ -166,7 +217,7 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
             Screenshot(TEXT("truck-open.png"));Next();return;
         }
         if(Phase==5 && Ticks-PhaseTick>30) {
-            UI()->SubmitAction(ERemasterUiAction::Menu);Check(Click(TEXT("Kayıt / Yükle")),TEXT("production save/load screen"));
+            UI()->SubmitAction(ERemasterUiAction::Menu);Check(Click(TEXT("KayÄ±t / YÃ¼kle")),TEXT("production save/load screen"));
             Check(Click(TEXT("Kaydet")),TEXT("production save confirmation"));Check(Click(TEXT("Onayla")),TEXT("production store delegate"));
             BeforePath=Save()->GetLegacySavePath();
             Check(FFileHelper::LoadFileToArray(BeforeFile,*BeforePath),TEXT("actual stored checkpoint captured"));
@@ -174,7 +225,7 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
         }
         if(Phase==6 && Ticks-PhaseTick>15) {
             UI()->SubmitAction(ERemasterUiAction::Cancel);UI()->SubmitAction(ERemasterUiAction::Cancel);UI()->SubmitAction(ERemasterUiAction::Cancel);
-            UI()->SubmitAction(ERemasterUiAction::Menu);Check(Click(TEXT("Başlangıç menüsü")),TEXT("production return-title listener"));
+            UI()->SubmitAction(ERemasterUiAction::Menu);Check(Click(TEXT("BaÅŸlangÄ±Ã§ menÃ¼sÃ¼")),TEXT("production return-title listener"));
             Check(!Session()->IsPlaying()&&UI()->BlocksWorldInput(),TEXT("title return fences gameplay"));
             Check(Click(TEXT("Devam Et")),TEXT("production Continue after save"));
             Check(Session()->IsPlaying()&&Session()->GetGeneration()>BeforeGeneration,TEXT("reopen owns a new session generation"));
@@ -182,10 +233,10 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
         }
         if(Phase==7 && Ticks-PhaseTick>15) {
             Session()->BackToTitle();UI()->SubmitAction(ERemasterUiAction::Up);
-            Check(Click(TEXT("Kayıt Aktar")),TEXT("production import form"));
+            Check(Click(TEXT("KayÄ±t Aktar")),TEXT("production import form"));
             Check(Edit(Save()->GetLegacySavePath(),false),TEXT("native import path event"));
             Check(Click(TEXT("Vanilla+")),TEXT("explicit import format selection"));
-            Check(Click(TEXT("Kopyayı Aktar")),TEXT("production copy-first import delegate"));
+            Check(Click(TEXT("KopyayÄ± Aktar")),TEXT("production copy-first import delegate"));
             Check(Session()->IsPlaying()&&Save()->GetLegacySavePath().Contains(TEXT("import-")),TEXT("import selects separate working copy"));
             Check(SameFile(),TEXT("imported working copy keeps byte-exact source image"));
             TArray<uint8> Original,Quarantine;
@@ -200,7 +251,7 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
 }
 void StartRemasterSessionSmoke(UWorld* World) {
     FString Case;if(!World || !FParse::Value(FCommandLine::Get(),TEXT("AP04SessionSmoke="),Case))return;
-    if(Case!=TEXT("new")&&Case!=TEXT("continue")&&Case!=TEXT("corrupt"))return;
+    if(Case!=TEXT("new")&&Case!=TEXT("continue")&&Case!=TEXT("corrupt")&&Case!=TEXT("material-error")&&Case!=TEXT("door-error")&&Case!=TEXT("selection-error"))return;
     const auto Runner=MakeShared<FSessionSmoke>();Runner->World=World;Runner->Case=Case;
     Runner->Directory=FPaths::Combine(FPaths::ProjectSavedDir(),TEXT("SessionSmoke"));
     IFileManager::Get().MakeDirectory(*Runner->Directory,true);

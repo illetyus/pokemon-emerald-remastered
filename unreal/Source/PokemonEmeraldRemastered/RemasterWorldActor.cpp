@@ -413,17 +413,9 @@ ARemasterWorldActor::ComponentForMetatile(
 
     if (!BaseMaterial)
     {
-        UE_LOG(
-            LogTemp,
-            Error,
-            TEXT("R5 indexed metatile material is not configured; using visible default material for %s."),
-            *Visual.Tileset);
-        BaseMaterial =
-            UMaterial::GetDefaultMaterial(MD_Surface);
-    }
-
-    if (!BaseMaterial)
+        UE_LOG(LogTemp,Error,TEXT("R5 mandatory indexed metatile material is unavailable for %s."),*Visual.Tileset);
         return nullptr;
+    }
 
     UHierarchicalInstancedStaticMeshComponent* Component =
         NewObject<UHierarchicalInstancedStaticMeshComponent>(

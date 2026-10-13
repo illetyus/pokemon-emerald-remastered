@@ -21,6 +21,10 @@ int main() {
         check(!GitCommit(bad),"malformed source commit is rejected");
     for(const auto& bad:{std::string(),payloadHash.substr(1),payloadHash+"0",std::string(64,'g'),std::string(64,' ')})
         check(!Sha256(bad),"malformed content hash is rejected");
+    const auto horizontal=SourcePixelLocal(3,0,6.25);
+    const auto vertical=SourcePixelLocal(0,3,6.25);
+    check(horizontal.x==0&&horizontal.y==18.75&&horizontal.z==0,"horizontal source pan uses camera right, never forward");
+    check(vertical.x==0&&vertical.y==0&&vertical.z==-18.75,"positive source screen Y uses camera down");
     Menu menu;menu.Build();check(!menu.frame.rows[0].enabled&&menu.frame.rows[1].enabled,"missing file offers New Game only");
     auto revision=menu.frame.revision;menu.Activate(1,revision);
     check(menu.screen==MenuScreen::NewGame,"source identity form opens");

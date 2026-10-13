@@ -162,7 +162,7 @@
     "test_ap04_new_game_init_source",
     "test_ap04_session_source"
   ],
-  "minimum_python_tests": 499,
+  "minimum_python_tests": 503,
   "private_real_save_replay": "NOT_RUN_IN_CI",
   "actual_unreal_device_execution": false
 }

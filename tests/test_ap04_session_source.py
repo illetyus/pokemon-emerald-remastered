@@ -50,4 +50,23 @@ class SessionSourceTests(unittest.TestCase):
         self.assertIn('Button->OnClicked.Broadcast()',code)
         self.assertIn('FPaths::ProjectSavedDir()',code)
         self.assertIn('REMASTER_AP04_INPUT_SHA',code)
+    def test_authoritative_surfaces_reject_unconfigured_mandatory_shader(self):
+        code=(M/'RemasterWorldActor.cpp').read_text(encoding='utf-8')
+        component=code.split('ARemasterWorldActor::ComponentForMetatile(',1)[1].split('bool ARemasterWorldActor::BuildRenderChunks()',1)[0]
+        self.assertNotIn('UMaterial::GetDefaultMaterial',component)
+    def test_door_publication_requires_checked_final_renderer_refresh(self):
+        code=(M/'RemasterGameSessionSubsystem.cpp').read_text(encoding='utf-8')
+        door=code.split('bool URemasterGameSessionSubsystem::SetDoor(',1)[1].split('void URemasterGameSessionSubsystem::PlayTruckSound(',1)[0]
+        self.assertIn('RefreshPresentation()',door)
+    def test_failed_new_game_does_not_publish_a_probe_selection(self):
+        code=(M/'RemasterVanillaPlusSaveSubsystem.cpp').read_text(encoding='utf-8')
+        create=code.split('bool URemasterVanillaPlusSaveSubsystem::CreateNewGame(',1)[1].split('bool URemasterVanillaPlusSaveSubsystem::ImportCopy(',1)[0]
+        before_store=create.split('remaster_emerald_save_store_platform(',1)[0]
+        self.assertNotIn('ActiveSlot=',before_store);self.assertNotIn('ActiveFormat=',before_store)
+        self.assertNotIn('LoadLegacySave()',before_store)
+    def test_truck_host_uses_camera_basis_for_source_sprite_offsets(self):
+        code=(M/'RemasterGameSessionSubsystem.cpp').read_text(encoding='utf-8')
+        camera=code.split('FVector URemasterGameSessionSubsystem::GetTruckCameraOffset()',1)[1].split('FVector URemasterGameSessionSubsystem::GetTruckBoxOffset(',1)[0]
+        box=code.split('FVector URemasterGameSessionSubsystem::GetTruckBoxOffset(',1)[1]
+        self.assertIn('SourcePixelLocal(',camera);self.assertIn('SourcePixelLocal(',box);self.assertIn('RotateVector(',box)
 if __name__=='__main__':unittest.main()

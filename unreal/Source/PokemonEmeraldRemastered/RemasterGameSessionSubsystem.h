@@ -31,6 +31,7 @@ private:
     bool TickSession(float DeltaSeconds);
     void Fail(const FString& Message);
     bool SetDoor(bool Open);
+    bool RefreshPresentation();
     void PlayTruckSound(int32 SongId);
     RemasterSession::Lifecycle Session;
     RemasterSession::Menu Menu;

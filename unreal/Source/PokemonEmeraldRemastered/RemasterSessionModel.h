@@ -9,6 +9,8 @@ extern "C" {
 // Host lifetime only. Persistent gameplay remains in RemasterEmeraldSave.
 namespace RemasterSession {
 inline bool IsTruckMap(std::string_view id) { return id=="MAP_INSIDE_OF_TRUCK"; }
+struct PixelLocal { double x,y,z; };
+inline PixelLocal SourcePixelLocal(double x,double y,double units) { return {0,x*units,-y*units}; }
 enum class State { Idle, Loading, Playing, Error, Intro };
 inline bool CanContinue(RemasterEmeraldSaveStatus status) {
     return status == REMASTER_EMERALD_SAVE_OK || status == REMASTER_EMERALD_SAVE_DEGRADED;
