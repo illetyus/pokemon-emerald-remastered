@@ -11,6 +11,7 @@ class SourceLayoutTests(unittest.TestCase):
     def test_named_data_blocks_decode_exact_little_endian_bytes(self):
         asm='other:\n.byte 9\nap04_bits:\n.byte 127\n.short 258\n.space 2\n.word 4294967295\n.size ap04_bits, .-ap04_bits\n'
         self.assertEqual(layout.parse_data(asm,'ap04_bits',9),b'\x7f\x02\x01\0\0\xff\xff\xff\xff')
+        self.assertEqual(layout.parse_data('ap04_bits:\n.byte 5\n.globl next\n.type next,object\nnext:\n.byte 9\n','ap04_bits',1),b'\x05')
     def test_bad_named_data_blocks_fail_closed(self):
         for asm,size in [('bad:\n.byte 1\n',1),('ap04_bits:\n.word external\n',4),
                 ('ap04_bits:\n.byte 1\n',2),('ap04_bits:\n.space 65537\n',1),

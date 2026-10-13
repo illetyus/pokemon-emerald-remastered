@@ -71,7 +71,7 @@ def parse_data(text: str, label: str, size: int) -> bytes:
     starts=list(re.finditer(r'(?m)^'+re.escape(label)+r':\s*$',text))
     if len(starts)!=1: raise ValueError('one named data block required: '+label)
     body=text[starts[0].end():]
-    stop=re.search(r'(?m)^\s*\.size\s+'+re.escape(label)+r'\b|^[A-Za-z_][\w.]*:\s*$',body)
+    stop=re.search(r'(?m)^\s*\.size\s+'+re.escape(label)+r'\b|^\s*\.(?:globl|global|type)\b|^[A-Za-z_][\w.]*:\s*$',body)
     if stop:body=body[:stop.start()]
     data=bytearray()
     for line in body.splitlines():
