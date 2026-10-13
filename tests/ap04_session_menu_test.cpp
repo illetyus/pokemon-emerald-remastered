@@ -11,6 +11,7 @@ static void check(bool ok,const char* message){++checks;if(!ok){if(failures<20)s
 int main() {
     using namespace RemasterSession;
     using namespace RemasterRenderProvenance;
+    check(IsTruckMap("MAP_INSIDE_OF_TRUCK")&&!IsTruckMap("InsideOfTruck")&&!IsTruckMap("MAP_LITTLEROOT_TOWN"),"truck guard uses canonical catalog identity, not source directory name");
     const std::string sourceCommit="70db90c9077aed1272e746fc2537d9f12b95a91c";
     const std::string payloadHash(64,'a');
     check(GitCommit(sourceCommit),"real source manifest Git SHA1 passes provenance");

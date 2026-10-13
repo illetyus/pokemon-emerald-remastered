@@ -26,6 +26,11 @@ class SessionSourceTests(unittest.TestCase):
         self.assertIn('Context.mapReady=Context.mapReady && Session->IsPlaying()',ui)
         step=world.split('bool URemasterWorldGameplaySubsystem::StepPlayer(',1)[1].split('\n}',1)[0]
         self.assertIn('if(!Session->IsPlaying())return false;',step)
+        fieldmap=(ROOT/'vendor/vanillaplus/include/fieldmap.h').read_text()
+        self.assertIn('#define NUM_TILES_IN_PRIMARY 512',fieldmap);self.assertIn('#define NUM_PALS_IN_PRIMARY 6',fieldmap)
+        source_map=json.loads((ROOT/'vendor/vanillaplus/data/maps/InsideOfTruck/map.json').read_text())
+        self.assertEqual(source_map['id'],'MAP_INSIDE_OF_TRUCK')
+        self.assertIn('RemasterSession::IsTruckMap(',session);self.assertIn('RemasterSession::IsTruckMap(',world)
         self.assertIn('Session.FinishIntro(',session);self.assertIn('Session.CompleteIntro(',session)
         self.assertLess(session.index('SetDoor(true) || !Session.CompleteIntro'),session.index('AP04_TRUCK_INTRO_COMPLETE'))
     def test_same_widget_publication_fence_protects_both_owners_and_editor_focus(self):

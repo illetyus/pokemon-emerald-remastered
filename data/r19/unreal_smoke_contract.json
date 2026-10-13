@@ -11,11 +11,11 @@
     },
     {
       "path": "unreal/Source/PokemonEmeraldRemastered/RemasterWorldGameplaySubsystem.cpp",
-      "blob_sha": "9d6ba2d6f01796db6aa9bb364099561594f8339f"
+      "blob_sha": "c6376615e96af43b696ea6098049233fded1700c"
     },
     {
       "path": "unreal/Source/PokemonEmeraldRemastered/RemasterWorldActor.cpp",
-      "blob_sha": "95eff0c6fd836cf129aec4315406891d14e44151"
+      "blob_sha": "75a1469c989d2d5947e3d79d3f8cf12f5c14a598"
     },
     {
       "path": "unreal/Source/PokemonEmeraldRemastered/RemasterVanillaPlusSaveSubsystem.h",

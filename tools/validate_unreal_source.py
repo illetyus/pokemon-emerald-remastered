@@ -488,7 +488,8 @@ def main() -> int:
     )
     require(
         '#include "RemasterRenderResourceSubsystem.h"' in world_actor
-        and "LoadTilesetResources(" in world_actor
+        and "LoadMapResources(" in world_actor
+        and "LoadedMap.PrimaryTileset,LoadedMap.SecondaryTileset" in world_actor
         and "UMaterialInstanceDynamic::Create(" in world_actor
         and 'TEXT("R5_TileIndexTexture")' in world_actor
         and 'TEXT("R5_PaletteTexture")' in world_actor

@@ -9,6 +9,7 @@
 #include "Materials/MaterialInterface.h"
 #include "Misc/Paths.h"
 #include "RemasterMetatileRenderMath.h"
+#include "RemasterIndexedMapMath.h"
 #include "RemasterRenderCatalogSubsystem.h"
 #include "RemasterRenderResourceSubsystem.h"
 #include "RemasterVisualStyle.h"
@@ -38,6 +39,10 @@ remaster::metatile_render::PlaneOrder PlaneOrderFromName(
 ARemasterWorldActor::ARemasterWorldActor()
 {
     PrimaryActorTick.bCanEverTick = false;
+    VisualStyle=CreateDefaultSubobject<URemasterVisualStyle>(TEXT("IndexedSourceVisualStyle"));
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> IndexedMaterial(
+        TEXT("/Game/Local/AP04/R5/M_R5Indexed.M_R5Indexed"));
+    if(IndexedMaterial.Succeeded())VisualStyle->MetatileMaterial=IndexedMaterial.Object;
 
     SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
     RootComponent = SceneRoot;
@@ -367,8 +372,8 @@ ARemasterWorldActor::ComponentForMetatile(
     FRemasterTilesetRenderResources Resources;
     FString ResourceError;
 
-    if (!ResourceSubsystem->LoadTilesetResources(
-            Visual.Tileset,
+    if (!ResourceSubsystem->LoadMapResources(
+            LoadedMap.PrimaryTileset,LoadedMap.SecondaryTileset,
             Resources,
             ResourceError))
     {
@@ -381,6 +386,14 @@ ARemasterWorldActor::ComponentForMetatile(
         return nullptr;
     }
 
+    auto* SourceCatalog=GI->GetSubsystem<URemasterRenderCatalogSubsystem>();
+    const FRemasterTilesetRenderDescriptor* SourceDescriptor=nullptr;FString DescriptorError;
+    const FRemasterMetatileRenderDescriptor* SourceMetatile=nullptr;
+    if(!SourceCatalog || !SourceCatalog->ResolveMetatile(Visual.Tileset,Visual.LocalMetatileId,SourceDescriptor,SourceMetatile,DescriptorError) || !SourceDescriptor || !SourceMetatile)return nullptr;
+    for(const auto& Tile:SourceMetatile->Entries)
+        if(!RemasterIndexedMap::TileValid(Tile.TileIdRaw,Resources.PrimaryTileCount,Resources.SecondaryTileCount)) {
+            UE_LOG(LogTemp,Error,TEXT("R5 descriptor references a missing source tile %d."),Tile.TileIdRaw);return nullptr;
+        }
     UStaticMesh* Mesh = FallbackMesh;
     if (!Mesh)
         return nullptr;

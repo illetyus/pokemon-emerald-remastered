@@ -78,3 +78,6 @@ unreal/Content/Generated/production-index.json
 *.zip
 *.7z
 *.rar
+
+# Reproducible project-authored indexed shader is built locally by the Editor.
+unreal/Content/Local/AP04/

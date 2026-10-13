@@ -2,6 +2,11 @@
 #include "CoreMinimal.h"
 #if !UE_BUILD_SHIPPING
 #include "Engine/GameInstance.h"
+#include "EngineUtils.h"
+#include "Engine/Texture2D.h"
+#include "Components/HierarchicalInstancedStaticMeshComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "RemasterWorldActor.h"
 #include "Engine/World.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
@@ -143,10 +148,21 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
         if(Phase==4) {
             if(!Session()->IsPlaying())return;
             Check(Session()->GetGeneration()==BeforeGeneration,TEXT("intro completed in its current session generation"));
-            Check(Gameplay->GetCurrentMapId()==TEXT("InsideOfTruck"),TEXT("canonical truck destination retained"));
+            Check(RemasterSession::IsTruckMap(TCHAR_TO_UTF8(*Gameplay->GetCurrentMapId())),TEXT("canonical truck destination retained"));
             FRemasterLegacyOverworldSnapshot Snapshot;
             Check(Save()->GetOverworldSnapshot(Snapshot)&&Snapshot.PlayerX==2&&Snapshot.PlayerY==2&&Snapshot.Money==3000&&Snapshot.PartyCount==0,TEXT("production core initial player/state snapshot"));
             FRemasterLegacyRtcSnapshot Clock;Check(Save()->GetLocalRtcNow(Clock)&&Clock.Days==1,TEXT("game-local RTC reset survives source clock read"));
+            bool HasIndexed=false,AllIndexed=true;
+            for(TActorIterator<ARemasterWorldActor> It(World.Get());It;++It) {
+                TArray<UHierarchicalInstancedStaticMeshComponent*> Components;It->GetComponents(Components);
+                for(auto* Component:Components)if(Component->GetName().StartsWith(TEXT("Chunk_"))&&Component->GetInstanceCount()>0) {
+                    HasIndexed=true;auto* Material=Cast<UMaterialInstanceDynamic>(Component->GetMaterial(0));
+                    auto* Index=Material?Cast<UTexture2D>(Material->K2_GetTextureParameterValue(TEXT("R5_TileIndexTexture"))):nullptr;
+                    AllIndexed=AllIndexed&&Material&&Material->Parent&&Material->Parent->GetPathName().Contains(TEXT("/Game/Local/AP04/R5/M_R5Indexed"))
+                        &&Index&&Index->GetSizeX()==128&&Index->GetSizeY()==512&&Material->K2_GetTextureParameterValue(TEXT("R5_PaletteTexture"))&&Component->NumCustomDataFloats==16;
+                }
+            }
+            Check(HasIndexed&&AllIndexed,TEXT("actual R5 chunks bind the cooked indexed shader and combined source VRAM textures"));
             Screenshot(TEXT("truck-open.png"));Next();return;
         }
         if(Phase==5 && Ticks-PhaseTick>30) {

@@ -105,7 +105,7 @@ bool URemasterGameSessionSubsystem::LoadWorld(bool NewGame) {
     } else {
         // Source ON_LOAD makes a saved truck's exit open without replaying the
         // one-time moving-truck callback. Continue always uses persisted map.
-        if(Gameplay->GetCurrentMapId()==TEXT("InsideOfTruck") && !SetDoor(true)) {Fail(TEXT("Kamyon çıkışı hazırlanamadı."));return false;}
+        if(RemasterSession::IsTruckMap(TCHAR_TO_UTF8(*Gameplay->GetCurrentMapId())) && !SetDoor(true)) {Fail(TEXT("Kamyon çıkışı hazırlanamadı."));return false;}
         if(!Session.Finish(Session.generation,Status,true))return false;
         UE_LOG(LogTemp,Display,TEXT("AP04_CONTINUE_PLAYING generation=%llu map=%s"),Session.generation,*Gameplay->GetCurrentMapId());
     }
@@ -133,7 +133,7 @@ bool URemasterGameSessionSubsystem::TickSession(float DeltaSeconds) {
     auto* PC=GetGameInstance()->GetFirstLocalPlayerController();
     auto* Camera=PC?PC->PlayerCameraManager.Get():nullptr;
     auto* Gameplay=GetGameInstance()->GetSubsystem<URemasterWorldGameplaySubsystem>();
-    if(!Camera || !Gameplay->IsMapReady() || Gameplay->GetCurrentMapId()!=TEXT("InsideOfTruck")) {Fail(TEXT("Giriş sahnesinin haritası veya kamerası kayboldu."));return true;}
+    if(!Camera || !Gameplay->IsMapReady() || !RemasterSession::IsTruckMap(TCHAR_TO_UTF8(*Gameplay->GetCurrentMapId()))) {Fail(TEXT("Giriş sahnesinin haritası veya kamerası kayboldu."));return true;}
     Accumulator+=FMath::Clamp(static_cast<double>(DeltaSeconds),0.0,0.1);
     while(Accumulator>=1.0/60.0 && Session.state==RemasterSession::State::Intro) {
         Accumulator-=1.0/60.0;
@@ -161,7 +161,7 @@ FVector URemasterGameSessionSubsystem::GetTruckBoxOffset(int32 LocalId) const {
     if(Session.state==RemasterSession::State::Intro)
         return FVector(Truck.boxX[LocalId-1]*6.25,0,-Truck.boxY[LocalId-1]*6.25);
     const auto* Gameplay=GetGameInstance()->GetSubsystem<URemasterWorldGameplaySubsystem>();
-    if(Session.Playing() && Gameplay && Gameplay->GetCurrentMapId()==TEXT("InsideOfTruck")) {
+    if(Session.Playing() && Gameplay && RemasterSession::IsTruckMap(TCHAR_TO_UTF8(*Gameplay->GetCurrentMapId()))) {
         const int X[3]={3,0,-3},Y[3]={3,-3,0};
         return FVector(X[LocalId-1]*6.25,0,-Y[LocalId-1]*6.25);
     }

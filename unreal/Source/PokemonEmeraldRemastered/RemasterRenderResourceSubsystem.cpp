@@ -1,4 +1,5 @@
 #include "RemasterRenderResourceSubsystem.h"
+#include "RemasterIndexedMapMath.h"
 
 #include "Engine/Texture2D.h"
 #include "Misc/FileHelper.h"
@@ -360,4 +361,48 @@ bool URemasterRenderResourceSubsystem::LoadTilesetResources(
     ResourceCache.Add(CacheKey, Resources);
     OutResources = Resources;
     return true;
+}
+
+
+bool URemasterRenderResourceSubsystem::LoadMapResources(
+    const FString& PrimaryId,const FString& SecondaryId,
+    FRemasterTilesetRenderResources& OutResources,FString& OutError)
+{
+    OutResources={};OutError.Reset();
+    auto* Catalog=GetGameInstance()->GetSubsystem<URemasterRenderCatalogSubsystem>();
+    const FRemasterTilesetRenderDescriptor* Descriptor=nullptr;
+    if(!Catalog || !Catalog->LoadTileset(PrimaryId,Descriptor,OutError) || !Descriptor)return false;
+    const auto Primary=*Descriptor;
+    if(!Catalog->LoadTileset(SecondaryId,Descriptor,OutError) || !Descriptor)return false;
+    const auto Secondary=*Descriptor;
+    const auto* P=Catalog->FindTileset(PrimaryId);const auto* S=Catalog->FindTileset(SecondaryId);
+    if(!P || !S || P->bIsSecondary || !S->bIsSecondary){OutError=TEXT("R5 map requires explicit primary/secondary tileset domains.");return false;}
+    const FString Key=TEXT("Pair|")+MakeCacheKey(PrimaryId,P->DescriptorSha256,P->TilesIndex8Sha256,P->PaletteLutSha256)
+        +TEXT("|")+MakeCacheKey(SecondaryId,S->DescriptorSha256,S->TilesIndex8Sha256,S->PaletteLutSha256);
+    if(const auto* Cached=ResourceCache.Find(Key)){OutResources=*Cached;return OutResources.IsValid();}
+    const auto Read=[&](const FString& Relative,TArray<uint8>& Bytes){FString Absolute;
+        return Catalog->ResolvePackageFile(Relative,Absolute)&&FFileHelper::LoadFileToArray(Bytes,*Absolute);};
+    TArray<uint8> PrimaryIndex,SecondaryIndex,PrimaryPalette,SecondaryPalette,Atlas,Palette;
+    if(!Read(Primary.TilesIndex8Relative,PrimaryIndex)||!Read(Secondary.TilesIndex8Relative,SecondaryIndex)
+       ||!Read(Primary.PaletteLutRelative,PrimaryPalette)||!Read(Secondary.PaletteLutRelative,SecondaryPalette)
+       ||PrimaryPalette.Num()!=1024||SecondaryPalette.Num()!=1024){OutError=TEXT("R5 paired binary render payload is missing or malformed.");return false;}
+    Atlas.SetNumZeroed(RemasterIndexedMap::AtlasWidth*RemasterIndexedMap::AtlasHeight);
+    if(!RemasterIndexedMap::CopyIndex(PrimaryIndex.GetData(),PrimaryIndex.Num(),Primary.TilesPngWidth,Primary.TilesPngHeight,0,Atlas.GetData(),Atlas.Num())
+       ||!RemasterIndexedMap::CopyIndex(SecondaryIndex.GetData(),SecondaryIndex.Num(),Secondary.TilesPngWidth,Secondary.TilesPngHeight,RemasterIndexedMap::PrimaryTiles,Atlas.GetData(),Atlas.Num())) {
+        OutError=TEXT("R5 indexed map cannot match source VRAM tile partitions.");return false;
+    }
+    Palette.SetNumUninitialized(1024);
+    constexpr int PrimaryPaletteBytes=RemasterIndexedMap::PrimaryPalettes*16*4;
+    FMemory::Memcpy(Palette.GetData(),PrimaryPalette.GetData(),PrimaryPaletteBytes);
+    FMemory::Memcpy(Palette.GetData()+PrimaryPaletteBytes,SecondaryPalette.GetData()+PrimaryPaletteBytes,1024-PrimaryPaletteBytes);
+    FRemasterTilesetRenderResources Combined;
+    Combined.TileIndexTexture=CreateIndexTexture(TEXT("R5_MapIndex_" )+PrimaryId+TEXT("_")+SecondaryId,RemasterIndexedMap::AtlasWidth,RemasterIndexedMap::AtlasHeight,Atlas,OutError);
+    Combined.PaletteTexture=CreatePaletteTexture(TEXT("R5_MapPalette_")+PrimaryId+TEXT("_")+SecondaryId,Palette,OutError);
+    if(!Combined.TileIndexTexture || !Combined.PaletteTexture)return false;
+    Combined.TileSheetWidth=RemasterIndexedMap::AtlasWidth;Combined.TileSheetHeight=RemasterIndexedMap::AtlasHeight;
+    Combined.TilesPerRow=RemasterIndexedMap::AtlasWidth/RemasterIndexedMap::TilePixels;
+    Combined.PrimaryTileCount=FMath::Min(RemasterIndexedMap::PrimaryTiles,Primary.TilesPngWidth*Primary.TilesPngHeight/64);
+    Combined.SecondaryTileCount=FMath::Min(RemasterIndexedMap::PrimaryTiles,Secondary.TilesPngWidth*Secondary.TilesPngHeight/64);
+    IndexTextureCache.Add(Key,Combined.TileIndexTexture);PaletteTextureCache.Add(Key,Combined.PaletteTexture);
+    ResourceCache.Add(Key,Combined);OutResources=Combined;return Combined.IsValid();
 }

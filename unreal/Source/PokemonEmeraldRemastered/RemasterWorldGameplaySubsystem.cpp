@@ -2273,7 +2273,7 @@ bool URemasterWorldGameplaySubsystem::ApplyResolvedWarp(
 }
 
 bool URemasterWorldGameplaySubsystem::SetTruckDoor(bool Open) {
-    if(!bMapReady || CurrentMap.Id!=TEXT("InsideOfTruck") || CurrentMap.Width<=4 || CurrentMap.Height<=3)return false;
+    if(!bMapReady || !RemasterSession::IsTruckMap(TCHAR_TO_UTF8(*CurrentMap.Id)) || CurrentMap.Width<=4 || CurrentMap.Height<=3)return false;
     const uint16 Tiles[3]={static_cast<uint16>(Open?0x208:0x20D),static_cast<uint16>(Open?0x210:0x215),static_cast<uint16>(Open?0x218:0x21D)};
     for(int32 y=1;y<=3;++y) {
         const int32 i=4+y*CurrentMap.Width;
