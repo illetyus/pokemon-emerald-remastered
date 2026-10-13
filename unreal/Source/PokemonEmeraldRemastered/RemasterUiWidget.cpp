@@ -53,7 +53,7 @@ void URemasterUiWidget::NativeOnInitialized()
     USizeBox* Width = WidgetTree->ConstructWidget<USizeBox>();
     Width->SetMaxDesiredWidth(600.0f);
     Safe->AddChild(Width);
-    UBorder* Panel = WidgetTree->ConstructWidget<UBorder>();
+    Panel = WidgetTree->ConstructWidget<UBorder>();
     Panel->SetPadding(FMargin(16.0f));
     Panel->SetBrushColor(FLinearColor(0.025f, 0.055f, 0.07f, 0.9f));
     Width->AddChild(Panel);
@@ -61,7 +61,7 @@ void URemasterUiWidget::NativeOnInitialized()
     Panel->AddChild(Content);
     Title = WidgetTree->ConstructWidget<UTextBlock>();
     Title->SetAutoWrapText(true); Content->AddChildToVerticalBox(Title);
-    UTextBlock* Hint = WidgetTree->ConstructWidget<UTextBlock>();
+    Hint = WidgetTree->ConstructWidget<UTextBlock>();
     Hint->SetText(FText::FromString(TEXT("↑ ↓ Seç · A / Enter Onay · B / Esc Geri")));
     Content->AddChildToVerticalBox(Hint);
     Scroll = WidgetTree->ConstructWidget<UScrollBox>();
@@ -129,6 +129,11 @@ void URemasterUiWidget::NativeDestruct()
 void URemasterUiWidget::Present(const FRemasterUiFrame& Frame)
 {
     Title->SetText(Frame.Title); Body->SetText(Frame.Body);
+    // Menus need a readable backdrop; the HUD and opening must show the world.
+    const bool bBackdrop=Frame.bModal && Frame.ScreenId!=1004;
+    Panel->SetBrushColor(bBackdrop?FLinearColor(0.025f,0.055f,0.07f,0.9f):FLinearColor::Transparent);
+    Hint->SetVisibility(bBackdrop?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+
     BackButton->SetVisibility(Frame.bModal && Frame.ScreenId!=1000 && Frame.ScreenId!=1003 && Frame.ScreenId!=1004 ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
     NameEntry->SetVisibility(Frame.ScreenId==1001?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
     PathEntry->SetVisibility(Frame.ScreenId==1002?ESlateVisibility::Visible:ESlateVisibility::Collapsed);

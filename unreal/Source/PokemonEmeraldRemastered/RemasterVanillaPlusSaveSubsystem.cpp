@@ -360,23 +360,23 @@ bool URemasterVanillaPlusSaveSubsystem::CreateNewGame(const FString& Name,uint8 
     // GBA RTC reset date is 2000-01-01: source ConvertDateToDayCount returns 1.
     Request.rtc_after_reset.days=1;
     if(remaster_emerald_new_game_encode_name(EncodedName.Get(),static_cast<size_t>(EncodedName.Length()),Request.identity.player_name)
-        !=REMASTER_EMERALD_NEW_GAME_PREPARED) {Error=TEXT("Ad 1â€“7 geÃ§erli karakterden oluÅŸmalÄ±.");return false;}
+        !=REMASTER_EMERALD_NEW_GAME_PREPARED) {Error=TEXT("Ad 1–7 geçerli karakterden oluşmalı.");return false;}
     auto Work=MakeUnique<RemasterEmeraldSave>();auto Candidate=MakeUnique<RemasterEmeraldSave>();
     RemasterEmeraldNewGameRuntime Runtime{};
     if(remaster_emerald_new_game_initialize(&Request,Work.Get(),Candidate.Get(),&Runtime)
-        !=REMASTER_EMERALD_NEW_GAME_INITIALIZED) {Error=TEXT("BaÅŸlangÄ±Ã§ kaydÄ± oluÅŸturulamadÄ±.");return false;}
+        !=REMASTER_EMERALD_NEW_GAME_INITIALIZED) {Error=TEXT("Başlangıç kaydı oluşturulamadı.");return false;}
     // Modern-host adaptation: emulate reset in the game's persistent local RTC
     // offset, never change the PC/device clock. Preserve source berry-update zero.
     const auto BerryTime=remaster_emerald_save_get_last_berry_update(Candidate.Get());
     if(!remaster_emerald_rtc_realign_now(Candidate.Get(),Request.rtc_after_reset)) {
-        Error=TEXT("Oyun saati baÅŸlatÄ±lamadÄ±.");return false;
+        Error=TEXT("Oyun saati başlatılamadı.");return false;
     }
     remaster_emerald_save_set_last_berry_update(Candidate.Get(),BerryTime);
     auto* Catalog=GetGameInstance()->GetSubsystem<URemasterWorldCatalogSubsystem>();
     FRemasterMapIR Map;FString MapError;
     if(!Catalog || !Catalog->LoadMap(25,40,Map,MapError) || Map.Width<=2 || Map.Height<=2) {
         UE_LOG(LogTemp,Error,TEXT("AP04_NEW_GAME_MAP_ERROR %s"),*MapError);
-        Error=TEXT("BaÅŸlangÄ±Ã§ haritasÄ± aÃ§Ä±lamadÄ±.");return false;
+        Error=TEXT("Başlangıç haritası açılamadı.");return false;
     }
     const FTCHARToUTF8 Slot(*Destination);
     if(!remaster_emerald_save_store_platform(Slot.Get(),ScratchImage.GetData(),
@@ -398,7 +398,7 @@ bool URemasterVanillaPlusSaveSubsystem::ImportCopy(const FString& SourcePath,uin
     const FString Guid=FGuid::NewGuid().ToString(EGuidFormats::Digits);
     const FString Directory=IFileManager::Get().ConvertToAbsolutePathForExternalAppForWrite(
         *FPaths::Combine(FPaths::ProjectSavedDir(),TEXT("Core")));
-    if(!IFileManager::Get().MakeDirectory(*Directory,true)){Error=TEXT("Kopya klasÃ¶rÃ¼ oluÅŸturulamadÄ±.");return false;}
+    if(!IFileManager::Get().MakeDirectory(*Directory,true)){Error=TEXT("Kopya klasörü oluşturulamadı.");return false;}
     const FString RawCopy=FPaths::Combine(Directory,TEXT("quarantine-import-")+Guid+TEXT(".sav"));
     const FString Slot=TEXT("import-")+Guid+TEXT(".sav");
     const FString WorkingCopy=FPaths::Combine(Directory,Slot);
@@ -412,14 +412,14 @@ bool URemasterVanillaPlusSaveSubsystem::ImportCopy(const FString& SourcePath,uin
     const auto Result=RemasterSaveImport::CopyFirst(Path(SourcePath),Path(RawCopy),
         static_cast<RemasterEmeraldSaveFormat>(Format),*Candidate);
     if(Result.status!=REMASTER_EMERALD_SAVE_OK && Result.status!=REMASTER_EMERALD_SAVE_DEGRADED) {
-        Error=Result.status==REMASTER_EMERALD_SAVE_UNSUPPORTED?TEXT("SeÃ§ilen kayÄ±t biÃ§imi desteklenmiyor."):
-            Result.status==REMASTER_EMERALD_SAVE_CORRUPT?TEXT("KayÄ±t kopyasÄ± doÄŸrulanamadÄ±."):TEXT("KayÄ±t kopyasÄ± okunamadÄ± veya oluÅŸturulamadÄ±.");
+        Error=Result.status==REMASTER_EMERALD_SAVE_UNSUPPORTED?TEXT("Seçilen kayıt biçimi desteklenmiyor."):
+            Result.status==REMASTER_EMERALD_SAVE_CORRUPT?TEXT("Kayıt kopyası doğrulanamadı."):TEXT("Kayıt kopyası okunamadı veya oluşturulamadı.");
         return false;
     }
     TArray<uint8> Bytes;
     if(!FFileHelper::LoadFileToArray(Bytes,*RawCopy) || Bytes.Num()!=REMASTER_EMERALD_SAVE_IMAGE_BYTES
         || !RemasterSaveImport::WriteExclusive(Path(WorkingCopy),Bytes.GetData(),static_cast<size_t>(Bytes.Num()))
-        || !PersistSessionSelection(Slot,Format)) {Error=TEXT("Ã‡alÄ±ÅŸma kopyasÄ± seÃ§ilemedi; Ã¶nceki kayÄ±t korunuyor.");return false;}
+        || !PersistSessionSelection(Slot,Format)) {Error=TEXT("Çalışma kopyası seçilemedi; önceki kayıt korunuyor.");return false;}
     ActiveSlot=Slot;ActiveFormat=Format;bSelectionValid=true;Status=ToUnrealStatus(Result.status);
     *static_cast<RemasterEmeraldSave*>(NativeSave)=*Candidate;
     UE_LOG(LogTemp,Display,TEXT("AP04_IMPORT_COPY_SELECTED format=%u slot=%s"),Format,*Slot);

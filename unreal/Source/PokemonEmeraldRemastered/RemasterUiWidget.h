@@ -61,6 +61,8 @@ private:
     int64 EditorRevision=0;
     int32 EditorScreen=-1;
     UPROPERTY() TObjectPtr<URemasterUISubsystem> UI;
+    UPROPERTY() TObjectPtr<UBorder> Panel;
+    UPROPERTY() TObjectPtr<UTextBlock> Hint;
     UPROPERTY() TObjectPtr<UTextBlock> Title;
     UPROPERTY() TObjectPtr<UTextBlock> Body;
     UPROPERTY() TObjectPtr<UVerticalBox> Rows;

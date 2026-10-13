@@ -7,7 +7,7 @@
   "producers": [
     {
       "path": "unreal/Source/PokemonEmeraldRemastered/RemasterVanillaPlusSaveSubsystem.cpp",
-      "blob_sha": "d9011780294e12e13d227d5be5b3099083da4613"
+      "blob_sha": "a9c81dee075653256ad5ca4f8624d85a00a47bfa"
     },
     {
       "path": "unreal/Source/PokemonEmeraldRemastered/RemasterWorldGameplaySubsystem.cpp",

@@ -79,7 +79,7 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
         TArray<UWidget*> Widgets;Widget->WidgetTree->GetAllWidgets(Widgets);
         for(auto* Item:Widgets)if(auto* Entry=Cast<UEditableTextBox>(Item)) {
             if(Entry->GetVisibility()!=ESlateVisibility::Visible)continue;
-            if(Name!=Entry->GetHintText().ToString().Contains(TEXT("AdÄ±n")))continue;
+            if(Name!=Entry->GetHintText().ToString().Contains(TEXT("Adın")))continue;
             Entry->SetText(FText::FromString(Value));Entry->OnTextCommitted.Broadcast(Entry->GetText(),ETextCommit::OnEnter);return true;
         }
         return false;
@@ -162,7 +162,7 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
         }
         if(Phase==3 && Ticks-PhaseTick>30) {
             OldRevision=UI()->GetFrame().Revision;
-            Check(Click(TEXT("YolculuÄŸa BaÅŸla")),TEXT("actual UMG start listener delivered"));
+            Check(Click(TEXT("Yolculuğa Başla")),TEXT("actual UMG start listener delivered"));
             if(Case==TEXT("selection-error")) {
                 Check(!Session()->IsPlaying()&&!Session()->IsBusy(),TEXT("existing main file rejects New Game before publication"));
                 Check(Save()->GetLegacySavePath()==BeforePath&&Save()->GetStatus()==ERemasterLegacySaveStatus::Empty,TEXT("failed New Game preserves active slot format/status selection"));
@@ -217,7 +217,7 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
             Screenshot(TEXT("truck-open.png"));Next();return;
         }
         if(Phase==5 && Ticks-PhaseTick>30) {
-            UI()->SubmitAction(ERemasterUiAction::Menu);Check(Click(TEXT("KayÄ±t / YÃ¼kle")),TEXT("production save/load screen"));
+            UI()->SubmitAction(ERemasterUiAction::Menu);Check(Click(TEXT("Kayıt / Yükle")),TEXT("production save/load screen"));
             Check(Click(TEXT("Kaydet")),TEXT("production save confirmation"));Check(Click(TEXT("Onayla")),TEXT("production store delegate"));
             BeforePath=Save()->GetLegacySavePath();
             Check(FFileHelper::LoadFileToArray(BeforeFile,*BeforePath),TEXT("actual stored checkpoint captured"));
@@ -225,7 +225,7 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
         }
         if(Phase==6 && Ticks-PhaseTick>15) {
             UI()->SubmitAction(ERemasterUiAction::Cancel);UI()->SubmitAction(ERemasterUiAction::Cancel);UI()->SubmitAction(ERemasterUiAction::Cancel);
-            UI()->SubmitAction(ERemasterUiAction::Menu);Check(Click(TEXT("BaÅŸlangÄ±Ã§ menÃ¼sÃ¼")),TEXT("production return-title listener"));
+            UI()->SubmitAction(ERemasterUiAction::Menu);Check(Click(TEXT("Başlangıç menüsü")),TEXT("production return-title listener"));
             Check(!Session()->IsPlaying()&&UI()->BlocksWorldInput(),TEXT("title return fences gameplay"));
             Check(Click(TEXT("Devam Et")),TEXT("production Continue after save"));
             Check(Session()->IsPlaying()&&Session()->GetGeneration()>BeforeGeneration,TEXT("reopen owns a new session generation"));
@@ -233,10 +233,10 @@ struct FSessionSmoke : TSharedFromThis<FSessionSmoke> {
         }
         if(Phase==7 && Ticks-PhaseTick>15) {
             Session()->BackToTitle();UI()->SubmitAction(ERemasterUiAction::Up);
-            Check(Click(TEXT("KayÄ±t Aktar")),TEXT("production import form"));
+            Check(Click(TEXT("Kayıt Aktar")),TEXT("production import form"));
             Check(Edit(Save()->GetLegacySavePath(),false),TEXT("native import path event"));
             Check(Click(TEXT("Vanilla+")),TEXT("explicit import format selection"));
-            Check(Click(TEXT("KopyayÄ± Aktar")),TEXT("production copy-first import delegate"));
+            Check(Click(TEXT("Kopyayı Aktar")),TEXT("production copy-first import delegate"));
             Check(Session()->IsPlaying()&&Save()->GetLegacySavePath().Contains(TEXT("import-")),TEXT("import selects separate working copy"));
             Check(SameFile(),TEXT("imported working copy keeps byte-exact source image"));
             TArray<uint8> Original,Quarantine;

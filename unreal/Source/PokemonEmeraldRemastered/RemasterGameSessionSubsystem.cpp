@@ -79,23 +79,23 @@ bool URemasterGameSessionSubsystem::Activate(unsigned Row,uint64 Revision) {
     if(Command==C::ImportCopy) {
         if(!Save->ImportCopy(UTF8_TO_TCHAR(Menu.path.c_str()),static_cast<uint8>(Menu.format),Error)){Fail(Error);return false;}
     } else if(Command!=C::Continue || !RemasterSession::CanContinue(static_cast<RemasterEmeraldSaveStatus>(Save->LoadLegacySave()))) {
-        Fail(TEXT("KayÄ±t okunamadÄ± veya devam etmeye uygun deÄŸil."));return false;
+        Fail(TEXT("Kayıt okunamadı veya devam etmeye uygun değil."));return false;
     }
     return LoadWorld(false);
 }
 bool URemasterGameSessionSubsystem::LoadWorld(bool NewGame) {
     auto* Save=GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
     auto* Gameplay=GetGameInstance()->GetSubsystem<URemasterWorldGameplaySubsystem>();
-    if(!Gameplay->LoadCurrentMapFromSave(true) || !Gameplay->IsMapReady()) {Fail(TEXT("KayÄ±t yÃ¼klendi; harita aÃ§Ä±lamadÄ±."));return false;}
+    if(!Gameplay->LoadCurrentMapFromSave(true) || !Gameplay->IsMapReady()) {Fail(TEXT("Kayıt yüklendi; harita açılamadı."));return false;}
     const bool Rendered=RefreshPresentation();
     auto* PC=GetGameInstance()->GetFirstLocalPlayerController();
     auto* Pawn=PC?Cast<ARemasterOverworldPawn>(PC->GetPawn()):nullptr;
-    if(!Rendered || !Pawn || !Pawn->SyncFromAuthoritativeState()){Fail(TEXT("Harita veya karakter sunumu hazÄ±rlanamadÄ±."));return false;}
+    if(!Rendered || !Pawn || !Pawn->SyncFromAuthoritativeState()){Fail(TEXT("Harita veya karakter sunumu hazırlanamadı."));return false;}
     const auto Status=static_cast<RemasterEmeraldSaveStatus>(Save->GetStatus());
     Menu.status=Status;
     if(NewGame) {
         if(!PC->PlayerCameraManager || !SetDoor(false) || !Session.FinishIntro(Session.generation,Status,true)) {
-            Fail(TEXT("Kamyon giriÅŸ sahnesi baÅŸlatÄ±lamadÄ±."));return false;
+            Fail(TEXT("Kamyon giriş sahnesi başlatılamadı."));return false;
         }
         Truck={};IntroGeneration=Session.generation;Accumulator=0;
         PC->PlayerCameraManager->SetManualCameraFade(1,FLinearColor::Black,false);
@@ -104,7 +104,7 @@ bool URemasterGameSessionSubsystem::LoadWorld(bool NewGame) {
     } else {
         // Source ON_LOAD makes a saved truck's exit open without replaying the
         // one-time moving-truck callback. Continue always uses persisted map.
-        if(RemasterSession::IsTruckMap(TCHAR_TO_UTF8(*Gameplay->GetCurrentMapId())) && !SetDoor(true)) {Fail(TEXT("Kamyon Ã§Ä±kÄ±ÅŸÄ± hazÄ±rlanamadÄ±."));return false;}
+        if(RemasterSession::IsTruckMap(TCHAR_TO_UTF8(*Gameplay->GetCurrentMapId())) && !SetDoor(true)) {Fail(TEXT("Kamyon çıkışı hazırlanamadı."));return false;}
         if(!Session.Finish(Session.generation,Status,true))return false;
         UE_LOG(LogTemp,Display,TEXT("AP04_CONTINUE_PLAYING generation=%llu map=%s"),Session.generation,*Gameplay->GetCurrentMapId());
     }
@@ -114,7 +114,7 @@ bool URemasterGameSessionSubsystem::ReloadCurrent() {
     if(!BeginLoad())return false;
     auto* Save=GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
     if(!RemasterSession::CanContinue(static_cast<RemasterEmeraldSaveStatus>(Save->LoadLegacySave()))) {
-        Fail(TEXT("KayÄ±t yeniden okunamadÄ±."));return false;
+        Fail(TEXT("Kayıt yeniden okunamadı."));return false;
     }
     return LoadWorld(false);
 }
@@ -145,7 +145,7 @@ bool URemasterGameSessionSubsystem::TickSession(float DeltaSeconds) {
     auto* PC=GetGameInstance()->GetFirstLocalPlayerController();
     auto* Camera=PC?PC->PlayerCameraManager.Get():nullptr;
     auto* Gameplay=GetGameInstance()->GetSubsystem<URemasterWorldGameplaySubsystem>();
-    if(!Camera || !Gameplay->IsMapReady() || !RemasterSession::IsTruckMap(TCHAR_TO_UTF8(*Gameplay->GetCurrentMapId()))) {Fail(TEXT("GiriÅŸ sahnesinin haritasÄ± veya kamerasÄ± kayboldu."));return true;}
+    if(!Camera || !Gameplay->IsMapReady() || !RemasterSession::IsTruckMap(TCHAR_TO_UTF8(*Gameplay->GetCurrentMapId()))) {Fail(TEXT("Giriş sahnesinin haritası veya kamerası kayboldu."));return true;}
     Accumulator+=FMath::Clamp(static_cast<double>(DeltaSeconds),0.0,0.1);
     while(Accumulator>=1.0/60.0 && Session.state==RemasterSession::State::Intro) {
         Accumulator-=1.0/60.0;
@@ -156,7 +156,7 @@ bool URemasterGameSessionSubsystem::TickSession(float DeltaSeconds) {
         if(Effect&TruckStop)PlayTruckSound(50);
         if(Effect&TruckUnload)PlayTruckSound(51);
         if(Effect&TruckDoor) {
-            if(!SetDoor(true) || !Session.CompleteIntro(IntroGeneration,true)){Fail(TEXT("Kamyon kapÄ±sÄ± aÃ§Ä±lamadÄ±."));break;}
+            if(!SetDoor(true) || !Session.CompleteIntro(IntroGeneration,true)){Fail(TEXT("Kamyon kapısı açılamadı."));break;}
             Camera->StopCameraFade();PlayTruckSound(52);
             GetGameInstance()->GetSubsystem<URemasterInputSubsystem>()->ResetInputs();
             UE_LOG(LogTemp,Display,TEXT("AP04_TRUCK_INTRO_COMPLETE generation=%llu frames=%u"),IntroGeneration,Truck.frames);

@@ -32,6 +32,10 @@ class SessionSourceTests(unittest.TestCase):
         self.assertEqual(source_map['id'],'MAP_INSIDE_OF_TRUCK')
         self.assertIn('RemasterSession::IsTruckMap(',session);self.assertIn('RemasterSession::IsTruckMap(',world)
         self.assertIn('Session.FinishIntro(',session);self.assertIn('Session.CompleteIntro(',session)
+        widget=(M/'RemasterUiWidget.cpp').read_text(encoding='utf-8')
+        self.assertIn('Frame.bModal && Frame.ScreenId!=1004',widget)
+        self.assertIn('FLinearColor::Transparent',widget)
+
         self.assertLess(session.index('SetDoor(true) || !Session.CompleteIntro'),session.index('AP04_TRUCK_INTRO_COMPLETE'))
     def test_same_widget_publication_fence_protects_both_owners_and_editor_focus(self):
         ui=(M/'RemasterUISubsystem.cpp').read_text(encoding='utf-8')
@@ -50,6 +54,20 @@ class SessionSourceTests(unittest.TestCase):
         self.assertIn('Button->OnClicked.Broadcast()',code)
         self.assertIn('FPaths::ProjectSavedDir()',code)
         self.assertIn('REMASTER_AP04_INPUT_SHA',code)
+        # Exercise the same localized targets the real UMG smoke driver uses.
+        # Encoding drift makes it miss visible controls while ASCII tests pass.
+        production='\n'.join((M/name).read_text(encoding='utf-8') for name in
+            ('RemasterUiWidget.cpp','RemasterSessionMenu.h','RemasterUiModel.h','RemasterUiModel.cpp'))
+        for label in ('Adın','Yolculuğa Başla','Kayıt / Yükle',
+                      'Başlangıç menüsü','Kayıt Aktar','Kopyayı Aktar'):
+            self.assertIn(label,production)
+            self.assertIn('TEXT("'+label+'")',code)
+        for name in ('RemasterSessionSmoke.cpp','RemasterGameSessionSubsystem.cpp',
+                     'RemasterVanillaPlusSaveSubsystem.cpp'):
+            strings=re.findall(r'TEXT\("([^"\n]*)"\)',(M/name).read_text(encoding='utf-8'))
+            for literal in strings:
+                self.assertNotRegex(literal,r'[ÃÄÅâ][^\x00-\x7f]',name)
+
     def test_authoritative_surfaces_reject_unconfigured_mandatory_shader(self):
         code=(M/'RemasterWorldActor.cpp').read_text(encoding='utf-8')
         component=code.split('ARemasterWorldActor::ComponentForMetatile(',1)[1].split('bool ARemasterWorldActor::BuildRenderChunks()',1)[0]
