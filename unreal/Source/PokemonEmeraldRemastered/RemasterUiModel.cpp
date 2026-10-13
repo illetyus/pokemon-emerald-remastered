@@ -40,6 +40,7 @@ void Model::Build(const RemasterEmeraldSave* save, const Context& context) {
         open("Takım", Screen::Party, usable); open("Çanta", Screen::Bag, usable);
         open("Harita", Screen::Map, usable); open("Görev", Screen::Quest, usable);
         open("Ayarlar", Screen::Settings); open("Kayıt / Yükle", Screen::SaveLoad);
+        add("Başlangıç menüsü",Command::ReturnTitle,0,canAct);
         break;
     case Screen::Map:
     case Screen::Quest:
@@ -253,6 +254,7 @@ Intent Model::Activate(unsigned row, std::uint64_t revision,
         rtcDraft.minutes = static_cast<int8_t>((rtcDraft.minutes + chosen.value + 60) % 60); ++frame.revision; break;
     case Command::Save: if (canAct) intent.effect = Effect::Save; break;
     case Command::Load: if (!context.scriptBusy && !context.battleBusy) intent.effect = Effect::Load; break;
+    case Command::ReturnTitle: if(canAct)intent.effect=Effect::ReturnTitle;break;
     case Command::ApplyRtc:
         if (canAct && rtcInitialized) { intent.effect = Effect::ApplyRtc; intent.time = rtcDraft; } break;
     case Command::Nickname: if (canAct) intent.effect = Effect::Nickname; break;

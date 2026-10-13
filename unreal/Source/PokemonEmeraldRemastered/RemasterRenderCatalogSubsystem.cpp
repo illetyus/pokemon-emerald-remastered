@@ -1,4 +1,5 @@
 #include "RemasterRenderCatalogSubsystem.h"
+#include "RemasterRenderProvenance.h"
 
 #include "Dom/JsonObject.h"
 #include "Misc/FileHelper.h"
@@ -39,16 +40,7 @@ bool BoolField(
 
 bool IsHexSha256(const FString& Value)
 {
-    if (Value.Len() != 64)
-        return false;
-
-    for (const TCHAR Character : Value)
-    {
-        if (!FChar::IsHexDigit(Character))
-            return false;
-    }
-
-    return true;
+    return RemasterRenderProvenance::Sha256(TCHAR_TO_UTF8(*Value));
 }
 
 bool ParseStringArray(
@@ -221,7 +213,7 @@ bool URemasterRenderCatalogSubsystem::ReloadCatalog()
         StringField(Root, TEXT("content_sha256"));
 
     if (SourceRepository.IsEmpty()
-        || !IsHexSha256(SourceCommit)
+        || !RemasterRenderProvenance::GitCommit(TCHAR_TO_UTF8(*SourceCommit))
         || !IsHexSha256(ContentSha256))
     {
         UE_LOG(

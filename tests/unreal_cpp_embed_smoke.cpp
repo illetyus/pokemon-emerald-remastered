@@ -10,6 +10,7 @@ extern "C"
 #include "remaster/emerald_pokemon.h"
 #include "remaster/emerald_items.h"
 #include "remaster/emerald_state.h"
+#include "remaster/emerald_new_game.h"
 }
 
 
@@ -21,6 +22,16 @@ static int fail(const char* message)
 
 int main()
 {
+    RemasterEmeraldNewGameRequest request{};
+    RemasterEmeraldNewGameDraft draft{};
+    request.format = REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS;
+    if (remaster_emerald_new_game_encode_name("Cemal", 5, request.player_name)
+            != REMASTER_EMERALD_NEW_GAME_PREPARED
+        || remaster_emerald_new_game_prepare(&request, &draft)
+            != REMASTER_EMERALD_NEW_GAME_PREPARED
+        || draft.stage != REMASTER_EMERALD_NEW_GAME_DRAFT || !draft.pending_source_calls)
+        return fail("new-game preparation C++ linkage/draft mismatch");
+
     RemasterState state{};
     remaster_core_init(&state);
 
@@ -52,6 +63,16 @@ int main()
         return fail("event-flags mismatch");
     if (state.encounter_pending != 1u)
         return fail("encounter state mismatch");
+
+    static RemasterEmeraldSave init_work{}, init_save{};
+    RemasterEmeraldNewGameInitRequest init_request{};
+    RemasterEmeraldNewGameRuntime init_runtime{};
+    init_request.identity=request;
+    init_request.ranking_id_policy=REMASTER_EMERALD_NEW_GAME_SOURCE_UBFIX_ZERO_ID;
+    if (remaster_emerald_new_game_initialize(&init_request,&init_work,&init_save,&init_runtime)
+        != REMASTER_EMERALD_NEW_GAME_INITIALIZED || init_runtime.host_actions!=7
+        || init_save.status!=REMASTER_EMERALD_SAVE_EMPTY)
+        return fail("AP04 persistent initializer C++ embed mismatch");
 
     RemasterEmeraldSave save{};
     RemasterEmeraldObjectTemplate object_template{};

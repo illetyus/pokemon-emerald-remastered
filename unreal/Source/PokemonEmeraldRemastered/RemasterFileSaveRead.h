@@ -9,6 +9,9 @@
 #include <sys/stat.h>
 #if defined(_WIN32)
 #include <io.h>
+#else
+#include <fcntl.h>
+#include <unistd.h>
 #endif
 
 /* Shared native read transport; no UE dependency or gameplay interpretation.
@@ -104,9 +107,25 @@ inline RemasterSaveReadResult Read(
     int OpenError;
 #if defined(_MSC_VER)
     OpenError = fopen_s(&File, Path, "rb");
-#else
+#elif defined(_WIN32)
     File = std::fopen(Path, "rb");
     OpenError = File ? 0 : errno;
+#else
+    // A FIFO can block inside fopen before descriptor validation. Open without
+    // waiting, then accept only a regular file using that same descriptor.
+    const int Descriptor = ::open(Path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+    OpenError = Descriptor < 0 ? errno : 0;
+    if (Descriptor >= 0)
+    {
+        struct stat Status;
+        if (::fstat(Descriptor, &Status) != 0 || !S_ISREG(Status.st_mode))
+        {
+            ::close(Descriptor);
+            return REMASTER_SAVE_READ_ERROR;
+        }
+        File = ::fdopen(Descriptor, "rb");
+        if (!File) { OpenError = errno; ::close(Descriptor); }
+    }
 #endif
     if (!File)
         return OpenFailure(Path, OpenError);

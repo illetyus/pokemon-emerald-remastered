@@ -46,7 +46,18 @@ jobs:
           files = [Path('build/libremaster_core.a'),
                    Path('build/generated/r2_littleroot_generated.c'),
                    Path('build/generated/r4_littleroot_world_generated.c'),
-                   Path('build/r19-full-suite-receipt.json'), Path('build/r19-full-native.xml')]
+                   Path('build/r19-full-suite-receipt.json'), Path('build/r19-full-native.xml'),
+                   Path('build/generated/ap04-new-game/original_bootstrap.c'),
+                   Path('build/generated/ap04-new-game/catalog.inc'),
+                   Path('build/generated/ap04-new-game/contract.json'),
+                   Path('build/emerald_new_game_test'),
+                   Path('build/emerald_new_game_init_test'),
+                   Path('build/generated/ap04-new-game/full_domains.c'),
+                   Path('build/generated/ap04-new-game/full_domains.h'),
+                   Path('build/generated/ap04-new-game/full_domains.json'),
+                   Path('build/ap04_session_menu_test'),
+                   Path('build/generated/ap04-new-game/original_truck.c'),
+                   Path('build/generated/ap04-new-game/original_truck.json')]
           receipt = {
               'version': 1,
               'checkout_sha': os.environ['REPLAY_CHECKOUT_SHA'],
@@ -69,5 +80,16 @@ jobs:
             build/r19-replay-build-receipt.json
             build/r19-full-suite-receipt.json
             build/r19-full-native.xml
+            build/generated/ap04-new-game/original_bootstrap.c
+            build/generated/ap04-new-game/catalog.inc
+            build/generated/ap04-new-game/contract.json
+            build/emerald_new_game_test
+            build/emerald_new_game_init_test
+            build/generated/ap04-new-game/full_domains.c
+            build/generated/ap04-new-game/full_domains.h
+            build/generated/ap04-new-game/full_domains.json
+            build/ap04_session_menu_test
+            build/generated/ap04-new-game/original_truck.c
+            build/generated/ap04-new-game/original_truck.json
           if-no-files-found: error
 

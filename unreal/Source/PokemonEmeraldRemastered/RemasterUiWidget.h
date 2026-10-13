@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
+#include "Components/EditableTextBox.h"
 #include "RemasterUISubsystem.h"
 #include "RemasterUiWidget.generated.h"
 
@@ -42,6 +43,8 @@ UCLASS()
 class POKEMONEMERALDREMASTERED_API URemasterUiWidget : public UUserWidget
 {
     GENERATED_BODY()
+public:
+    bool HasSessionTextFocus() const;
 protected:
     virtual void NativeOnInitialized() override;
     virtual void NativeConstruct() override;
@@ -49,7 +52,17 @@ protected:
 private:
     UFUNCTION() void Present(const FRemasterUiFrame& Frame);
     UFUNCTION() void Back();
+    UFUNCTION() void ChangeName(const FText& Text);
+    UFUNCTION() void ChangePath(const FText& Text);
+    UFUNCTION() void CommitName(const FText& Text,ETextCommit::Type CommitType);
+    UFUNCTION() void CommitPath(const FText& Text,ETextCommit::Type CommitType);
+    UPROPERTY() TObjectPtr<UEditableTextBox> NameEntry;
+    UPROPERTY() TObjectPtr<UEditableTextBox> PathEntry;
+    int64 EditorRevision=0;
+    int32 EditorScreen=-1;
     UPROPERTY() TObjectPtr<URemasterUISubsystem> UI;
+    UPROPERTY() TObjectPtr<UBorder> Panel;
+    UPROPERTY() TObjectPtr<UTextBlock> Hint;
     UPROPERTY() TObjectPtr<UTextBlock> Title;
     UPROPERTY() TObjectPtr<UTextBlock> Body;
     UPROPERTY() TObjectPtr<UVerticalBox> Rows;

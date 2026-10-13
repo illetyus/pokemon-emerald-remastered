@@ -29,6 +29,7 @@ void URemasterUiRowWidget::Configure(URemasterUISubsystem* InUI, int32 InIndex,
     WidgetTree->RootWidget = Size;
     UButton* Button = WidgetTree->ConstructWidget<URemasterUiButton>();
     Button->SetIsEnabled(bEnabled);
+    Button->SetBackgroundColor(FLinearColor(0.035f,0.09f,0.12f,1.0f));
     Size->AddChild(Button);
     UTextBlock* Text = WidgetTree->ConstructWidget<UTextBlock>();
     Text->SetText(FText::FromString((bSelected ? TEXT("› ") : TEXT("")) + Label.ToString()));
@@ -52,7 +53,7 @@ void URemasterUiWidget::NativeOnInitialized()
     USizeBox* Width = WidgetTree->ConstructWidget<USizeBox>();
     Width->SetMaxDesiredWidth(600.0f);
     Safe->AddChild(Width);
-    UBorder* Panel = WidgetTree->ConstructWidget<UBorder>();
+    Panel = WidgetTree->ConstructWidget<UBorder>();
     Panel->SetPadding(FMargin(16.0f));
     Panel->SetBrushColor(FLinearColor(0.025f, 0.055f, 0.07f, 0.9f));
     Width->AddChild(Panel);
@@ -60,7 +61,7 @@ void URemasterUiWidget::NativeOnInitialized()
     Panel->AddChild(Content);
     Title = WidgetTree->ConstructWidget<UTextBlock>();
     Title->SetAutoWrapText(true); Content->AddChildToVerticalBox(Title);
-    UTextBlock* Hint = WidgetTree->ConstructWidget<UTextBlock>();
+    Hint = WidgetTree->ConstructWidget<UTextBlock>();
     Hint->SetText(FText::FromString(TEXT("↑ ↓ Seç · A / Enter Onay · B / Esc Geri")));
     Content->AddChildToVerticalBox(Hint);
     Scroll = WidgetTree->ConstructWidget<UScrollBox>();
@@ -82,10 +83,25 @@ void URemasterUiWidget::NativeOnInitialized()
     Marker = WidgetTree->ConstructWidget<UBorder>();
     Marker->SetBrushColor(FLinearColor(1.0f, 0.8f, 0.1f, 1.0f));
     MarkerSlot = Canvas->AddChildToCanvas(Marker);
+    NameEntry=WidgetTree->ConstructWidget<UEditableTextBox>();
+    NameEntry->SetForegroundColor(FLinearColor::Black);
+    NameEntry->SetHintText(FText::FromString(TEXT("Adın (1–7 karakter)")));
+    NameEntry->SetClearKeyboardFocusOnCommit(true);NameEntry->SetSelectAllTextWhenFocused(true);
+    Scrolled->AddChildToVerticalBox(NameEntry);
+    NameEntry->OnTextChanged.AddDynamic(this,&URemasterUiWidget::ChangeName);
+    NameEntry->OnTextCommitted.AddDynamic(this,&URemasterUiWidget::CommitName);
+    PathEntry=WidgetTree->ConstructWidget<UEditableTextBox>();
+    PathEntry->SetForegroundColor(FLinearColor::Black);
+    PathEntry->SetHintText(FText::FromString(TEXT("Kayıt dosyasının tam yolu")));
+    PathEntry->SetClearKeyboardFocusOnCommit(true);PathEntry->SetSelectAllTextWhenFocused(true);
+    Scrolled->AddChildToVerticalBox(PathEntry);
+    PathEntry->OnTextChanged.AddDynamic(this,&URemasterUiWidget::ChangePath);
+    PathEntry->OnTextCommitted.AddDynamic(this,&URemasterUiWidget::CommitPath);
     Rows = WidgetTree->ConstructWidget<UVerticalBox>(); Scrolled->AddChildToVerticalBox(Rows);
     USizeBox* BackSize = WidgetTree->ConstructWidget<USizeBox>(); BackSize->SetMinDesiredHeight(64.0f);
     Content->AddChildToVerticalBox(BackSize);
     BackButton = WidgetTree->ConstructWidget<URemasterUiButton>();
+    BackButton->SetBackgroundColor(FLinearColor(0.035f,0.09f,0.12f,1.0f));
     BackSize->AddChild(BackButton);
     UTextBlock* BackText = WidgetTree->ConstructWidget<UTextBlock>();
     BackText->SetText(FText::FromString(TEXT("Geri"))); BackButton->AddChild(BackText);
@@ -113,7 +129,21 @@ void URemasterUiWidget::NativeDestruct()
 void URemasterUiWidget::Present(const FRemasterUiFrame& Frame)
 {
     Title->SetText(Frame.Title); Body->SetText(Frame.Body);
-    BackButton->SetVisibility(Frame.bModal ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+    // Menus need a readable backdrop; the HUD and opening must show the world.
+    const bool bBackdrop=Frame.bModal && Frame.ScreenId!=1004;
+    Panel->SetBrushColor(bBackdrop?FLinearColor(0.025f,0.055f,0.07f,0.9f):FLinearColor::Transparent);
+    Hint->SetVisibility(bBackdrop?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+
+    BackButton->SetVisibility(Frame.bModal && Frame.ScreenId!=1000 && Frame.ScreenId!=1003 && Frame.ScreenId!=1004 ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+    NameEntry->SetVisibility(Frame.ScreenId==1001?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    PathEntry->SetVisibility(Frame.ScreenId==1002?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    EditorRevision=Frame.Revision;
+    if(EditorScreen!=Frame.ScreenId) {
+        EditorScreen=Frame.ScreenId;
+        NameEntry->SetText(FText::FromString(Frame.SessionName));PathEntry->SetText(FText::FromString(Frame.ImportPath));
+    }
+    if(!HasSessionTextFocus() && Frame.ScreenId==1001 && NameEntry->GetText().ToString()!=Frame.SessionName)
+        NameEntry->SetText(FText::FromString(Frame.SessionName));
     const bool bMap = Frame.ScreenId == static_cast<int32>(RemasterUi::Screen::Map);
     MapPanel->SetVisibility(bMap ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
     const bool bMarker = Frame.bHasMarker && Frame.MarkerPosition.X >= 0 && Frame.MarkerPosition.Y >= 0
@@ -144,3 +174,17 @@ void URemasterUiWidget::Back()
 {
     if (UI) UI->SubmitAction(ERemasterUiAction::Cancel);
 }
+
+bool URemasterUiWidget::HasSessionTextFocus() const {
+    const auto Focused=[](const UEditableTextBox* Entry){return Entry && Entry->GetVisibility()==ESlateVisibility::Visible && (Entry->HasAnyUserFocus() || Entry->HasFocusedDescendants());};
+    return Focused(NameEntry)||Focused(PathEntry);
+}
+void URemasterUiWidget::CommitName(const FText& Text,ETextCommit::Type) {
+    if(UI && EditorScreen==1001){UI->NoteSessionTextCommit();UI->SetSessionText(Text.ToString(),true,EditorRevision);}
+}
+void URemasterUiWidget::CommitPath(const FText& Text,ETextCommit::Type) {
+    if(UI && EditorScreen==1002){UI->NoteSessionTextCommit();UI->SetSessionText(Text.ToString(),false,EditorRevision);}
+}
+
+void URemasterUiWidget::ChangeName(const FText& Text) { if(UI && EditorScreen==1001)UI->SetSessionText(Text.ToString(),true,EditorRevision); }
+void URemasterUiWidget::ChangePath(const FText& Text) { if(UI && EditorScreen==1002)UI->SetSessionText(Text.ToString(),false,EditorRevision); }

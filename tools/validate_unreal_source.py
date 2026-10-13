@@ -39,6 +39,7 @@ def main() -> int:
         "RemasterPlatformEmbed.cpp": "../../../core/src/platform.c",
         "RemasterMechanicsEmbed.cpp": "../../../core/src/mechanics.c",
         "RemasterEmeraldSaveEmbed.cpp": "../../../core/src/emerald_save.c",
+        "RemasterEmeraldNewGameEmbed.cpp": "../../../core/src/emerald_new_game.c",
         "RemasterEmeraldRtcEmbed.cpp": "../../../core/src/emerald_rtc.c",
         "RemasterEmeraldStateEmbed.cpp": "../../../core/src/emerald_state.c",
         "RemasterEmeraldQuestEmbed.cpp": "../../../core/src/emerald_quest.c",
@@ -487,7 +488,8 @@ def main() -> int:
     )
     require(
         '#include "RemasterRenderResourceSubsystem.h"' in world_actor
-        and "LoadTilesetResources(" in world_actor
+        and "LoadMapResources(" in world_actor
+        and "LoadedMap.PrimaryTileset,LoadedMap.SecondaryTileset" in world_actor
         and "UMaterialInstanceDynamic::Create(" in world_actor
         and 'TEXT("R5_TileIndexTexture")' in world_actor
         and 'TEXT("R5_PaletteTexture")' in world_actor

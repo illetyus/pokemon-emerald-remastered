@@ -92,7 +92,12 @@
     "r8_versioned_input_fixture_matrix",
     "r9_ui_authority_and_actions",
     "r9_ui_fixture_matrix",
-    "unreal_cpp_embed"
+    "unreal_cpp_embed",
+    "ap04_copy_first_save_import",
+    "ap04_session_lifecycle",
+    "ap04_new_game_source_prepare",
+    "ap04_new_game_persistent_init",
+    "ap04_frontend_and_source_truck"
   ],
   "required_python_modules": [
     "test_content_audit",
@@ -151,9 +156,13 @@
     "test_r8_lifecycle_wiring",
     "test_r8_repeat_wiring",
     "test_r9_ui",
-    "test_world_fingerprint"
+    "test_world_fingerprint",
+    "test_ap04_source_layout",
+    "test_ap04_new_game_prepare_source",
+    "test_ap04_new_game_init_source",
+    "test_ap04_session_source"
   ],
-  "minimum_python_tests": 408,
+  "minimum_python_tests": 503,
   "private_real_save_replay": "NOT_RUN_IN_CI",
   "actual_unreal_device_execution": false
 }

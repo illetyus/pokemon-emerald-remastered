@@ -534,13 +534,46 @@ static int vp_metadata_supported(const uint8_t *metadata)
 static int image_metadata_supported(
     const uint8_t *image, const RemasterEmeraldSaveValidation *validation)
 {
-    size_t sector;
+    uint16_t physical;
     if (validation->format == REMASTER_EMERALD_SAVE_FORMAT_STOCK)
         return 1;
-    /* Production SB1 VP5 lies in logical section 4, at 0x35D8-3*0xF80. */
-    sector = (size_t)validation->selected_slot * 14u
-        + (4u + validation->last_written_sector) % 14u;
-    return vp_metadata_supported(image + sector * 4096u + 0x758u);
+    /* Validation/reconstruction accept explicit section IDs, including a
+     * checksum-valid permutation. Find the actual logical section 4; the
+     * position of section 0 does not prove the other sections' rotation. */
+    for (physical = 0; physical < REMASTER_EMERALD_MAIN_SECTORS; ++physical) {
+        const size_t sector = (size_t)validation->selected_slot
+            * REMASTER_EMERALD_MAIN_SECTORS + physical;
+        const uint8_t *payload = image + sector * REMASTER_EMERALD_SECTOR_BYTES;
+        if (emerald_read_u16_le(payload + FOOTER_ID_OFFSET)
+            == SECTOR_ID_SAVEBLOCK1_END)
+            return vp_metadata_supported(payload + 0x758u);
+    }
+    return 0;
+}
+
+RemasterEmeraldSaveStatus remaster_emerald_save_import_image(
+    const uint8_t *image, size_t image_size, RemasterEmeraldSaveFormat format,
+    RemasterEmeraldSave *out_save)
+{
+    RemasterEmeraldSaveValidation validation;
+    RemasterEmeraldSave candidate;
+    RemasterEmeraldSaveStatus status;
+    if (format != REMASTER_EMERALD_SAVE_FORMAT_STOCK
+        && format != REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS)
+        return REMASTER_EMERALD_SAVE_UNSUPPORTED;
+    if (out_save == 0 || image == 0)
+        return REMASTER_EMERALD_SAVE_CORRUPT;
+    if (image_size != REMASTER_EMERALD_SAVE_IMAGE_BYTES)
+        return REMASTER_EMERALD_SAVE_UNSUPPORTED;
+    status = remaster_emerald_save_validate(image, image_size, format, &validation);
+    if (status != REMASTER_EMERALD_SAVE_OK && status != REMASTER_EMERALD_SAVE_DEGRADED)
+        return REMASTER_EMERALD_SAVE_CORRUPT;
+    if (!image_metadata_supported(image, &validation))
+        return REMASTER_EMERALD_SAVE_UNSUPPORTED;
+    status = remaster_emerald_save_decode_format(image, image_size, format, &candidate);
+    if (status == REMASTER_EMERALD_SAVE_OK || status == REMASTER_EMERALD_SAVE_DEGRADED)
+        *out_save = candidate;
+    return status;
 }
 
 static RemasterEmeraldSaveStatus clear_load_result(

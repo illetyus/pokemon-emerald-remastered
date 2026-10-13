@@ -14,6 +14,8 @@ struct FRemasterTilesetRenderResources
     int32 TileSheetWidth = 0;
     int32 TileSheetHeight = 0;
     int32 TilesPerRow = 0;
+    int32 PrimaryTileCount = 0;
+    int32 SecondaryTileCount = 0;
 
     bool IsValid() const
     {
@@ -39,6 +41,9 @@ public:
         const FString& TilesetId,
         FRemasterTilesetRenderResources& OutResources,
         FString& OutError);
+
+    bool LoadMapResources(const FString& PrimaryId, const FString& SecondaryId,
+        FRemasterTilesetRenderResources& OutResources, FString& OutError);
 
 private:
     UTexture2D* CreateIndexTexture(

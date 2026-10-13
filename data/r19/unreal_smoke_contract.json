@@ -7,19 +7,19 @@
   "producers": [
     {
       "path": "unreal/Source/PokemonEmeraldRemastered/RemasterVanillaPlusSaveSubsystem.cpp",
-      "blob_sha": "2e12f9dc042cd625fc183be68f97083ff2c3dc68"
+      "blob_sha": "a9c81dee075653256ad5ca4f8624d85a00a47bfa"
     },
     {
       "path": "unreal/Source/PokemonEmeraldRemastered/RemasterWorldGameplaySubsystem.cpp",
-      "blob_sha": "1fef2fde354e9749a4752746284895e32c66a3e0"
+      "blob_sha": "c6376615e96af43b696ea6098049233fded1700c"
     },
     {
       "path": "unreal/Source/PokemonEmeraldRemastered/RemasterWorldActor.cpp",
-      "blob_sha": "95eff0c6fd836cf129aec4315406891d14e44151"
+      "blob_sha": "5315e5c41ce1d3ce991809c9ec6afd05e5f1063d"
     },
     {
       "path": "unreal/Source/PokemonEmeraldRemastered/RemasterVanillaPlusSaveSubsystem.h",
-      "blob_sha": "6c498ea4406bb04b0ae1873c4364c29e5b528174"
+      "blob_sha": "9eba6fd429595a618f5fc5b26ba803e022a39cd2"
     }
   ],
   "markers": [

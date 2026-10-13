@@ -24,8 +24,8 @@ enum class Action { Up, Down, Left, Right, Confirm, Cancel, Menu, Map, Quest, Qu
 enum class Command { None, Open, SelectParty, SelectItem, Sort, AutoSort,
     RegisterItem, UnregisterItem, Relearn, SelectMove, ReplaceMove, Nickname,
     ToggleText, ToggleRepeat, RtcDays, RtcHours, RtcMinutes, ApplyRtc, Save,
-    Load, DialogueComplete, FieldItem };
-enum class Effect { None, Save, Load, ApplyRtc, Nickname, FieldItem, DialogueComplete };
+    Load, DialogueComplete, FieldItem, ReturnTitle };
+enum class Effect { None, Save, Load, ApplyRtc, Nickname, FieldItem, DialogueComplete, ReturnTitle };
 struct Row {
     std::string label;
     Command command = Command::None;

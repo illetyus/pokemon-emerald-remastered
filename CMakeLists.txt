@@ -10,6 +10,7 @@ add_library(remaster_core STATIC
     core/src/platform.c
     core/src/mechanics.c
     core/src/emerald_save.c
+    core/src/emerald_new_game.c
     core/src/emerald_rtc.c
     core/src/emerald_state.c
     core/src/emerald_quest.c
@@ -79,6 +80,7 @@ add_executable(unreal_cpp_embed_smoke
     unreal/Source/PokemonEmeraldRemastered/RemasterPlatformEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterMechanicsEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldSaveEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldNewGameEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldRtcEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldStateEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldQuestEmbed.cpp
@@ -446,7 +448,7 @@ execute_process(
     RESULT_VARIABLE R11_DOMAIN_GENERATE_RESULT
 )
 if(NOT R11_DOMAIN_GENERATE_RESULT EQUAL 0)
-    message(FATAL_ERROR "Failed to generate R11 Pokémon domain catalog")
+    message(FATAL_ERROR "Failed to generate R11 PokÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©mon domain catalog")
 endif()
 
 target_include_directories(remaster_core
@@ -1251,3 +1253,99 @@ add_test(NAME r19_battle_seed_matrix COMMAND
     ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/r19_replay.py
     --probe $<TARGET_FILE:r19_battle_probe>
     --matrix ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/r19/battle.json)
+
+# AP04: actual native copy-first transport plus declared-format R17 decoding.
+add_executable(ap04_save_import_test tests/ap04_save_import_test.cpp)
+target_link_libraries(ap04_save_import_test PRIVATE remaster_core)
+target_include_directories(ap04_save_import_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(ap04_save_import_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(ap04_save_import_test PRIVATE /W4)
+else()
+    target_compile_options(ap04_save_import_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME ap04_copy_first_save_import COMMAND ap04_save_import_test)
+
+add_executable(ap04_session_lifecycle_test tests/ap04_session_lifecycle_test.cpp)
+target_include_directories(ap04_session_lifecycle_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/core/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_compile_features(ap04_session_lifecycle_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(ap04_session_lifecycle_test PRIVATE /W4)
+else()
+    target_compile_options(ap04_session_lifecycle_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME ap04_session_lifecycle COMMAND ap04_session_lifecycle_test)
+
+# AP04 source-bound preparation, with original C functions as a semantic oracle.
+# This target does not execute full NewGameInitData or establish UE runtime proof.
+set(AP04_NEW_GAME_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/ap04-new-game")
+set(AP04_NEW_GAME_ORACLE "${AP04_NEW_GAME_DIR}/original_bootstrap.c")
+add_custom_command(
+    OUTPUT "${AP04_NEW_GAME_ORACLE}" "${AP04_NEW_GAME_DIR}/catalog.inc"
+        "${AP04_NEW_GAME_DIR}/contract.json"
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/build_ap04_new_game_prepare.py
+        --source ${CMAKE_CURRENT_SOURCE_DIR}
+        --catalog "${AP04_NEW_GAME_DIR}/catalog.inc"
+        --oracle "${AP04_NEW_GAME_ORACLE}"
+        --contract "${AP04_NEW_GAME_DIR}/contract.json"
+    DEPENDS tools/build_ap04_new_game_prepare.py
+        vendor/vanillaplus/src/new_game.c vendor/vanillaplus/src/random.c
+        vendor/vanillaplus/src/main.c vendor/vanillaplus/src/naming_screen.c
+        vendor/vanillaplus/include/random.h vendor/vanillaplus/include/constants/global.h
+        vendor/vanillaplus/include/constants/layouts.h vendor/vanillaplus/charmap.txt
+        vendor/vanillaplus/data/maps/map_groups.json vendor/vanillaplus/data/layouts/layouts.json
+        vendor/vanillaplus/data/maps/InsideOfTruck/map.json
+    VERBATIM)
+add_executable(emerald_new_game_test tests/emerald_new_game_test.c "${AP04_NEW_GAME_ORACLE}")
+target_link_libraries(emerald_new_game_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_new_game_test PRIVATE /W4)
+else()
+    # Original GBA C intentionally narrows trainer-ID bytes; no altered functions.
+    target_compile_options(emerald_new_game_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME ap04_new_game_source_prepare COMMAND emerald_new_game_test)
+
+# Original unchanged RNG/NPC/mail functions; production ABI measured separately.
+set(AP04_INIT_ORACLE "${AP04_NEW_GAME_DIR}/full_domains.c")
+add_custom_command(
+    OUTPUT "${AP04_INIT_ORACLE}" "${AP04_NEW_GAME_DIR}/full_domains.h" "${AP04_NEW_GAME_DIR}/full_domains.json"
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/build_ap04_new_game_oracle.py
+        --source ${CMAKE_CURRENT_SOURCE_DIR}
+        --layout ${CMAKE_CURRENT_SOURCE_DIR}/data/ap04/new_game_layout.json
+        --output "${AP04_INIT_ORACLE}"
+    DEPENDS tools/build_ap04_new_game_oracle.py tools/build_ap04_new_game_init.py
+        tools/build_ap04_new_game_prepare.py data/ap04/new_game_layout.json
+    VERBATIM)
+add_executable(emerald_new_game_init_test tests/emerald_new_game_init_test.c "${AP04_INIT_ORACLE}")
+target_link_libraries(emerald_new_game_init_test PRIVATE remaster_core)
+target_include_directories(emerald_new_game_init_test PRIVATE "${AP04_NEW_GAME_DIR}")
+if(MSVC)
+    target_compile_options(emerald_new_game_init_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_new_game_init_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME ap04_new_game_persistent_init COMMAND emerald_new_game_init_test)
+
+set(AP04_TRUCK_ORACLE "${AP04_NEW_GAME_DIR}/original_truck.c")
+add_custom_command(OUTPUT "${AP04_TRUCK_ORACLE}" "${AP04_NEW_GAME_DIR}/original_truck.json"
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/build_ap04_truck_oracle.py
+        --source ${CMAKE_CURRENT_SOURCE_DIR} --output "${AP04_TRUCK_ORACLE}"
+    DEPENDS tools/build_ap04_truck_oracle.py tools/build_ap04_new_game_init.py
+        tools/build_ap04_new_game_prepare.py vendor/vanillaplus/src/field_special_scene.c
+    VERBATIM)
+add_executable(ap04_session_menu_test tests/ap04_session_menu_test.cpp "${AP04_TRUCK_ORACLE}")
+target_include_directories(ap04_session_menu_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/unreal/Source/PokemonEmeraldRemastered)
+target_link_libraries(ap04_session_menu_test PRIVATE remaster_core)
+target_compile_features(ap04_session_menu_test PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(ap04_session_menu_test PRIVATE /W4)
+else()
+    target_compile_options(ap04_session_menu_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    # Unchanged source EndTruckSequence intentionally ignores its taskId.
+    set_source_files_properties("${AP04_TRUCK_ORACLE}" PROPERTIES COMPILE_OPTIONS "-Wno-unused-parameter")
+endif()
+add_test(NAME ap04_frontend_and_source_truck COMMAND ap04_session_menu_test)

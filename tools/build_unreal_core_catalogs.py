@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Prepare the authoritative R11/R12/R13 C includes used by Unreal core embeds."""
 from pathlib import Path
+import hashlib
+import json
 import subprocess
 import sys
 
@@ -19,6 +21,15 @@ def main():
         subprocess.run([sys.executable, str(ROOT / 'tools' / script),
                         str(ROOT / 'vendor/vanillaplus'), str(output / include),
                         str(output / report)], cwd=ROOT, check=True, timeout=120)
+    head=subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD'],text=True).strip()
+    scopes=['core','unreal/Source','unreal/Config','tools/build_unreal_core_catalogs.py']
+    names=subprocess.check_output(['git','-C',str(ROOT),'ls-files','--cached','--others','--exclude-standard','--',*scopes],text=True).splitlines()
+    hashes={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in sorted(set(names))}
+    digest=hashlib.sha256(json.dumps(hashes,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+    dirty=bool(subprocess.check_output(['git','-C',str(ROOT),'status','--porcelain','--',*scopes],text=True).strip())
+    tag='#define REMASTER_AP04_HEAD "'+head+'"\n#define REMASTER_AP04_INPUT_SHA "'+digest+'"\n#define REMASTER_AP04_DIRTY '+str(int(dirty))+'\n'
+    (output/'remaster_ap04_build_tag.inc').write_bytes(tag.encode())
+    (output/'ap04_build_tag_receipt.json').write_bytes((json.dumps({'head':head,'inputs_sha256':digest,'dirty':dirty,'files':hashes},indent=2)+'\n').encode())
     return 0
 
 

@@ -1,4 +1,5 @@
 #include "RemasterNpcPresentationWorld.h"
+#include "RemasterGameSessionSubsystem.h"
 
 #include "Components/SceneComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -121,6 +122,8 @@ void ARemasterNpcPresentationWorld::Tick(float DeltaSeconds)
             continue;
         Actor->ApplyGraphicsId(Snapshot.GraphicsId);
         Actor->SetActorLocation(Renderer->TileToWorldLocation(Snapshot.X, Snapshot.Y, 0));
+        if(auto* Session=GI->GetSubsystem<URemasterGameSessionSubsystem>())
+            Actor->AddActorWorldOffset(Session->GetTruckBoxOffset(Snapshot.LocalId));
         // Elevation is a collision layer, not a measured world Z coordinate.
         // Facing/motion are not exposed by R4 and are not simulated here.
     }

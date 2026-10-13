@@ -8,6 +8,7 @@
 #include "RemasterEnvironmentMath.h"
 #include "RemasterVanillaPlusSaveSubsystem.h"
 #include "RemasterWorldActor.h"
+#include "RemasterGameSessionSubsystem.h"
 
 ARemasterCameraRig::ARemasterCameraRig()
 {
@@ -80,6 +81,8 @@ void ARemasterCameraRig::Tick(float DeltaSeconds)
     const bool bSnap = !bHasAuthoritativeTarget || LastMapRevision != Revision;
     const double Alpha = remaster::environment::follow_alpha(FollowSpeed, DeltaSeconds);
     SetActorLocation(bSnap ? Desired : FMath::Lerp(GetActorLocation(), Desired, Alpha));
+    if(auto* Session=GI->GetSubsystem<URemasterGameSessionSubsystem>())
+        Camera->SetRelativeLocation(Session->GetTruckCameraOffset());
     LastMapRevision = Revision;
     bHasAuthoritativeTarget = true;
     const FVector CameraPosition = GetActorLocation()
