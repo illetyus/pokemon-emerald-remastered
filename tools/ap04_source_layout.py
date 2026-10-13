@@ -181,7 +181,7 @@ def measure(root: Path, agbcc: Path, output: Path) -> dict:
         'map_groups.h':'/* Layout-only: no map IDs participate in save structs. */\n'}
     for name,text in shims.items():(shim/name).write_text(text,encoding='utf-8')
     probe=output/'probe.c'
-    probe.write_text('#include "global.h"\n#include "pokemon_storage_system.h"\n#include <stddef.h>\nconst unsigned ap04_layout[] = {\n'+',\n'.join(EXPRESSIONS.values())+'\n};\n'+''.join('const '+kind+' '+name+' = {'+initial+'};\n' for name,(kind,initial,size) in BIT_PROBES.items()),encoding='utf-8')
+    probe.write_text('#include "global.h"\n#include "pokemon_storage_system.h"\n#include "apprentice.h"\n#include <stddef.h>\nconst unsigned ap04_layout[] = {\n'+',\n'.join(EXPRESSIONS.values())+'\n};\n'+''.join('const '+kind+' '+name+' = {'+initial+'};\n' for name,(kind,initial,size) in BIT_PROBES.items()),encoding='utf-8')
     preprocessed=output/'probe.i';assembly=output/'probe.s'
     commands=[['gcc','-E','-P','-nostdinc','-DMODERN=0','-DVERSION=2',
         '-I'+str(shim),'-I'+str(compiler_source/'ginclude'),'-I'+str(source/'include'),
