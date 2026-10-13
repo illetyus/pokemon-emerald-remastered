@@ -1,5 +1,6 @@
 #include "RemasterSessionMenu.h"
 #include "RemasterTruckSequence.h"
+#include "RemasterRenderProvenance.h"
 #include <iostream>
 extern "C" {
 void ap04_source_truck_reset(void);
@@ -9,6 +10,16 @@ static unsigned checks,failures;
 static void check(bool ok,const char* message){++checks;if(!ok){if(failures<20)std::cerr<<message<<'\n';++failures;}}
 int main() {
     using namespace RemasterSession;
+    using namespace RemasterRenderProvenance;
+    const std::string sourceCommit="70db90c9077aed1272e746fc2537d9f12b95a91c";
+    const std::string payloadHash(64,'a');
+    check(GitCommit(sourceCommit),"real source manifest Git SHA1 passes provenance");
+    check(!Sha256(sourceCommit),"commit cannot stand in for a payload SHA256");
+    check(Sha256(payloadHash)&&!GitCommit(payloadHash),"payload and commit hash domains remain distinct");
+    for(const auto& bad:{std::string(),sourceCommit.substr(1),sourceCommit+"0",std::string(40,'g'),std::string(40,' ')})
+        check(!GitCommit(bad),"malformed source commit is rejected");
+    for(const auto& bad:{std::string(),payloadHash.substr(1),payloadHash+"0",std::string(64,'g'),std::string(64,' ')})
+        check(!Sha256(bad),"malformed content hash is rejected");
     Menu menu;menu.Build();check(!menu.frame.rows[0].enabled&&menu.frame.rows[1].enabled,"missing file offers New Game only");
     auto revision=menu.frame.revision;menu.Activate(1,revision);
     check(menu.screen==MenuScreen::NewGame,"source identity form opens");

@@ -29,6 +29,7 @@ void URemasterUiRowWidget::Configure(URemasterUISubsystem* InUI, int32 InIndex,
     WidgetTree->RootWidget = Size;
     UButton* Button = WidgetTree->ConstructWidget<URemasterUiButton>();
     Button->SetIsEnabled(bEnabled);
+    Button->SetBackgroundColor(FLinearColor(0.035f,0.09f,0.12f,1.0f));
     Size->AddChild(Button);
     UTextBlock* Text = WidgetTree->ConstructWidget<UTextBlock>();
     Text->SetText(FText::FromString((bSelected ? TEXT("› ") : TEXT("")) + Label.ToString()));
@@ -83,12 +84,14 @@ void URemasterUiWidget::NativeOnInitialized()
     Marker->SetBrushColor(FLinearColor(1.0f, 0.8f, 0.1f, 1.0f));
     MarkerSlot = Canvas->AddChildToCanvas(Marker);
     NameEntry=WidgetTree->ConstructWidget<UEditableTextBox>();
+    NameEntry->SetForegroundColor(FLinearColor::Black);
     NameEntry->SetHintText(FText::FromString(TEXT("Adın (1–7 karakter)")));
     NameEntry->SetClearKeyboardFocusOnCommit(true);NameEntry->SetSelectAllTextWhenFocused(true);
     Scrolled->AddChildToVerticalBox(NameEntry);
     NameEntry->OnTextChanged.AddDynamic(this,&URemasterUiWidget::ChangeName);
     NameEntry->OnTextCommitted.AddDynamic(this,&URemasterUiWidget::CommitName);
     PathEntry=WidgetTree->ConstructWidget<UEditableTextBox>();
+    PathEntry->SetForegroundColor(FLinearColor::Black);
     PathEntry->SetHintText(FText::FromString(TEXT("Kayıt dosyasının tam yolu")));
     PathEntry->SetClearKeyboardFocusOnCommit(true);PathEntry->SetSelectAllTextWhenFocused(true);
     Scrolled->AddChildToVerticalBox(PathEntry);
@@ -98,6 +101,7 @@ void URemasterUiWidget::NativeOnInitialized()
     USizeBox* BackSize = WidgetTree->ConstructWidget<USizeBox>(); BackSize->SetMinDesiredHeight(64.0f);
     Content->AddChildToVerticalBox(BackSize);
     BackButton = WidgetTree->ConstructWidget<URemasterUiButton>();
+    BackButton->SetBackgroundColor(FLinearColor(0.035f,0.09f,0.12f,1.0f));
     BackSize->AddChild(BackButton);
     UTextBlock* BackText = WidgetTree->ConstructWidget<UTextBlock>();
     BackText->SetText(FText::FromString(TEXT("Geri"))); BackButton->AddChild(BackText);
