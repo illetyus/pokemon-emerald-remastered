@@ -1,3 +1,5 @@
+import copy
+import json
 import importlib.util
 from pathlib import Path
 import sys
@@ -8,6 +10,17 @@ ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('ap04_source_layout',ROOT/'tools/ap04_source_layout.py')
 layout=importlib.util.module_from_spec(spec);sys.modules[spec.name]=layout;spec.loader.exec_module(layout)
 class SourceLayoutTests(unittest.TestCase):
+    def test_certificate_requires_every_measured_field_and_bit_pattern(self):
+        certificate=json.loads((ROOT/'data/ap04/new_game_layout.json').read_text())
+        layout.validate_certificate(certificate,certificate)
+        for kind in ['Fields','BitfieldDefaultBytes']:
+            for key in certificate[kind]:
+                report=copy.deepcopy(certificate);del report[kind][key]
+                with self.subTest(key=key),self.assertRaises(ValueError):
+                    layout.validate_certificate(report,certificate)
+        report=copy.deepcopy(certificate);report['CompilerBuiltFromSnapshot']=False
+        with self.assertRaises(ValueError):layout.validate_certificate(report,certificate)
+
     def test_named_data_blocks_decode_exact_little_endian_bytes(self):
         asm='other:\n.byte 9\nap04_bits:\n.byte 127\n.short 258\n.space 2\n.word 4294967295\n.size ap04_bits, .-ap04_bits\n'
         self.assertEqual(layout.parse_data(asm,'ap04_bits',9),b'\x7f\x02\x01\0\0\xff\xff\xff\xff')

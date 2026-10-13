@@ -28,7 +28,7 @@ jobs:
           git -C build/ap04-agbcc checkout --detach FETCH_HEAD
           test "$(git -C build/ap04-agbcc rev-parse HEAD)" = da598c1d918402c42c0c0d7128ba14567f3175e9
       - name: Build fresh compiler and measure immutable source structs with MODERN=0
-        run: python tools/ap04_source_layout.py --source . --agbcc build/ap04-agbcc --output build/ap04-layout
+        run: python tools/ap04_source_layout.py --source . --agbcc build/ap04-agbcc --output build/ap04-layout --certificate data/ap04/new_game_layout.json
       - name: Source-only field measurement receipt
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

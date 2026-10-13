@@ -448,7 +448,7 @@ execute_process(
     RESULT_VARIABLE R11_DOMAIN_GENERATE_RESULT
 )
 if(NOT R11_DOMAIN_GENERATE_RESULT EQUAL 0)
-    message(FATAL_ERROR "Failed to generate R11 PokÃ©mon domain catalog")
+    message(FATAL_ERROR "Failed to generate R11 PokÃƒÂ©mon domain catalog")
 endif()
 
 target_include_directories(remaster_core
@@ -1308,3 +1308,24 @@ else()
     target_compile_options(emerald_new_game_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME ap04_new_game_source_prepare COMMAND emerald_new_game_test)
+
+# Original unchanged RNG/NPC/mail functions; production ABI measured separately.
+set(AP04_INIT_ORACLE "${AP04_NEW_GAME_DIR}/full_domains.c")
+add_custom_command(
+    OUTPUT "${AP04_INIT_ORACLE}" "${AP04_NEW_GAME_DIR}/full_domains.h" "${AP04_NEW_GAME_DIR}/full_domains.json"
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/build_ap04_new_game_oracle.py
+        --source ${CMAKE_CURRENT_SOURCE_DIR}
+        --layout ${CMAKE_CURRENT_SOURCE_DIR}/data/ap04/new_game_layout.json
+        --output "${AP04_INIT_ORACLE}"
+    DEPENDS tools/build_ap04_new_game_oracle.py tools/build_ap04_new_game_init.py
+        tools/build_ap04_new_game_prepare.py data/ap04/new_game_layout.json
+    VERBATIM)
+add_executable(emerald_new_game_init_test tests/emerald_new_game_init_test.c "${AP04_INIT_ORACLE}")
+target_link_libraries(emerald_new_game_init_test PRIVATE remaster_core)
+target_include_directories(emerald_new_game_init_test PRIVATE "${AP04_NEW_GAME_DIR}")
+if(MSVC)
+    target_compile_options(emerald_new_game_init_test PRIVATE /W4)
+else()
+    target_compile_options(emerald_new_game_init_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME ap04_new_game_persistent_init COMMAND emerald_new_game_init_test)

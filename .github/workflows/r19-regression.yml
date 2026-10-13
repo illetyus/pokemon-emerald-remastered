@@ -50,7 +50,11 @@ jobs:
                    Path('build/generated/ap04-new-game/original_bootstrap.c'),
                    Path('build/generated/ap04-new-game/catalog.inc'),
                    Path('build/generated/ap04-new-game/contract.json'),
-                   Path('build/emerald_new_game_test')]
+                   Path('build/emerald_new_game_test'),
+                   Path('build/emerald_new_game_init_test'),
+                   Path('build/generated/ap04-new-game/full_domains.c'),
+                   Path('build/generated/ap04-new-game/full_domains.h'),
+                   Path('build/generated/ap04-new-game/full_domains.json')]
           receipt = {
               'version': 1,
               'checkout_sha': os.environ['REPLAY_CHECKOUT_SHA'],
@@ -77,5 +81,9 @@ jobs:
             build/generated/ap04-new-game/catalog.inc
             build/generated/ap04-new-game/contract.json
             build/emerald_new_game_test
+            build/emerald_new_game_init_test
+            build/generated/ap04-new-game/full_domains.c
+            build/generated/ap04-new-game/full_domains.h
+            build/generated/ap04-new-game/full_domains.json
           if-no-files-found: error
 

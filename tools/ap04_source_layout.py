@@ -114,6 +114,14 @@ def validate_anchors(values: dict[str,int]) -> None:
     for key,expected in ANCHORS.items():
         if values.get(key)!=expected:raise ValueError('production AGBCC anchor mismatch: '+key)
 
+def validate_certificate(report: dict, certificate: dict) -> None:
+    for key in ['SourceCommit','VendorTree','CompilerPin','Fields','BitfieldDefaultBytes']:
+        if report.get(key) != certificate.get(key):
+            raise ValueError('initialization layout certificate drift: '+key)
+    if not report.get('KnownProductionAnchorsVerified') or not report.get('CompilerBuiltFromSnapshot'):
+        raise ValueError('initialization requires actual production measurement')
+
+
 def sha(path: Path) -> str:
     with path.open('rb') as stream:
         digest=hashlib.sha256()
@@ -211,7 +219,9 @@ def measure(root: Path, agbcc: Path, output: Path) -> dict:
 def main() -> int:
     parser=argparse.ArgumentParser();parser.add_argument('--source',type=Path,required=True)
     parser.add_argument('--agbcc',type=Path,required=True);parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--certificate',type=Path)
     args=parser.parse_args();report=measure(args.source,args.agbcc,args.output)
+    if args.certificate:validate_certificate(report,json.loads(args.certificate.read_text()))
     print('AP04 production AGBCC layout: '+str(len(report['Fields']))+' fields, all known anchors verified; no ROM/gameplay/runtime claim')
     return 0
 if __name__=='__main__':raise SystemExit(main())

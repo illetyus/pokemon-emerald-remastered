@@ -64,6 +64,16 @@ int main()
     if (state.encounter_pending != 1u)
         return fail("encounter state mismatch");
 
+    static RemasterEmeraldSave init_work{}, init_save{};
+    RemasterEmeraldNewGameInitRequest init_request{};
+    RemasterEmeraldNewGameRuntime init_runtime{};
+    init_request.identity=request;
+    init_request.ranking_id_policy=REMASTER_EMERALD_NEW_GAME_SOURCE_UBFIX_ZERO_ID;
+    if (remaster_emerald_new_game_initialize(&init_request,&init_work,&init_save,&init_runtime)
+        != REMASTER_EMERALD_NEW_GAME_INITIALIZED || init_runtime.host_actions!=7
+        || init_save.status!=REMASTER_EMERALD_SAVE_EMPTY)
+        return fail("AP04 persistent initializer C++ embed mismatch");
+
     RemasterEmeraldSave save{};
     RemasterEmeraldObjectTemplate object_template{};
     RemasterEmeraldObjectTemplate observed_template{};
