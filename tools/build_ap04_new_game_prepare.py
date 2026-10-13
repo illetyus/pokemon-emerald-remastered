@@ -29,7 +29,7 @@ def function(text: str, name: str) -> str:
     # Mask comments and literals while preserving positions and true braces.
     mask=re.sub(r'/\*.*?\*/|//[^\n]*|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'',
         lambda m:''.join('\n' if c=='\n' else ' ' for c in m.group()),text,flags=re.S)
-    pattern=r'(?m)^[^\n;{}]*\b'+re.escape(name)+r'\s*\([^;{}]*\)\s*\{'
+    pattern=r'(?m)^[^\n;{}()]*\b'+re.escape(name)+r'\s*\([^;{}]*\)\s*\{'
     matches=list(re.finditer(pattern,mask))
     if len(matches)!=1: raise ValueError('one definition required: '+name)
     found=matches[0];begin=mask.index('{',found.start());end=begin+1;depth=1

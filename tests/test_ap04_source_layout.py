@@ -8,6 +8,15 @@ ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('ap04_source_layout',ROOT/'tools/ap04_source_layout.py')
 layout=importlib.util.module_from_spec(spec);sys.modules[spec.name]=layout;spec.loader.exec_module(layout)
 class SourceLayoutTests(unittest.TestCase):
+    def test_named_data_blocks_decode_exact_little_endian_bytes(self):
+        asm='other:\n.byte 9\nap04_bits:\n.byte 127\n.short 258\n.space 2\n.word 4294967295\n.size ap04_bits, .-ap04_bits\n'
+        self.assertEqual(layout.parse_data(asm,'ap04_bits',9),b'\x7f\x02\x01\0\0\xff\xff\xff\xff')
+    def test_bad_named_data_blocks_fail_closed(self):
+        for asm,size in [('bad:\n.byte 1\n',1),('ap04_bits:\n.word external\n',4),
+                ('ap04_bits:\n.byte 1\n',2),('ap04_bits:\n.space 65537\n',1),
+                ('ap04_bits:\n.byte 1\nap04_bits:\n.byte 2\n',1)]:
+            with self.subTest(asm=asm),self.assertRaises(ValueError):
+                layout.parse_data(asm,'ap04_bits',size)
     def test_only_named_probe_array_is_read(self):
         text='unrelated:\n.word 99\nap04_layout:\n.word 15816\n.word 3908\n.size ap04_layout, .-ap04_layout\nother:\n.word 77\n'
         self.assertEqual(layout.parse_words(text,2),[15816,3908])

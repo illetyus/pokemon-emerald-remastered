@@ -82,6 +82,10 @@ class NewGameSourceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             prepare.derive(files)
 
+    def test_condition_call_is_not_a_function_definition(self):
+        text='void other(void) { if (f(1)) { } }\nint f(int x) { return x; }\n'
+        self.assertEqual(prepare.function(text,'f'),'int f(int x) { return x; }')
+
     def test_function_parser_ignores_comments_literals_and_rejects_ambiguity(self):
         text = '/* f() { } */\nvoid f(void) { const char *s="}"; /* { */ if(1) { } }\n'
         self.assertEqual(prepare.function(text, 'f'), text.split('\n')[1])

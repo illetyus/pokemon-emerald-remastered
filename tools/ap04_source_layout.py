@@ -39,6 +39,62 @@ for name,kind in [('old_man','OldMan'),('lady','LilycoveLady'),('contest_winner'
     ('ranking_2p','struct RankingHall2P'),('player_apprentice','struct PlayersApprentice')]:
     EXPRESSIONS[name+'.bytes']='sizeof('+kind+')'
 
+
+# Additional persistent fields needed by canonical NewGameInitData.
+for prefix,kind,names in [
+    ('sb1','struct SaveBlock1','money coins unlockedTrendySayings linkBattleRecords'),
+    ('sb2','struct SaveBlock2','optionsButtonMode'),
+    ('gabby','struct GabbyAndTyData','quote'),
+    ('walda','struct WaldaPhrase','colors text'),
+    ('trend','struct DewfordTrend','rand words'),
+    ('apprentice','struct Apprentice','numQuestions number'),
+    ('quiz','struct LilycoveLadyQuiz','question correctAnswer playerAnswer playerName prize questionId prevQuestionId language'),
+    ('favor','struct LilycoveLadyFavor','playerName favorId bestItem language'),
+    ('contest_lady','struct LilycoveLadyContest','playerName category language'),
+    ('berry_tree','struct BerryTree','berry minutesUntilNextStage berryYield'),
+    ('link_record','struct LinkBattleRecord','name'),
+    ('sb1','struct SaveBlock1','waldaPhrase.text trainerHillTimes')]:
+    for field in names.split():EXPRESSIONS[prefix+'.'+field]='offsetof('+kind+', '+field+')'
+for name,kind in [('berry_tree','struct BerryTree'),('link_record','struct LinkBattleRecord')]:
+    EXPRESSIONS[name+'.bytes']='sizeof('+kind+')'
+
+BIT_PROBES={
+    'ap04_option_bits':('struct SaveBlock2','.optionsTextSpeed = 1','sb2.bytes'),
+    'ap04_apprentice_bits':('struct Apprentice','.id = NUM_APPRENTICES','apprentice.bytes'),
+    'ap04_berry_bits':('struct BerryTree','.stage = BERRY_STAGE_BERRIES, .stopGrowth = 1','berry_tree.bytes'),
+    'ap04_trend_current':('struct DewfordTrend','.trendiness = 127','trend.bytes'),
+    'ap04_trend_max':('struct DewfordTrend','.maxTrendiness = 127','trend.bytes'),
+    'ap04_trend_gaining':('struct DewfordTrend','.gainingTrendiness = 1','trend.bytes')}
+
+def parse_data(text: str, label: str, size: int) -> bytes:
+    if size<1 or size>65536: raise ValueError('bounded data size required')
+    starts=list(re.finditer(r'(?m)^'+re.escape(label)+r':\s*$',text))
+    if len(starts)!=1: raise ValueError('one named data block required: '+label)
+    body=text[starts[0].end():]
+    stop=re.search(r'(?m)^\s*\.size\s+'+re.escape(label)+r'\b|^[A-Za-z_][\w.]*:\s*$',body)
+    if stop:body=body[:stop.start()]
+    data=bytearray()
+    for line in body.splitlines():
+        line=line.split('@')[0].strip()
+        if not line:continue
+        m=re.fullmatch(r'\.(byte|short|hword|word|space|skip|zero)\s+(.+)',line)
+        if not m:raise ValueError('nonconstant named data directive: '+line)
+        directive,raw=m.groups()
+        parts=[p.strip() for p in raw.split(',')]
+        if any(not re.fullmatch(r'-?(?:0[xX][0-9a-fA-F]+|\d+)',p) for p in parts):
+            raise ValueError('nonconstant data value')
+        values=[int(p,0) for p in parts]
+        if directive in ('space','skip','zero'):
+            if len(values)!=1 or values[0]<0 or values[0]>size-len(data):raise ValueError('oversized fill')
+            data.extend(bytes(values[0]))
+        else:
+            width={'byte':1,'short':2,'hword':2,'word':4}[directive]
+            for value in values:
+                if len(data)+width>size:raise ValueError('oversized data')
+                data.extend((value&((1<<(width*8))-1)).to_bytes(width,'little'))
+    if len(data)!=size:raise ValueError('truncated data')
+    return bytes(data)
+
 def parse_words(text: str, count: int) -> list[int]:
     starts=list(re.finditer(r'(?m)^ap04_layout:\s*$',text))
     if len(starts)!=1:raise ValueError('one named ap04_layout array required')
@@ -125,7 +181,7 @@ def measure(root: Path, agbcc: Path, output: Path) -> dict:
         'map_groups.h':'/* Layout-only: no map IDs participate in save structs. */\n'}
     for name,text in shims.items():(shim/name).write_text(text,encoding='utf-8')
     probe=output/'probe.c'
-    probe.write_text('#include "global.h"\n#include "pokemon_storage_system.h"\n#include <stddef.h>\nconst unsigned ap04_layout[] = {\n'+',\n'.join(EXPRESSIONS.values())+'\n};\n',encoding='utf-8')
+    probe.write_text('#include "global.h"\n#include "pokemon_storage_system.h"\n#include <stddef.h>\nconst unsigned ap04_layout[] = {\n'+',\n'.join(EXPRESSIONS.values())+'\n};\n'+''.join('const '+kind+' '+name+' = {'+initial+'};\n' for name,(kind,initial,size) in BIT_PROBES.items()),encoding='utf-8')
     preprocessed=output/'probe.i';assembly=output/'probe.s'
     commands=[['gcc','-E','-P','-nostdinc','-DMODERN=0','-DVERSION=2',
         '-I'+str(shim),'-I'+str(compiler_source/'ginclude'),'-I'+str(source/'include'),
@@ -147,7 +203,7 @@ def measure(root: Path, agbcc: Path, output: Path) -> dict:
         'MODERN':0,'AssemblySHA256':sha(assembly),'ProbeSHA256':sha(probe),
         'Commands':commands,'SourceInputsFromGitBlobs':True,
         'SourceHeaderHashes':{'vendor/vanillaplus/'+p:h for p,h in header_hashes.items()},
-        'Fields':values,'KnownProductionAnchorsVerified':True,
+        'Fields':values,'BitfieldDefaultBytes':{name:parse_data(text,name,values[size]).hex() for name,(kind,initial,size) in BIT_PROBES.items()},'KnownProductionAnchorsVerified':True,
         'ROMBuilt':False,'NewGameInitializationVerified':False,'UnrealRuntimeVerified':False}
     (output/'layout.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     return report
