@@ -39,6 +39,7 @@ def main() -> int:
         "RemasterPlatformEmbed.cpp": "../../../core/src/platform.c",
         "RemasterMechanicsEmbed.cpp": "../../../core/src/mechanics.c",
         "RemasterEmeraldSaveEmbed.cpp": "../../../core/src/emerald_save.c",
+        "RemasterEmeraldNewGameEmbed.cpp": "../../../core/src/emerald_new_game.c",
         "RemasterEmeraldRtcEmbed.cpp": "../../../core/src/emerald_rtc.c",
         "RemasterEmeraldStateEmbed.cpp": "../../../core/src/emerald_state.c",
         "RemasterEmeraldQuestEmbed.cpp": "../../../core/src/emerald_quest.c",

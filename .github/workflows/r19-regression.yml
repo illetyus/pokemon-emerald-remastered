@@ -46,7 +46,11 @@ jobs:
           files = [Path('build/libremaster_core.a'),
                    Path('build/generated/r2_littleroot_generated.c'),
                    Path('build/generated/r4_littleroot_world_generated.c'),
-                   Path('build/r19-full-suite-receipt.json'), Path('build/r19-full-native.xml')]
+                   Path('build/r19-full-suite-receipt.json'), Path('build/r19-full-native.xml'),
+                   Path('build/generated/ap04-new-game/original_bootstrap.c'),
+                   Path('build/generated/ap04-new-game/catalog.inc'),
+                   Path('build/generated/ap04-new-game/contract.json'),
+                   Path('build/emerald_new_game_test')]
           receipt = {
               'version': 1,
               'checkout_sha': os.environ['REPLAY_CHECKOUT_SHA'],
@@ -69,5 +73,9 @@ jobs:
             build/r19-replay-build-receipt.json
             build/r19-full-suite-receipt.json
             build/r19-full-native.xml
+            build/generated/ap04-new-game/original_bootstrap.c
+            build/generated/ap04-new-game/catalog.inc
+            build/generated/ap04-new-game/contract.json
+            build/emerald_new_game_test
           if-no-files-found: error
 

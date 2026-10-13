@@ -10,6 +10,7 @@ add_library(remaster_core STATIC
     core/src/platform.c
     core/src/mechanics.c
     core/src/emerald_save.c
+    core/src/emerald_new_game.c
     core/src/emerald_rtc.c
     core/src/emerald_state.c
     core/src/emerald_quest.c
@@ -79,6 +80,7 @@ add_executable(unreal_cpp_embed_smoke
     unreal/Source/PokemonEmeraldRemastered/RemasterPlatformEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterMechanicsEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldSaveEmbed.cpp
+    unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldNewGameEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldRtcEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldStateEmbed.cpp
     unreal/Source/PokemonEmeraldRemastered/RemasterEmeraldQuestEmbed.cpp
@@ -1276,3 +1278,33 @@ else()
     target_compile_options(ap04_session_lifecycle_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME ap04_session_lifecycle COMMAND ap04_session_lifecycle_test)
+
+# AP04 source-bound preparation, with original C functions as a semantic oracle.
+# This target does not execute full NewGameInitData or establish UE runtime proof.
+set(AP04_NEW_GAME_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/ap04-new-game")
+set(AP04_NEW_GAME_ORACLE "${AP04_NEW_GAME_DIR}/original_bootstrap.c")
+add_custom_command(
+    OUTPUT "${AP04_NEW_GAME_ORACLE}" "${AP04_NEW_GAME_DIR}/catalog.inc"
+        "${AP04_NEW_GAME_DIR}/contract.json"
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/build_ap04_new_game_prepare.py
+        --source ${CMAKE_CURRENT_SOURCE_DIR}
+        --catalog "${AP04_NEW_GAME_DIR}/catalog.inc"
+        --oracle "${AP04_NEW_GAME_ORACLE}"
+        --contract "${AP04_NEW_GAME_DIR}/contract.json"
+    DEPENDS tools/build_ap04_new_game_prepare.py
+        vendor/vanillaplus/src/new_game.c vendor/vanillaplus/src/random.c
+        vendor/vanillaplus/src/main.c vendor/vanillaplus/src/naming_screen.c
+        vendor/vanillaplus/include/random.h vendor/vanillaplus/include/constants/global.h
+        vendor/vanillaplus/include/constants/layouts.h vendor/vanillaplus/charmap.txt
+        vendor/vanillaplus/data/maps/map_groups.json vendor/vanillaplus/data/layouts/layouts.json
+        vendor/vanillaplus/data/maps/InsideOfTruck/map.json
+    VERBATIM)
+add_executable(emerald_new_game_test tests/emerald_new_game_test.c "${AP04_NEW_GAME_ORACLE}")
+target_link_libraries(emerald_new_game_test PRIVATE remaster_core)
+if(MSVC)
+    target_compile_options(emerald_new_game_test PRIVATE /W4)
+else()
+    # Original GBA C intentionally narrows trainer-ID bytes; no altered functions.
+    target_compile_options(emerald_new_game_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME ap04_new_game_source_prepare COMMAND emerald_new_game_test)
