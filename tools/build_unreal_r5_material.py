@@ -77,7 +77,10 @@ float2 tileOrigin = float2(fmod(id, Columns), floor(id / Columns)) * Pixels;
 float2 atlasUV = (tileOrigin + local + 0.5) / float2(Width, Height);
 float index = floor(Texture2DSample(IndexTex, IndexTexSampler, atlasUV).r * 255.0 + 0.5);
 float palette = floor(tile.y + 0.5);
-return Texture2DSample(PaletteTex, PaletteTexSampler, float2((index + 0.5) / 16.0, (palette + 0.5) / 16.0));
+float4 color = Texture2DSample(PaletteTex, PaletteTexSampler, float2((index + 0.5) / 16.0, (palette + 0.5) / 16.0));
+// The immutable RGB palette LUT is opaque; GBA transparency belongs to the pixel index.
+color.a = index == 0.0 ? 0.0 : color.a;
+return color;
 '''
 custom.set_editor_property('code',code)
 for pin,entry in inputs.items():
@@ -98,6 +101,8 @@ receipt={'Asset':material.get_path_name(),'BuilderSHA256':hashlib.sha256(Path(__
     'ScalarParameters':['R5_TileSheetWidth','R5_TileSheetHeight','R5_TilesPerRow','R5_SourceTilePixels'],
     'PerInstanceIndices':list(range(16)),'VertexInterpolatorVectors':4,'SourceTilesPrimary':512,'SourcePalettesPrimary':6,
     'ActualEditorCreatedAndSaved':True,'PersistentReloadVerified':False,'GPUVisualVerified':False,'InputArtImported':False,
+    'TransparentPaletteIndex':0,'PaletteLutBytesUnchanged':True,
+    'IndexedTransparencyReference':'https://gbadev.net/tonc/objbg.html',
     'Documentation':'https://dev.epicgames.com/documentation/unreal-engine/custom-material-expressions-in-unreal-engine?lang=en-US'}
 (evidence/'material-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
 unreal.log('AP04_R5_INDEXED_MATERIAL_SAVED '+material.get_path_name())
