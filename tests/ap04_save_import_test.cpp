@@ -1,4 +1,6 @@
 #include "RemasterSaveImport.h"
+#include "remaster/platform.h"
+#include <algorithm>
 #include <chrono>
 #include <cstring>
 #include <filesystem>
@@ -39,6 +41,24 @@ static std::vector<uint8_t> fixture(bool stock, bool future = false) {
             |(static_cast<uint32_t>(p[i+2])<<16)|(static_cast<uint32_t>(p[i+3])<<24);
         put16(p+4084,id); put16(p+4086,(sum>>16)+(sum&65535));
         put32(p+4088,0x08012025); put32(p+4092,slot ? 41 : 40);
+    }
+    return image;
+}
+static std::vector<uint8_t> platformImage;
+static unsigned platformWrites;
+static RemasterSaveReadResult memoryRead(void*,const char*,uint8_t* buffer,size_t capacity,size_t* size) {
+    *size=platformImage.size();
+    if (*size<=capacity) std::memcpy(buffer,platformImage.data(),*size);
+    return REMASTER_SAVE_READ_OK;
+}
+static int memoryWrite(void*,const char*,const uint8_t* buffer,size_t size) {
+    ++platformWrites; platformImage.assign(buffer,buffer+size); return 1;
+}
+static std::vector<uint8_t> permuted(std::vector<uint8_t> image) {
+    for(unsigned slot=0;slot<2;++slot) {
+        auto first=image.begin()+(slot*14+7)*4096; // logical section4, rotation3
+        auto second=image.begin()+(slot*14+8)*4096; // logical section5, rotation3
+        std::swap_ranges(first,first+4096,second); // keep complete headers/checksums intact
     }
     return image;
 }
@@ -94,6 +114,31 @@ int main() {
     attempt(source,copy,REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS,REMASTER_EMERALD_SAVE_UNSUPPORTED,true);
     check(read(copy)==future && read(source)==future,"future data quarantined unchanged");
     check(fs::remove(copy),"remove future test copy");
+    const auto shuffledFuture=permuted(future);
+    check(write(source,shuffledFuture),"checksum-valid noncanonical sector permutation fixture");
+    attempt(source,copy,REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS,REMASTER_EMERALD_SAVE_UNSUPPORTED,true);
+    check(read(copy)==shuffledFuture && read(source)==shuffledFuture,"permuted future metadata quarantined unchanged");
+    check(fs::remove(copy),"remove permuted future test copy");
+    const auto shuffledValid=permuted(valid);
+    check(write(source,shuffledValid),"supported noncanonical permutation fixture");
+    attempt(source,copy,REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS,REMASTER_EMERALD_SAVE_OK,true);
+    check(read(copy)==shuffledValid && output.counter==41,"supported explicit-sector decoding remains valid");
+    check(fs::remove(copy),"remove permuted valid test copy");
+    RemasterPlatformVTable table{};table.save_read_result=memoryRead;table.save_write=memoryWrite;
+    remaster_platform_install(&table);platformImage=shuffledFuture;platformWrites=0;
+    std::vector<uint8_t> scratch(131072);
+    RemasterEmeraldSave loaded{},stored{};
+    check(remaster_emerald_save_load_platform_format("owned",scratch.data(),scratch.size(),
+        REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS,&loaded)==REMASTER_EMERALD_SAVE_UNSUPPORTED,
+        "platform load checks actual logical section4 metadata");
+    check(remaster_emerald_save_decode_format(valid.data(),valid.size(),
+        REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS,&stored)==REMASTER_EMERALD_SAVE_OK,"valid pending wrapper");
+    const auto storedBefore=stored;
+    check(!remaster_emerald_save_store_platform("owned",scratch.data(),scratch.size(),&stored),
+        "store cannot replace unsupported permuted on-disk image");
+    check(platformWrites==0 && platformImage==shuffledFuture && !std::memcmp(&stored,&storedBefore,sizeof stored),
+        "future source rejection preserves file, counter and complete pending wrapper");
+    remaster_platform_install(nullptr);
     auto degraded=valid; degraded[3*4096+6]^=1;
     check(write(source,degraded),"single-slot fallback fixture");
     attempt(source,copy,REMASTER_EMERALD_SAVE_FORMAT_VANILLAPLUS,REMASTER_EMERALD_SAVE_DEGRADED,true);

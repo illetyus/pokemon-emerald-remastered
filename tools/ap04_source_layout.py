@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+from pathlib import PurePosixPath
 import subprocess
 
 AGBCC_PIN='da598c1d918402c42c0c0d7128ba14567f3175e9'
@@ -63,13 +64,60 @@ def sha(path: Path) -> str:
         for chunk in iter(lambda:stream.read(1024*1024),b''):digest.update(chunk)
     return digest.hexdigest()
 
+def export_tree(repo: Path, tree: str, destination: Path,
+                prefixes: tuple[str, ...] = ()) -> dict[str, str]:
+    """Read immutable Git blobs, never working-tree files or generated output."""
+    if destination.exists():
+        raise ValueError('fresh snapshot directory required')
+    entries = subprocess.check_output(['git', '-C', str(repo), 'ls-tree',
+        '-r', '-z', tree, '--', *prefixes]).split(b'\0')
+    parsed = []
+    for entry in entries:
+        if not entry: continue
+        metadata, raw_path = entry.split(b'\t', 1)
+        mode, kind, oid = metadata.decode('ascii').split()
+        name = raw_path.decode('utf-8')
+        path = PurePosixPath(name)
+        if (mode not in ('100644', '100755') or kind != 'blob'
+                or path.is_absolute() or '..' in path.parts or '\\' in name):
+            raise ValueError('unsupported snapshot input: ' + name)
+        parsed.append((path, oid, mode))
+    if not parsed: raise ValueError('empty source snapshot')
+    destination.mkdir(parents=True)
+    hashes = {}
+    for relative, oid, mode in parsed:
+        blob = subprocess.check_output(['git', '-C', str(repo), 'cat-file', 'blob', oid])
+        # Bind actual bytes to the exact tree object, independently of checkout EOL.
+        if hashlib.sha1(b'blob ' + str(len(blob)).encode() + b'\0' + blob).hexdigest() != oid:
+            raise ValueError('Git blob identity mismatch: ' + str(relative))
+        target = destination.joinpath(*relative.parts)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(blob)
+        if mode == '100755': target.chmod(0o755)
+        hashes[relative.as_posix()] = hashlib.sha256(blob).hexdigest()
+    return hashes
+
 def measure(root: Path, agbcc: Path, output: Path) -> dict:
     root=root.resolve();agbcc=agbcc.resolve();output=output.resolve()
     compiler_head=subprocess.check_output(['git','-C',str(agbcc),'rev-parse','HEAD'],text=True).strip()
     source_tree=subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD:vendor/vanillaplus'],text=True).strip()
     if compiler_head!=AGBCC_PIN or source_tree!=SOURCE_TREE:raise ValueError('compiler/vendor pin drift')
-    source=root/'vendor/vanillaplus';output.mkdir(parents=True,exist_ok=True)
-    shim=output/'shim';shim.mkdir(exist_ok=True)
+    if output.exists(): raise ValueError('fresh measurement output required')
+    output.mkdir(parents=True)
+    source=output/'source'
+    header_hashes=export_tree(root,source_tree,source,('include','gflib'))
+    compiler_source=output/'compiler'
+    compiler_tree=subprocess.check_output(['git','-C',str(agbcc),
+        'rev-parse',AGBCC_PIN+'^{tree}'],text=True).strip()
+    compiler_inputs=export_tree(agbcc,compiler_tree,compiler_source,('gcc','ginclude'))
+    if (compiler_source/'gcc/agbcc').exists():
+        raise ValueError('compiler tree unexpectedly contains an executable')
+    build_command=['make','-C',str(compiler_source/'gcc'),'-j1']
+    with (output/'compiler-build.log').open('wb') as log:
+        subprocess.run(build_command,stdout=log,stderr=log,check=True,timeout=600)
+    compiler=compiler_source/'gcc/agbcc'
+    if not compiler.is_file(): raise ValueError('fresh compiler binary missing')
+    shim=output/'shim';shim.mkdir()
     shims={
         'stdint.h':'typedef unsigned char uint8_t; typedef signed char int8_t;\ntypedef unsigned short uint16_t; typedef signed short int16_t;\ntypedef unsigned int uint32_t; typedef signed int int32_t;\ntypedef unsigned long long uint64_t; typedef signed long long int64_t;\n',
         'string.h':'#include <stddef.h>\nvoid *memset(void *, int, size_t); void *memcpy(void *, const void *, size_t); int memcmp(const void *, const void *, size_t);\n',
@@ -80,9 +128,9 @@ def measure(root: Path, agbcc: Path, output: Path) -> dict:
     probe.write_text('#include "global.h"\n#include "pokemon_storage_system.h"\n#include <stddef.h>\nconst unsigned ap04_layout[] = {\n'+',\n'.join(EXPRESSIONS.values())+'\n};\n',encoding='utf-8')
     preprocessed=output/'probe.i';assembly=output/'probe.s'
     commands=[['gcc','-E','-P','-nostdinc','-DMODERN=0','-DVERSION=2',
-        '-I'+str(shim),'-I'+str(agbcc/'ginclude'),'-I'+str(source/'include'),
+        '-I'+str(shim),'-I'+str(compiler_source/'ginclude'),'-I'+str(source/'include'),
         '-I'+str(source/'gflib'),str(probe)],
-        [str(agbcc/'gcc/agbcc'),str(preprocessed),'-mthumb-interwork','-O2','-o',str(assembly)]]
+        [str(compiler),str(preprocessed),'-mthumb-interwork','-O2','-o',str(assembly)]]
     with preprocessed.open('wb') as stdout, (output/'preprocess.log').open('wb') as stderr:
         subprocess.run(commands[0],stdout=stdout,stderr=stderr,check=True,timeout=60)
     with (output/'compiler.log').open('wb') as log:
@@ -91,12 +139,14 @@ def measure(root: Path, agbcc: Path, output: Path) -> dict:
     if 'gcc2.9-arm' not in text.replace(' ',''):raise ValueError('actual AGBCC assembly identity absent')
     values=dict(zip(EXPRESSIONS,parse_words(text,len(EXPRESSIONS))))
     validate_anchors(values)
-    touched=subprocess.check_output(['git','-C',str(root),'ls-files','vendor/vanillaplus/include','vendor/vanillaplus/gflib'],text=True).splitlines()
-    report={'Schema':'remaster.ap04.agbcc-layout','Version':1,'SourceCommit':SOURCE_PIN,
+    report={'Schema':'remaster.ap04.agbcc-layout','Version':2,'SourceCommit':SOURCE_PIN,
         'VendorTree':source_tree,'CheckoutHead':subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip(),
-        'CompilerPin':compiler_head,'CompilerBinarySHA256':sha(agbcc/'gcc/agbcc'),
+        'CompilerPin':compiler_head,'CompilerTree':compiler_tree,
+        'CompilerBinarySHA256':sha(compiler),'CompilerBuiltFromSnapshot':True,
+        'CompilerInputHashes':compiler_inputs,'CompilerBuildCommand':build_command,
         'MODERN':0,'AssemblySHA256':sha(assembly),'ProbeSHA256':sha(probe),
-        'Commands':commands,'SourceHeaderHashes':{p:sha(root/p) for p in touched},
+        'Commands':commands,'SourceInputsFromGitBlobs':True,
+        'SourceHeaderHashes':{'vendor/vanillaplus/'+p:h for p,h in header_hashes.items()},
         'Fields':values,'KnownProductionAnchorsVerified':True,
         'ROMBuilt':False,'NewGameInitializationVerified':False,'UnrealRuntimeVerified':False}
     (output/'layout.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')

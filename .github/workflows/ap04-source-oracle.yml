@@ -20,15 +20,14 @@ jobs:
           persist-credentials: false
       - name: Layout parser and production-anchor negatives
         run: python -B tests/test_ap04_source_layout.py
-      - name: Build only pinned production AGBCC compiler
+      - name: Fetch pinned production AGBCC source
         run: |
           git init build/ap04-agbcc
           git -C build/ap04-agbcc remote add origin https://github.com/pret/agbcc.git
           git -C build/ap04-agbcc fetch --depth 1 origin da598c1d918402c42c0c0d7128ba14567f3175e9
           git -C build/ap04-agbcc checkout --detach FETCH_HEAD
           test "$(git -C build/ap04-agbcc rev-parse HEAD)" = da598c1d918402c42c0c0d7128ba14567f3175e9
-          make -C build/ap04-agbcc/gcc -j1 > build/ap04-agbcc-build.log 2>&1
-      - name: Measure unchanged source structs with MODERN=0
+      - name: Build fresh compiler and measure immutable source structs with MODERN=0
         run: python tools/ap04_source_layout.py --source . --agbcc build/ap04-agbcc --output build/ap04-layout
       - name: Source-only field measurement receipt
         if: always()
@@ -41,5 +40,5 @@ jobs:
             build/ap04-layout/probe.s
             build/ap04-layout/compiler.log
             build/ap04-layout/preprocess.log
-            build/ap04-agbcc-build.log
+            build/ap04-layout/compiler-build.log
           if-no-files-found: error

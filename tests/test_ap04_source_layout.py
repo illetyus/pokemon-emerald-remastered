@@ -1,6 +1,8 @@
 import importlib.util
 from pathlib import Path
 import sys
+import subprocess
+import tempfile
 import unittest
 ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('ap04_source_layout',ROOT/'tools/ap04_source_layout.py')
@@ -33,6 +35,49 @@ class SourceLayoutTests(unittest.TestCase):
             'sb2.follower':3848,'storage.boxes':4,'sb1.roamer':0,
             'sb1.playerPartyCount':564,'sb1.objectEventTemplates':0}
         with self.assertRaises(ValueError):layout.validate_anchors(candidate)
+    def test_snapshot_ignores_equal_width_dirty_header_and_untracked_inputs(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp) / 'repo'; repo.mkdir()
+            def git(*args):
+                return subprocess.check_output(['git', '-C', str(repo), *args])
+            git('init', '-q')
+            header = repo / 'include/global.h'; header.parent.mkdir()
+            original = b'struct Mail { unsigned short species; unsigned short itemId; };\n'
+            header.write_bytes(original)
+            git('add', 'include/global.h')
+            git('-c', 'user.name=fixture', '-c', 'user.email=fixture@example.invalid',
+                'commit', '-qm', 'pinned layout input')
+            tree = git('rev-parse', 'HEAD^{tree}').decode().strip()
+            header.write_bytes(original.replace(b'species; unsigned short itemId',
+                b'itemId; unsigned short species'))
+            (repo / 'include/untracked.h').write_text('wrong input', encoding='utf-8')
+            destination = Path(temp) / 'snapshot'
+            hashes = layout.export_tree(repo, tree, destination)
+            self.assertEqual((destination / 'include/global.h').read_bytes(), original)
+            self.assertFalse((destination / 'include/untracked.h').exists())
+            self.assertEqual(set(hashes), {'include/global.h'})
+            with self.assertRaises(ValueError):
+                layout.export_tree(repo, tree, destination)
+
+    def test_compiler_snapshot_ignores_dirty_tracked_source_and_stale_binary(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp) / 'compiler'; repo.mkdir()
+            def git(*args):
+                return subprocess.check_output(['git', '-C', str(repo), *args])
+            git('init', '-q')
+            gcc = repo / 'gcc'; gcc.mkdir()
+            (gcc / 'Makefile').write_bytes(b'all:; echo pinned-source\n')
+            git('add', 'gcc/Makefile')
+            git('-c', 'user.name=fixture', '-c', 'user.email=fixture@example.invalid',
+                'commit', '-qm', 'compiler source')
+            tree = git('rev-parse', 'HEAD^{tree}').decode().strip()
+            (gcc / 'Makefile').write_bytes(b'all:; echo dirty-source\n')
+            (gcc / 'agbcc').write_bytes(b'stale executable')
+            snapshot = Path(temp) / 'fresh-compiler'
+            layout.export_tree(repo, tree, snapshot)
+            self.assertEqual((snapshot / 'gcc/Makefile').read_bytes(), b'all:; echo pinned-source\n')
+            self.assertFalse((snapshot / 'gcc/agbcc').exists())
+
     def test_source_pin_and_array_covers_new_game_fields(self):
         self.assertTrue(set(layout.ANCHORS)<=set(layout.EXPRESSIONS))
         self.assertEqual(layout.AGBCC_PIN,'da598c1d918402c42c0c0d7128ba14567f3175e9')

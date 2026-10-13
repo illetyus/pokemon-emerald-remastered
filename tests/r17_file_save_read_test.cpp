@@ -7,6 +7,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#if !defined(_WIN32)
+#include <unistd.h>
+#include <sys/stat.h>
+#endif
 
 static unsigned checks, failures;
 static void Expect(bool Ok, const char* Message)
@@ -67,6 +71,19 @@ int main()
     Expect(Read(File, Buffer.data(), Buffer.size(), nullptr) == REMASTER_SAVE_READ_ERROR, "null size rejected");
     Write(File, 131072);
     Expect(Read(File, nullptr, 0, &Size) == REMASTER_SAVE_READ_OK && Size == 131072, "zero-capacity size probe is bounded");
+#if !defined(_WIN32)
+    const auto Pipe = Root / "no-writer.fifo";
+    Expect(::mkfifo(Pipe.c_str(), 0600) == 0, "real FIFO fixture created");
+    // Bound a regression failure too: old fopen blocks before fstat.
+    ::alarm(3);
+    Size = 77;
+    Expect(Read(Pipe, Buffer.data(), Buffer.size(), &Size)
+        == REMASTER_SAVE_READ_ERROR && Size == 0,
+        "FIFO without writer is rejected promptly, never MISSING");
+    Expect(Read(Pipe, nullptr, 0, &Size) == REMASTER_SAVE_READ_ERROR && Size == 0,
+        "FIFO size probe is also nonblocking");
+    ::alarm(0);
+#endif
     std::filesystem::remove_all(Root);
     std::cout << "R17 native file read: " << checks << " checks, " << failures << " failures\n";
     return failures ? 1 : 0;
