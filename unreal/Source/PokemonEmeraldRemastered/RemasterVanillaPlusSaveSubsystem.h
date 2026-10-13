@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "remaster/emerald_new_game.h"
 #include "RemasterVanillaPlusSaveSubsystem.generated.h"
 
 UENUM(BlueprintType)
@@ -151,7 +152,15 @@ public:
         return NativeSave;
     }
 
+    bool CreateNewGame(const FString& Name,uint8 Avatar,uint32 Seed,uint16 TrainerLower,
+        RemasterEmeraldNewGameRuntime& OutRuntime,FString& Error);
+    bool ImportCopy(const FString& SourcePath,uint8 Format,FString& Error);
 private:
+    bool ReadSessionSelection();
+    bool PersistSessionSelection(const FString& Slot,uint8 Format);
+    FString ActiveSlot=TEXT("vanillaplus.sav");
+    uint8 ActiveFormat=1;
+    bool bSelectionValid=true;
     void* NativeSave = nullptr;
     TArray<uint8> ScratchImage;
     ERemasterLegacySaveStatus Status = ERemasterLegacySaveStatus::Empty;

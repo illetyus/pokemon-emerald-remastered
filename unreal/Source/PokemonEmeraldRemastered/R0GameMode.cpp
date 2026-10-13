@@ -1,4 +1,5 @@
 #include "R0GameMode.h"
+#include "RemasterSessionSmoke.h"
 
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -105,4 +106,6 @@ void AR0GameMode::StartPlay()
             PC->SetViewTarget(CameraRig);
         }
     }
+    StartRemasterSessionSmoke(World);
+
 }

@@ -58,12 +58,18 @@ class R9UI(unittest.TestCase):
         self.assertIn('NativeCoverage.Covered(Binding)', self.controller)
 
     def test_save_rtc_use_existing_wrappers(self):
-        for call in ['StoreLegacySave()', 'LoadLegacySave()', 'RealignRtcNow(Time)', 'LoadCurrentMapFromSave(true)']:
-            self.assertIn(call, self.host)
-        for status in ['Corrupt', 'Unsupported', 'Empty', 'IoError']:
-            self.assertIn('ERemasterLegacySaveStatus::' + status, self.host)
-        self.assertIn('bIoBusy = true', self.host)
-        self.assertIn('bIoBusy = false', self.host)
+        session=(MODULE/'RemasterGameSessionSubsystem.cpp').read_text(encoding='utf-8')
+        save=(MODULE/'RemasterVanillaPlusSaveSubsystem.cpp').read_text(encoding='utf-8')
+        frontend=(MODULE/'RemasterSessionMenu.h').read_text(encoding='utf-8')
+        for call in ['StoreLegacySave()', 'RealignRtcNow(Time)', 'Session->ReloadCurrent()']:
+            self.assertIn(call,self.host)
+        for call in ['LoadLegacySave()', 'LoadCurrentMapFromSave(true)', 'Session.Finish(']:
+            self.assertIn(call,session)
+        for status in ['CORRUPT','UNSUPPORTED','EMPTY','IO_ERROR']:
+            self.assertIn('REMASTER_EMERALD_SAVE_'+status,frontend)
+        self.assertIn('remaster_emerald_save_load_platform_format(',save)
+        self.assertIn('bIoBusy = true',self.host)
+        self.assertIn('bIoBusy = false',self.host)
 
     def test_widget_constructs_before_slate_and_has_safe_touch_route(self):
         initialization = self.widget.split('void URemasterUiWidget::NativeOnInitialized()', 1)[1].split('void URemasterUiWidget::NativeConstruct()', 1)[0]

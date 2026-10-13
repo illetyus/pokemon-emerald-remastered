@@ -8,6 +8,7 @@
 #include "HAL/PlatformTime.h"
 #include "TimerManager.h"
 #include "RemasterUiWidget.h"
+#include "RemasterGameSessionSubsystem.h"
 #include "RemasterOverworldPawn.h"
 #include "RemasterVanillaPlusSaveSubsystem.h"
 #include "RemasterWorldGameplaySubsystem.h"
@@ -18,6 +19,7 @@ void URemasterUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
     Collection.InitializeDependency<URemasterVanillaPlusSaveSubsystem>();
     Collection.InitializeDependency<URemasterWorldGameplaySubsystem>();
     Collection.InitializeDependency<URemasterInputSubsystem>();
+    Collection.InitializeDependency<URemasterGameSessionSubsystem>();
     Super::Initialize(Collection);
     if (GConfig)
     {
@@ -71,12 +73,15 @@ RemasterUi::Context URemasterUISubsystem::ReadContext() const
         if (const auto* Map = Gameplay->GetCurrentMapForPresentation())
             if (const char* Name = RemasterUi::RegionName(Map->RegionMapSectionId)) Context.mapName = Name;
     }
+    if(auto* Session=GetGameInstance()->GetSubsystem<URemasterGameSessionSubsystem>())
+        Context.mapReady=Context.mapReady && Session->IsPlaying();
     return Context;
 }
 
 bool URemasterUISubsystem::BlocksWorldInput() const
 {
-    return Model.Modal() || !Model.CanAct(MutableSave(), ReadContext());
+    const auto* Session=GetGameInstance()->GetSubsystem<URemasterGameSessionSubsystem>();
+    return (Session && !Session->IsPlaying()) || Model.Modal() || !Model.CanAct(MutableSave(), ReadContext());
 }
 void URemasterUISubsystem::AdvanceInputBoundary()
 {
@@ -90,15 +95,18 @@ RemasterControls::Context URemasterUISubsystem::ReadInputContext()
     RemasterControls::Context Out;
     const auto World=ReadContext();
     Out.saveUsable=RemasterUi::Usable(MutableSave());Out.mapReady=World.mapReady;
-    Out.uiAttached=CurrentScreen!=nullptr;Out.uiModal=Model.Modal();
-    Out.ioBusy=bIoBusy;Out.scriptBusy=bScriptBusy;Out.battleBusy=bBattleBusy;
+    auto* Session=GetGameInstance()->GetSubsystem<URemasterGameSessionSubsystem>();
+    Out.uiAttached=CurrentScreen!=nullptr;Out.uiModal=Model.Modal() || (Session && !Session->IsPlaying());
+    Out.ioBusy=bIoBusy || (Session && Session->IsBusy());Out.scriptBusy=bScriptBusy;Out.battleBusy=bBattleBusy;
+    if(auto* Widget=Cast<URemasterUiWidget>(CurrentScreen))
+        if(Widget->HasSessionTextFocus())Out.suspensionReasons|=256;
     RemasterEmeraldScriptRequest Pending{};
     Out.dialoguePending=DialogueRuntime && Model.frame.screen==RemasterUi::Screen::Dialogue
         && remaster_emerald_script_runtime_pending_request(DialogueRuntime,&Pending)
         && (Pending.type==REMASTER_EMERALD_SCRIPT_REQUEST_MESSAGE
             || Pending.type==REMASTER_EMERALD_SCRIPT_REQUEST_CHOICE);
     const uint64 Request=Out.dialoguePending ? Pending.sequence : 0;
-    const int32 Screen=static_cast<int32>(Model.frame.screen);
+    const int32 Screen=Session && !Session->IsPlaying() ? PresentedFrame.ScreenId : static_cast<int32>(Model.frame.screen);
     const FString MapKey=FString::Printf(TEXT("%d/%d/"),World.mapGroup,World.mapNum)
         + UTF8_TO_TCHAR(World.mapName.c_str());
     if (Request!=LastInputRequest || Screen!=LastInputScreen || MapKey!=LastInputMap)
@@ -139,11 +147,19 @@ void URemasterUISubsystem::NotifyCoreStep(bool bScriptPending, bool bEncounterPe
 
 bool URemasterUISubsystem::SubmitAction(ERemasterUiAction Action)
 {
-    if (bIoBusy) return true;
+    if (bIoBusy || (Action==ERemasterUiAction::Confirm && LastTextCommitFrame==GFrameCounter)) return true;
     Refresh();
+    auto* Session=GetGameInstance()->GetSubsystem<URemasterGameSessionSubsystem>();
+    if(Session && !Session->IsPlaying()) {
+        if(Session->IsBusy())return true;
+        if(Action==ERemasterUiAction::Up || Action==ERemasterUiAction::Down)Session->Navigate(Action==ERemasterUiAction::Up);
+        else if(Action==ERemasterUiAction::Confirm)ActivateRow(PresentedFrame.Selected,PresentedFrame.Revision);
+        else if(Action==ERemasterUiAction::Cancel)Session->BackToTitle();
+        Refresh();return true;
+    }
     if (Action == ERemasterUiAction::Confirm && Model.Modal())
     {
-        ActivateRow(static_cast<int32>(Model.frame.selected), static_cast<int64>(Model.frame.revision));
+        ActivateRow(static_cast<int32>(Model.frame.selected), PresentedFrame.Revision);
         return true;
     }
     const bool bConsumed = Model.Input(static_cast<RemasterUi::Action>(Action), MutableSave(), ReadContext());
@@ -153,9 +169,15 @@ bool URemasterUISubsystem::SubmitAction(ERemasterUiAction Action)
 
 bool URemasterUISubsystem::ActivateRow(int32 Index, int64 ExpectedRevision)
 {
-    if (bIoBusy || Index < 0 || ExpectedRevision < 0) return false;
+    if (bIoBusy || Index < 0 || !FrameFence.Matches(ExpectedRevision)) return false;
+    auto* Session=GetGameInstance()->GetSubsystem<URemasterGameSessionSubsystem>();
+    if(Session && !Session->IsPlaying()) {
+        const auto Frame=Session->GetMenuFrame();
+        const bool Result=Session->Activate(static_cast<unsigned>(Index),Frame.revision);
+        AdvanceInputBoundary();Refresh();return Result;
+    }
     const bool OldFast = Model.fastText, OldRepeat = Model.repeatEnabled;
-    const auto Intent = Model.Activate(static_cast<unsigned>(Index), static_cast<uint64>(ExpectedRevision),
+    const auto Intent = Model.Activate(static_cast<unsigned>(Index), Model.frame.revision,
         MutableSave(), ReadContext());
     using RemasterUi::Effect;
     auto* Save = GetGameInstance()->GetSubsystem<URemasterVanillaPlusSaveSubsystem>();
@@ -171,30 +193,17 @@ bool URemasterUISubsystem::ActivateRow(int32 Index, int64 ExpectedRevision)
         {
             DetachCoreDialogue();
             bRepelPromptPending = false;
-            const auto Status = Save ? Save->LoadLegacySave() : ERemasterLegacySaveStatus::IoError;
+            const bool Loaded=Session && Session->ReloadCurrent();
             Model.Reset();
-            if (Status == ERemasterLegacySaveStatus::Ok || Status == ERemasterLegacySaveStatus::Degraded)
-            {
-                auto* Gameplay = GetGameInstance()->GetSubsystem<URemasterWorldGameplaySubsystem>();
-                const bool bLoadedMap = Gameplay && Gameplay->LoadCurrentMapFromSave(true);
-                if (auto* PC = GetGameInstance()->GetFirstLocalPlayerController())
-                    if (auto* Pawn = Cast<ARemasterOverworldPawn>(PC->GetPawn())) Pawn->SyncFromAuthoritativeState();
-                Model.notice = bLoadedMap ? "Kayıt yüklendi." : "Kayıt yüklendi; harita açılamadı.";
-            }
-            else
-            {
-                switch (Status)
-                {
-                case ERemasterLegacySaveStatus::Empty: Model.notice = "Kayıt dosyası bulunamadı."; break;
-                case ERemasterLegacySaveStatus::Corrupt: Model.notice = "Kayıt dosyası bozuk."; break;
-                case ERemasterLegacySaveStatus::Unsupported: Model.notice = "Kayıt biçimi desteklenmiyor."; break;
-                default: Model.notice = "Kayıt dosyası okunamadı."; break;
-                }
-            }
+            Model.notice=Loaded?"Kayıt yüklendi.":"Kayıt veya harita yeniden açılamadı.";
             Model.Open(RemasterUi::Screen::SaveLoad);
         }
         bIoBusy = false;
         AdvanceInputBoundary();
+    }
+    else if(Intent.effect==Effect::ReturnTitle) {
+        if(Session)Session->BackToTitle();
+        Model.Reset();AdvanceInputBoundary();
     }
     else if (Intent.effect == Effect::ApplyRtc)
     {
@@ -278,12 +287,14 @@ void URemasterUISubsystem::PresentationTick()
         const auto Repeat=CommonRepeat.Tick(Router,Model.repeatEnabled);
         if (Repeat.up)
         {
-            Model.Input(RemasterUi::Action::Up, MutableSave(), ReadContext());
+            if(auto* Session=GetGameInstance()->GetSubsystem<URemasterGameSessionSubsystem>();Session && !Session->IsPlaying())Session->Navigate(true);
+            else Model.Input(RemasterUi::Action::Up, MutableSave(), ReadContext());
             bChanged = true;
         }
         if (Repeat.down)
         {
-            Model.Input(RemasterUi::Action::Down, MutableSave(), ReadContext());
+            if(auto* Session=GetGameInstance()->GetSubsystem<URemasterGameSessionSubsystem>();Session && !Session->IsPlaying())Session->Navigate(false);
+            else Model.Input(RemasterUi::Action::Down, MutableSave(), ReadContext());
             bChanged = true;
         }
     }
@@ -292,6 +303,7 @@ void URemasterUISubsystem::PresentationTick()
 
 void URemasterUISubsystem::Refresh()
 {
+    if(PublishFrontend())return;
     Model.Build(MutableSave(), ReadContext());
     const auto& Frame = Model.frame;
     FString Key = FString::Printf(TEXT("%llu/%d/%u/%d/%d/%d/%d/%d/%d/"),
@@ -300,12 +312,14 @@ void URemasterUISubsystem::Refresh()
     Key += UTF8_TO_TCHAR(Frame.title.c_str()); Key += UTF8_TO_TCHAR(Frame.body.c_str());
     for (const auto& Row : Frame.rows) { Key += UTF8_TO_TCHAR(Row.label.c_str()); Key += Row.enabled ? TEXT("1") : TEXT("0"); }
     if (Key == LastFrameKey) return;
+    if(!FrameFence.Advance())return;
     LastFrameKey = Key;
     PresentedFrame.Title = FText::FromString(UTF8_TO_TCHAR(Frame.title.c_str()));
     PresentedFrame.Body = FText::FromString(UTF8_TO_TCHAR(Frame.body.c_str()));
     PresentedFrame.ScreenId = static_cast<int32>(Frame.screen);
     PresentedFrame.Selected = static_cast<int32>(Frame.selected);
-    PresentedFrame.Revision = static_cast<int64>(Frame.revision);
+    PresentedFrame.Revision = static_cast<int64>(FrameFence.revision);
+    PresentedFrame.SessionName.Reset();PresentedFrame.ImportPath.Reset();
     PresentedFrame.bModal = Frame.modal;
     PresentedFrame.bHasMarker = Frame.hasMarker;
     PresentedFrame.MarkerPosition = FVector2D(Frame.markerX, Frame.markerY);
@@ -351,4 +365,34 @@ void URemasterUISubsystem::HideCurrentScreen()
         CurrentScreen->RemoveFromParent();
         CurrentScreen = nullptr;
     }
+}
+
+bool URemasterUISubsystem::PublishFrontend() {
+    auto* Session=GetGameInstance()->GetSubsystem<URemasterGameSessionSubsystem>();
+    if(!Session || Session->IsPlaying())return false;
+    const auto& Frame=Session->GetMenuFrame();
+    const FString Key=FString::Printf(TEXT("session/%llu/%u/%u/"),Frame.revision,static_cast<unsigned>(Frame.screen),Frame.selected)
+        +UTF8_TO_TCHAR(Frame.body.c_str())+UTF8_TO_TCHAR(Frame.name.c_str())+UTF8_TO_TCHAR(Frame.path.c_str());
+    if(Key==LastFrameKey)return true;
+    if(!FrameFence.Advance())return true;
+    LastFrameKey=Key;
+    PresentedFrame=FRemasterUiFrame{};
+    PresentedFrame.Title=FText::FromString(UTF8_TO_TCHAR(Frame.title.c_str()));
+    PresentedFrame.Body=FText::FromString(UTF8_TO_TCHAR(Frame.body.c_str()));
+    PresentedFrame.ScreenId=1000+static_cast<int32>(Frame.screen);
+    PresentedFrame.Selected=static_cast<int32>(Frame.selected);PresentedFrame.bModal=true;
+    PresentedFrame.Revision=static_cast<int64>(FrameFence.revision);
+    PresentedFrame.SessionName=UTF8_TO_TCHAR(Frame.name.c_str());PresentedFrame.ImportPath=UTF8_TO_TCHAR(Frame.path.c_str());
+    for(const auto& Row:Frame.rows) {
+        auto& Out=PresentedFrame.Rows.AddDefaulted_GetRef();
+        Out.Label=FText::FromString(UTF8_TO_TCHAR(Row.label.c_str()));Out.bEnabled=Row.enabled;
+    }
+    OnFrameChanged.Broadcast(PresentedFrame);return true;
+}
+bool URemasterUISubsystem::SetSessionText(const FString& Value,bool IsName,int64 ExpectedRevision) {
+    if(!FrameFence.Matches(ExpectedRevision))return false;
+    auto* Session=GetGameInstance()->GetSubsystem<URemasterGameSessionSubsystem>();
+    if(!Session || Session->IsBusy() || Session->IsPlaying())return false;
+    const bool Result=IsName?Session->SetPlayerName(Value):Session->SetImportPath(Value);
+    AdvanceInputBoundary();Refresh();return Result;
 }

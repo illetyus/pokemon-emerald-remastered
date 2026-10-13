@@ -286,6 +286,7 @@ public:
 
     // Host-only entropy/test injection. Not exposed to Blueprint/presentation.
     void SetEncounterSeed(uint32 Seed);
+    bool SetTruckDoor(bool Open);
 
     UFUNCTION(BlueprintPure, Category="Remaster|World|Gameplay")
     FRemasterWildEncounterPresentation GetLastWildEncounter() const

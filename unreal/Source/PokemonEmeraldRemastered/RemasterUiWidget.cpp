@@ -82,6 +82,18 @@ void URemasterUiWidget::NativeOnInitialized()
     Marker = WidgetTree->ConstructWidget<UBorder>();
     Marker->SetBrushColor(FLinearColor(1.0f, 0.8f, 0.1f, 1.0f));
     MarkerSlot = Canvas->AddChildToCanvas(Marker);
+    NameEntry=WidgetTree->ConstructWidget<UEditableTextBox>();
+    NameEntry->SetHintText(FText::FromString(TEXT("Adın (1–7 karakter)")));
+    NameEntry->SetClearKeyboardFocusOnCommit(true);NameEntry->SetSelectAllTextWhenFocused(true);
+    Scrolled->AddChildToVerticalBox(NameEntry);
+    NameEntry->OnTextChanged.AddDynamic(this,&URemasterUiWidget::ChangeName);
+    NameEntry->OnTextCommitted.AddDynamic(this,&URemasterUiWidget::CommitName);
+    PathEntry=WidgetTree->ConstructWidget<UEditableTextBox>();
+    PathEntry->SetHintText(FText::FromString(TEXT("Kayıt dosyasının tam yolu")));
+    PathEntry->SetClearKeyboardFocusOnCommit(true);PathEntry->SetSelectAllTextWhenFocused(true);
+    Scrolled->AddChildToVerticalBox(PathEntry);
+    PathEntry->OnTextChanged.AddDynamic(this,&URemasterUiWidget::ChangePath);
+    PathEntry->OnTextCommitted.AddDynamic(this,&URemasterUiWidget::CommitPath);
     Rows = WidgetTree->ConstructWidget<UVerticalBox>(); Scrolled->AddChildToVerticalBox(Rows);
     USizeBox* BackSize = WidgetTree->ConstructWidget<USizeBox>(); BackSize->SetMinDesiredHeight(64.0f);
     Content->AddChildToVerticalBox(BackSize);
@@ -113,7 +125,16 @@ void URemasterUiWidget::NativeDestruct()
 void URemasterUiWidget::Present(const FRemasterUiFrame& Frame)
 {
     Title->SetText(Frame.Title); Body->SetText(Frame.Body);
-    BackButton->SetVisibility(Frame.bModal ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+    BackButton->SetVisibility(Frame.bModal && Frame.ScreenId!=1000 && Frame.ScreenId!=1003 && Frame.ScreenId!=1004 ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+    NameEntry->SetVisibility(Frame.ScreenId==1001?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    PathEntry->SetVisibility(Frame.ScreenId==1002?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    EditorRevision=Frame.Revision;
+    if(EditorScreen!=Frame.ScreenId) {
+        EditorScreen=Frame.ScreenId;
+        NameEntry->SetText(FText::FromString(Frame.SessionName));PathEntry->SetText(FText::FromString(Frame.ImportPath));
+    }
+    if(!HasSessionTextFocus() && Frame.ScreenId==1001 && NameEntry->GetText().ToString()!=Frame.SessionName)
+        NameEntry->SetText(FText::FromString(Frame.SessionName));
     const bool bMap = Frame.ScreenId == static_cast<int32>(RemasterUi::Screen::Map);
     MapPanel->SetVisibility(bMap ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
     const bool bMarker = Frame.bHasMarker && Frame.MarkerPosition.X >= 0 && Frame.MarkerPosition.Y >= 0
@@ -144,3 +165,17 @@ void URemasterUiWidget::Back()
 {
     if (UI) UI->SubmitAction(ERemasterUiAction::Cancel);
 }
+
+bool URemasterUiWidget::HasSessionTextFocus() const {
+    const auto Focused=[](const UEditableTextBox* Entry){return Entry && Entry->GetVisibility()==ESlateVisibility::Visible && (Entry->HasAnyUserFocus() || Entry->HasFocusedDescendants());};
+    return Focused(NameEntry)||Focused(PathEntry);
+}
+void URemasterUiWidget::CommitName(const FText& Text,ETextCommit::Type) {
+    if(UI && EditorScreen==1001){UI->NoteSessionTextCommit();UI->SetSessionText(Text.ToString(),true,EditorRevision);}
+}
+void URemasterUiWidget::CommitPath(const FText& Text,ETextCommit::Type) {
+    if(UI && EditorScreen==1002){UI->NoteSessionTextCommit();UI->SetSessionText(Text.ToString(),false,EditorRevision);}
+}
+
+void URemasterUiWidget::ChangeName(const FText& Text) { if(UI && EditorScreen==1001)UI->SetSessionText(Text.ToString(),true,EditorRevision); }
+void URemasterUiWidget::ChangePath(const FText& Text) { if(UI && EditorScreen==1002)UI->SetSessionText(Text.ToString(),false,EditorRevision); }

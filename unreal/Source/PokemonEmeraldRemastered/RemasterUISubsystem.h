@@ -5,6 +5,7 @@
 #include "RemasterUiModel.h"
 #include "RemasterInputRouter.h"
 #include "RemasterInputRepeat.h"
+#include "RemasterSessionMenu.h"
 #include "RemasterUISubsystem.generated.h"
 
 class UUserWidget;
@@ -35,6 +36,8 @@ struct FRemasterUiFrame
     UPROPERTY(BlueprintReadOnly) int64 Revision = 0;
     UPROPERTY(BlueprintReadOnly) bool bModal = false;
     UPROPERTY(BlueprintReadOnly) bool bHasMarker = false;
+    UPROPERTY(BlueprintReadOnly) FString SessionName;
+    UPROPERTY(BlueprintReadOnly) FString ImportPath;
     UPROPERTY(BlueprintReadOnly) FVector2D MarkerPosition = FVector2D::ZeroVector;
     UPROPERTY(BlueprintReadOnly) FVector2D MarkerSize = FVector2D::ZeroVector;
 };
@@ -82,6 +85,9 @@ public:
     UPROPERTY(BlueprintAssignable) FRemasterUiHostEntry OnNicknameEntry;
     UPROPERTY(BlueprintAssignable) FRemasterUiHostEntry OnFieldItemEntry;
 
+    void NoteSessionTextCommit() { LastTextCommitFrame=GFrameCounter; }
+    bool SetSessionText(const FString& Value,bool IsName,int64 ExpectedRevision);
+
     // Runtime owner must detach before destroying/restarting its VM. Text/choice
     // resources must have already been resolved by that owner from core request IDs.
     bool PresentCoreDialogue(RemasterEmeraldScriptRuntime* Runtime,
@@ -110,6 +116,9 @@ private:
     RemasterUi::Context ReadContext() const;
     RemasterEmeraldSave* MutableSave() const;
     RemasterUi::Model Model;
+    RemasterSession::FrameFence FrameFence;
+    uint64 LastTextCommitFrame=MAX_uint64;
+    bool PublishFrontend();
     RemasterEmeraldScriptRuntime* DialogueRuntime = nullptr;
     UPROPERTY() FRemasterUiFrame PresentedFrame;
     FTimerHandle PresentationTimer;

@@ -1,5 +1,7 @@
 #include "RemasterWorldGameplaySubsystem.h"
 #include "RemasterCharacterPresentationRead.h"
+#include "Engine/GameInstance.h"
+#include "RemasterGameSessionSubsystem.h"
 
 #include "HAL/UnrealMemory.h"
 #include "RemasterVanillaPlusSaveSubsystem.h"
@@ -1119,6 +1121,9 @@ bool URemasterWorldGameplaySubsystem::StepPlayer(
     int32 Direction,
     FRemasterPlayerStepResult& OutResult)
 {
+    if(auto* Session=GetGameInstance()->GetSubsystem<URemasterGameSessionSubsystem>())
+        if(!Session->IsPlaying())return false;
+
     OutResult = FRemasterPlayerStepResult{};
 
     if (!bMapReady
@@ -2265,4 +2270,17 @@ bool URemasterWorldGameplaySubsystem::ApplyResolvedWarp(
         Warp.bDynamicTarget ? 1 : 0);
 
     return true;
+}
+
+bool URemasterWorldGameplaySubsystem::SetTruckDoor(bool Open) {
+    if(!bMapReady || CurrentMap.Id!=TEXT("InsideOfTruck") || CurrentMap.Width<=4 || CurrentMap.Height<=3)return false;
+    const uint16 Tiles[3]={static_cast<uint16>(Open?0x208:0x20D),static_cast<uint16>(Open?0x210:0x215),static_cast<uint16>(Open?0x218:0x21D)};
+    for(int32 y=1;y<=3;++y) {
+        const int32 i=4+y*CurrentMap.Width;
+        // Source MapGridSetMetatileIdAt preserves elevation, replaces other bits.
+        CurrentMap.RawBlocks[i]=static_cast<uint16>((CurrentMap.RawBlocks[i]&0xF000)|Tiles[y-1]);
+        CurrentMap.MetatileIds[i]=Tiles[y-1];CurrentMap.Collision[i]=0;
+    }
+    OnGameplayMapChanged.Broadcast(CurrentMap.GroupNum,CurrentMap.MapNum,CurrentMap.Id);
+    return CurrentMap.IsValid();
 }
